@@ -123,4 +123,20 @@ public interface ExampleMessages {
      * @return the text
      */
     String elapsed(long millis);
+
+    /**
+     * Returns the message of a saved file.
+     *
+     * @param file the file
+     * @return the message
+     */
+    String savedFile(String file);
+
+    /**
+     * Returns the message of a loaded file.
+     *
+     * @param file the file
+     * @return the message
+     */
+    String loadedFile(String file);
 }
