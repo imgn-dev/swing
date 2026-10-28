@@ -16,7 +16,7 @@ Milestone 2 builds on milestone 1 as implemented. Everything milestone 1 specifi
 | Binding text components, buttons and combo boxes to properties, and lists and tables to observable lists, with single selection | Multiple selection, trees, spinners, sliders, editable combo boxes |
 | Validation, with feedback on the field; dirty tracking | Save prompts and undo (M3, with documents) |
 | OK/Cancel/Apply dialogs on forms | Wizards (M5) |
-| The event bus, on gaia-events: `@Subscribe` and `@OnVirtualThread` (gaia-events), and `@OnEdt` (UI) | — |
+| The event bus, on gaia-core: `@Subscribe` and `@OnVirtualThread` (gaia-core), and `@OnEdt` (UI) | — |
 | Settings records, in the config directory | Watching settings files for changes made outside the application |
 | The About dialog with description, copyright, website and icon; the application icon on the main frame | Opening the website from the About dialog (M3, with OS hooks) |
 | Window state written and read through toml's generated code, ignoring unknown keys | — |
@@ -24,7 +24,7 @@ Milestone 2 builds on milestone 1 as implemented. Everything milestone 1 specifi
 
 Milestone 2 adds no module. Each module gains the types of its layer: core gets observable lists, `Validator`, the event bus and settings; `swing-ui` gets `@OnEdt`, the bindings, forms, `Converter`, `Column` and `ValidationFeedback`; `swing-flatlaf` gets FlatLaf's validation feedback; `swing-processor` gets two steps; `swing-testing` gets the harness additions. Core still doesn't read `java.desktop`, which `ModuleTest.doesNotReadJavaDesktop` keeps checking.
 
-The imgn libraries are those of milestone 1, plus `be.imgn.gaia:gaia-events` and `gaia-events-processor` at `gaia.version` (0.1.2-SNAPSHOT), and the [upstream changes](#upstream-changes) that milestone 2 requires: toml's, from toml 0.2.0-SNAPSHOT, and gaia's. The root POM's `toml.version` becomes `0.2.0-SNAPSHOT`.
+The imgn libraries are those of milestone 1, plus `be.imgn.gaia:gaia-processor` at `gaia.version` (0.1.2-SNAPSHOT) on the annotation processor path, and the [upstream changes](#upstream-changes) that milestone 2 requires: toml's, from toml 0.2.0-SNAPSHOT, and gaia's. The event bus is in `gaia-core`, which core already depends on. The root POM's `toml.version` becomes `0.2.0-SNAPSHOT`.
 
 ---
 
@@ -89,7 +89,7 @@ The component's model reads the copy, never the list itself, so the indices it r
 
 ## Event bus
 
-The event bus carries events between beans that don't know each other, such as a list that publishes the selected contact and the panels that show it. It is gaia-events' `EventBus` (`be.imgn.gaia:gaia-events`), with its `@Subscribe` and its subscribing annotations: swing adds two annotations, a bus bound in the root injector, and the registration of beans in their scopes.
+The event bus carries events between beans that don't know each other, such as a list that publishes the selected contact and the panels that show it. It is gaia's `EventBus` (`be.imgn.gaia.core.event`, in `be.imgn.gaia:gaia-core`), with its `@Subscribe` and its subscribing annotations: swing adds two annotations, a bus bound in the root injector, and the registration of beans in their scopes.
 
 ```java
 @Subscribe
@@ -108,24 +108,24 @@ Two subscribing annotations, each `@SubscribingAnnotation(executor = ...)`, on m
 
 | Annotation | Declared by | Executor | Its tasks run |
 |---|---|---|---|
-| `@OnVirtualThread` (`be.imgn.gaia.events`) | gaia-events ([G2](#upstream-changes)) | `VirtualThreadExecutor` (`be.imgn.gaia.events`), which needs no shutdown | Each on a new virtual thread |
+| `@OnVirtualThread` (`be.imgn.gaia.core.event`) | gaia-core ([G2](#upstream-changes)) | `VirtualThreadExecutor` (`be.imgn.gaia.core.event`), which needs no shutdown | Each on a new virtual thread |
 | `@OnEdt` (`be.imgn.swing.ui`) | `swing-ui`, with `CLASS` retention | `EdtExecutor`, public, with a public constructor without parameters | With `EventQueue.invokeLater` |
 
-- Virtual threads are a need of most applications, not of Swing ones only, so their annotation is gaia-events'; core declares none. `@OnEdt` is in `swing-ui`, since the EDT is a Swing concept.
+- Virtual threads are a need of most applications, not of Swing ones only, so their annotation is gaia's; core declares none. `@OnEdt` is in `swing-ui`, since the EDT is a Swing concept.
 - These executors are what a bus that the framework didn't build uses, such as one made with `EventBus.create()` in a domain module or a test. The framework's bus replaces both, as described below.
-- The method rules are gaia-events': not private, not static, not in an interface, one parameter (the event, which is not primitive, an array, a type variable or a parameterized type), returning `void`, with no checked exception. A method carries a single subscribing annotation: `@Subscribe` with `@OnEdt` or `@OnVirtualThread` is a compile error. A method that overrides a subscriber receives its events without the annotation; annotating it again is a compile error. gaia-events' processor checks these rules.
+- The method rules are gaia's: not private, not static, not in an interface, one parameter (the event, which is not primitive, an array, a type variable or a parameterized type), returning `void`, with no checked exception. A method carries a single subscribing annotation: `@Subscribe` with `@OnEdt` or `@OnVirtualThread` is a compile error. A method that overrides a subscriber receives its events without the annotation; annotating it again is a compile error. gaia-processor checks these rules.
 
-Build setup, for every module with subscribers, the framework's own included: the dependency `be.imgn.gaia:gaia-events`, which core declares; `be.imgn.gaia:gaia-events-processor` on the annotation processor path, never on the class path; and, on the module path, gaia's `register-services` goal, which applications already add. Core's descriptor `requires transitive be.imgn.gaia.events`; `swing-ui` reads gaia-events through core and exports the package of `EdtExecutor`. A module whose subscribers use `@OnEdt` requires `be.imgn.swing.ui`, not `requires static`, since the generated code calls `new EdtExecutor()`.
+Build setup, for every module with subscribers, the framework's own included: the dependency `be.imgn.gaia:gaia-core`, which core already declares; `be.imgn.gaia:gaia-processor` on the annotation processor path, never on the class path; and, on the module path, gaia's `register-services` goal, which applications already add. gaia-processor generates a subscriber index per class, `$$X$Subscribers implements be.imgn.gaia.core.event.spi.SubscriberIndex`, registered under that name in `META-INF/services`; `register-services` adds the matching `provides be.imgn.gaia.core.event.spi.SubscriberIndex with ...` directive. Core's descriptor already `requires transitive be.imgn.gaia.core`; `swing-ui`, which exports its own subscribing annotation, `requires transitive be.imgn.gaia.core` too, and exports the package of `EdtExecutor`. A module whose subscribers use `@OnEdt` requires `be.imgn.swing.ui`, not `requires static`, since the generated code calls `new EdtExecutor()`.
 
 ### The application's bus
 
 Core binds an `EventBus` singleton in the root injector, built with `EventBus.newBuilder()`:
 
 - **Executors.** For each `@IntoSet(EventExecutor.class)` bean, `executor(annotation(), executor())`. `EventExecutor` (core) has `Class<? extends Annotation> annotation()` and `Executor executor()`. Core contributes `@OnVirtualThread`'s: it runs each task with `TaskService.run`, in the application scope, so that shutdown cancels and waits for running deliveries as for any task. The UI module contributes `@OnEdt`'s: it hands each task to the `UiExecutor`, so that `AppTester` runs those deliveries as it runs the other posted work. The bus therefore never creates `VirtualThreadExecutor` or `EdtExecutor`.
-- **Failures.** `exceptionHandler((event, exception) -> failureHandler.failed(exception))`: an exception thrown by a subscriber, or by an executor, goes to the `FailureHandler`, and the event goes on to its other subscribers. An `Error` is not caught, as gaia-events specifies.
+- **Failures.** `exceptionHandler((event, exception) -> failureHandler.failed(exception))`: an exception thrown by a subscriber, or by an executor, goes to the `FailureHandler`, and the event goes on to its other subscribers. An `Error` is not caught, as gaia specifies. The bus's own messages are logged under `be.imgn.gaia.core.event.EventBus`.
 - **No bus executor.** A `@Subscribe` method runs on the thread that publishes, before `publish` returns.
 
-Delivery follows gaia-events:
+Delivery follows gaia's bus:
 
 - An event reaches the subscribers of its class and of all its supertypes, so a subscriber of a sealed interface receives every variant: the subscribers of a type before those of its supertypes, and those of one type in the order they subscribed.
 - An event published from a subscriber is queued on that thread, and delivered once the event being delivered has reached all its subscribers.
@@ -135,7 +135,7 @@ Delivery follows gaia-events:
 
 ### Registration
 
-- The framework registers an instance with `EventBus.register` when the construction hook reports it ([I6](milestone-1.md#imgn-devinject)) and its class, or a class it extends, has subscribers, which it asks gaia-events with [G1](#upstream-changes). inject's hook reports every instance the container builds, singletons included, as its 0.1.1 snapshot does: milestone 2 relies on that.
+- The framework registers an instance with `EventBus.register` when the construction hook reports it ([I6](milestone-1.md#imgn-devinject)) and its class, or a class it extends, has subscribers, which it asks the bus with [G1](#upstream-changes). inject's hook reports every instance the container builds, singletons included, as its 0.1.1 snapshot does: milestone 2 relies on that.
 - The subscription returned is registered with `onClose` in the scope the instance is cached in: the application scope for a singleton, its window's or view's scope otherwise. Closing the scope unsubscribes it.
 - The class that declares subscribers must be `@Singleton`, `@WindowScoped` or `@ViewScoped`, declared or inherited; a class without a scope is a compile error, as for commands: its subscriptions would belong to no scope. swing's processor checks it, for methods with `@Subscribe` or with any annotation meta-annotated `@SubscribingAnnotation`.
 - Code that subscribes a lambda with `EventBus.subscribe` gives the subscription an owner itself: `scope.onClose(bus.subscribe(ContactSelected.class, this::show))`.
@@ -414,7 +414,7 @@ Milestone 2 adds these checks to [milestone 1's](milestone-1.md#build-time-check
 
 | Check | Error when |
 |---|---|
-| Subscribers | A class with a method annotated `@Subscribe`, or with an annotation meta-annotated `@SubscribingAnnotation`, has no scope among `@Singleton`, `@WindowScoped` and `@ViewScoped`, declared or inherited. The rules of the methods themselves are gaia-events-processor's |
+| Subscribers | A class with a method annotated `@Subscribe`, or with an annotation meta-annotated `@SubscribingAnnotation`, has no scope among `@Singleton`, `@WindowScoped` and `@ViewScoped`, declared or inherited. The rules of the methods themselves are gaia-processor's |
 | Settings | A `@Settings` type is not a record, is not annotated `@TomlConfig`, has no public constructor without parameter, or has an invalid id; or two settings records of the compilation have the same id |
 | Class properties | A `description`, `copyright`, `website` or `icon` value is not a string; a `website` is not an absolute `http` or `https` URI; an `icon` names no resource. These values are allowed on the application class only |
 
@@ -431,7 +431,7 @@ The commands' check of `[commands.<id>]` tables also accepts `apply`, as a stand
 | Subscribers | Every root element, as the views step | Nothing: it checks the scope of classes with subscribers |
 | Settings | `@Settings` | `$X$$Settings`, service entry |
 
-The subscribers' code is generated by gaia-events-processor, which runs next to swing's, inject's and toml's processors. The settings descriptors are services that core finds with `ServiceLoader`, not beans. On the module path, gaia's `register-services` adds the `provides` clauses of both, as for the other services.
+The subscribers' code is generated by gaia-processor, which runs next to swing's, inject's and toml's processors. The settings descriptors are services that core finds with `ServiceLoader`, not beans. On the module path, gaia's `register-services` adds the `provides` clauses of both, `SubscriberIndex` and `SettingsDescriptor`, as for the other services.
 
 ---
 
@@ -490,18 +490,18 @@ Provided from toml 0.2.0-SNAPSHOT.
 
 ### imgn-dev/gaia
 
-Provided from gaia 0.1.2-SNAPSHOT, with gaia-events.
+Provided from gaia 0.1.2-SNAPSHOT, whose `gaia-core` holds the event bus (`be.imgn.gaia.core.event`) and whose `gaia-processor` generates the subscriber indexes.
 
 | Id | Change | Needed for | API swing uses |
 |---|---|---|---|
-| G1 | **Asking whether a class has subscribers.** Whether `EventBus.register` accepts an instance of a class: whether the class or a class it extends has code generated by gaia-events-processor, found as `register` finds it, and cached the same way. Without it, the framework could only call `register` on every instance the construction hook reports and catch its `IllegalArgumentException` | Registering the subscribers of beans | `static boolean EventBus.hasSubscribers(Class<?> type)` |
-| G2 | **Virtual threads.** A subscribing annotation of gaia-events whose executor, `VirtualThreadExecutor`, runs each task on a new virtual thread and needs no shutdown | Delivering events off the publisher's thread, in core and in any domain module | `@OnVirtualThread` (`be.imgn.gaia.events`) |
+| G1 | **Asking whether a class has subscribers.** Whether `EventBus.register` accepts an instance of a class: whether the class or a class it extends has an index generated by gaia-processor, found as `register` finds it, and cached the same way. Without it, the framework could only call `register` on every instance the construction hook reports and catch its `IllegalArgumentException` | Registering the subscribers of beans | `static boolean EventBus.hasSubscribers(Class<?> type)` |
+| G2 | **Virtual threads.** A subscribing annotation of gaia's bus whose executor, `VirtualThreadExecutor`, runs each task on a new virtual thread and needs no shutdown | Delivering events off the publisher's thread, in core and in any domain module | `@OnVirtualThread` (`be.imgn.gaia.core.event`) |
 
 ### Existing behavior
 
 Milestone 2 relies on this behavior of the libraries, as they describe it:
 
-- gaia-events' subscribing annotations: `@SubscribingAnnotation(executor = ...)`, with the processor's rules on the annotation and its executor, and `EventBus.Builder.executor(Class<? extends Annotation> annotation, Executor executor)`, which replaces an annotation's executor for one bus.
+- gaia's subscribing annotations: `@SubscribingAnnotation(executor = ...)`, with the processor's rules on the annotation and its executor, and `EventBus.Builder.executor(Class<? extends Annotation> annotation, Executor executor)`, which replaces an annotation's executor for one bus.
 
 - inject's construction hook reports every instance the container builds, singletons and unscoped beans included, not only those of child-local scopes that [I6](milestone-1.md#imgn-devinject) requires. Subscribers of singletons are registered through it.
 - inject's `@Provides @Default` beans are replaced by a bean of the same key in another module, as `LookAndFeelInstaller` is: `ValidationFeedback` follows the same rule.
@@ -513,17 +513,17 @@ Milestone 2 relies on this behavior of the libraries, as they describe it:
 These depart from the [vision](vision.md), and are to be applied to it:
 
 - **No topics.** The vision gives `@Subscribe` an optional topic. A topic is a second key next to the event type, a string the build can't check, which a typo silently disconnects. An event record per topic does the same, checked by the compiler: `ContactSelected` and `ContactOpened` rather than a `Contact` published on two topics.
-- **The bus is gaia-events.** The vision has swing's processor generate subscription registrars, and core define the bus, `@Subscribe`, `@OnEdt` and `@Background`. gaia-events provides the bus, `@Subscribe`, `@OnVirtualThread`, which replaces `@Background`, and the generated code; swing declares `@OnEdt` in `swing-ui`, since core has no EDT. The vision's table of libraries adds `gaia-events` to gaia's.
-- **Reifiable event types.** The vision's registrars have "exact generic event types". Events are matched by their runtime class, which has no type arguments, so a subscriber's parameter can't be a parameterized type, as gaia-events requires. An event that carries a typed value wraps it in a record.
+- **The bus is gaia's.** The vision has swing's processor generate subscription registrars, and core define the bus, `@Subscribe`, `@OnEdt` and `@Background`. gaia-core provides the bus, `@Subscribe` and `@OnVirtualThread`, which replaces `@Background`, and gaia-processor the generated code; swing declares `@OnEdt` in `swing-ui`, since core has no EDT. The vision's table of libraries adds the event bus to `gaia-core`'s contents and `gaia-processor` to gaia's row.
+- **Reifiable event types.** The vision's registrars have "exact generic event types". Events are matched by their runtime class, which has no type arguments, so a subscriber's parameter can't be a parameterized type, as gaia's bus requires. An event that carries a typed value wraps it in a record.
 - **`@Settings`.** Settings records are `@TomlConfig` records, as in the vision, also annotated `@Settings`, which gives the file's id; each record has its own file in the config directory.
 - **Roadmap.** Milestone 2 also holds OK/Cancel/Apply forms with validation, and the About dialog with the rest of the application's metadata, which milestone 1 moved there.
-- **Upstream changes.** The toml writer and the lenient binding mode, listed in the vision, are T1 and T3; binding a table in memory (T2) and gaia-events' G1 and G2 are added.
+- **Upstream changes.** The toml writer and the lenient binding mode, listed in the vision, are T1 and T3; binding a table in memory (T2) and gaia's G1 and G2 are added.
 
 ---
 
 ## Acceptance
 
-`./mvnw -B verify` succeeds on JDK 21 and on JDK 25, with the snapshots of milestone 1, gaia 0.1.2-SNAPSHOT with gaia-events, G1 and G2, and toml 0.2.0-SNAPSHOT installed in the local Maven repository. Every test of milestone 1 still passes, and `swing-examples` has the following, each with `AppTester` tests of every behavior listed.
+`./mvnw -B verify` succeeds on JDK 21 and on JDK 25, with the snapshots of milestone 1, gaia 0.1.2-SNAPSHOT with its event bus, gaia-processor, G1 and G2, and toml 0.2.0-SNAPSHOT installed in the local Maven repository. Every test of milestone 1 still passes, and `swing-examples` has the following, each with `AppTester` tests of every behavior listed.
 
 ### The Address Book, as in Guts
 
