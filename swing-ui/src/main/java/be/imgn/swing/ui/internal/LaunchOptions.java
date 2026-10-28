@@ -12,6 +12,7 @@ import java.util.function.Consumer;
  * @param platform the platform
  * @param locale the display locale
  * @param bindings adds bindings to the root injector's builder
+ * @param built told of the root injector once it is built, before the startup steps
  * @param systemProperties whether the macOS properties are set before AWT starts
  * @param onFailure handles a failure of the startup
  */
@@ -19,6 +20,7 @@ public record LaunchOptions(
         Platform platform,
         Locale locale,
         Consumer<Injector.Builder> bindings,
+        Consumer<Injector> built,
         boolean systemProperties,
         StartupFailure onFailure) {
 

@@ -39,6 +39,7 @@
     <module>swing-ui</module>
     <module>swing-flatlaf</module>
     <module>swing-testing</module>
+    <module>swing-examples</module>
   </modules>
 
   <properties>
@@ -47,6 +48,7 @@
     <gaia.version>0.1.2-SNAPSHOT</gaia.version>
     <inject.version>0.1.1-SNAPSHOT</inject.version>
     <toml.version>0.1.0-SNAPSHOT</toml.version>
+    <flatlaf.version>3.7.2</flatlaf.version>
   </properties>
 
   <build>

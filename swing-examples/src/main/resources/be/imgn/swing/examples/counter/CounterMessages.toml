@@ -1,0 +1,2 @@
+count = "The count is: {count}."
+confirmExit = "Do you really want to exit?"

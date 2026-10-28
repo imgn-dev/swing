@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>be.imgn.swing</groupId>
+    <artifactId>swing-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>swing-examples</artifactId>
+  <name>swing examples</name>
+  <description>The acceptance ports of milestone 1: SwingAppFramework's examples and Guts' Address Book demo.</description>
+
+  <properties>
+    <!-- Examples are read as source, not as API, and are not deployed. -->
+    <maven.javadoc.skip>true</maven.javadoc.skip>
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-ui</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-flatlaf</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.inject</groupId>
+      <artifactId>inject</artifactId>
+      <version>${inject.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.toml</groupId>
+      <artifactId>toml</artifactId>
+      <version>${toml.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-testing</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-processor</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <!-- The processors read every annotation and claim none, which
+               javac's processing lint reports. The factories inject's
+               processor generates for package-private beans are public and
+               name those beans, which javac's exports lint reports. -->
+          <compilerArgs combine.children="append">
+            <arg>-Xlint:-processing</arg>
+            <arg>-Xlint:-exports</arg>
+          </compilerArgs>
+          <annotationProcessorPaths combine.children="append">
+            <path>
+              <groupId>be.imgn.inject</groupId>
+              <artifactId>inject-processor</artifactId>
+              <version>${inject.version}</version>
+            </path>
+            <path>
+              <groupId>be.imgn.swing</groupId>
+              <artifactId>swing-processor</artifactId>
+              <version>${project.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>be.imgn.inject</groupId>
+        <artifactId>inject-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>be.imgn.gaia</groupId>
+        <artifactId>gaia-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

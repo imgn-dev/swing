@@ -47,6 +47,7 @@ public final class Swing {
                         Launcher.platform(),
                         Locale.getDefault(Locale.Category.DISPLAY),
                         builder -> {},
+                        root -> {},
                         true,
                         Swing::failed));
     }

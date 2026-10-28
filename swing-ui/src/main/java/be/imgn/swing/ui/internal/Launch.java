@@ -45,6 +45,7 @@ public final class Launch {
             options.bindings().accept(builder);
             Injector root = Launcher.build(builder, info);
             injector = root;
+            options.built().accept(root);
             Launcher.runStartupSteps(root);
             Edt.invokeAndWait(() -> {
                 root.getInstance(LookAndFeelInstaller.class).install();
