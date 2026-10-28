@@ -28,15 +28,15 @@ Every part of every sentence in this document is a requirement, and must be foll
 
 | Module (Maven artifact) | Java module | Contents |
 |---|---|---|
-| `swing-app-core` | `be.imgn.swingapp` | Lifecycle, scopes, observables, tasks, resources and messages, with their annotations (`@Application`, `@Messages`). No `java.desktop`. |
-| `swing-app-processor` | `be.imgn.swingapp.processor` | The annotation processor. Its descriptor `provides javax.annotation.processing.Processor`, so it runs from the processor path and from the processor module path (`--processor-module-path`). It requires `java.desktop`, to parse key strokes, fonts and colors with the JDK's own parsers, and `be.imgn.gaia.core` itself, which `gaia-processing` doesn't require transitively. |
-| `swing-app-ui` | `be.imgn.swingapp.ui` | `SwingApp`. Commands: `@Command`, `Block`, `BoundCommand`, `StandardCommands`, `CommandRegistry`, `CommandContext`, `Trigger`. Menus. `View`, `SingleFrame`, `DialogView`, `Ui`, `Window`, `Windows`, dialogs, window state, icons, resource injection into components. |
-| `swing-app-flatlaf` | `be.imgn.swingapp.flatlaf` | FlatLaf installation and dark mode detection. |
-| `swing-app-testing` | `be.imgn.swingapp.testing` | `AppTester` and the checkers. |
+| `swing-core` | `be.imgn.swing` | Lifecycle, scopes, observables, tasks, resources and messages, with their annotations (`@Application`, `@Messages`). No `java.desktop`. |
+| `swing-processor` | `be.imgn.swing.processor` | The annotation processor. Its descriptor `provides javax.annotation.processing.Processor`, so it runs from the processor path and from the processor module path (`--processor-module-path`). It requires `java.desktop`, to parse key strokes, fonts and colors with the JDK's own parsers, and `be.imgn.gaia.core` itself, which `gaia-processing` doesn't require transitively. |
+| `swing-ui` | `be.imgn.swing.ui` | `Swing`. Commands: `@Command`, `Block`, `BoundCommand`, `StandardCommands`, `CommandRegistry`, `CommandContext`, `Trigger`. Menus. `View`, `SingleFrame`, `DialogView`, `Ui`, `Window`, `Windows`, dialogs, window state, icons, resource injection into components. |
+| `swing-flatlaf` | `be.imgn.swing.flatlaf` | FlatLaf installation and dark mode detection. |
+| `swing-testing` | `be.imgn.swing.testing` | `AppTester` and the checkers. |
 
-The line between core and UI follows the concept, not the implementation. Core holds what is useful outside a UI, so that a domain module shared with a command-line tool, a server or batch jobs can use resources, messages, observables, tasks and the lifecycle without requiring `java.desktop`. Commands are a UI concept (text, icons, shortcuts, menus, triggered by components), so all of them, `@Command` included, are in `swing-app-ui`. Testing headless is not a reason for the split: lightweight Swing components work in a headless JVM.
+The line between core and UI follows the concept, not the implementation. Core holds what is useful outside a UI, so that a domain module shared with a command-line tool, a server or batch jobs can use resources, messages, observables, tasks and the lifecycle without requiring `java.desktop`. Commands are a UI concept (text, icons, shortcuts, menus, triggered by components), so all of them, `@Command` included, are in `swing-ui`. Testing headless is not a reason for the split: lightweight Swing components work in a headless JVM.
 
-All modules use the `be.imgn` parent `2026-11-SNAPSHOT` and the group id `be.imgn.swingapp`, and compile to Java 21 (`java.release` 21). The parent's enforcer requires a JDK of at least `java.release`, so JDK 21 or later, and Maven 3.10 or later, through the Maven wrapper. The build is set up in milestone 0.
+All modules use the `be.imgn` parent `2026-11-SNAPSHOT` and the group id `be.imgn.swing`, and compile to Java 21 (`java.release` 21). The parent's enforcer requires a JDK of at least `java.release`, so JDK 21 or later, and Maven 3.10 or later, through the Maven wrapper. The build is set up in milestone 0.
 
 The framework logs through `System.Logger`, with a logger named after the class that reports. Every "warning" in this document is logged at `WARNING`, and every logged failure at `ERROR`.
 
@@ -62,11 +62,11 @@ On the module path, applications add two Maven plugin goals: inject's `register-
 public final class CounterApp implements SingleFrame, ExitVeto { ... }
 
 public static void main(String[] args) {
-    SwingApp.launch(CounterApp.class, args);
+    Swing.launch(CounterApp.class, args);
 }
 ```
 
-`@Application` (`be.imgn.swingapp`) has:
+`@Application` (`be.imgn.swing`) has:
 
 | Attribute | Meaning |
 |---|---|
@@ -83,7 +83,7 @@ These are the three names gaia's `Platform.applicationDirectories(...)` takes, s
 
 Directories never depend on the locale: a localized displayed name comes from resources, never from `name`. The processor checks the names with gaia's rules (not blank, not `.` or `..`, no leading or trailing whitespace, no control character, none of `/ \ : < > " | ? *`) and reports a `qualifier` without a `vendor`. The application's identifier, for the single instance in milestone 3, is `qualifier.vendor.name`, with the parts that are present.
 
-For the annotated class, the processor generates `$CounterApp$$Application implements ApplicationDescriptor` and registers it with `ServiceFiles`. `SwingApp.launch` finds the descriptor whose `type()` is the given class through `ServiceLoader`. The descriptor holds no handlers, since the application class is a bean.
+For the annotated class, the processor generates `$CounterApp$$Application implements ApplicationDescriptor` and registers it with `ServiceFiles`. `Swing.launch` finds the descriptor whose `type()` is the given class through `ServiceLoader`. The descriptor holds no handlers, since the application class is a bean.
 
 ```java
 public interface ApplicationDescriptor {
@@ -110,7 +110,7 @@ public record Arguments(List<String> values) {}    // core, the arguments given 
 
 ### Startup
 
-`SwingApp.launch(Class, String[])` runs these steps, in this order:
+`Swing.launch(Class, String[])` runs these steps, in this order:
 
 1. **Before AWT** (main thread): read the descriptor; on macOS set `apple.awt.application.name` to `@Application.name` and `apple.laf.useScreenMenuBar` to `true`. These must be set before any AWT class is initialized, so before resources are read: the localized displayed name can't be used there.
 2. **Injector** (main thread): `Injector.builder()` binds `ApplicationInfo`, `Arguments`, `DisplayLocale` (see [Locale](#locale)) and the application `Scope`, then builds. Building it loads every factory through `ServiceLoader`.
@@ -118,7 +118,7 @@ public record Arguments(List<String> values) {}    // core, the arguments given 
 4. **UI** (EDT): install the look and feel through the `LookAndFeelInstaller` bean, check icons (see [Icons](#icons)), create the main window (see [Windows](#windows)), show it.
 5. **Ready** (EDT): after showing, one `invokeLater` calls `ready()` on every `@IntoSet(ReadyListener.class)` bean. Events posted while showing the window run first, so the window is laid out and painted.
 
-`LookAndFeelInstaller` (UI) has `void install()`, called on the EDT before any component is created. `swing-app-ui` provides a `@Provides @Default` one that installs the system look and feel; `swing-app-flatlaf` provides one that installs FlatLaf, which replaces the default through inject's `@Default` rule. `ReadyListener` (core) has `void ready()`.
+`LookAndFeelInstaller` (UI) has `void install()`, called on the EDT before any component is created. `swing-ui` provides a `@Provides @Default` one that installs the system look and feel; `swing-flatlaf` provides one that installs FlatLaf, which replaces the default through inject's `@Default` rule. `ReadyListener` (core) has `void ready()`.
 
 A failure in steps 2 to 4 shows the error dialog if the look and feel is installed, prints the stack trace otherwise, and exits with status 1 through `Exit`.
 
@@ -168,7 +168,7 @@ There are three kinds of scope: the application, one per window, and one per vie
 - **Hosting.** When the framework opens a window, it creates a child injector hosting `@WindowScoped`, and for each view in it a child of that child hosting `@ViewScoped` (I1). A bean of such a scope is created once per hosting child and cached there; resolving it through an injector with no hosting child is an error.
 - **Bindings of a scope.** A window's child binds `Window` (see [Windows](#windows)) and `Scope`; a view's child binds `Scope`. A view's child is always a child of a window's child, so a view-scoped bean also sees its window's `Window`; a dialog's window child is a child of the opener's view child. Beans of these scopes depend on these keys directly: `Ui` and `CommandRegistry`, both `@ViewScoped`, depend on `Window` and on the view's `Scope`. The root declares nothing about scopes: inject checks, when each host is built, that its chain binds every key its scope's beans depend on (I3).
 - **Which beans are scoped.** `View` carries `@ViewScoped`, and `SingleFrame` and `DialogView` extend it, so views, dialog views and a single-frame application class are view-scoped without annotating them (I5). `Ui`, `StandardCommands`, `StandardMenus` and `CommandRegistry` are `@ViewScoped`. `Dialogs` and the window-state support are `@WindowScoped`. Shared services are `@Singleton`.
-- **Scope widening.** A bean of a wider scope can reach a bean of a narrower one only through a `Provider`. swing-app's processor checks the order `@Singleton`, `@WindowScoped`, `@ViewScoped` at compile time, for every class it compiles. inject checks what it can at runtime (I4): a `@Singleton` depending directly on a window- or view-scoped bean fails when the root is created, and a `@WindowScoped` bean depending directly on a `@ViewScoped` one fails when the main window's host is built. In a dialog's window, whose chain holds the opener's view host, inject can't see that error: the processor's check is the only one there.
+- **Scope widening.** A bean of a wider scope can reach a bean of a narrower one only through a `Provider`. swing's processor checks the order `@Singleton`, `@WindowScoped`, `@ViewScoped` at compile time, for every class it compiles. inject checks what it can at runtime (I4): a `@Singleton` depending directly on a window- or view-scoped bean fails when the root is created, and a `@WindowScoped` bean depending directly on a `@ViewScoped` one fails when the main window's host is built. In a dialog's window, whose chain holds the opener's view host, inject can't see that error: the processor's check is the only one there.
 - **Closing.** Closing a window closes its child injector, which closes its views' children first, then runs `@PreDestroy` on the instances of its scopes, in reverse creation order (I2). Resolving through a closed host fails fast. `@PreDestroy` is therefore allowed on window- and view-scoped beans: a view that holds a resource releases it there.
 
 ```java
@@ -180,7 +180,7 @@ public interface View {                    // UI
 
 In milestone 1, the views are the single-frame application class and dialog views. Placing other views in windows comes with multi-frame applications, in milestone 3.
 
-The framework's own `Scope` (`be.imgn.swingapp.Scope`) is the disposal list of a scope, for what is not a bean: subscriptions, input map entries, running tasks. The framework closes it when it closes the scope's injector.
+The framework's own `Scope` (`be.imgn.swing.Scope`) is the disposal list of a scope, for what is not a bean: subscriptions, input map entries, running tasks. The framework closes it when it closes the scope's injector.
 
 ```java
 public interface Scope {
@@ -299,7 +299,7 @@ Modifiers, unlike the trigger's objects, exist on almost every path, so they sta
 - From a shortcut, they are the modifiers of the key stroke.
 - From `OperatingSystem` and `Programmatic` triggers, the set is empty.
 
-`CommandContext`, `Trigger` and `Modifier` are in `swing-app-ui`, with the rest of commands. That is also required by the language: the variants refer to Swing types, and every permitted subtype of a sealed interface must be in the same module as the interface.
+`CommandContext`, `Trigger` and `Modifier` are in `swing-ui`, with the rest of commands. That is also required by the language: the variants refer to Swing types, and every permitted subtype of a sealed interface must be in the same module as the interface.
 
 The mapping from an `ActionEvent` to a `CommandContext` is tested with constructed events, not end to end: a test sends `new ActionEvent(item, ActionEvent.ACTION_PERFORMED, id, when, ActionEvent.SHIFT_MASK)` to the command's `Action`, for a `JMenuItem` in a menu bar, in a popup menu and for a `JButton`, and checks the context the handler receives. This works headless, and covers Shift-click on every platform, the macOS screen menu bar included, as far as the framework is concerned.
 
@@ -441,7 +441,7 @@ accessible-description = "Saves the note to its file"
 
 - Menu items show the shortcut as their accelerator.
 - Each window registers the shortcut of every command [attached](#attaching) in its scopes in its root pane's `WHEN_IN_FOCUSED_WINDOW` input map, so a shortcut works even when the command is only on a toolbar or a button, or nowhere.
-- Two commands with the same shortcut in one class's resources fail the build. Two in the same window but from different classes are reported when the second one is attached: an exception in development mode (`-Dswingapp.dev=true`) and in tests, a warning otherwise. The same command, attached through several views of one window, registers its shortcut once.
+- Two commands with the same shortcut in one class's resources fail the build. Two in the same window but from different classes are reported when the second one is attached: an exception in development mode (`-Dbe.imgn.swing.dev=true`) and in tests, a warning otherwise. The same command, attached through several views of one window, registers its shortcut once.
 
 ### Menus and toolbars
 
@@ -563,14 +563,14 @@ public interface IconLoader {
 }
 ```
 
-- `swing-app-ui` contributes the PNG loader, with `@2x` variants (`MultiResolutionImage`). `swing-app-flatlaf` contributes the SVG loader, through `FlatSVGIcon`.
-- Each `$$Resources` also has `Set<String> icons()`, the icon paths its package's resources name, which the processor knows. Startup step 4 checks that a loader supports every one of them: an `.svg` icon without `swing-app-flatlaf` on the module path is an error at startup.
+- `swing-ui` contributes the PNG loader, with `@2x` variants (`MultiResolutionImage`). `swing-flatlaf` contributes the SVG loader, through `FlatSVGIcon`.
+- Each `$$Resources` also has `Set<String> icons()`, the icon paths its package's resources name, which the processor knows. Startup step 4 checks that a loader supports every one of them: an `.svg` icon without `swing-flatlaf` on the module path is an error at startup.
 
 ### Locale
 
 In milestone 1 the locale is chosen once, at startup: `Locale.getDefault(Locale.Category.DISPLAY)`, the category for user-interface text. Java's standard properties set it, so the framework adds none: `-Duser.language=fr -Duser.country=BE` sets every category, and `-Duser.language.display=fr` only the display one. A locale that no file supports falls back to the base file. Changing the locale at runtime comes later.
 
-The locale reaches `Resources` and messages through `DisplayLocale` (core), a `record DisplayLocale(Locale locale)` bound in the root injector: `SwingApp.launch` binds the JVM's display locale, and `AppTester.start(type, locale)` binds the test's. Nothing in the framework reads `Locale.getDefault` after startup, so tests with different locales run in parallel.
+The locale reaches `Resources` and messages through `DisplayLocale` (core), a `record DisplayLocale(Locale locale)` bound in the root injector: `Swing.launch` binds the JVM's display locale, and `AppTester.start(type, locale)` binds the test's. Nothing in the framework reads `Locale.getDefault` after startup, so tests with different locales run in parallel.
 
 ### Injection into components
 
@@ -632,7 +632,7 @@ confirmExit = "Do you really want to exit?"
 
 ## Build-time checks
 
-For every class with commands, menus, component fields with resources, or a `@Messages` interface, the processor reads the class's TOML files from `CLASS_OUTPUT` with `Filer.getResource`. Maven copies resources there before compiling. For IDEs that compile without copying, the option `-Aswingapp.resources=<dir>` adds a directory to look in.
+For every class with commands, menus, component fields with resources, or a `@Messages` interface, the processor reads the class's TOML files from `CLASS_OUTPUT` with `Filer.getResource`. Maven copies resources there before compiling. For IDEs that compile without copying, the option `-Abe.imgn.swing.resources=<dir>` adds a directory to look in.
 
 | Check | Error when |
 |---|---|
@@ -646,7 +646,7 @@ For every class with commands, menus, component fields with resources, or a `@Me
 | Translations | A locale file lacks a key of the base file, or has a key the base file lacks |
 | `enabled`, `selected` | The name matches no field or method of the right type |
 | `block` | A value other than `NONE` is given on a handler that doesn't return a `Task` |
-| Scope widening | A class whose scope is `@Singleton`, `@WindowScoped` or `@ViewScoped`, declared or inherited, has an injection point (constructor parameter, `@Inject` field or method parameter) whose type has a narrower one of these scopes, not through `Provider`. The order is `@Singleton`, then `@WindowScoped`, then `@ViewScoped`. Every class the processor compiles is checked, with the types of its injection points read from sources and from class files; classes compiled without swing-app's processor are left to inject's runtime checks (I4) |
+| Scope widening | A class whose scope is `@Singleton`, `@WindowScoped` or `@ViewScoped`, declared or inherited, has an injection point (constructor parameter, `@Inject` field or method parameter) whose type has a narrower one of these scopes, not through `Provider`. The order is `@Singleton`, then `@WindowScoped`, then `@ViewScoped`. Every class the processor compiles is checked, with the types of its injection points read from sources and from class files; classes compiled without swing's processor are left to inject's runtime checks (I4) |
 | Messages | A placeholder names no parameter, or a pattern doesn't parse as a `MessageFormat` |
 | Component fields | A top-level table other than `commands` and `menus` names no non-private component field, or a key is not a supported property of its type |
 | Class properties | A top-level plain value is not a property of the class (`name` and `theme` on the application class, `title` on a single-frame application class or a dialog view) |
@@ -835,11 +835,11 @@ The state is written to `window-state.toml` in gaia's `ApplicationDirectories.st
 
 ## Look and feel
 
-`swing-app-flatlaf` provides the `LookAndFeelInstaller` that installs FlatLaf, which startup step 4 calls on the EDT before any component is created.
+`swing-flatlaf` provides the `LookAndFeelInstaller` that installs FlatLaf, which startup step 4 calls on the EDT before any component is created.
 
-- The `-Dswingapp.theme` property, else the `theme` key of the application's resources, selects `system` (default), `light` or `dark`. The property wins, so a user can override what the application ships.
+- The `-Dbe.imgn.swing.theme` property, else the `theme` key of the application's resources, selects `system` (default), `light` or `dark`. The property wins, so a user can override what the application ships.
 - `system` reads the operating system's setting once at startup: on macOS, `defaults read -g AppleInterfaceStyle`; on Windows, the `AppsUseLightTheme` registry value through `reg query`; on Linux, `gsettings get org.gnome.desktop.interface color-scheme`. Any failure means light.
-- Without `swing-app-flatlaf`, the system look and feel is used.
+- Without `swing-flatlaf`, the system look and feel is used.
 
 Following the setting while running needs native hooks or polling, and is left for later.
 
@@ -882,7 +882,7 @@ void exitAsksForConfirmation() {
 
 ## Processor
 
-`swing-app-processor` is a gaia `StepProcessor`, with these steps:
+`swing-processor` is a gaia `StepProcessor`, with these steps:
 
 | Step | Triggered by | Generates |
 |---|---|---|
@@ -909,15 +909,15 @@ Milestone 1 builds on these changes, which inject provides from 0.1.1-SNAPSHOT. 
 
 | Id | Change | Needed for |
 |---|---|---|
-| I1 | **Child-local scopes.** A child-local scope is a scoping annotation with no `Scope` service: swing-app registers none for `@WindowScoped` and `@ViewScoped`, and their annotations need only CLASS retention, read from class files of other compilations too. A host is a child built with `scopedChildBuilder(WindowScoped.class)` or `scopedChildBuilder(ViewScoped.class)`, one scope per host; `childBuilder()` stays for plain children. A bean of a child-local scope is created once per host and cached there, in the nearest ancestor-or-self host of its scope; through an injector with no such host in its chain, resolving it fails fast with a clear error. Hosts nest, to any depth, with any number of children per host. Unscoped beans keep being rebuilt in the child they are resolved through, and `@Singleton` beans keep anchoring to the root. A `Provider` of a child-local key, injected into a bean, looks up the host when `get()` is called, from the injector that bean was built in. Creating a host stays as cheap as a child injector today: it only does lookups prepared when the root is created, and loads no factory. Hosts are created, closed and resolved through on the EDT, so child-local scopes need no concurrency guarantee beyond today's. | Window and view scopes; `Provider<T>` returning the right instance in generated commands |
+| I1 | **Child-local scopes.** A child-local scope is a scoping annotation with no `Scope` service: swing registers none for `@WindowScoped` and `@ViewScoped`, and their annotations need only CLASS retention, read from class files of other compilations too. A host is a child built with `scopedChildBuilder(WindowScoped.class)` or `scopedChildBuilder(ViewScoped.class)`, one scope per host; `childBuilder()` stays for plain children. A bean of a child-local scope is created once per host and cached there, in the nearest ancestor-or-self host of its scope; through an injector with no such host in its chain, resolving it fails fast with a clear error. Hosts nest, to any depth, with any number of children per host. Unscoped beans keep being rebuilt in the child they are resolved through, and `@Singleton` beans keep anchoring to the root. A `Provider` of a child-local key, injected into a bean, looks up the host when `get()` is called, from the injector that bean was built in. Creating a host stays as cheap as a child injector today: it only does lookups prepared when the root is created, and loads no factory. Hosts are created, closed and resolved through on the EDT, so child-local scopes need no concurrency guarantee beyond today's. | Window and view scopes; `Provider<T>` returning the right instance in generated commands |
 | I2 | **Closing a child.** Closing a host closes its live children first, then runs `@PreDestroy` on the instances cached in it, in reverse creation order, with the root's error handling: the remaining beans are still destroyed, and the first failure is thrown with the others suppressed. `@PreDestroy` is allowed on beans of child-local scopes; unscoped beans built in a host are not tracked. After closing, resolving through the host, or calling `get()` on a provider that resolves through it, its own bindings' providers included, fails fast. Closing a host never closes its parent; closing the root closes its live hosts first. | Releasing view and window resources |
 | I3 | **Bindings of a scope.** The root declares nothing about child-local scopes. When a host is built, inject checks that its chain (the host and its ancestors, the root included) binds every key that the beans of its scope depend on directly, such as `Window` and `Scope`, and fails otherwise with a message naming the bean, the key and the parameter. A key bound by several enclosing hosts (`Scope`) resolves to the nearest one. | Beans that depend on their window or scope |
-| I4 | **Scope widening check.** No order between child-local scopes is declared; inject checks what it can at runtime, with explicit messages. A `@Singleton` depending directly, not through `Provider`, on a bean of a child-local scope fails when the root is created. When a host is built, a direct dependency of its scope's beans on a child-local scope with no host of it in the chain fails: a `@WindowScoped` bean depending on a `@ViewScoped` one fails for the main window. A `Provider` edge is exempt in every direction; unscoped beans are outside the check. swing-app's processor checks the order between window and view scopes at compile time (see [Build-time checks](#build-time-checks)). | Catching a singleton that captures a view |
+| I4 | **Scope widening check.** No order between child-local scopes is declared; inject checks what it can at runtime, with explicit messages. A `@Singleton` depending directly, not through `Provider`, on a bean of a child-local scope fails when the root is created. When a host is built, a direct dependency of its scope's beans on a child-local scope with no host of it in the chain fails: a `@WindowScoped` bean depending on a `@ViewScoped` one fails for the main window. A `Provider` edge is exempt in every direction; unscoped beans are outside the check. swing's processor checks the order between window and view scopes at compile time (see [Build-time checks](#build-time-checks)). | Catching a singleton that captures a view |
 | I5 | **Inherited scopes.** A scoping annotation on a supertype applies to the beans that extend or implement it, through the superclass chain and all superinterfaces, transitively, including types from other compilations. A scope declared on the class itself wins. Two different scopes inherited from different supertypes, with none declared on the class, are a compile error. | Views and single-frame applications scoped by implementing `View`, `DialogView` or `SingleFrame` |
 | I6 | **Construction hook.** Root beans contributed with `@IntoSet(ConstructionListener.class)`, whose method is `void constructed(Object instance, Injector injector)`, are resolved when the root is created, then called by generated factories, synchronously, on the constructing thread, with every instance of a child-local scope once it is fully built (constructor, members, `@PostConstruct`), and the injector it is cached in; assisted products included. Instances bound with `bind(instance)` are not reported, nor instances built while the listeners are resolved. An exception thrown by a listener fails that construction: the instance is neither cached nor tracked, so no `@PreDestroy` runs for it. | Exit vetoes on any scoped bean; later `@Subscribe` and `@Command` on beans the framework doesn't create |
 | I7 | **Scoped assisted products.** inject's processor accepts any scoped assisted recipe; a product whose scope isn't child-local fails when the root is created. An assisted factory whose product has a child-local scope, resolved and called through a host of that scope, builds the product with dependencies from that host and caches it there under the product's key. From then on, the instance is resolvable through that host and its descendants, `Provider` included. Before the call, `get()` on a provider of the product fails, as resolving an assisted type does today, but the provider itself can be injected. A second call through the same host fails. Assisted products without a scope keep today's behavior. | Dialogs that take arguments and have commands |
 | I8 | **A module for the processor.** `inject-processor` gets a `module-info.java` that requires its dependencies and `provides javax.annotation.processing.Processor`. | Running every processor of an application from the processor module path, as modules |
-| I9 | **Ambiguous implicit keys.** When several beans get a key only through their supertypes (implicit exposure), the duplicate is not an error: the key is left unbound. A dependency on it fails when the injector that must satisfy it is created (the root for `@Singleton` and unscoped beans, the host for beans of a child-local scope), and `getInstance` on it fails; the messages name the key, the injection point when there is one, and every bean implementing it. Explicit keys (a bean's own class, `@ExposeAs`, qualifiers, `@Provides`) still fail as duplicates. swing-app marks nothing: views implementing `View`, `SingleFrame` and `DialogView` stay exposed under their own class, and injecting one of those interfaces directly is an ambiguity error as soon as two views implement it. | Two views in one application: without it, both are exposed under `View`, and creating the root fails with `DuplicateBindingException` |
+| I9 | **Ambiguous implicit keys.** When several beans get a key only through their supertypes (implicit exposure), the duplicate is not an error: the key is left unbound. A dependency on it fails when the injector that must satisfy it is created (the root for `@Singleton` and unscoped beans, the host for beans of a child-local scope), and `getInstance` on it fails; the messages name the key, the injection point when there is one, and every bean implementing it. Explicit keys (a bean's own class, `@ExposeAs`, qualifiers, `@Provides`) still fail as duplicates. swing marks nothing: views implementing `View`, `SingleFrame` and `DialogView` stay exposed under their own class, and injecting one of those interfaces directly is an ambiguity error as soon as two views implement it. | Two views in one application: without it, both are exposed under `View`, and creating the root fails with `DuplicateBindingException` |
 
 Existing inject behavior the design relies on, as inject's sources and documentation describe it:
 
@@ -927,7 +927,7 @@ Existing inject behavior the design relies on, as inject's sources and documenta
 
 ### Other libraries
 
-| Repository | Change | Needed for | API swing-app uses |
+| Repository | Change | Needed for | API swing uses |
 |---|---|---|---|
 | imgn-dev/toml | A module for `toml-processor`: a `module-info.java` that requires its dependencies and `provides javax.annotation.processing.Processor` | Running every processor of an application from the processor module path, as modules | Module `be.imgn.toml.processor` |
 | imgn-dev/toml | Source positions of keys, values and array elements, and of syntax and semantic errors, at the offending key, header or value | Build-time errors at the right line and column | `TomlDocument`, `TomlPositions.key`, `value`, `element`, `TomlParseException.position()` |

@@ -1,6 +1,6 @@
-# swing-app: vision
+# swing: vision
 
-swing-app is a framework for desktop applications in Swing, on Java 21. Its ideas come from two earlier frameworks:
+swing is a framework for desktop applications in Swing, on Java 21. Its ideas come from two earlier frameworks:
 
 - **Guts** (`ogregoire/guts`): Guice-based, with a typed event bus, a window pipeline, tasks with input blocking, and docking.
 - **SwingAppFramework** (`ogregoire/SwingAppFramework`, a JSR-296 successor): property-file-driven resources, live locale switching, and a lifecycle you can extend.
@@ -37,14 +37,14 @@ The names below are working names.
 
 | Module | Contents | Depends on |
 |---|---|---|
-| `swing-app-core` | Lifecycle, scopes, observables, tasks, events, settings, resources, messages | inject, toml, gaia-core |
-| `swing-app-processor` | Annotation processor (see [What the processor generates](#what-the-processor-generates)) | gaia-processing, toml |
-| `swing-app-ui` | Views, windows, commands, resource injection into components, binding, input blockers, dialogs | core |
-| `swing-app-desktop` | Single instance, OS integration, documents, recent files | ui |
-| `swing-app-flatlaf` | FlatLaf themes, dark mode, SVG icons, theme tokens | ui |
-| `swing-app-testing` | Test harness | core, ui, gaia testing libraries, gaia-memfs |
-| `swing-app-wizard` (optional) | Multi-step dialogs | ui |
-| `swing-app-docking` (optional) | DockingFrames integration | ui |
+| `swing-core` | Lifecycle, scopes, observables, tasks, events, settings, resources, messages | inject, toml, gaia-core |
+| `swing-processor` | Annotation processor (see [What the processor generates](#what-the-processor-generates)) | gaia-processing, toml |
+| `swing-ui` | Views, windows, commands, resource injection into components, binding, input blockers, dialogs | core |
+| `swing-desktop` | Single instance, OS integration, documents, recent files | ui |
+| `swing-flatlaf` | FlatLaf themes, dark mode, SVG icons, theme tokens | ui |
+| `swing-testing` | Test harness | core, ui, gaia testing libraries, gaia-memfs |
+| `swing-wizard` (optional) | Multi-step dialogs | ui |
+| `swing-docking` (optional) | DockingFrames integration | ui |
 
 ---
 
@@ -195,7 +195,7 @@ The code below shows the intended feel. It is illustrative, not a settled API.
 public final class NotesApp {
 
     public static void main(String[] args) {
-        SwingApp.launch(NotesApp.class, args);
+        Swing.launch(NotesApp.class, args);
     }
 
     @Startup
@@ -293,7 +293,7 @@ A counter that shows "The count is: X.", asks for confirmation before exiting, a
 public final class CounterApp implements SingleFrame, ExitVeto {
 
     public static void main(String[] args) {
-        SwingApp.launch(CounterApp.class, args);
+        Swing.launch(CounterApp.class, args);
     }
 
     @Messages
@@ -376,7 +376,7 @@ confirmExit = "Voulez-vous vraiment quitter ?"
 
 ## What the processor generates
 
-`swing-app-processor` is a gaia `StepProcessor`. It runs next to inject's and toml's processors. Its services are registered through gaia's `ServiceFiles`, and gaia's Maven plugin adds the matching `provides` clauses for the module path.
+`swing-processor` is a gaia `StepProcessor`. It runs next to inject's and toml's processors. Its services are registered through gaia's `ServiceFiles`, and gaia's Maven plugin adds the matching `provides` clauses for the module path.
 
 | Generates | From | Replaces |
 |---|---|---|
