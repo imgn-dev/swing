@@ -1,0 +1,29 @@
+[commands.exit]
+text = "&Quitter"
+
+[commands.about]
+text = "À &propos"
+
+[commands.preferences]
+text = "Pré&férences..."
+
+[commands.cut]
+text = "&Couper"
+
+[commands.copy]
+text = "Co&pier"
+
+[commands.paste]
+text = "C&oller"
+
+[commands.selectAll]
+text = "&Tout sélectionner"
+
+[commands.closeWindow]
+text = "&Fermer"
+
+[commands.ok]
+text = "OK"
+
+[commands.cancel]
+text = "Annuler"

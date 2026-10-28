@@ -1,5 +1,6 @@
 package be.imgn.swing.internal;
 
+import be.imgn.gaia.core.time.Ticker;
 import be.imgn.inject.Default;
 import be.imgn.inject.Provides;
 import be.imgn.inject.Singleton;
@@ -7,6 +8,7 @@ import be.imgn.swing.Exit;
 import be.imgn.swing.FailureHandler;
 import be.imgn.swing.UiExecutor;
 import java.lang.System.Logger.Level;
+import java.time.InstantSource;
 
 /** Core's fallbacks for the beans through which core reaches the UI. */
 final class CoreBeans {
@@ -44,5 +46,19 @@ final class CoreBeans {
     @Singleton
     static Exit exit() {
         return System::exit;
+    }
+
+    @Provides
+    @Default
+    @Singleton
+    static Ticker ticker() {
+        return Ticker.system();
+    }
+
+    @Provides
+    @Default
+    @Singleton
+    static InstantSource instantSource() {
+        return InstantSource.system();
     }
 }

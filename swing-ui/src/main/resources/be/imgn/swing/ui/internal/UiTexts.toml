@@ -1,0 +1,8 @@
+# The framework's own texts.
+cancel = "Cancel"
+copy = "Copy"
+close = "Close"
+details = "Details:"
+error = "Error"
+version = "Version"
+vendor = "By"

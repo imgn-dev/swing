@@ -1,0 +1,14 @@
+[menus.file]
+text = "&Fichier"
+
+[menus.edit]
+text = "É&dition"
+
+[menus.view]
+text = "&Affichage"
+
+[menus.window]
+text = "Fe&nêtre"
+
+[menus.help]
+text = "&Aide"

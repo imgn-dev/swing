@@ -1,0 +1,38 @@
+# The text and shortcuts of the standard commands. An application overrides them in its own resources, under the same
+# tables.
+
+[commands.exit]
+text = "E&xit"
+shortcut = "shortcut Q"
+
+[commands.about]
+text = "&About"
+
+[commands.preferences]
+text = "&Preferences..."
+
+[commands.cut]
+text = "Cu&t"
+shortcut = "shortcut X"
+
+[commands.copy]
+text = "&Copy"
+shortcut = "shortcut C"
+
+[commands.paste]
+text = "&Paste"
+shortcut = "shortcut V"
+
+[commands.selectAll]
+text = "Select &All"
+shortcut = "shortcut A"
+
+[commands.closeWindow]
+text = "&Close"
+shortcut = "shortcut W"
+
+[commands.ok]
+text = "OK"
+
+[commands.cancel]
+text = "Cancel"

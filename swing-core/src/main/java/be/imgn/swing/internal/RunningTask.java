@@ -5,6 +5,8 @@ import be.imgn.swing.Property;
 import be.imgn.swing.TaskContext;
 import be.imgn.swing.UiExecutor;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.jspecify.annotations.Nullable;
@@ -21,6 +23,7 @@ public final class RunningTask implements TaskContext {
     private final CountDownLatch done = new CountDownLatch(1);
     private volatile boolean cancelled;
     private volatile @Nullable Thread thread;
+    private final List<Runnable> endListeners = new ArrayList<>();
 
     RunningTask(String name, UiExecutor executor) {
         this.name = name;
@@ -108,7 +111,29 @@ public final class RunningTask implements TaskContext {
         }
     }
 
+    /**
+     * Runs code once the task's work has ended, on the task's thread, after its hooks were handed to the
+     * {@link UiExecutor}; at once if it has ended.
+     *
+     * @param listener the code
+     */
+    public void whenEnded(Runnable listener) {
+        synchronized (endListeners) {
+            if (!isDone()) {
+                endListeners.add(listener);
+                return;
+            }
+        }
+        listener.run();
+    }
+
     void ended() {
-        done.countDown();
+        List<Runnable> listeners;
+        synchronized (endListeners) {
+            done.countDown();
+            listeners = List.copyOf(endListeners);
+            endListeners.clear();
+        }
+        listeners.forEach(Runnable::run);
     }
 }

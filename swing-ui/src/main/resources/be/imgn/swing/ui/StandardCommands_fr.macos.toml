@@ -1,0 +1,5 @@
+[commands.exit]
+text = "Quitter"
+
+[commands.preferences]
+text = "Réglages..."
