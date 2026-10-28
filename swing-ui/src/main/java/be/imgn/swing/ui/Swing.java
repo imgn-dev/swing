@@ -8,6 +8,7 @@ import be.imgn.swing.ui.internal.ErrorDialog;
 import be.imgn.swing.ui.internal.Launch;
 import be.imgn.swing.ui.internal.LaunchOptions;
 import java.awt.EventQueue;
+import java.awt.HeadlessException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -52,16 +53,21 @@ public final class Swing {
                         Swing::failed));
     }
 
-    // The stack trace is printed when no dialog can show it.
+    // The stack trace is printed when no dialog can show it, also when the display is headless.
     @SuppressWarnings("SystemOut")
     private static void failed(Throwable failure, Optional<Injector> injector, boolean lookAndFeelInstalled) {
         if (lookAndFeelInstalled) {
             Runnable show = () -> ErrorDialog.show(
                     null, "Error", String.valueOf(failure.getMessage()), failure, "Details", "Copy", "Close");
-            if (EventQueue.isDispatchThread()) {
-                show.run();
-            } else {
-                Edt.invokeAndWait(show);
+            try {
+                if (EventQueue.isDispatchThread()) {
+                    show.run();
+                } else {
+                    Edt.invokeAndWait(show);
+                }
+            } catch (HeadlessException e) {
+                failure.addSuppressed(e);
+                failure.printStackTrace();
             }
         } else {
             failure.printStackTrace();
