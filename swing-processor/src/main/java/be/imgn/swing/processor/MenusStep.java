@@ -10,11 +10,13 @@ import be.imgn.toml.TomlTable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 
 /**
@@ -46,11 +48,39 @@ final class MenusStep implements Step {
 
     @Override
     public Set<Element> process(AnnotatedElements elements) {
-        context.forEach(shared.peekPending(), this::process);
+        context.forEach(shared.peekPending(), this::generate);
+        context.forEach(heldBack(elements), this::generate);
         return Set.of();
     }
 
-    private void process(TypeElement type) {
+    /**
+     * Returns the classes of the packages of this round's root elements whose base file has {@code [menus.*]} tables. A
+     * view that injects its own generated menus class is held back until that class exists, so it is found through its
+     * file rather than as a root element.
+     */
+    private List<TypeElement> heldBack(AnnotatedElements elements) {
+        Set<String> packages = new LinkedHashSet<>();
+        for (Element root : elements.rootElements()) {
+            if (root.getKind() != ElementKind.MODULE) {
+                packages.add(Java.packageOf(root).getQualifiedName().toString());
+            }
+        }
+        List<TypeElement> classes = new ArrayList<>();
+        for (String packageName : packages) {
+            for (String name : shared.files().baseNames(packageName)) {
+                TypeElement type =
+                        context.elements().getTypeElement(packageName.isEmpty() ? name : packageName + "." + name);
+                if (type != null
+                        && type.getKind() == ElementKind.CLASS
+                        && context.isSubtype(type.asType(), Names.VIEW)) {
+                    classes.add(type);
+                }
+            }
+        }
+        return classes;
+    }
+
+    private void generate(TypeElement type) {
         if (!generated.add(type.getQualifiedName().toString())) {
             return;
         }

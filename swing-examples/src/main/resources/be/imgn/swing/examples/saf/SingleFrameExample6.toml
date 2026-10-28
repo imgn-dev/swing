@@ -1,0 +1,23 @@
+title = "Application Framework SingleFrameExample6"
+
+[menus.view]
+text = "&View"
+
+[commands.showWindow0]
+text = "Show Window &0"
+shortcut = "shortcut 0"
+tool-tip-text = "Show Window 0"
+
+[commands.showWindow1]
+text = "Show Window &1"
+shortcut = "shortcut 1"
+tool-tip-text = "Show Window 1"
+
+[commands.showWindow2]
+text = "Show Window &2"
+shortcut = "shortcut 2"
+tool-tip-text = "Show Window 2"
+
+[mainLabel]
+text = "Main Label"
+font = "Lucida-PLAIN-48"

@@ -40,6 +40,20 @@ public final class TaskRunner {
      * @throws IllegalStateException if the task has already run, or the scope is closed
      */
     public RunningTask start(Task<?> task, Scope scope, String name) {
+        return start(task, scope, name, false);
+    }
+
+    /**
+     * Starts a task in a scope, which cancels it when it closes.
+     *
+     * @param task the task
+     * @param scope the scope
+     * @param name the name of the task's thread
+     * @param command whether a command starts the task
+     * @return the running task
+     * @throws IllegalStateException if the task has already run, or the scope is closed
+     */
+    public RunningTask start(Task<?> task, Scope scope, String name, boolean command) {
         Objects.requireNonNull(task, "task");
         Objects.requireNonNull(scope, "scope");
         Objects.requireNonNull(name, "name");
@@ -48,7 +62,7 @@ public final class TaskRunner {
         }
         BackgroundTask<?> background = (BackgroundTask<?>) task;
         background.start();
-        RunningTask handle = new RunningTask(name, executor);
+        RunningTask handle = new RunningTask(name, command, executor);
         Runnable withdraw =
                 scope instanceof DisposalScope disposal ? disposal.register(handle::cancel) : register(scope, handle);
         running.add(handle);

@@ -8,10 +8,14 @@ import be.imgn.swing.ui.internal.Edt;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jspecify.annotations.Nullable;
 
-/** The tester's {@link UiExecutor}: the EDT, with the posted work and the running tasks settled before assertions. */
+/**
+ * The tester's {@link UiExecutor}: the EDT, with the posted work and the tasks commands started settled before
+ * assertions.
+ */
 final class TestExecutor implements UiExecutor, Settling {
 
     private static final Duration TIMEOUT = Duration.ofSeconds(30);
@@ -49,18 +53,25 @@ final class TestExecutor implements UiExecutor, Settling {
         }
     }
 
-    private int runningTasks() {
+    // The tasks commands started: a command's activation waits for its task, not for the other tasks.
+    private List<RunningTask> commandTasks() {
         TaskRunner runner = tasks;
-        return runner == null ? 0 : runner.running().size();
+        return runner == null
+                ? List.of()
+                : runner.running().stream().filter(RunningTask::isCommand).toList();
+    }
+
+    private int runningTasks() {
+        return commandTasks().size();
     }
 
     // Returns whether some task was running.
     private boolean awaitTasks() {
-        TaskRunner runner = tasks;
-        if (runner == null || runner.running().isEmpty()) {
+        List<RunningTask> running = commandTasks();
+        if (running.isEmpty()) {
             return false;
         }
-        for (RunningTask task : runner.running()) {
+        for (RunningTask task : running) {
             try {
                 if (!task.await(TIMEOUT)) {
                     throw new AssertionError("The task " + task.name() + " did not end within " + TIMEOUT);

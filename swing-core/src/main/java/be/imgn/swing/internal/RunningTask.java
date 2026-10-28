@@ -17,6 +17,7 @@ public final class RunningTask implements TaskContext {
     private static final double INDETERMINATE = -1;
 
     private final String name;
+    private final boolean command;
     private final UiExecutor executor;
     private final Property<Double> progress = new AtomicProperty<>(INDETERMINATE);
     private final Property<String> message = new AtomicProperty<>("");
@@ -25,9 +26,19 @@ public final class RunningTask implements TaskContext {
     private volatile @Nullable Thread thread;
     private final List<Runnable> endListeners = new ArrayList<>();
 
-    RunningTask(String name, UiExecutor executor) {
+    RunningTask(String name, boolean command, UiExecutor executor) {
         this.name = name;
+        this.command = command;
         this.executor = executor;
+    }
+
+    /**
+     * Returns whether a command started the task, whose activation waits for it in the test harness.
+     *
+     * @return {@code true} for the task of a command
+     */
+    public boolean isCommand() {
+        return command;
     }
 
     /**

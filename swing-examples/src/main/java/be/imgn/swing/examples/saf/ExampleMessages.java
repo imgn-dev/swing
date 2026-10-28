@@ -45,6 +45,78 @@ public interface ExampleMessages {
     String listed(int count);
 
     /**
+     * Returns the default text of the editor of {@link SingleFrameExample4}.
+     *
+     * @return the text
+     */
+    String defaultText();
+
+    /**
+     * Returns the text of an image that is loading.
+     *
+     * @return the text
+     */
+    String loadingWait();
+
+    /**
+     * Returns the text of an image whose loading was cancelled.
+     *
+     * @return the text
+     */
+    String loadingCancelled();
+
+    /**
+     * Returns the text of an image that failed to load.
+     *
+     * @param image the image's location
+     * @return the text
+     */
+    String loadingFailed(String image);
+
+    /**
+     * Returns the tooltip of an image.
+     *
+     * @param image the image's location
+     * @param width the image's width
+     * @param height the image's height
+     * @return the text
+     */
+    String imageTooltip(String image, int width, int height);
+
+    /**
+     * Returns the status of a step of a task that does nothing.
+     *
+     * @param step the step
+     * @return the text
+     */
+    String step(int step);
+
+    /**
+     * Returns the status of a task that succeeded.
+     *
+     * @return the text
+     */
+    String succeeded();
+
+    /**
+     * Returns the status of a task that was cancelled.
+     *
+     * @return the text
+     */
+    String cancelled();
+
+    /**
+     * Returns the line written when the selected property changes.
+     *
+     * @param selected the new value
+     * @param action whether the toggle command's action is selected
+     * @param check whether the check box is selected
+     * @param radio whether the radio button is selected
+     * @return the text
+     */
+    String selectedChanged(boolean selected, boolean action, boolean check, boolean radio);
+
+    /**
      * Returns the text of the elapsed time.
      *
      * @param millis the elapsed time, in milliseconds

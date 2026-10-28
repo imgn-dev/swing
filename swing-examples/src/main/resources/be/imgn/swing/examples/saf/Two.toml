@@ -1,0 +1,9 @@
+title = "Window Two"
+
+[commands.cancel]
+text = "Hide Window"
+tool-tip-text = "Hide this window"
+
+[label]
+text = "Label Two"
+font = "Lucida-PLAIN-48"

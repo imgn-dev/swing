@@ -1,0 +1,9 @@
+title = "Window Zero"
+
+[commands.cancel]
+text = "Hide Window"
+tool-tip-text = "Hide this window"
+
+[label]
+text = "Label Zero"
+font = "Lucida-PLAIN-48"

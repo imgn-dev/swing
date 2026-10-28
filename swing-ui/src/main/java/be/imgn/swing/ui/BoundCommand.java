@@ -200,7 +200,7 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
 
     private void start(Task<?> task, CommandContext context) {
         UiServices services = registry.services();
-        RunningTask running = services.tasks().start(task, view().scope(), id);
+        RunningTask running = services.tasks().start(task, view().scope(), id, true);
         Runnable unblock = TaskBlocking.block(services, view(), running, block, this, context);
         running.whenEnded(() -> services.executor().execute(unblock));
     }

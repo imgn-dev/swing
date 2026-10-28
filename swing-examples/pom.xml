@@ -49,6 +49,11 @@
       <version>${toml.version}</version>
     </dependency>
     <dependency>
+      <groupId>be.imgn.gaia</groupId>
+      <artifactId>gaia-core</artifactId>
+      <version>${gaia.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.jspecify</groupId>
       <artifactId>jspecify</artifactId>
     </dependency>
@@ -56,6 +61,12 @@
       <groupId>be.imgn.swing</groupId>
       <artifactId>swing-testing</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.gaia</groupId>
+      <artifactId>gaia-core-testing</artifactId>
+      <version>${gaia.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

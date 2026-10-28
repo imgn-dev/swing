@@ -1,0 +1,7 @@
+[commands.go]
+text = "&List"
+tool-tip-text = "List all of the files in the specified directory"
+
+[commands.stop]
+text = "&Stop"
+tool-tip-text = "Stop the file listing background task"

@@ -1,0 +1,10 @@
+title = "Textual actions demo"
+
+[commands.open]
+text = "&Open..."
+shortcut = "shortcut O"
+tool-tip-text = "open the document"
+
+[commands.close]
+text = "&Close"
+tool-tip-text = "close the document"

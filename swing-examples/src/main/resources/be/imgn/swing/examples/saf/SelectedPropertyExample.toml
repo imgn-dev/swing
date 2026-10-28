@@ -1,0 +1,8 @@
+[commands.toggleAction]
+text = "Check @Command(selected)"
+tool-tip-text = "Sets the toggle buttons' selected property"
+
+[commands.buttonAction]
+text = "Toggle the Buttons' Value"
+shortcut = "shortcut T"
+tool-tip-text = "Sets the SelectedPropertyExample selected property"

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -110,6 +111,30 @@ final class ResourceFiles {
         } catch (IOException e) {
             return List.of();
         }
+    }
+
+    /**
+     * Returns the base names of the TOML files of a package: the names of their classes.
+     *
+     * @param packageName the package
+     * @return the base names, such as {@code NotesView}, empty if the package's directory cannot be listed
+     */
+    Set<String> baseNames(String packageName) {
+        Set<String> names = new TreeSet<>();
+        for (Path dir : directories(packageName, "package.toml")) {
+            if (!Files.isDirectory(dir)) {
+                continue;
+            }
+            try (Stream<Path> files = Files.list(dir)) {
+                files.map(file -> file.getFileName().toString())
+                        .filter(name -> name.endsWith(".toml") && name.indexOf('.') == name.length() - ".toml".length())
+                        .filter(name -> name.indexOf('_') < 0)
+                        .forEach(name -> names.add(name.substring(0, name.length() - ".toml".length())));
+            } catch (IOException e) {
+                // A directory that cannot be listed has no file to find.
+            }
+        }
+        return names;
     }
 
     /**
