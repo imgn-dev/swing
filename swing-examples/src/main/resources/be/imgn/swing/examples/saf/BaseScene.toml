@@ -1,0 +1,7 @@
+[commands.create]
+text = "&Create"
+tool-tip-text = "Create a new Node"
+
+[commands.remove]
+text = "&Remove"
+tool-tip-text = "remove the selected Node"

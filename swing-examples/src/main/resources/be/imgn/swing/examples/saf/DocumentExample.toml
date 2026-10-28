@@ -1,0 +1,15 @@
+[commands.open]
+text = "&Open..."
+icon = "resources/open.png"
+shortcut = "shortcut O"
+tool-tip-text = "open a file"
+
+[commands.save]
+text = "&Save"
+icon = "resources/save.png"
+shortcut = "shortcut S"
+tool-tip-text = "save the current file"
+
+[commands.saveAs]
+text = "Save &As..."
+tool-tip-text = "save the current file to a new location"

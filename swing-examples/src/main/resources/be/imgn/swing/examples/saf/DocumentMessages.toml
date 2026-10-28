@@ -1,0 +1,5 @@
+confirmExit = "The text in the {file} file has changed.\nDo you really want to exit?"
+txtExtDescription = "Text Files"
+saveFailed = "Failed to save file {file} because {reason}"
+loadFailed = "Failed to load file {file} because {reason}"
+title = "{file} - {application}"
