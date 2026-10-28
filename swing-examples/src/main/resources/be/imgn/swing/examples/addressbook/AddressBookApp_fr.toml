@@ -1,0 +1,17 @@
+name = "Gestion d'adresses"
+title = "Simple application de gestion d'adresses"
+
+[menus.contacts]
+text = "&Contacts"
+
+[menus.task-tests]
+text = "&Tests de tâches"
+
+[firstNameLabel]
+text = "Prénom"
+
+[lastNameLabel]
+text = "Nom"
+
+[birthLabel]
+text = "Date de naissance"

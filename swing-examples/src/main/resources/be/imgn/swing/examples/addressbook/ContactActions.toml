@@ -1,0 +1,20 @@
+[commands.createContact]
+text = "Create Contact..."
+
+[commands.modifyContact]
+text = "Modify Contact..."
+
+[commands.createContactWithTabs]
+text = "Create Contact (Tab Dialog)..."
+
+[commands.modifyContactWithTabs]
+text = "Modify Contact (Tab Dialog)..."
+
+[commands.createContactWithWizard]
+text = "Create Contact (Wizard Dialog)..."
+
+[commands.modifyContactWithWizard]
+text = "Modify Contact (Wizard Dialog)..."
+
+[commands.deleteContact]
+text = "Delete Contact"

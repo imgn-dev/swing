@@ -1,0 +1,17 @@
+name = "Address Book"
+title = "Simple Address Book Application"
+
+[menus.contacts]
+text = "&Contacts"
+
+[menus.task-tests]
+text = "&Tasks Tests"
+
+[firstNameLabel]
+text = "First Name"
+
+[lastNameLabel]
+text = "Last Name"
+
+[birthLabel]
+text = "Birth Date"

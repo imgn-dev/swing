@@ -1,0 +1,5 @@
+[commands.previous]
+text = "< Pré&cédent"
+
+[commands.next]
+text = "&Suivant >"

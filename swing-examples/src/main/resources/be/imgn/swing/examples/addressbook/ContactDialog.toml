@@ -1,0 +1,16 @@
+title = "Contact details"
+
+[firstNameLabel]
+text = "&First Name"
+
+[lastNameLabel]
+text = "&Last Name"
+
+[birthLabel]
+text = "&Birth Date"
+
+[home]
+title = "Home Address"
+
+[office]
+title = "Office Address"
