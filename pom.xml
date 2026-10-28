@@ -49,6 +49,61 @@
     <toml.version>0.1.0-SNAPSHOT</toml.version>
   </properties>
 
+  <build>
+    <pluginManagement>
+      <plugins>
+        <!-- The parent's requirePluginVersions bans snapshot plugins, and inject's
+             and gaia's plugins are snapshots until they are released. The
+             parent's enforce-no-snapshots execution still rejects them in a
+             release. -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>enforce-build-rules</id>
+              <configuration>
+                <rules>
+                  <requirePluginVersions>
+                    <banSnapshots>false</banSnapshots>
+                  </requirePluginVersions>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <!-- Patches each module descriptor with the provides clauses of the
+             factories inject's processor generates. -->
+        <plugin>
+          <groupId>be.imgn.inject</groupId>
+          <artifactId>inject-maven-plugin</artifactId>
+          <version>${inject.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>register-factories</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <!-- Patches each module descriptor with the provides clauses of the
+             other services generated or declared in META-INF/services. -->
+        <plugin>
+          <groupId>be.imgn.gaia</groupId>
+          <artifactId>gaia-maven-plugin</artifactId>
+          <version>${gaia.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>register-services</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
   <profiles>
     <!-- On JDK 21, javadoc fails on a module with no public type, such as
          swing-flatlaf and swing-testing until milestone 1 gives them
