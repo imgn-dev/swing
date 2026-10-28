@@ -1,0 +1,13 @@
+title = "ExitListener Demo"
+
+[commands.exit]
+text = "Click to Exit"
+icon = "resources/exit.png"
+
+[panel]
+title = "border empty, title"
+
+[button]
+background = "#ffffff"
+foreground = "#000000"
+font = "Dialog-ITALIC-48"

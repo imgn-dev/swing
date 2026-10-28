@@ -5,8 +5,8 @@ import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
 import be.imgn.toml.TomlTable;
 import java.awt.Component;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractButton;
@@ -34,12 +34,13 @@ final class MenuBuilder {
 
     BoundMenu menu(Class<?> owner, String id) {
         return menus.computeIfAbsent(owner.getName() + "#" + id, key -> {
-            List<TomlTable> tables = new ArrayList<>();
+            Map<Class<?>, TomlTable> tables = new LinkedHashMap<>();
             if (STANDARD_MENUS.contains(id)) {
-                tables.add(section(StandardMenus.class, id));
+                tables.put(StandardMenus.class, section(StandardMenus.class, id));
             }
-            tables.add(section(owner == StandardMenus.class ? view.type() : owner, id));
-            CommandResources resources = CommandResources.of(tables.toArray(TomlTable[]::new));
+            Class<?> type = owner == StandardMenus.class ? view.type() : owner;
+            tables.put(type, section(type, id));
+            CommandResources resources = CommandResources.of(tables);
             return new BoundMenu(
                     this, id, Mnemonics.parse(resources.string("text").orElse(id)));
         });

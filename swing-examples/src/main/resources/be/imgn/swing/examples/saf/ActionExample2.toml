@@ -1,0 +1,11 @@
+[commands.clearTitle]
+text = "&Clear Window's Title"
+tool-tip-text = "Clear the Window's title"
+
+[commands.updateTitle]
+text = "&Set Window Title"
+tool-tip-text = "Set the Window's title"
+
+[field]
+text = "<Enter the window title here>"
+font = "LucidaSans-PLAIN-32"

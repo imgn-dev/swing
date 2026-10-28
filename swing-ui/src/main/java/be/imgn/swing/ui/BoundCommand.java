@@ -75,7 +75,7 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
             action.putValue(Action.DISPLAYED_MNEMONIC_INDEX_KEY, text.index());
         }
         resources.string("icon").ifPresent(path -> {
-            Icon icon = services.icons().load(owner.getPackageName(), path);
+            Icon icon = services.icons().load(resources.iconPackage(), path);
             action.putValue(Action.SMALL_ICON, icon);
             action.putValue(Action.LARGE_ICON_KEY, icon);
         });

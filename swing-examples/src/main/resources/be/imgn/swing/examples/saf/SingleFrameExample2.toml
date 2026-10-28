@@ -1,0 +1,6 @@
+[label]
+text = "Hello World"
+font = "Lucida-PLAIN-48"
+icon = "resources/earth.png"
+foreground = "#ffffff"
+background = "#000000"

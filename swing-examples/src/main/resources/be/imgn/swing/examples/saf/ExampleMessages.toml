@@ -1,0 +1,6 @@
+reallyExit = "Really exit?"
+errorOnButton = "Ah\nAh\nAh"
+cannotOpen = "Error: can''t open \"{file}\""
+listing = "Listing files in {directory}"
+listed = "{count,choice,0#No file listed|1#One file listed|1<{count,number,integer} files listed}"
+elapsed = "Elapsed time: {millis}"

@@ -94,12 +94,13 @@ public final class CommandRegistry {
     }
 
     private CommandResources resourcesOf(Class<?> owner, String id) {
-        List<TomlTable> tables = new ArrayList<>();
+        Map<Class<?>, TomlTable> tables = new LinkedHashMap<>();
         if (Standard.of(id).isPresent()) {
-            tables.add(section(StandardCommands.class, id));
+            tables.put(StandardCommands.class, section(StandardCommands.class, id));
         }
-        tables.add(section(owner == StandardCommands.class ? view.type() : owner, id));
-        return CommandResources.of(tables.toArray(TomlTable[]::new));
+        Class<?> type = owner == StandardCommands.class ? view.type() : owner;
+        tables.put(type, section(type, id));
+        return CommandResources.of(tables);
     }
 
     private TomlTable section(Class<?> type, String id) {

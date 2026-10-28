@@ -2,6 +2,4 @@
 module be.imgn.swing.examples {
     requires be.imgn.swing.ui;
     requires static org.jspecify;
-
-    opens be.imgn.swing.examples.counter;
 }
