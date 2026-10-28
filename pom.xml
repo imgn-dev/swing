@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- child.project.url.inherit.append.path: the attribute is not inherited from
+     be.imgn.parent:parent once <url> is redefined here, so it is repeated. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+         child.project.url.inherit.append.path="false">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>be.imgn.parent</groupId>
+    <artifactId>parent</artifactId>
+    <version>2026-11-SNAPSHOT</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>be.imgn.swing</groupId>
+  <artifactId>swing-parent</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>swing parent</name>
+  <description>Build configuration shared by the swing modules.</description>
+  <url>https://github.com/imgn-dev/swing</url>
+
+  <scm child.scm.connection.inherit.append.path="false"
+       child.scm.developerConnection.inherit.append.path="false"
+       child.scm.url.inherit.append.path="false">
+    <connection>scm:git:https://github.com/imgn-dev/swing.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/imgn-dev/swing.git</developerConnection>
+    <url>https://github.com/imgn-dev/swing</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <modules>
+    <module>swing-core</module>
+    <module>swing-processor</module>
+    <module>swing-ui</module>
+    <module>swing-flatlaf</module>
+    <module>swing-testing</module>
+  </modules>
+
+  <properties>
+    <java.release>21</java.release>
+
+    <gaia.version>0.1.2-SNAPSHOT</gaia.version>
+    <inject.version>0.1.1-SNAPSHOT</inject.version>
+    <toml.version>0.1.0-SNAPSHOT</toml.version>
+  </properties>
+
+  <profiles>
+    <!-- On JDK 21, javadoc fails on a module with no public type, such as
+         swing-flatlaf and swing-testing until milestone 1 gives them
+         types. JDK 25's javadoc documents them. -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>enforce-release-jdk</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <requireJavaVersion>
+                      <version>[25,)</version>
+                      <message>Build releases on JDK 25 or later: on JDK 21, javadoc fails on modules with no public type.</message>
+                    </requireJavaVersion>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- On JDK 21, Error Prone refuses to start without this javac flag, which
+         the parent (written for JDK 25) does not pass. -->
+    <profile>
+      <id>error-prone-on-jdk-21</id>
+      <activation>
+        <jdk>21</jdk>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                <compilerArgs combine.children="append">
+                  <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
+                </compilerArgs>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+  </profiles>
+
+</project>

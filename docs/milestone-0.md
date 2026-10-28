@@ -12,7 +12,7 @@ Every part of every sentence in this document is a requirement, and must be foll
 |---|---|
 | The root POM, the Maven wrapper, five modules and their descriptors | Every feature |
 | The first types whose packages the descriptors export: `Scope`, `View`, `@WindowScoped`, `@ViewScoped` | Every other type |
-| The processor's class, its service registration, and its tests on `TestCompiler` | The processor's steps |
+| The processor's class, its service registration, and its tests on `TestCompiler`, the processor path and the processor module path | The processor's steps |
 | The CI workflow, `README.md`, `.gitignore`, `.editorconfig` | The framework's own beans, with inject's processor and the `register-factories` and `register-services` goals |
 | Dependencies on gaia, inject and jspecify, as far as the sources use them | Dependencies on toml and FlatLaf, and between the swing modules |
 
@@ -37,10 +37,13 @@ swing-testing/
 swing-ui/
 ```
 
-- **Wrapper.** Generated once with `mvn wrapper:wrapper`, with no arguments and no configuration of its own: the version (3.10.0), the distribution type (`only-script`) and the Maven version come from the parent. `mvnw`, `mvnw.cmd` and `.mvn/wrapper/maven-wrapper.properties` are committed; no wrapper jar is. Builds always go through `./mvnw`.
+- **Wrapper.** Generated once with `mvn wrapper:wrapper`, with no arguments and no configuration of its own: the wrapper's version (3.3.4), the distribution type (`only-script`) and the Maven version (3.10.0) come from the parent. `mvnw`, `mvnw.cmd` and `.mvn/wrapper/maven-wrapper.properties` are committed; no wrapper jar is. Builds always go through `./mvnw`.
 - **`.gitignore`** has the same content as imgn-dev/toml's: `target/`, the IDE files (`.idea/`, `*.iml`, `.vscode/`, `.classpath`, `.project`, `.settings/`, `.factorypath`) and the OS files (`.DS_Store`, `Thumbs.db`). It replaces the current one, which ignores `*.jar`.
 - **`.editorconfig`** has the same content as imgn-dev/toml's: UTF-8, LF, a final newline, trimmed trailing whitespace except in `*.md`, 4-space indentation, 2 spaces for `*.{xml,yml,yaml,json}`, `max_line_length = 120` for `*.java`, CRLF for `*.cmd`.
-- **`README.md`** says what swing is in one paragraph, links to `docs/vision.md`, and gives the build: the prerequisites (a JDK 21 or later, and the snapshots of [Acceptance](#acceptance) installed locally until they are released) and the command `./mvnw install`.
+- **`README.md`** has three parts, and nothing else:
+  - a paragraph saying that swing is a framework for desktop applications in Swing, on Java 21, in development, and that the [vision](vision.md), linked as `docs/vision.md`, describes its principles, features and roadmap. It describes no feature as available;
+  - a `## Building` section listing the prerequisites: a JDK 21 or later, and, until they are released, each artifact of [Acceptance](#acceptance) with its version, installed in the local Maven repository;
+  - the command `./mvnw install`.
 
 ---
 
@@ -86,7 +89,40 @@ The parent wires `java.release` into the compiler's and javadoc's release and in
 </profile>
 ```
 
-The parent's gates run on every module and pass with no suppression: the enforcer, Checkstyle, Spotless (palantir-java-format), Error Prone and NullAway, javadoc with doclint, `-Werror`, and the dependency analysis. That analysis fails the build on a dependency that is declared but unused, or used but undeclared, so each module declares exactly what its sources use, and no more.
+The parent's gates run on every module and pass with no suppression: the enforcer, Checkstyle, Spotless (palantir-java-format), Error Prone and NullAway, `-Werror`, and the dependency analysis. That analysis fails the build on a compile-scope dependency that is declared but unused, or used but undeclared, so each module declares exactly the compile-scope dependencies its sources use, and no more. It doesn't check test-scope dependencies; each module declares those its tests use, and no more, all the same.
+
+javadoc, with doclint, runs only in the parent's `release` profile, not in `verify`. On JDK 21, it fails on a module with no public type ("No public or protected classes found to document"), which `swing-flatlaf` and `swing-testing` are until milestone 1; JDK 25's javadoc documents them. The root POM therefore adds a `release` profile that requires JDK 25 for releases:
+
+```xml
+<profile>
+  <id>release</id>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-release-jdk</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[25,)</version>
+                  <message>Build releases on JDK 25 or later: on JDK 21, javadoc fails on modules with no public type.</message>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</profile>
+```
 
 ---
 
@@ -148,7 +184,7 @@ public interface Scope {
 }
 ```
 
-Test `be.imgn.swing.ModuleTest.doesNotRequireJavaDesktop`: the module of `Scope` is named `be.imgn.swing`, and its descriptor's `requires()` doesn't contain `java.desktop`.
+Test `be.imgn.swing.ModuleTest.doesNotReadJavaDesktop`: the module of `Scope` is named `be.imgn.swing`, and its resolved module (`getLayer().configuration().findModule(...)`) doesn't read `java.desktop`. Readability covers the modules core requires and those they pass on with `requires transitive`, so a dependency that brings `java.desktop` along indirectly fails it too, not only a direct `requires java.desktop`.
 
 ### `swing-processor`
 
@@ -205,16 +241,22 @@ open module be.imgn.swing.processor {
 
 The POM configures Surefire with the system property `main.classes` set to `${project.build.outputDirectory}`, the location of the main descriptor.
 
+Test helpers, in `src/test/java/be/imgn/swing/processor/`:
+
+- **`ProcessorRuntime`** gives `mainClasses()`, the `main.classes` property as a path, failing with a message naming the property when it is missing; `requiredModules()`, the locations of the modules the main descriptor (`module-info.class` in `mainClasses()`) requires, directly or through their own `requires`, without `static` requirements and without the JDK's modules, found through the boot layer's configuration; and `jdkTool(String)`, the path of a tool of the JDK the tests run on.
+- **`Subprocess`** runs a command in another process, waits up to a minute for it (it is destroyed and the test fails otherwise), and returns its exit code, standard output and standard error, decoded with the `native.encoding` charset.
+
 Tests:
 
 | Test | Checks |
 |---|---|
-| `SwingProcessorTest.isRegistered` | `ProcessorAssert.assertThat(SwingProcessor.class).isRegistered()` |
-| `SwingProcessorTest.compilesASourceWithAResource` | `TestCompiler.javac()` with the processor, `-Werror`, the resource `p/NotesView.toml` (`title = "Notes"`) on `CLASS_OUTPUT`, and the source `package p; public class NotesView {}`: the compilation succeeds, with no warning and no generated source |
-| `ProcessorModuleTest.runsFromProcessorModulePath` | In a separate process, the JDK's `javac` compiles `module app {}` and `package app; public class Main {}` with `--processor-module-path` set to `main.classes` and the modules `be.imgn.gaia.processing`, `be.imgn.gaia.core`, `org.jspecify` and `com.google.errorprone.annotations` (located through the boot layer), and `-processor be.imgn.swing.processor.SwingProcessor`: it exits with 0 |
-| `ProcessorModuleTest.failsWithoutTheProcessorModule` | The same compilation without `main.classes` exits with a non-zero status, and its output names `be.imgn.swing.processor.SwingProcessor` |
+| `SwingProcessorTest.compilesWithAResourceOnTheClassOutput` | `TestCompiler.javac()` with the processor, `-Werror`, the resource `p/NotesView.toml` (`title = "Notes"`) on `CLASS_OUTPUT`, and the source `package p; public class NotesView {}`: the compilation succeeds, with no warning and no generated source. With no step yet, this only checks the test setup that milestone 1's steps build on |
+| `ProcessorPathTest.isFoundOnTheProcessorPath` | In another process, `java` runs a single-file program that lists the providers of `javax.annotation.processing.Processor` found by `ServiceLoader.load`, with `--class-path` set to `mainClasses()` and `requiredModules()`: it prints exactly `be.imgn.swing.processor.SwingProcessor`. Only `META-INF/services` makes it found there |
+| `ProcessorPathTest.isNotFoundWithoutTheMainClasses` | The same program with `requiredModules()` only prints nothing |
+| `ProcessorModuleTest.runsFromProcessorModulePath` | In another process, the JDK's `javac` compiles `module app {}` and `package app; public class Main {}` with `--processor-module-path` set to `mainClasses()` and `requiredModules()`, and `-processor be.imgn.swing.processor.SwingProcessor`: it exits with 0. Only the main descriptor's `provides` makes it found there |
+| `ProcessorModuleTest.failsWithoutTheProcessorModule` | The same compilation with `requiredModules()` only exits with a non-zero status, and its standard error names `be.imgn.swing.processor.SwingProcessor` |
 
-The compilations of `ProcessorModuleTest` run in a separate process: in the test's own JVM, javac would also find the processor that the test module provides. `-processor` names the processor, so javac fails when the processor module path doesn't provide it; without it, a processor that supports no annotation yet would never run, and the test would prove nothing.
+These tests run their tools in another process because, in the test JVM, the processor of the test module would be found instead: its descriptor provides the processor too, and the class loaders hand its package to it. `-processor` names the processor, so javac fails when the processor module path doesn't provide it; without it, a processor that supports no annotation yet would never run, and the test would prove nothing.
 
 ### `swing-ui`
 
@@ -302,6 +344,6 @@ With these snapshots installed in the local Maven repository:
 | `be.imgn.gaia` (gaia-core, gaia-processing, gaia-processing-testing) | `0.1.2-SNAPSHOT` |
 | `be.imgn.inject:inject` | `0.1.1-SNAPSHOT` |
 
-`./mvnw -B verify` succeeds on JDK 21 and on JDK 25, and runs the five tests above, all passing.
+`./mvnw -B verify` succeeds on JDK 21 and on JDK 25, and runs the six tests above, all passing.
 
 The upstream changes that milestone 1 builds on are agreed and implemented in those snapshots; their releases are a prerequisite of milestone 1, not of milestone 0.
