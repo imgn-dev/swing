@@ -4,6 +4,7 @@ import be.imgn.gaia.processing.AnnotatedElements;
 import be.imgn.gaia.processing.ProcessingContext;
 import be.imgn.gaia.processing.SourceScope;
 import be.imgn.gaia.processing.Step;
+import be.imgn.gaia.processing.source.ClassName;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -78,10 +79,24 @@ final class CommandsStep implements Step {
                     + " @Singleton, @WindowScoped or @ViewScoped, or implement a view, so that its commands run on the"
                     + " instance that received them");
         }
-        String name = Java.qualified(type, Commands.generatedName(type));
-        return shared.claimCommandsName(name)
+        String simpleName = Commands.generatedName(type);
+        String name = Java.qualified(type, simpleName);
+        if (!shared.claimCommandsName(name)) {
+            return Optional.of("Another class of the package also generates " + name);
+        }
+        return existingClassProblem(context, type, simpleName);
+    }
+
+    /**
+     * Returns why a generated class cannot be written, if a class of that name already exists: one of an earlier
+     * compilation on the class path, which the per-compilation claim of the name does not see, or one written by hand.
+     */
+    static Optional<String> existingClassProblem(ProcessingContext context, TypeElement type, String simpleName) {
+        String packageName = Java.packageOf(type).getQualifiedName().toString();
+        return context.sources().isAvailable(ClassName.of(packageName, simpleName))
                 ? Optional.empty()
-                : Optional.of("Another class of the package also generates " + name);
+                : Optional.of("The class " + Java.qualified(type, simpleName) + " that " + type.getQualifiedName()
+                        + " generates already exists, from an earlier compilation or written by hand");
     }
 
     private boolean check(TypeElement type, CommandInfo command) {

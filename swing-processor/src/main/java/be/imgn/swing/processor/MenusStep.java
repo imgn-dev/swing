@@ -113,6 +113,11 @@ final class MenusStep implements Step {
         }
         if (valid && !menus.isEmpty()) {
             String simpleName = Menus.generatedName(type);
+            Optional<String> existing = CommandsStep.existingClassProblem(context, type, simpleName);
+            if (existing.isPresent()) {
+                shared.reporter().error(type, existing.get());
+                return;
+            }
             context.sources()
                     .write(Java.qualified(type, simpleName), scope -> body(scope, type, simpleName, menus), type);
         }

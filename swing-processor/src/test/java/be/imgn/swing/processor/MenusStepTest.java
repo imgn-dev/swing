@@ -34,6 +34,25 @@ class MenusStepTest {
     }
 
     @Test
+    void rejectsAGeneratedNameThatAlreadyExists() {
+        var compilation = Sources.create()
+                .source("p.CounterApp", Sources.COUNTER)
+                .source("p.CounterAppMenus", "package p;\n\npublic class CounterAppMenus {}\n")
+                .resource("p/CounterApp.toml", """
+                        [commands.increment]
+                        text = "&Increment"
+
+                        [menus.recent-files]
+                        text = "&Recent"
+                        """)
+                .compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("The class p.CounterAppMenus that p.CounterApp generates already exists");
+    }
+
+    @Test
     void rejectsAnIdThatDoesNotConvert() {
         var compilation = Sources.create()
                 .source("p.CounterApp", Sources.COUNTER)

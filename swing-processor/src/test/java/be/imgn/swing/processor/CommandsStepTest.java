@@ -202,6 +202,21 @@ class CommandsStepTest {
     }
 
     @Test
+    void rejectsAGeneratedNameThatAlreadyExists() {
+        var compilation = view("""
+                    @Command
+                    void increment() {}
+                """)
+                .source("p.NotesViewCommands", "package p;\n\npublic class NotesViewCommands {}\n")
+                .resource("p/NotesView.toml", "[commands.increment]\ntext = \"Increment\"\n")
+                .compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("The class p.NotesViewCommands that p.NotesView generates already exists");
+    }
+
+    @Test
     void namesNestedClassesAfterTheirChain() {
         var compilation = Sources.create()
                 .source("p.Outer", """
