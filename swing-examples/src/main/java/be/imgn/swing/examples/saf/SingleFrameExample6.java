@@ -6,7 +6,6 @@ import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
-import be.imgn.swing.ui.StandardMenus;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
 import javax.swing.JComponent;
@@ -26,13 +25,11 @@ public final class SingleFrameExample6 implements SingleFrame {
     final JLabel mainLabel = new JLabel("", SwingConstants.CENTER);
 
     private final SingleFrameExample6Commands commands;
-    private final StandardMenus menus;
     private final Ui ui;
 
     @Inject
-    SingleFrameExample6(SingleFrameExample6Commands commands, StandardMenus menus, Ui ui) {
+    SingleFrameExample6(SingleFrameExample6Commands commands, Ui ui) {
         this.commands = commands;
-        this.menus = menus;
         this.ui = ui;
     }
 
@@ -52,7 +49,8 @@ public final class SingleFrameExample6 implements SingleFrame {
 
     @Override
     public JMenuBar menuBar() {
-        return ui.menuBar(menus.view()
+        return ui.menuBar(ui.menus()
+                .view()
                 .with(
                         commands.showWindow0(),
                         commands.showWindow1(),

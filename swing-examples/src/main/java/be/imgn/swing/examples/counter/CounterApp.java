@@ -6,9 +6,7 @@ import be.imgn.swing.ExitVeto;
 import be.imgn.swing.Messages;
 import be.imgn.swing.Property;
 import be.imgn.swing.ui.Command;
-import be.imgn.swing.ui.Dialogs;
 import be.imgn.swing.ui.SingleFrame;
-import be.imgn.swing.ui.StandardMenus;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
@@ -27,17 +25,13 @@ public final class CounterApp implements SingleFrame, ExitVeto {
     private final Property<Integer> count = Property.of(0);
     private final CounterMessages messages;
     private final CounterAppCommands commands;
-    private final StandardMenus menus;
     private final Ui ui;
-    private final Dialogs dialogs;
 
     @Inject
-    CounterApp(CounterMessages messages, CounterAppCommands commands, StandardMenus menus, Ui ui, Dialogs dialogs) {
+    CounterApp(CounterMessages messages, CounterAppCommands commands, Ui ui) {
         this.messages = messages;
         this.commands = commands;
-        this.menus = menus;
         this.ui = ui;
-        this.dialogs = dialogs;
     }
 
     /**
@@ -62,7 +56,7 @@ public final class CounterApp implements SingleFrame, ExitVeto {
 
     @Override
     public JMenuBar menuBar() {
-        return ui.menuBar(menus.file().with(commands.exit()));
+        return ui.menuBar(ui.menus().file().with(commands.exit()));
     }
 
     @Override
@@ -72,7 +66,7 @@ public final class CounterApp implements SingleFrame, ExitVeto {
 
     @Override
     public boolean canExit() {
-        return dialogs.confirm(messages.confirmExit());
+        return ui.dialogs().confirm(messages.confirmExit());
     }
 
     @Command

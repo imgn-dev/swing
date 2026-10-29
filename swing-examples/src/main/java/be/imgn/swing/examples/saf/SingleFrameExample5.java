@@ -9,7 +9,6 @@ import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
-import be.imgn.swing.ui.StandardMenus;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.ToolBarEntry;
 import be.imgn.swing.ui.Ui;
@@ -62,16 +61,14 @@ public final class SingleFrameExample5 implements SingleFrame {
     // Each load gets a generation; stopping moves to the next one, which the running load sees.
     private final Property<Integer> current = Property.of(0);
     private final SingleFrameExample5Commands commands;
-    private final StandardMenus menus;
     private final Ui ui;
     private final ExampleMessages messages;
     private int imageIndex;
     private int loading;
 
     @Inject
-    SingleFrameExample5(SingleFrameExample5Commands commands, StandardMenus menus, Ui ui, ExampleMessages messages) {
+    SingleFrameExample5(SingleFrameExample5Commands commands, Ui ui, ExampleMessages messages) {
         this.commands = commands;
-        this.menus = menus;
         this.ui = ui;
         this.messages = messages;
     }
@@ -104,7 +101,8 @@ public final class SingleFrameExample5 implements SingleFrame {
 
     @Override
     public JMenuBar menuBar() {
-        return ui.menuBar(menus.file()
+        return ui.menuBar(ui.menus()
+                .file()
                 .with(
                         commands.previousImage(),
                         commands.nextImage(),

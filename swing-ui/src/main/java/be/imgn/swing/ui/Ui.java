@@ -1,6 +1,7 @@
 package be.imgn.swing.ui;
 
 import be.imgn.inject.Inject;
+import be.imgn.inject.Provider;
 import be.imgn.swing.Observable;
 import be.imgn.swing.Scope;
 import be.imgn.swing.Task;
@@ -26,18 +27,58 @@ public final class Ui {
 
     private final ViewHost view;
     private final UiServices services;
-    private final MenuBuilder menus;
-    private final DialogFlow dialogs;
+    private final MenuBuilder builder;
+    private final DialogFlow flow;
+    private final Window window;
+    private final Dialogs dialogs;
+    private final Provider<StandardMenus> menus;
 
+    // StandardMenus depends on Ui, hence the Provider.
     @Inject
-    Ui(Window window, Scope scope, UiServices services, DialogFlow dialogs) {
+    Ui(
+            Window window,
+            Scope scope,
+            UiServices services,
+            DialogFlow flow,
+            Dialogs dialogs,
+            Provider<StandardMenus> menus) {
         this.view = services.registry().viewOf(scope);
         if (!Objects.equals(view.window().window(), window)) {
             throw new IllegalStateException("The view " + view.type().getName() + " is not in this window");
         }
         this.services = services;
-        this.menus = new MenuBuilder(view, services);
+        this.builder = new MenuBuilder(view, services);
+        this.flow = flow;
+        this.window = window;
         this.dialogs = dialogs;
+        this.menus = menus;
+    }
+
+    /**
+     * Returns the window of this view.
+     *
+     * @return the window
+     */
+    public Window window() {
+        return window;
+    }
+
+    /**
+     * Returns the dialogs of this view's window: messages, confirmations and errors.
+     *
+     * @return the dialogs
+     */
+    public Dialogs dialogs() {
+        return dialogs;
+    }
+
+    /**
+     * Returns the standard menus of this view, which {@link #menuBar(MenuSpec...)} takes.
+     *
+     * @return the standard menus
+     */
+    public StandardMenus menus() {
+        return menus.get();
     }
 
     /**
@@ -63,7 +104,7 @@ public final class Ui {
      * @return the menu bar
      */
     public JMenuBar menuBar(MenuSpec... specs) {
-        return menus.menuBar(specs);
+        return builder.menuBar(specs);
     }
 
     /**
@@ -75,7 +116,7 @@ public final class Ui {
      * @return the popup menu
      */
     public JPopupMenu popupMenu(JComponent invoker, MenuEntry... entries) {
-        return menus.popupMenu(Objects.requireNonNull(invoker, "invoker"), entries);
+        return builder.popupMenu(Objects.requireNonNull(invoker, "invoker"), entries);
     }
 
     /**
@@ -85,7 +126,7 @@ public final class Ui {
      * @return the toolbar
      */
     public JToolBar toolBar(ToolBarEntry... entries) {
-        return menus.toolBar(entries);
+        return builder.toolBar(entries);
     }
 
     /**
@@ -115,7 +156,7 @@ public final class Ui {
      */
     public <R> Optional<R> showDialog(Class<? extends DialogView<R>> type) {
         Objects.requireNonNull(type, "type");
-        return dialogs.show(view, Optional.of(type), host -> host.getInstance(type));
+        return flow.show(view, Optional.of(type), host -> host.getInstance(type));
     }
 
     /**
@@ -131,10 +172,10 @@ public final class Ui {
     public <F, R> Optional<R> showDialog(Class<F> factory, Function<? super F, ? extends DialogView<R>> create) {
         Objects.requireNonNull(factory, "factory");
         Objects.requireNonNull(create, "create");
-        return dialogs.show(view, Optional.empty(), host -> create.apply(host.getInstance(factory)));
+        return flow.show(view, Optional.empty(), host -> create.apply(host.getInstance(factory)));
     }
 
     BoundMenu menu(Class<?> owner, String id) {
-        return menus.menu(owner, id);
+        return builder.menu(owner, id);
     }
 }

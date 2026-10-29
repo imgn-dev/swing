@@ -3,10 +3,10 @@ package be.imgn.swing.examples.saf;
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
 import be.imgn.swing.ExitVeto;
-import be.imgn.swing.ui.Dialogs;
 import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
+import be.imgn.swing.ui.Ui;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -21,12 +21,12 @@ public final class ExitExample1 implements SingleFrame, ExitVeto {
     @Exposed
     final JLabel label = new JLabel("", SwingConstants.CENTER);
 
-    private final Dialogs dialogs;
+    private final Ui ui;
     private final ExampleMessages messages;
 
     @Inject
-    ExitExample1(Dialogs dialogs, ExampleMessages messages) {
-        this.dialogs = dialogs;
+    ExitExample1(Ui ui, ExampleMessages messages) {
+        this.ui = ui;
         this.messages = messages;
     }
 
@@ -47,6 +47,6 @@ public final class ExitExample1 implements SingleFrame, ExitVeto {
 
     @Override
     public boolean canExit() {
-        return dialogs.confirm(messages.reallyExit());
+        return ui.dialogs().confirm(messages.reallyExit());
     }
 }

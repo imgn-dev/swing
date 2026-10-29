@@ -847,7 +847,7 @@ Both block until the dialog closes, on the EDT, as modal dialogs do, and return 
 
 ### `Ui`
 
-`Ui` (UI, `@ViewScoped`) gathers what a view needs to build its components. Every method is called on the EDT, and every subscription it makes belongs to its view's scope.
+`Ui` (UI, `@ViewScoped`) gathers what a view needs to build its components, so a view injects `Ui`, its generated commands and its messages, rather than each service. Every method is called on the EDT, and every subscription it makes belongs to its view's scope.
 
 | Method | See |
 |---|---|
@@ -857,6 +857,11 @@ Both block until the dialog closes, on the EDT, as modal dialogs do, and return 
 | `JToolBar toolBar(ToolBarEntry... entries)` | [Menus and toolbars](#menus-and-toolbars) |
 | `void run(Task<?> task, Block block)` | [Tasks](#tasks) |
 | `showDialog(...)`, both forms | [Dialogs](#dialogs) |
+| `Window window()` | The view's window, the `Window` of its window scope |
+| `Dialogs dialogs()` | The `Dialogs` of the view's window |
+| `StandardMenus menus()` | The view's `StandardMenus`, which `Ui` reaches through a `Provider`, since `StandardMenus` depends on `Ui` |
+
+`Window`, `Dialogs` and `StandardMenus` stay beans of their scopes, which any bean may inject.
 
 ---
 

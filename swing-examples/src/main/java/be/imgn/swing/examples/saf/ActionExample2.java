@@ -6,7 +6,7 @@ import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
-import be.imgn.swing.ui.Window;
+import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import javax.swing.JComponent;
@@ -20,12 +20,12 @@ public class ActionExample2 implements SingleFrame {
     @Exposed
     final JTextField field = new JTextField();
 
-    private final Window window;
+    private final Ui ui;
     private final ActionExample2Commands commands;
 
     @Inject
-    ActionExample2(Window window, ActionExample2Commands commands) {
-        this.window = window;
+    ActionExample2(Ui ui, ActionExample2Commands commands) {
+        this.ui = ui;
         this.commands = commands;
     }
 
@@ -51,11 +51,11 @@ public class ActionExample2 implements SingleFrame {
 
     @Command
     void updateTitle() {
-        window.setTitle(field.getText());
+        ui.window().setTitle(field.getText());
     }
 
     @Command
     void clearTitle() {
-        window.setTitle("");
+        ui.window().setTitle("");
     }
 }
