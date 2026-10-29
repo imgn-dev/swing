@@ -30,8 +30,8 @@ final class AboutDialog implements DialogView<Void> {
         JPanel panel = new JPanel(new GridLayout(0, 1));
         panel.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
         panel.add(new JLabel(application.displayedName()));
-        application.version().ifPresent(version -> panel.add(new JLabel(texts.version() + " " + version)));
-        application.vendor().ifPresent(vendor -> panel.add(new JLabel(texts.vendor() + " " + vendor)));
+        application.version().ifPresent(version -> panel.add(new JLabel(texts.version(version))));
+        application.vendor().ifPresent(vendor -> panel.add(new JLabel(texts.by(vendor))));
         return panel;
     }
 
