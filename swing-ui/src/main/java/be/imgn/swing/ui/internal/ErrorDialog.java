@@ -74,7 +74,9 @@ public final class ErrorDialog {
             String detailsText,
             String copyText,
             String closeText) {
-        Window window = owner == null ? null : SwingUtilities.getWindowAncestor(owner);
+        // getWindowAncestor starts at the parent, so a window given as the owner is its own owner.
+        Window window =
+                owner instanceof Window own ? own : owner == null ? null : SwingUtilities.getWindowAncestor(owner);
         JDialog dialog = new JDialog(window, title, Dialog.ModalityType.APPLICATION_MODAL);
         String details = details(cause);
         JTextArea area = new JTextArea(details);
