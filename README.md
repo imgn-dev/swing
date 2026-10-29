@@ -9,6 +9,8 @@ Prerequisites:
 - A JDK 21 or later.
 - Until they are released, these snapshots installed in the local Maven repository: `be.imgn.parent:parent:2026-11-SNAPSHOT`; `be.imgn.gaia:gaia-core`, `gaia-core-testing`, `gaia-memfs`, `gaia-processing`, `gaia-processing-testing` and `gaia-maven-plugin` `0.1.2-SNAPSHOT`; `be.imgn.inject:inject`, `inject-processor` and `inject-maven-plugin` `0.1.1-SNAPSHOT`; `be.imgn.toml:toml:0.1.0-SNAPSHOT`.
 
+CI installs these snapshots itself, from the upstream commits pinned in `.github/workflows/ci.yml`; that step goes at the first releases.
+
 Then:
 
 ```bash
