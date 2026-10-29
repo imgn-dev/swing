@@ -107,9 +107,10 @@
   </build>
 
   <profiles>
-    <!-- On JDK 21, javadoc fails on a module with no public type, such as
-         swing-flatlaf and swing-testing until milestone 1 gives them
-         types. JDK 25's javadoc documents them. -->
+    <!-- Releases are built on JDK 25 or later. On JDK 21, javadoc fails on a
+         module with no public type; every module has one since milestone 1,
+         but JDK 25's javadoc documents such a module too, so an empty module
+         never breaks a release. -->
     <profile>
       <id>release</id>
       <build>
