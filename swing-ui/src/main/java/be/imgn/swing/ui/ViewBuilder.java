@@ -117,13 +117,9 @@ final class ViewBuilder {
         }
     }
 
-    /** Closes a window: its child injector, which closes its views' first, then its scope. */
+    /** Closes a window: each view's injector then scope, the last view first, then the window's own. */
     void close(WindowHost window) {
-        try {
-            window.injector().close();
-        } finally {
-            window.scope().close();
-        }
+        window.close();
     }
 
     UiServices services() {

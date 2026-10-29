@@ -130,4 +130,13 @@ public final class ViewHost {
         pendingAttachments.clear();
         pending.forEach(Runnable::run);
     }
+
+    /** Closes the view: its child injector, which runs {@code @PreDestroy} on its beans, then its scope. Idempotent. */
+    public void close() {
+        try {
+            injector.close();
+        } finally {
+            scope.close();
+        }
+    }
 }

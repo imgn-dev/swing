@@ -7,8 +7,8 @@ import be.imgn.swing.ShutdownStep;
 import be.imgn.swing.ui.Windows;
 
 /**
- * Disposes of the windows at shutdown, and closes their child injectors from innermost to outermost, which runs
- * {@code @PreDestroy} on their scoped beans.
+ * Disposes of the windows at shutdown, and closes them from innermost to outermost: each view's child injector, which
+ * runs {@code @PreDestroy} on its scoped beans, then its scope, then the window's child injector, then its scope.
  */
 @Singleton
 @IntoSet(ShutdownStep.class)
@@ -34,11 +34,7 @@ public final class DisposeWindowsStep implements ShutdownStep {
     public void run() {
         for (WindowHost window : registry.windows().reversed()) {
             windows.dispose(window.window());
-            try {
-                window.injector().close();
-            } finally {
-                window.scope().close();
-            }
+            window.close();
         }
     }
 }

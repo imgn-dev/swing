@@ -128,4 +128,23 @@ public final class WindowHost {
     void add(ViewHost view) {
         views.add(view);
     }
+
+    /**
+     * Closes the window, innermost first: each view, the last built first, then the window's child injector, which runs
+     * {@code @PreDestroy} on its beans, then the window's scope. A view's scope is thus closed right after its
+     * injector, before the window's beans are destroyed. Idempotent.
+     */
+    public void close() {
+        try {
+            for (ViewHost view : views().reversed()) {
+                view.close();
+            }
+        } finally {
+            try {
+                injector.close();
+            } finally {
+                scope.close();
+            }
+        }
+    }
 }
