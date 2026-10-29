@@ -2,7 +2,6 @@ package be.imgn.swing.flatlaf;
 
 import be.imgn.swing.ApplicationInfo;
 import be.imgn.swing.Resources;
-import be.imgn.swing.internal.DefaultApplicationInfo;
 import be.imgn.swing.ui.LookAndFeelInstaller;
 import be.imgn.toml.TomlString;
 import com.formdev.flatlaf.FlatDarkLaf;
@@ -53,9 +52,15 @@ public final class FlatLafInstaller implements LookAndFeelInstaller {
             }
             LOGGER.log(System.Logger.Level.WARNING, "Unknown theme " + property + " in -D" + Theme.PROPERTY);
         }
-        if (application instanceof DefaultApplicationInfo info
-                && resources.table(info.descriptor().type()).entries().get("theme") instanceof TomlString theme) {
-            return Theme.of(theme.value()).orElse(Theme.SYSTEM);
+        if (resources.table(application.type()).entries().get("theme") instanceof TomlString resource) {
+            Optional<Theme> theme = Theme.of(resource.value());
+            if (theme.isPresent()) {
+                return theme.get();
+            }
+            LOGGER.log(
+                    System.Logger.Level.WARNING,
+                    "Unknown theme " + resource.value() + " in the resources of "
+                            + application.type().getName());
         }
         return Theme.SYSTEM;
     }

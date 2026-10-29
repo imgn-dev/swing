@@ -64,6 +64,11 @@ public final class DefaultApplicationInfo implements ApplicationInfo {
     }
 
     @Override
+    public Class<?> type() {
+        return descriptor.type();
+    }
+
+    @Override
     public String name() {
         return descriptor.name();
     }

@@ -8,6 +8,13 @@ import java.util.Optional;
 public interface ApplicationInfo {
 
     /**
+     * Returns the application class, {@link ApplicationDescriptor#type()}, whose resources are the application's.
+     *
+     * @return the application class
+     */
+    Class<?> type();
+
+    /**
      * Returns {@link Application#name()}.
      *
      * @return the application's name
