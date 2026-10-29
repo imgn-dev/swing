@@ -258,9 +258,7 @@ public final class AppTester<T> implements AutoCloseable {
      * @return {@code true} until it exits
      */
     public boolean isRunning() {
-        executor.settle();
-        failures.throwIfAny();
-        return running;
+        return call(() -> running);
     }
 
     /**
@@ -270,10 +268,12 @@ public final class AppTester<T> implements AutoCloseable {
      * @throws IllegalStateException if the application runs
      */
     public int exitStatus() {
-        if (isRunning()) {
-            throw new IllegalStateException("The application is running");
-        }
-        return exitStatus;
+        return call(() -> {
+            if (running) {
+                throw new IllegalStateException("The application is running");
+            }
+            return exitStatus;
+        });
     }
 
     private void showDialog(HeadlessWindows.HeadlessWindow window) {
