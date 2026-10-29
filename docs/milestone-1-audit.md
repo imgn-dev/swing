@@ -15,7 +15,7 @@ The branch implements milestone 1 faithfully in structure and in API. Every modu
 
 It is not yet acceptable: six behaviors contradict the requirements ([A](#a-behaviors-that-contradict-the-requirements)), four required things are missing ([B](#b-required-and-missing)), the vision's principles are broken in three places ([C](#c-vision-principles-broken-in-the-code)), and the requirements were departed from in eight places without the document being updated first, as its own rule demands ([D](#d-code-that-departs-from-the-requirements-without-the-document-being-updated)): "Any deviation […] is reported at once, before working around it or going further. The document is then updated, and only then does the implementation follow the new text" ([source](milestone-1.md#milestone-1-requirements)). Section [F](#f-where-milestone-1-departs-from-the-vision-without-recording-it) lists the places where milestone 1 departs from the vision without recording it, a documentation debt rather than a code one.
 
-The fixes of section A are applied on this branch, after the audit; each finding there says what was done. The other sections are as found.
+Status: the six findings of section A are fixed on this branch (`f74a613` to `ab11dbd`), after the audit, and marked so in their headings. Sections B to F are as found.
 
 Severity, throughout:
 
@@ -26,56 +26,58 @@ Severity, throughout:
 
 ## A. Behaviors that contradict the requirements
 
-### A1. A vetoed OS Quit is never cancelled — DEVIATION
+All six are fixed on this branch, in `f74a613` to `ab11dbd`; each finding says what was done.
+
+### A1. A vetoed OS Quit is never cancelled — DEVIATION, fixed
 
 - Requirement: "The first one that returns `false` cancels; for the OS Quit, the framework then calls `QuitResponse.cancelQuit()`" ([source](milestone-1.md#shutdown)).
 - Code: `swing-ui/src/main/java/be/imgn/swing/ui/MainWindowFlow.java:106-112`.
 - The quit handler runs the `exit` command, which posts the shutdown with `invokeLater`, then posts a second runnable that calls `cancelQuit()` only if `!lifecycle.isShuttingDown()`. A veto that shows a modal dialog, as `CounterApp.canExit()` does through `Dialogs.confirm`, pumps a nested event loop: the check runs while the state is `ASKING`, sees a shutdown in progress, and does nothing. When the veto then returns `false`, the `QuitResponse` is left unanswered.
 - `DefaultLifecycle.onCancel(Runnable)` (`swing-core/src/main/java/be/imgn/swing/internal/DefaultLifecycle.java:74-77`) exists for exactly this and has no caller outside tests.
 - Fix: in the quit handler, register a one-shot cancel listener before running `exit`: `Runnable withdraw = lifecycle.onCancel(() -> { withdraw.run(); response.cancelQuit(); })`, and withdraw it when the shutdown goes through instead. When the request is ignored because a shutdown already runs (`isShuttingDown()` before the call), call `cancelQuit()` at once. The requirement can't be dropped: an unanswered `QuitResponse` leaves macOS believing the application is quitting, so a second ⌘Q is ignored.
-- Applied: `MainWindowFlow` answers the `QuitResponse` through `DefaultLifecycle.onCancel`, at once when a shutdown already runs, and when the `exit` command is disabled; `LifecycleTest.withdrawsACancelListener` covers the withdrawal.
+- Applied in `f74a613`: `MainWindowFlow` answers the `QuitResponse` through `DefaultLifecycle.onCancel`, at once when a shutdown already runs, and when the `exit` command is disabled; `LifecycleTest.withdrawsACancelListener` covers the withdrawal.
 
-### A2. The error dialog is never owned by its window — DEVIATION
+### A2. The error dialog is never owned by its window — DEVIATION, fixed
 
 - Requirement: the `FailureHandler` of the UI module "Shows the error dialog, owned by the focused window, else by the main window" ([source](milestone-1.md#shutdown)); `Dialogs` "shows standard dialogs, owned by its window" ([source](milestone-1.md#dialogs)).
 - Code: `swing-ui/src/main/java/be/imgn/swing/ui/internal/SwingDialogs.java:24-26,41`, `swing-ui/src/main/java/be/imgn/swing/ui/internal/ErrorDialog.java:77,103`.
 - `SwingDialogs` passes the AWT `JFrame` or `JDialog` itself as the owner component, and `ErrorDialog` resolves the owner with `SwingUtilities.getWindowAncestor(owner)`, which starts at `getParent()`: `null` for a `JFrame`, the owner frame for a `JDialog`. The error dialog is created with no owner, and `setLocationRelativeTo(null)` centers it on the screen.
 - `confirm` and `inform` are unaffected: `JOptionPane` special-cases a `Window` argument.
 - Fix: in `ErrorDialog.show`, resolve the owner as `owner instanceof Window window ? window : SwingUtilities.getWindowAncestor(owner)`, or change the parameter to `@Nullable Window` and have `SwingDialogs` pass `real.awt()` directly. One line either way.
-- Applied: `ErrorDialog.show` takes a window given as the owner as its own owner.
+- Applied in `c4a3e0e`: `ErrorDialog.show` takes a window given as the owner as its own owner.
 
-### A3. The French standard menus `view` and `help` share a mnemonic — DEVIATION
+### A3. The French standard menus `view` and `help` share a mnemonic — DEVIATION, fixed
 
 - Requirement: `StandardMenus` provides `file()`, `edit()`, `view()`, `window()` and `help()` "with text and mnemonics from the framework's resources" ([source](milestone-1.md#menus-and-toolbars)), and the framework "checks for duplicate mnemonics in each menu and among the bar's menus when it builds them: an exception in development mode and in tests, a warning otherwise" ([source](milestone-1.md#menus-and-toolbars)).
 - Code: `swing-ui/src/main/resources/be/imgn/swing/ui/StandardMenus_fr.toml:7-8,13-14`.
 - `[menus.view] text = "&Affichage"` and `[menus.help] text = "&Aide"` both mark `A`. A French menu bar that holds `view()` and `help()` fails the framework's own check (`MenuBuilder.java:137-151`) in tests and in development mode, and warns otherwise.
 - Fix: give `help` another letter, `Aid&e` (`d` is `É&dition`'s, `n` is `Fe&nêtre`'s), or `view` one, `Afficha&ge`. Guard it: a `swing-ui` test that builds a bar from the five standard menus in every locale the framework ships and runs `MenuBuilder.check`; with [B1](#b1-the-actionevent-to-commandcontext-test-doesnt-exist--gap) it starts `swing-ui`'s test suite.
-- Applied: `help` is `Aid&e`; `swing-ui`'s first test, `StandardMenusResourcesTest`, parses `StandardMenus.toml` and `StandardMenus_fr.toml` and fails on a missing or shared mnemonic.
+- Applied in `012a33b`: `help` is `Aid&e`; `swing-ui`'s first test, `StandardMenusResourcesTest`, parses `StandardMenus.toml` and `StandardMenus_fr.toml` and fails on a missing or shared mnemonic.
 
-### A4. Standard-command overrides are ignored in dialogs built from a factory — DEVIATION
+### A4. Standard-command overrides are ignored in dialogs built from a factory — DEVIATION, fixed
 
 - Requirement: "In a view whose class, or one of its superclasses, declares the override, every `StandardCommands` instance of the view returns the user-written command. The framework registers the view class's overrides in the view's `CommandRegistry` before it resolves the view" ([source](milestone-1.md#overriding-standard-commands)).
 - Code: `swing-ui/src/main/java/be/imgn/swing/ui/Ui.java:131-135`, `swing-ui/src/main/java/be/imgn/swing/ui/ViewBuilder.java:71-78`, `swing-ui/src/main/java/be/imgn/swing/ui/CommandRegistry.java:90`.
 - `showDialog(factory, create)` passes the type as `Optional.empty()`, so `ViewBuilder` skips `overrides(known, injector)` and `view.type()` is `Object.class` while the dialog's generated commands class is constructed; `CommandRegistry.bind` records an override only if `owner.isAssignableFrom(view.type())`. A dialog built through an assisted factory that overrides `ok`, `cancel` or any other standard command gets the standard one. Views resolved by type conform.
 - As written, the requirement can't be met for the factory form, since the type is unknown before `create` runs.
 - Fix: `StandardCommands.exit()` and its siblings call `registry.standard(...)` on every call (`StandardCommands.java:35-55`), so the overrides only need to be in place before anything calls them, not before resolution. In `ViewBuilder.buildView`, once `type` is empty and the instance exists, set `view.type(instance.getClass())` and call `overrides(type, injector)`, and have `CommandRegistry` re-run the override check over the commands already bound (those whose owner is assignable from the now-known type). That happens before `content()` and `buttons()`, which is where standard commands are placed. Then reword the requirement: "before it resolves the view, or, for a view created by a factory, as soon as the view exists and before its component resources are applied". A standard command called from the dialog's constructor stays the standard one; say so.
-- Applied: `ViewBuilder.buildView` registers the overrides of a factory-built view as soon as it exists, and `CommandRegistry.viewTypeKnown()` records the overrides among the commands bound in its constructor; the [overriding section](milestone-1.md#overriding-standard-commands) says so.
+- Applied in `2fe9269`: `ViewBuilder.buildView` registers the overrides of a factory-built view as soon as it exists, and `CommandRegistry.viewTypeKnown()` records the overrides among the commands bound in its constructor; the [overriding section](milestone-1.md#overriding-standard-commands) says so.
 
-### A5. A `Programmatic` context reached through the `Action` carries modifiers — DEVIATION
+### A5. A `Programmatic` context reached through the `Action` carries modifiers — DEVIATION, fixed
 
 - Requirement: "From `OperatingSystem` and `Programmatic` triggers, the set is empty" ([source](milestone-1.md#declaration)).
 - Code: `swing-ui/src/main/java/be/imgn/swing/ui/CommandAction.java:35-37,56-66`.
 - An `ActionEvent` whose source is neither a `JMenuItem` nor an `AbstractButton` maps to `Trigger.Programmatic`, but the event's modifiers are still read into the context, so a `Programmatic` context can carry `SHIFT`.
 - Fix: in `contextOf`, compute the trigger first and pass `Set.of()` when it is `Programmatic`. Cover it in the [B1](#b1-the-actionevent-to-commandcontext-test-doesnt-exist--gap) test with an event whose source is a plain `Object`.
-- Applied: `CommandAction.contextOf` gives a `Programmatic` trigger no modifiers; the test waits for [B1](#b1-the-actionevent-to-commandcontext-test-doesnt-exist--gap).
+- Applied in `91203e5`: `CommandAction.contextOf` gives a `Programmatic` trigger no modifiers; the test waits for [B1](#b1-the-actionevent-to-commandcontext-test-doesnt-exist--gap).
 
-### A6. Translation diagnostics contain NUL characters — DEVIATION
+### A6. Translation diagnostics contain NUL characters — DEVIATION, fixed
 
 - Requirement: "Diagnostics are attached to the Java element […], with the file, line and column in the message" ([source](milestone-1.md#build-time-checks)).
 - Code: `swing-processor/src/main/java/be/imgn/swing/processor/ResourceChecks.java:487,552,567`.
 - The key paths of the Translations check are joined with `"\u0000"` and printed as such: `The key commands<NUL>increment<NUL>tool-tip-text is not in the base file`. `ResourcesStepTest.java:109` asserts the prefix only.
 - Fix: key the `leaves` map by `List<String>` instead of a joined string, and print the path as a TOML key path, `commands.increment.tool-tip-text`, quoting a segment that isn't a bare key. Make `ResourcesStepTest` assert the whole message.
-- Applied: the paths are `List<String>` keys and print as dotted TOML keys; `ResourcesStepTest.checksTheTranslations` asserts the whole message.
+- Applied in `ab11dbd`: the paths are `List<String>` keys and print as dotted TOML keys; `ResourcesStepTest.checksTheTranslations` asserts the whole message.
 
 ## B. Required and missing
 
@@ -84,7 +86,7 @@ Severity, throughout:
 - Requirement: "a test sends `new ActionEvent(item, ActionEvent.ACTION_PERFORMED, id, when, ActionEvent.SHIFT_MASK)` to the command's `Action`, for a `JMenuItem` in a menu bar, in a popup menu and for a `JButton`, and checks the context the handler receives" ([source](milestone-1.md#declaration)).
 - No such test exists. `swing-ui` has no `src/test` directory; the only `ActionEvent` built in a test (`swing-examples/src/test/java/be/imgn/swing/examples/saf/TaskExamplesTest.java:54`) uses `this` as its source and never inspects the context. The package-private `CommandAction.contextOf(ActionEvent, boolean)` was written for this test.
 - More broadly, `swing-ui`, `swing-flatlaf` (an empty `src/test`) and `swing-testing` have no tests: the harness and all UI behavior are exercised through `swing-examples` only.
-- Fix: add `swing-ui/src/test/java/be/imgn/swing/ui/CommandActionTest` calling `CommandAction.contextOf` with the three sources and `SHIFT_MASK`, for both values of the macOS flag, and asserting the trigger's record type and component and the modifier set; it needs no `AppTester`. Then give `swing-ui` and `swing-testing` the tests only they can hold: `MenuBuilder` (separators, mnemonic and shortcut checks, the macOS drop, dynamic rebuilds), `ErrorDialog` ownership ([A2](#a2-the-error-dialog-is-never-owned-by-its-window--deviation)), `WindowStateFile` round trips, `Components` search order, `TestExecutor` settling. Keep the examples' tests as acceptance tests, not as the framework's only tests.
+- Fix: add `swing-ui/src/test/java/be/imgn/swing/ui/CommandActionTest` calling `CommandAction.contextOf` with the three sources and `SHIFT_MASK`, for both values of the macOS flag, and asserting the trigger's record type and component and the modifier set; it needs no `AppTester`. Then give `swing-ui` and `swing-testing` the tests only they can hold: `MenuBuilder` (separators, mnemonic and shortcut checks, the macOS drop, dynamic rebuilds), `ErrorDialog` ownership ([A2](#a2-the-error-dialog-is-never-owned-by-its-window--deviation-fixed)), `WindowStateFile` round trips, `Components` search order, `TestExecutor` settling. Keep the examples' tests as acceptance tests, not as the framework's only tests.
 
 ### B2. The acceptance ports are incomplete, and their reductions unrecorded — GAP
 
@@ -220,7 +222,7 @@ Recorded so that milestone 2 or a later audit can decide them; none counts again
 - The startup exit falls back to `System::exit` when the injector itself failed (`Swing.java:76`), since no `Exit` bean exists then. Fix: none needed; say so in the [startup section](milestone-1.md#startup).
 - `Launch.java:53` starts `FocusTracker` inside startup step 4, which the [startup steps](milestone-1.md#startup) don't list. Fix: list it, between the icon check and the main window.
 - A `ShutdownStep` that throws is logged and skipped (`DefaultLifecycle.java:100-106`); unspecified. Fix: specify it; the behavior is the right one.
-- `DefaultLifecycle.onCancel` is public API with no caller (`DefaultLifecycle.java:74-77`). Fix: [A1](#a1-a-vetoed-os-quit-is-never-cancelled--deviation) gives it its caller.
+- `DefaultLifecycle.onCancel` is public API with no caller (`DefaultLifecycle.java:74-77`). Fix: [A1](#a1-a-vetoed-os-quit-is-never-cancelled--deviation-fixed) gives it its caller.
 
 ### Scopes and observables
 
@@ -378,7 +380,7 @@ By area, one line per topic; each was checked against the code, not inferred fro
 
 In the order that unblocks the most:
 
-1. Fix [A1](#a1-a-vetoed-os-quit-is-never-cancelled--deviation), [A2](#a2-the-error-dialog-is-never-owned-by-its-window--deviation), [A3](#a3-the-french-standard-menus-view-and-help-share-a-mnemonic--deviation), [A5](#a5-a-programmatic-context-reached-through-the-action-carries-modifiers--deviation) and [A6](#a6-translation-diagnostics-contain-nul-characters--deviation) as suggested; apply the [A4](#a4-standard-command-overrides-are-ignored-in-dialogs-built-from-a-factory--deviation) fix and reword its requirement.
+1. Done: [A1](#a1-a-vetoed-os-quit-is-never-cancelled--deviation-fixed), [A2](#a2-the-error-dialog-is-never-owned-by-its-window--deviation-fixed), [A3](#a3-the-french-standard-menus-view-and-help-share-a-mnemonic--deviation-fixed), [A5](#a5-a-programmatic-context-reached-through-the-action-carries-modifiers--deviation-fixed) and [A6](#a6-translation-diagnostics-contain-nul-characters--deviation-fixed) as suggested, and the [A4](#a4-standard-command-overrides-are-ignored-in-dialogs-built-from-a-factory--deviation-fixed) fix with its requirement reworded.
 2. Fix [C1](#c1-the-focus-trackers-listener-belongs-to-no-scope--deviation) and [C2](#c2-the-startup-error-dialog-hard-codes-its-texts--deviation).
 3. Add the tests of [B1](#b1-the-actionevent-to-commandcontext-test-doesnt-exist--gap); apply the [B3](#b3-the-tester-doesnt-itself-recheck-menus-after-a-dynamic-change--gap) and [B4](#b4-not-every-apptester-call-runs-on-the-edt--gap) changes to the tester and to the [test harness section](milestone-1.md#test-harness).
 4. Port `Tabbed`, and qualify the acceptance sentence as [B2](#b2-the-acceptance-ports-are-incomplete-and-their-reductions-unrecorded--gap) suggests; move the examples' literal texts, fonts and colors into their resources ([C3](#c3-the-acceptance-ports-keep-text-fonts-and-colors-in-java--deviation)).
