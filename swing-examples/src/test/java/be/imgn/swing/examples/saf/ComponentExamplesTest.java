@@ -2,6 +2,7 @@ package be.imgn.swing.examples.saf;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import be.imgn.gaia.core.platform.ApplicationDirectories;
 import be.imgn.swing.testing.AppTester;
 import be.imgn.swing.ui.StandardCommands;
 import be.imgn.toml.Toml;
@@ -74,7 +75,7 @@ class ComponentExamplesTest {
     void sessionStorageExample1SavesTheStateOfItsComponents() throws IOException {
         try (AppTester<SessionStorageExample1> app = AppTester.start(SessionStorageExample1.class)) {
             SessionStorageExample1 example = app.application();
-            Path file = app.info().directories().state().resolve("window-state.toml");
+            Path file = app.commands(ApplicationDirectories.class).state().resolve("window-state.toml");
             assertThat(titles(example.colors))
                     .containsExactly("red", "blue", "green", "yellow", "orange", "pink", "all colors");
             assertThat(example.all.getColumnModel().getColumn(0).getHeaderValue())
