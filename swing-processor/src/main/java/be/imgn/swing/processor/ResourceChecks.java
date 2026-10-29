@@ -3,6 +3,7 @@ package be.imgn.swing.processor;
 import be.imgn.gaia.processing.ProcessingContext;
 import be.imgn.toml.TomlBoolean;
 import be.imgn.toml.TomlDocument;
+import be.imgn.toml.TomlFloat;
 import be.imgn.toml.TomlInteger;
 import be.imgn.toml.TomlPosition;
 import be.imgn.toml.TomlPositions;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,6 +42,7 @@ final class ResourceChecks {
     private static final Pattern COLOR = Pattern.compile("#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?");
     private static final Pattern SHORTCUT = Pattern.compile("\\bshortcut\\b");
     private static final Pattern BARE_KEY = Pattern.compile("[A-Za-z0-9_-]+");
+    private static final Pattern REFERENCE = Pattern.compile("\\$\\{([^}]+)}");
 
     private final Shared shared;
     private final ProcessingContext context;
@@ -291,15 +294,55 @@ final class ResourceChecks {
             String key,
             String value,
             Set<String> icons) {
-        if (shared.files().exists(model.packageName(), value)) {
-            icons.add(value);
+        String path;
+        try {
+            path = resolve(value, file.parsed().orElseThrow().root(), new HashSet<>());
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            reporter.warning(element, file, positions.value(table, key), e.getMessage() + ": the icon is not checked");
+            return;
+        }
+        if (shared.files().exists(model.packageName(), path)) {
+            icons.add(path);
         } else {
             reporter.error(
                     element,
                     file,
                     positions.value(table, key),
-                    "The icon " + value + " names no resource of" + " the package " + model.packageName());
+                    "The icon " + path + (path.equals(value) ? "" : " (" + value + ")")
+                            + " names no resource of the package " + model.packageName());
         }
+    }
+
+    // Resolves the ${key.path} references of a value in its own file, with the syntax the runtime resolves them in the
+    // merged table. A reference to a key of another file, which only the merged table has, cannot be resolved here.
+    private static String resolve(String text, TomlTable root, Set<String> resolving) {
+        if (!text.contains("${")) {
+            return text;
+        }
+        Matcher matcher = REFERENCE.matcher(text);
+        StringBuilder resolved = new StringBuilder();
+        while (matcher.find()) {
+            String path = matcher.group(1);
+            if (!resolving.add(path)) {
+                throw new IllegalStateException("The reference ${" + path + "} refers to itself");
+            }
+            TomlValue target = root.get(path)
+                    .orElseThrow(() ->
+                            new IllegalStateException("The reference ${" + path + "} names no key of this" + " file"));
+            String replacement = switch (target) {
+                case TomlString string -> resolve(string.value(), root, resolving);
+                case TomlInteger integer -> Long.toString(integer.value());
+                case TomlFloat number -> Double.toString(number.value());
+                case TomlBoolean bool -> Boolean.toString(bool.value());
+                default ->
+                    throw new IllegalStateException(
+                            "The reference ${" + path + "} names a value that is not a string, a number or a boolean");
+            };
+            resolving.remove(path);
+            matcher.appendReplacement(resolved, Matcher.quoteReplacement(replacement));
+        }
+        matcher.appendTail(resolved);
+        return resolved.toString();
     }
 
     private void checkMenus(Model model, ResourceFile file, TomlPositions positions, TomlTable menus) {
@@ -384,27 +427,39 @@ final class ResourceChecks {
                     key + " must be a " + property.kind().name().toLowerCase(Locale.ROOT));
             return;
         }
-        if (!(value instanceof TomlString string) || string.value().contains("${")) {
-            return;
+        if (value instanceof TomlString string) {
+            checkComponentString(model, file, positions, properties, key, property, string.value(), component, icons);
         }
-        switch (property.kind()) {
-            case COLOR -> {
-                if (!COLOR.matcher(string.value()).matches()) {
-                    reporter.error(
-                            component,
-                            file,
-                            positions.value(properties, key),
-                            "The color \"" + string.value() + "\" is not \"#rrggbb\" or \"#rrggbbaa\"");
-                }
+    }
+
+    // An icon resolves its references itself; any other value with one is checked after merging, at runtime.
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    private void checkComponentString(
+            Model model,
+            ResourceFile file,
+            TomlPositions positions,
+            TomlTable properties,
+            String key,
+            ComponentProperty property,
+            String value,
+            VariableElement component,
+            Set<String> icons) {
+        if (property.kind() == ComponentProperty.Kind.ICON) {
+            checkIcon(model, component, file, positions, properties, key, value, icons);
+        } else if (value.contains("${")) {
+            return;
+        } else if (property.kind() == ComponentProperty.Kind.COLOR) {
+            if (!COLOR.matcher(value).matches()) {
+                reporter.error(
+                        component,
+                        file,
+                        positions.value(properties, key),
+                        "The color \"" + value + "\" is not \"#rrggbb\" or \"#rrggbbaa\"");
             }
-            case ICON -> checkIcon(model, component, file, positions, properties, key, string.value(), icons);
-            default -> {
-                if (property == ComponentProperty.TEXT
-                        && (context.isSubtype(component.asType(), Names.ABSTRACT_BUTTON)
-                                || context.isSubtype(component.asType(), Names.JLABEL))) {
-                    checkMnemonics(component, file, positions, properties, key, string.value());
-                }
-            }
+        } else if (property == ComponentProperty.TEXT
+                && (context.isSubtype(component.asType(), Names.ABSTRACT_BUTTON)
+                        || context.isSubtype(component.asType(), Names.JLABEL))) {
+            checkMnemonics(component, file, positions, properties, key, value);
         }
     }
 

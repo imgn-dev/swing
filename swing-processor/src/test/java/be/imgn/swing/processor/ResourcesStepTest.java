@@ -70,6 +70,36 @@ class ResourcesStepTest {
     }
 
     @Test
+    void resolvesTheReferencesOfAnIconInItsFile() {
+        var compilation = counter("""
+                        [commands.increment]
+                        text = "&Increment"
+                        icon = "icons/plus.png"
+
+                        [label]
+                        icon = "${commands.increment.icon}"
+                        """)
+                .resource("p/CounterApp_fr.toml", """
+                        [commands.increment]
+                        text = "&Augmenter"
+                        icon = "${commands.missing.icon}"
+
+                        [label]
+                        icon = "icons/${commands.increment.text}.png"
+                        """)
+                .resource("p/icons/plus.png", new byte[] {1, 2, 3})
+                .compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("CounterApp_fr.toml:6:8: The icon icons/&Augmenter.png"
+                        + " (icons/${commands.increment.text}.png) names no resource of the package p");
+        assertThat(compilation)
+                .hadWarningContaining("CounterApp_fr.toml:3:8: The reference ${commands.missing.icon} names no key of"
+                        + " this file: the icon is not checked");
+    }
+
+    @Test
     void reportsASyntaxErrorAtItsPosition() {
         var compilation = counter("[commands.increment]\ntext = \n").compile();
 
