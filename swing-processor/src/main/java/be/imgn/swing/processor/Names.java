@@ -42,7 +42,6 @@ final class Names {
 
     static final String COMPONENT = "java.awt.Component";
     static final String JCOMPONENT = "javax.swing.JComponent";
-    static final String ACCESSIBLE = "javax.accessibility.Accessible";
     static final String ABSTRACT_BUTTON = "javax.swing.AbstractButton";
     static final String JLABEL = "javax.swing.JLabel";
     static final String ICON = "javax.swing.Icon";

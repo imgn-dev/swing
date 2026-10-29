@@ -242,6 +242,34 @@ class ResourcesStepTest {
     }
 
     @Test
+    void acceptsTheAccessiblePropertiesOnAnyComponent() {
+        var compilation = Sources.create()
+                .source("p.NotesView", """
+                        package p;
+
+                        public final class NotesView implements be.imgn.swing.ui.View {
+                            java.awt.Component plain = new java.awt.Canvas();
+
+                            public javax.swing.JComponent content() {
+                                return new javax.swing.JPanel();
+                            }
+                        }
+                        """)
+                .resource("p/NotesView.toml", """
+                        [plain]
+                        accessible-name = "Plain"
+                        accessible-description = "A plain component"
+                        """)
+                .compile();
+
+        assertThat(compilation).succeeded().hadNoWarnings();
+        assertThat(compilation)
+                .generatedSourceFile("p.$NotesView$$Injector")
+                .contains("ComponentResources.setAccessibleName(view.plain, value)")
+                .contains("ComponentResources.setAccessibleDescription(view.plain, value)");
+    }
+
+    @Test
     void rejectsTwoCommandsWithTheSameShortcut() {
         var compilation = Sources.create()
                 .source("p.NotesView", TWO_COMMANDS)

@@ -59,7 +59,8 @@ enum ComponentProperty {
             case TEXT -> hasSetter(context, type, "setText", "java.lang.String");
             case TOOL_TIP_TEXT, TITLE -> context.isSubtype(type, Names.JCOMPONENT);
             case ICON -> hasSetter(context, type, "setIcon", Names.ICON);
-            case ACCESSIBLE_NAME, ACCESSIBLE_DESCRIPTION -> context.isSubtype(type, Names.ACCESSIBLE);
+            // Every Component has an AccessibleContext, whether or not its type implements Accessible.
+            case ACCESSIBLE_NAME, ACCESSIBLE_DESCRIPTION -> context.isSubtype(type, Names.COMPONENT);
             case COLUMNS -> hasSetter(context, type, "setColumns", "int");
             case ROWS -> hasSetter(context, type, "setRows", "int");
             case FONT, FOREGROUND, BACKGROUND, ENABLED, VISIBLE, TAB_TITLE -> true;
