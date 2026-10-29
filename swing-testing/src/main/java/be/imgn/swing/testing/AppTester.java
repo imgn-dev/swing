@@ -203,6 +203,20 @@ public final class AppTester<T> implements AutoCloseable {
     }
 
     /**
+     * Returns the one component of a type in the main window whose accessible name is {@code name}: the text of the
+     * label whose {@code labelFor} it is, or the {@code accessible-name} of its resources.
+     *
+     * @param type the type
+     * @param name the accessible name
+     * @param <C> the type
+     * @return the component
+     * @throws IllegalStateException if there is none or more than one
+     */
+    public <C> C component(Class<C> type, String name) {
+        return call(() -> Components.named(mainRootPane(), type, name, "the main window"));
+    }
+
+    /**
      * Returns the components of a type in the main window, in depth-first order.
      *
      * @param type the type

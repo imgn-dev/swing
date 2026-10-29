@@ -55,6 +55,21 @@ public final class OpenDialog<V> {
     }
 
     /**
+     * Returns the one component of a type in the dialog whose accessible name is {@code name}: the text of the label
+     * whose {@code labelFor} it is, or the {@code accessible-name} of its resources.
+     *
+     * @param type the type
+     * @param name the accessible name
+     * @param <T> the type
+     * @return the component
+     * @throws IllegalStateException if there is none or more than one
+     */
+    public <T> T component(Class<T> type, String name) {
+        return Components.named(
+                rootPane, type, name, "the dialog " + view.getClass().getName());
+    }
+
+    /**
      * Returns the components of a type in the dialog, in depth-first order.
      *
      * @param type the type

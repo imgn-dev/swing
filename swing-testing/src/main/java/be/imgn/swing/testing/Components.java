@@ -4,6 +4,9 @@ import java.awt.Component;
 import java.awt.Container;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import javax.accessibility.Accessible;
+import javax.accessibility.AccessibleContext;
 import javax.swing.JMenu;
 
 /** Finds components in a tree, depth first, the items of menus included. */
@@ -37,6 +40,23 @@ final class Components {
         if (found.size() != 1) {
             throw new IllegalStateException((found.isEmpty() ? "No " : found.size() + " components of type ")
                     + type.getName() + " in " + where + (found.isEmpty() ? "" : ", not one"));
+        }
+        return found.getFirst();
+    }
+
+    static <T> T named(Component root, Class<T> type, String name, String where) {
+        List<T> found = new ArrayList<>();
+        for (T component : find(root, type)) {
+            if (component instanceof Accessible accessible) {
+                AccessibleContext context = accessible.getAccessibleContext();
+                if (context != null && Objects.equals(context.getAccessibleName(), name)) {
+                    found.add(component);
+                }
+            }
+        }
+        if (found.size() != 1) {
+            throw new IllegalStateException((found.isEmpty() ? "No " : found.size() + " components of type ")
+                    + type.getName() + " named \"" + name + "\" in " + where + (found.isEmpty() ? "" : ", not one"));
         }
         return found.getFirst();
     }
