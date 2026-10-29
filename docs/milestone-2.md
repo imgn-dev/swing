@@ -20,12 +20,11 @@ Milestone 2 builds on milestone 1 as implemented. Everything milestone 1 specifi
 | Settings records, in the config directory | Watching settings files for changes made outside the application |
 | The About dialog with description, copyright, website and icon; the application icon on the main frame | Opening the website from the About dialog (M3, with OS hooks) |
 | Window state written and read through toml's generated code, ignoring unknown keys | — |
-| `@Exposed` on the fields that generated code reads | — |
 | The test harness for all of the above | — |
 
-Milestone 2 adds no module. Each module gains the types of its layer: core gets observable lists, `Validator`, the event bus and settings; `swing-ui` gets `@OnEdt`, `@Exposed`, the bindings, forms, `Converter`, `Column` and `ValidationFeedback`; `swing-flatlaf` gets FlatLaf's validation feedback; `swing-processor` gets two steps; `swing-testing` gets the harness additions. Core still doesn't read `java.desktop`, which `ModuleTest.doesNotReadJavaDesktop` keeps checking.
+Milestone 2 adds no module. Each module gains the types of its layer: core gets observable lists, `Validator`, the event bus and settings; `swing-ui` gets `@OnEdt`, the bindings, forms, `Converter`, `Column` and `ValidationFeedback`; `swing-flatlaf` gets FlatLaf's validation feedback; `swing-processor` gets two steps; `swing-testing` gets the harness additions. Core still doesn't read `java.desktop`, which `ModuleTest.doesNotReadJavaDesktop` keeps checking.
 
-The imgn libraries are those of milestone 1, plus `be.imgn.gaia:gaia-processor` at `gaia.version` (0.1.2-SNAPSHOT) on the annotation processor path, and the [upstream changes](#upstream-changes) that milestone 2 requires: toml's, from toml 0.2.0-SNAPSHOT, gaia's, and imgn-parent's. The event bus is in `gaia-core`, which core already depends on. The root POM sets `checkstyle.visibility.ignoredAnnotations` to `be.imgn.swing.ui.Exposed` ([P1](#imgn-devimgn-parent)). The root POM's `toml.version` becomes `0.2.0-SNAPSHOT`.
+The imgn libraries are those of milestone 1, plus `be.imgn.gaia:gaia-processor` at `gaia.version` (0.1.2-SNAPSHOT) on the annotation processor path, and the [upstream changes](#upstream-changes) that milestone 2 requires: toml's, from toml 0.2.0-SNAPSHOT, and gaia's. The event bus is in `gaia-core`, which core already depends on. The root POM's `toml.version` becomes `0.2.0-SNAPSHOT`.
 
 ---
 
@@ -322,7 +321,7 @@ public interface ValidationFeedback {
 - `track` adds an observable that has no component in the form, such as an observable list edited in a table.
 - `markClean()` makes every current value the new baseline.
 
-A command declares its enabled state from the form like from any observable: `@Command(enabled = "canSave")` on a field `@Exposed final Observable<Boolean> canSave = form.dirty();`. Dirty state asks nothing at exit in milestone 2: save prompts come with documents, in milestone 3.
+A command declares its enabled state from the form like from any observable: `@Command(enabled = "canSave")` on a field `@Exposed final Observable<Boolean> canSave = form.dirty();`, exposed as [milestone 1](milestone-1.md#exposed-fields) requires of the fields that generated code reads. Dirty state asks nothing at exit in milestone 2: save prompts come with documents, in milestone 3.
 
 ---
 
@@ -396,29 +395,6 @@ Window state keeps the file of [milestone 1](milestone-1.md#window-state), keys 
 
 ---
 
-## Exposed fields
-
-Generated code reads three kinds of fields of the classes it serves: component fields, for their resources (`$X$$Injector`) and their window state (`$X$$State`), and the fields that `enabled` and `selected` name (`<Class>Commands`). Without reflection, it can't read a private field, so in milestone 1 these fields are package-private, and the examples silence the parent's Checkstyle `VisibilityModifier` check on them with `@SuppressWarnings`. From milestone 2, each of these fields is annotated `@Exposed`, which says on the field itself that generated code reads it, and the build's Checkstyle exempts annotated fields, as it exempts JUnit's `@TempDir` fields, through a property that the root POM sets ([P1](#imgn-devimgn-parent)):
-
-```java
-package be.imgn.swing.ui;
-
-/** Marks a field that generated code reads, which is therefore not private. */
-@Documented
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.CLASS)
-public @interface Exposed {}
-```
-
-- Its `CLASS` retention lets the processor read it from the class files of superclasses compiled separately.
-- An application built on the imgn parent sets `checkstyle.visibility.ignoredAnnotations` to `be.imgn.swing.ui.Exposed` too; one with its own Checkstyle configuration adds `be.imgn.swing.ui.Exposed` to its `VisibilityModifier`'s `ignoreAnnotationCanonicalNames`. The javadoc of `@Exposed` says so.
-- An `@Exposed` field is neither private nor static, and its type is a subtype of `java.awt.Component` or of `Observable<Boolean>`. Any other `@Exposed` field is a compile error, so that the annotation exempts no other field from the check.
-- **Resources.** A top-level table other than `commands` and `menus` names an `@Exposed` component field. `$X$$Injector` writes to `@Exposed` component fields only.
-- **Window state.** The state of `@Exposed` `JSplitPane`, `JTabbedPane` and `JTable` fields is saved and restored. A field of these types that isn't `@Exposed` is not saved, with no warning: exposing it is how a view asks for its state to be kept. Milestone 1's warning on a private field of these types is removed. An `@Exposed` field inherited from a superclass in another package, which the generated class reaches only when it is public, is skipped with milestone 1's warning when it isn't.
-- **Commands.** An `enabled` or `selected` target that is a field is `@Exposed`. A target that is a method needs no annotation, since the check concerns fields only; it stays non-private, as in milestone 1.
-
----
-
 ## Changes to milestone 1
 
 These change what milestone 1 specifies, from milestone 2 on:
@@ -429,7 +405,6 @@ These change what milestone 1 specifies, from milestone 2 on:
 - **`apply()`** joins the standard commands, and `commit()` joins `DialogView` (see [OK, Cancel and Apply](#ok-cancel-and-apply)).
 - **`Window.setIconImage`** joins `Window` (see [About dialog and application icon](#about-dialog-and-application-icon)).
 - **Window state** is written and read through toml's generated code (see [Window state](#window-state)).
-- **Exposed fields.** Generated code reads only `@Exposed` fields: component fields, for resources and window state, and the fields that `enabled` and `selected` name (see [Exposed fields](#exposed-fields)). In milestone 1, it read every non-private field.
 - **Generated names.** The names of generated types, `$Outer$Inner$$Kind` for a type and `$$Kind` for a package, come from gaia's `ClassName.generatedName` rather than from the processor's own helper (see [Processor](#processor)). The names of milestone 1 don't change, except that a `$` within a simple name is now written `$0`, as gaia's scheme requires so that no two types get one name.
 
 ---
@@ -442,7 +417,6 @@ Milestone 2 adds these checks to [milestone 1's](milestone-1.md#build-time-check
 |---|---|
 | Subscribers | A class with a method annotated `@Subscribe`, or with an annotation meta-annotated `@SubscribingAnnotation`, has no scope among `@Singleton`, `@WindowScoped` and `@ViewScoped`, declared or inherited. The rules of the methods themselves are gaia-processor's |
 | Settings | A `@Settings` type is not a record, is not annotated `@TomlConfig`, has no public constructor without parameter, or has an invalid id; or two settings records of the compilation have the same id |
-| Exposed fields | An `@Exposed` field is private or static, or its type is a subtype of neither `java.awt.Component` nor `Observable<Boolean>`; a top-level table other than `commands` and `menus` names a component field that isn't `@Exposed`; an `enabled` or `selected` target is a field that isn't `@Exposed` |
 | Class properties | A `description`, `copyright`, `website` or `icon` value is not a string; a `website` is not an absolute `http` or `https` URI; an `icon` names no resource. These values are allowed on the application class only |
 
 The commands' check of `[commands.<id>]` tables also accepts `apply`, as a standard command.
@@ -457,8 +431,6 @@ The commands' check of `[commands.<id>]` tables also accepts `apply`, as a stand
 |---|---|---|
 | Subscribers | Every root element, as the views step | Nothing: it checks the scope of classes with subscribers |
 | Settings | `@Settings` | `$X$$Settings`, service entry |
-
-The views and commands steps of milestone 1 read only `@Exposed` fields, and check them (see [Exposed fields](#exposed-fields)).
 
 The subscribers' code is generated by gaia-processor, which runs next to swing's, inject's and toml's processors. The settings descriptors are services that core finds with `ServiceLoader`, not beans. On the module path, gaia's `register-services` adds the `provides` clauses of both, `SubscriberIndex` and `SettingsDescriptor`, as for the other services.
 
@@ -528,14 +500,6 @@ Provided from gaia 0.1.2-SNAPSHOT, whose `gaia-core` holds the event bus (`be.im
 | G1 | **Asking whether a class has subscribers.** Whether `EventBus.register` accepts an instance of a class: whether the class or a class it extends has an index generated by gaia-processor, found as `register` finds it, and cached the same way. Without it, the framework could only call `register` on every instance the construction hook reports and catch its `IllegalArgumentException` | Registering the subscribers of beans | `static boolean EventBus.hasSubscribers(Class<?> type)` |
 | G2 | **Virtual threads.** A subscribing annotation of gaia's bus whose executor, `VirtualThreadExecutor`, runs each task on a new virtual thread and needs no shutdown | Delivering events off the publisher's thread, in core and in any domain module | `@OnVirtualThread` (`be.imgn.gaia.core.event`) |
 
-### imgn-dev/imgn-parent
-
-Provided from the parent 2026-11-SNAPSHOT, which the root POM already uses.
-
-| Id | Change | Needed for | API swing uses |
-|---|---|---|---|
-| P1 | **Annotations exempted by the child.** Checkstyle's `VisibilityModifier`, in `be/imgn/build/checkstyle.xml`, appends `${checkstyle.visibility.ignoredAnnotations}` to `ignoreAnnotationCanonicalNames`. The parent POM declares that property empty and passes it to Checkstyle with `<propertyExpansion>checkstyle.visibility.ignoredAnnotations=${checkstyle.visibility.ignoredAnnotations}</propertyExpansion>`, since maven-checkstyle-plugin doesn't pass project properties on its own. A child project sets the property to a comma-separated list of canonical names. The parent names no project | Exposed fields with no `@SuppressWarnings` | The property `checkstyle.visibility.ignoredAnnotations` |
-
 ### Existing behavior
 
 Milestone 2 relies on this behavior of the libraries, as they describe it:
@@ -556,25 +520,13 @@ These depart from the [vision](vision.md), and are to be applied to it:
 - **Reifiable event types.** The vision's registrars have "exact generic event types". Events are matched by their runtime class, which has no type arguments, so a subscriber's parameter can't be a parameterized type, as gaia's bus requires. An event that carries a typed value wraps it in a record.
 - **`@Settings`.** Settings records are `@TomlConfig` records, as in the vision, also annotated `@Settings`, which gives the file's id; each record has its own file in the config directory.
 - **Roadmap.** Milestone 2 also holds OK/Cancel/Apply forms with validation, and the About dialog with the rest of the application's metadata, which milestone 1 moved there.
-- **Exposed fields.** The sample's `NotesView` has private `editor` and `dirty` fields, which its resources and its `save` command name. Generated code can't read a private field without reflection, which the vision rules out: they are `@Exposed` package-private fields, as described in [Exposed fields](#exposed-fields). The vision's table of generated code says `@Exposed` fields where it says fields.
-- **Upstream changes.** The toml writer and the lenient binding mode, listed in the vision, are T1 and T3; binding a table in memory (T2), gaia's G1 and G2, and imgn-parent's P1 are added.
+- **Upstream changes.** The toml writer and the lenient binding mode, listed in the vision, are T1 and T3; binding a table in memory (T2) and gaia's G1 and G2 are added.
 
 ---
 
 ## Acceptance
 
-`./mvnw -B verify` succeeds on JDK 21 and on JDK 25, with the snapshots of milestone 1, gaia 0.1.2-SNAPSHOT with its event bus, gaia-processor, G1 and G2, and toml 0.2.0-SNAPSHOT installed in the local Maven repository, and the parent 2026-11-SNAPSHOT with P1. Every test of milestone 1 still passes, and `swing-examples` has the following, each with `AppTester` tests of every behavior listed.
-
-No source of the project suppresses Checkstyle's `VisibilityModifier`. Every example class of milestone 1 that carries this annotation, with one of these three comments above it, loses both the annotation and the comment:
-
-```java
-// The framework reaches component fields and command targets from generated code, so they are package-private.
-// The framework reaches component fields from generated code, so they are package-private.
-// The framework reaches command targets from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
-```
-
-Instead, each field that generated code reads is annotated `@Exposed`, and every other field is private. These are the classes, in `be.imgn.swing.examples`: `addressbook.AddressBookApp`, `addressbook.ContactDialog`, `addressbook.ContactTabsDialog`, `addressbook.ContactWizardDialog`, `addressbook.WizardSteps`, `saf.ActionExample2`, `saf.ActionExample3`, `saf.ActionExample4`, `saf.ActionMapExample`, `saf.ApplicationExample1`, `saf.ApplicationExample2`, `saf.DocumentExample`, `saf.ExitExample1`, `saf.LocalStorageExample1`, `saf.SecondaryWindow`, `saf.SelectedPropertyExample`, `saf.SessionStorageExample1`, `saf.SingleFrameExample1`, `saf.SingleFrameExample2`, `saf.SingleFrameExample3`, `saf.SingleFrameExample5`, `saf.SingleFrameExample6`, `saf.Tabbed`.
+`./mvnw -B verify` succeeds on JDK 21 and on JDK 25, with the snapshots of milestone 1, gaia 0.1.2-SNAPSHOT with its event bus, gaia-processor, G1 and G2, and toml 0.2.0-SNAPSHOT installed in the local Maven repository. Every test of milestone 1 still passes, and `swing-examples` has the following, each with `AppTester` tests of every behavior listed.
 
 ### The Address Book, as in Guts
 
@@ -606,13 +558,12 @@ A test in `swing-core`, which has no `java.desktop`, builds an inject root with 
 
 ## Order of work
 
-1. toml 0.2.0-SNAPSHOT with T1 to T3, gaia 0.1.2-SNAPSHOT with G1 and G2, and the parent with P1; until they are released, local snapshots.
-2. UI and processor: `@Exposed` and its checks. The examples of milestone 1 annotate with it the fields that generated code reads, make their other fields private, and drop their `@SuppressWarnings("checkstyle:VisibilityModifier")` and the comment above it.
-3. Core: observable lists and `Validator`.
-4. Core, UI and processor: the application's bus, `@OnEdt`, the registration of beans, and the subscribers step.
-5. Core and processor: settings, the settings step and its checks; window state on toml's generated code.
-6. UI: binding lists and tables, with the delivery of list changes.
-7. UI: forms, converters and validation feedback, in `swing-ui` and `swing-flatlaf`.
-8. UI: dialogs with forms, renaming standard commands, the changes to milestone 1.
-9. UI: the About dialog and the application icon.
-10. Test harness, then the acceptance examples.
+1. toml 0.2.0-SNAPSHOT with T1 to T3, and gaia 0.1.2-SNAPSHOT with G1 and G2; until they are released, local snapshots.
+2. Core: observable lists and `Validator`.
+3. Core, UI and processor: the application's bus, `@OnEdt`, the registration of beans, and the subscribers step.
+4. Core and processor: settings, the settings step and its checks; window state on toml's generated code.
+5. UI: binding lists and tables, with the delivery of list changes.
+6. UI: forms, converters and validation feedback, in `swing-ui` and `swing-flatlaf`.
+7. UI: dialogs with forms, renaming standard commands, the changes to milestone 1.
+8. UI: the About dialog and the application icon.
+9. Test harness, then the acceptance examples.
