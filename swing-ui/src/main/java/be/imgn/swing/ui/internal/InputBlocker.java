@@ -5,6 +5,7 @@ import be.imgn.inject.Inject;
 import be.imgn.inject.Singleton;
 import be.imgn.swing.internal.RunningTask;
 import java.awt.Component;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import javax.swing.JRootPane;
@@ -18,6 +19,7 @@ public final class InputBlocker {
     private final UiTexts texts;
     private final IdentityHashMap<Component, Integer> disabled = new IdentityHashMap<>();
     private final IdentityHashMap<JRootPane, Installed> glassPanes = new IdentityHashMap<>();
+    private final List<ApplicationBlock> applicationBlocks = new ArrayList<>();
 
     @Inject
     InputBlocker(Ticker ticker, UiTexts texts) {
@@ -65,24 +67,56 @@ public final class InputBlocker {
      * @return removes the glass panes
      */
     public Runnable cover(List<JRootPane> windows, RunningTask task) {
-        for (JRootPane rootPane : windows) {
-            Installed installed = glassPanes.computeIfAbsent(rootPane, this::install);
-            installed.count++;
-            installed.pane.block(task);
-        }
+        windows.forEach(rootPane -> coverWindow(rootPane, task));
+        return () -> windows.forEach(rootPane -> uncoverWindow(rootPane, task));
+    }
+
+    /**
+     * Covers every window with a blocking glass pane while a task runs, the windows opened while it runs included.
+     *
+     * @param windows the root panes of the open windows
+     * @param task the task
+     * @return removes the glass panes
+     */
+    public Runnable coverApplication(List<JRootPane> windows, RunningTask task) {
+        ApplicationBlock block = new ApplicationBlock(task, new ArrayList<>(windows));
+        applicationBlocks.add(block);
+        Runnable uncover = cover(block.windows, task);
         return () -> {
-            for (JRootPane rootPane : windows) {
-                Installed installed = glassPanes.get(rootPane);
-                if (installed != null) {
-                    installed.pane.unblock(task);
-                    if (--installed.count == 0) {
-                        glassPanes.remove(rootPane);
-                        rootPane.setGlassPane(installed.previous);
-                        installed.previous.setVisible(false);
-                    }
-                }
-            }
+            applicationBlocks.remove(block);
+            uncover.run();
         };
+    }
+
+    /**
+     * Covers a window that was just opened, for each application-wide block active.
+     *
+     * @param rootPane the window's root pane
+     */
+    public void windowOpened(JRootPane rootPane) {
+        for (ApplicationBlock block : applicationBlocks) {
+            coverWindow(rootPane, block.task);
+            block.windows.add(rootPane);
+        }
+    }
+
+    private void coverWindow(JRootPane rootPane, RunningTask task) {
+        Installed installed = glassPanes.computeIfAbsent(rootPane, this::install);
+        installed.count++;
+        installed.pane.block(task);
+    }
+
+    private void uncoverWindow(JRootPane rootPane, RunningTask task) {
+        Installed installed = glassPanes.get(rootPane);
+        if (installed == null) {
+            return;
+        }
+        installed.pane.unblock(task);
+        if (--installed.count == 0) {
+            glassPanes.remove(rootPane);
+            rootPane.setGlassPane(installed.previous);
+            installed.previous.setVisible(false);
+        }
     }
 
     private Installed install(JRootPane rootPane) {
@@ -111,6 +145,17 @@ public final class InputBlocker {
         Installed(BlockingGlassPane pane, Component previous) {
             this.pane = pane;
             this.previous = previous;
+        }
+    }
+
+    // An application-wide block: its task, and the windows it covers so far.
+    private static final class ApplicationBlock {
+        private final RunningTask task;
+        private final List<JRootPane> windows;
+
+        ApplicationBlock(RunningTask task, List<JRootPane> windows) {
+            this.task = task;
+            this.windows = windows;
         }
     }
 }

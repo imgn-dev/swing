@@ -6,17 +6,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import be.imgn.swing.testing.AppTester;
 import be.imgn.swing.testing.OpenDialog;
 import be.imgn.swing.ui.StandardCommands;
+import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import org.junit.jupiter.api.Test;
 
@@ -236,6 +240,32 @@ class AddressBookAppTest {
             List<String> log = actions.log();
             assertThat(log.indexOf("Task `twoSerialTaskDialogBlocker #1` finished"))
                     .isLessThan(log.indexOf("Task `twoSerialTaskDialogBlocker #2` just started"));
+        }
+    }
+
+    @Test
+    void coversADialogOpenedWhileATaskBlocksTheApplication() throws Exception {
+        try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
+            TaskTestActionsCommands tasks = app.commands(TaskTestActionsCommands.class);
+            ContactActionsCommands contacts = app.commands(ContactActionsCommands.class);
+            app.commands(TaskTestActions.class).chunk(Duration.ofMillis(100));
+            AtomicReference<Component> glassPane = new AtomicReference<>();
+            app.dialogs().answerDialog(ContactDialog.class, dialog -> {
+                glassPane.set(
+                        SwingUtilities.getRootPane(dialog.view().firstName).getGlassPane());
+                dialog.commands(StandardCommands.class).cancel().execute();
+            });
+
+            EventQueue.invokeAndWait(() -> tasks.oneTaskDialogBlocker()
+                    .asAction()
+                    .actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "test")));
+            EventQueue.invokeAndWait(() -> contacts.createContact().execute());
+
+            assertThat(glassPane.get())
+                    .matches(Component::isVisible)
+                    .extracting(pane -> pane.getClass().getSimpleName())
+                    .isEqualTo("BlockingGlassPane");
+            assertThat(app.dialogs().shown()).containsExactly(ContactDialog.class);
         }
     }
 

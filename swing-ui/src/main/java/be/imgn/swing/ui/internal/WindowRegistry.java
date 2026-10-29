@@ -15,21 +15,25 @@ import org.jspecify.annotations.Nullable;
 @Singleton
 public final class WindowRegistry {
 
+    private final InputBlocker blocker;
     private final List<WindowHost> windows = new ArrayList<>();
     private final IdentityHashMap<Injector, ViewHost> viewsByInjector = new IdentityHashMap<>();
     private final IdentityHashMap<Scope, ViewHost> viewsByScope = new IdentityHashMap<>();
 
     @Inject
-    WindowRegistry() {}
+    WindowRegistry(InputBlocker blocker) {
+        this.blocker = blocker;
+    }
 
     /**
-     * Registers a window, until its scope closes.
+     * Registers a window, until its scope closes, and covers it if an application-wide block is active.
      *
      * @param window the window's host
      */
     public synchronized void addWindow(WindowHost window) {
         windows.add(window);
         window.scope().onClose(() -> removeWindow(window));
+        blocker.windowOpened(window.window().rootPane());
     }
 
     private synchronized void removeWindow(WindowHost window) {

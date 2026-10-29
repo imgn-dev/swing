@@ -43,7 +43,7 @@ final class TaskBlocking {
             }
             case WINDOW ->
                 services.blocker().cover(List.of(view.window().window().rootPane()), task);
-            case APPLICATION -> services.blocker().cover(rootPanes(services), task);
+            case APPLICATION -> services.blocker().coverApplication(rootPanes(services), task);
         };
     }
 
