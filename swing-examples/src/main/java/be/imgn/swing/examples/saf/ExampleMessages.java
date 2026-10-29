@@ -146,4 +146,39 @@ public interface ExampleMessages {
      * @return the text
      */
     String closeTab();
+
+    /**
+     * Returns the status of {@link PeriodicTaskExample} before its task starts.
+     *
+     * @return the text
+     */
+    String ready();
+
+    /**
+     * Returns the header of the column of names of the color table of {@link SessionStorageExample1}.
+     *
+     * @return the header
+     */
+    String nameHeader();
+
+    /**
+     * Returns the header of the column of red components of the color table.
+     *
+     * @return the header
+     */
+    String redHeader();
+
+    /**
+     * Returns the header of the column of green components of the color table.
+     *
+     * @return the header
+     */
+    String greenHeader();
+
+    /**
+     * Returns the header of the column of blue components of the color table.
+     *
+     * @return the header
+     */
+    String blueHeader();
 }

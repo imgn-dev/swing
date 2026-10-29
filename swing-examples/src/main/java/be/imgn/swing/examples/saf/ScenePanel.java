@@ -13,28 +13,26 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A panel of {@link ActionMapExample} that holds a scene of icons, which its create and remove commands change from its
- * popup menu. Clicking an icon selects it; remove is enabled only with a selection.
+ * popup menu. Clicking an icon selects it; remove is enabled only with a selection. The title of its border and the
+ * icon it draws are the {@code title} and {@code icon} properties of the example's resources.
  */
 public final class ScenePanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private static final int GAP = 8;
 
-    private final transient Icon icon;
+    private transient @Nullable Icon icon;
     private final transient List<Rectangle> nodes = new ArrayList<>();
     private final transient Property<Integer> selected = Property.of(-1);
 
-    ScenePanel(String iconPath, String title) {
+    ScenePanel() {
         super(new GridBagLayout());
-        this.icon = new ImageIcon(Objects.requireNonNull(ScenePanel.class.getResource(iconPath), iconPath));
-        setBorder(BorderFactory.createTitledBorder(title));
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent event) {
@@ -45,11 +43,31 @@ public final class ScenePanel extends JPanel {
         });
     }
 
+    /**
+     * Sets the icon the scene draws for each node.
+     *
+     * @param icon the icon
+     */
+    public void setIcon(Icon icon) {
+        this.icon = Objects.requireNonNull(icon, "icon");
+        repaint();
+    }
+
+    /**
+     * Returns the icon the scene draws for each node.
+     *
+     * @return the icon, or {@code null} before it is set
+     */
+    public @Nullable Icon getIcon() {
+        return icon;
+    }
+
     /** Adds an icon after the last one. */
     void createNode() {
+        Icon node = Objects.requireNonNull(icon, "The scene has no icon");
         Insets insets = getInsets();
         int x = nodes.isEmpty() ? insets.left : nodes.getLast().x + nodes.getLast().width + GAP;
-        nodes.add(new Rectangle(x, insets.top, icon.getIconWidth(), icon.getIconHeight()));
+        nodes.add(new Rectangle(x, insets.top, node.getIconWidth(), node.getIconHeight()));
         repaint();
     }
 
@@ -105,9 +123,13 @@ public final class ScenePanel extends JPanel {
     protected void paintComponent(Graphics graphics) {
         graphics.setColor(getBackground());
         graphics.fillRect(0, 0, getWidth(), getHeight());
+        Icon image = icon;
+        if (image == null) {
+            return;
+        }
         for (int index = 0; index < nodes.size(); index++) {
             Rectangle node = nodes.get(index);
-            icon.paintIcon(this, graphics, node.x, node.y);
+            image.paintIcon(this, graphics, node.x, node.y);
             if (index == selected.get()) {
                 graphics.setColor(Color.BLACK);
                 graphics.drawRect(node.x - 1, node.y - 1, node.width + 1, node.height + 1);

@@ -13,10 +13,13 @@ import javax.swing.SwingConstants;
 
 /** Closing the window asks the exit veto, which asks for a confirmation. */
 @Application(name = "ExitExample1")
+// The framework reaches component fields from generated code, so they are package-private.
+@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class ExitExample1 implements SingleFrame, ExitVeto {
 
     private static final int MARGIN = 100;
 
+    final JLabel label = new JLabel("", SwingConstants.CENTER);
     private final Dialogs dialogs;
     private final ExampleMessages messages;
 
@@ -37,7 +40,6 @@ public final class ExitExample1 implements SingleFrame, ExitVeto {
 
     @Override
     public JComponent content() {
-        JLabel label = new JLabel(" Close the Window to Exit ", SwingConstants.CENTER);
         label.setBorder(BorderFactory.createEmptyBorder(MARGIN, MARGIN, MARGIN, MARGIN));
         return label;
     }

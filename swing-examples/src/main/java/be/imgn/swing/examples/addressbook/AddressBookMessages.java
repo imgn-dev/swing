@@ -115,4 +115,19 @@ public interface AddressBookMessages {
      * @return the name
      */
     String officeAddressStep();
+
+    /**
+     * Returns the progress message of a test task that sleeps in chunks.
+     *
+     * @param chunk the chunk's number, from 1
+     * @return the message
+     */
+    String sleepChunk(int chunk);
+
+    /**
+     * Returns the progress message of a test task that is done.
+     *
+     * @return the message
+     */
+    String taskDone();
 }

@@ -1,0 +1,11 @@
+[basePanel]
+title = "BaseScenePanel"
+icon = "resources/green-circle.png"
+
+[panelA]
+title = "DerivedScenePanelA"
+icon = "resources/blue-square.png"
+
+[panelB]
+title = "DerivedScenePanelB"
+icon = "resources/red-triangle.png"

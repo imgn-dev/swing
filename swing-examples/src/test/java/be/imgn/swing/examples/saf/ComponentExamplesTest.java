@@ -6,6 +6,7 @@ import be.imgn.swing.testing.AppTester;
 import be.imgn.swing.ui.StandardCommands;
 import be.imgn.toml.Toml;
 import be.imgn.toml.TomlTable;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -73,6 +74,14 @@ class ComponentExamplesTest {
         try (AppTester<SessionStorageExample1> app = AppTester.start(SessionStorageExample1.class)) {
             SessionStorageExample1 example = app.application();
             Path file = app.info().directories().state().resolve("window-state.toml");
+            assertThat(titles(example.colors))
+                    .containsExactly("red", "blue", "green", "yellow", "orange", "pink", "all colors");
+            assertThat(example.all.getColumnModel().getColumn(0).getHeaderValue())
+                    .isEqualTo("Name");
+            assertThat(example.redDarker.getText()).isEqualTo("red.darker()");
+            assertThat(example.redDarker.getForeground()).isEqualTo(Color.WHITE);
+            assertThat(example.redDarker.getFont().getSize()).isEqualTo(24);
+            assertThat(example.explanation.getText()).startsWith("Tab selection and split divider locations");
             EventQueue.invokeLater(() -> {
                 example.colors.setSelectedIndex(2);
                 example.red.setDividerLocation(42);

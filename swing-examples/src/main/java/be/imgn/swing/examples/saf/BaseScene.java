@@ -8,23 +8,21 @@ import be.imgn.swing.ui.Ui;
 import be.imgn.swing.ui.ViewScoped;
 
 /**
- * The scene of green circles, whose create and remove commands its subclasses inherit. In SwingAppFramework, the scenes
- * are panels; here they hold one, as a bean extending a Swing component exposes its non-public supertypes.
+ * The scene whose create and remove commands its subclasses inherit. In SwingAppFramework, the scenes are panels; here
+ * they hold one, as a bean extending a Swing component exposes its non-public supertypes. Each panel's title and icon
+ * are properties of {@link ActionMapExample}'s resources, which holds the panels in its fields.
  */
 @ViewScoped
 public class BaseScene {
 
-    private final ScenePanel panel;
+    private final ScenePanel panel = new ScenePanel();
 
     @Inject
     BaseScene(Ui ui, Provider<BaseSceneCommands> commands) {
-        this("resources/green-circle.png", "BaseScenePanel");
         ui.popupMenu(panel, commands.get().create(), commands.get().remove());
     }
 
-    BaseScene(String iconPath, String title) {
-        this.panel = new ScenePanel(iconPath, title);
-    }
+    BaseScene() {}
 
     /**
      * Returns the panel of the scene.

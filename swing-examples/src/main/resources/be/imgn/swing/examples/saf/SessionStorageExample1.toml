@@ -1,0 +1,83 @@
+[explanation]
+text = "Tab selection and split divider locations are saved and restored between executions"
+
+[red]
+tab-title = "red"
+
+[blue]
+tab-title = "blue"
+
+[green]
+tab-title = "green"
+
+[yellow]
+tab-title = "yellow"
+
+[orange]
+tab-title = "orange"
+
+[pink]
+tab-title = "pink"
+
+[allColors]
+tab-title = "all colors"
+
+[redDarker]
+text = "red.darker()"
+font = "LucidaSans-PLAIN-24"
+foreground = "#ffffff"
+
+[redBrighter]
+text = "red.brighter()"
+font = "LucidaSans-PLAIN-24"
+foreground = "#ffffff"
+
+[blueDarker]
+text = "blue.darker()"
+font = "LucidaSans-PLAIN-24"
+foreground = "#ffffff"
+
+[blueBrighter]
+text = "blue.brighter()"
+font = "LucidaSans-PLAIN-24"
+foreground = "#ffffff"
+
+[greenDarker]
+text = "green.darker()"
+font = "LucidaSans-PLAIN-24"
+foreground = "#ffffff"
+
+[greenBrighter]
+text = "green.brighter()"
+font = "LucidaSans-PLAIN-24"
+foreground = "#ffffff"
+
+[yellowDarker]
+text = "yellow.darker()"
+font = "LucidaSans-PLAIN-24"
+foreground = "#ffffff"
+
+[yellowBrighter]
+text = "yellow.brighter()"
+font = "LucidaSans-PLAIN-24"
+foreground = "#ffffff"
+
+[orangeDarker]
+text = "orange.darker()"
+font = "LucidaSans-PLAIN-24"
+foreground = "#ffffff"
+
+[orangeBrighter]
+text = "orange.brighter()"
+font = "LucidaSans-PLAIN-24"
+foreground = "#ffffff"
+
+[pinkDarker]
+text = "pink.darker()"
+font = "LucidaSans-PLAIN-24"
+foreground = "#ffffff"
+
+[pinkBrighter]
+text = "pink.brighter()"
+font = "LucidaSans-PLAIN-24"
+foreground = "#ffffff"

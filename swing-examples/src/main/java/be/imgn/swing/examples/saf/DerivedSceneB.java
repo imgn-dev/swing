@@ -6,15 +6,14 @@ import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Ui;
 
 /**
- * A scene that inherits the create and remove commands of {@link BaseScene}, with its own icon. It declares create
- * again, so that it gets its own generated commands, which act on it rather than on the base scene.
+ * A scene that inherits the create and remove commands of {@link BaseScene}. It declares create again, so that it gets
+ * its own generated commands, which act on it rather than on the base scene.
  */
 @ExposeAs(DerivedSceneB.class)
 public final class DerivedSceneB extends BaseScene {
 
     @Inject
     DerivedSceneB(Ui ui, DerivedSceneBCommands commands) {
-        super("resources/red-triangle.png", "DerivedScenePanelB");
         ui.popupMenu(panel(), commands.create(), commands.remove());
     }
 

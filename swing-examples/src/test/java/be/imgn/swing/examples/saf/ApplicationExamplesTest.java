@@ -12,7 +12,10 @@ class ApplicationExamplesTest {
     @Test
     void applicationExample1SaysHelloWorld() {
         try (AppTester<ApplicationExample1> app = AppTester.start(ApplicationExample1.class)) {
-            assertThat(app.component(JLabel.class).getText()).isEqualTo("Hello World");
+            JLabel label = app.component(JLabel.class);
+
+            assertThat(label.getText()).isEqualTo("Hello World");
+            assertThat(label.getFont().getSize()).isEqualTo(32);
         }
     }
 
@@ -28,6 +31,7 @@ class ApplicationExamplesTest {
     @Test
     void exitExample1AsksBeforeExiting() {
         try (AppTester<ExitExample1> app = AppTester.start(ExitExample1.class)) {
+            assertThat(app.component(JLabel.class).getText()).isEqualTo(" Close the Window to Exit ");
             app.dialogs().answerConfirm(false);
 
             app.commands(StandardCommands.class).closeWindow().execute();

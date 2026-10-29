@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.JMenuItem;
+import javax.swing.border.TitledBorder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -69,6 +70,11 @@ class DocumentExamplesTest {
             BaseSceneCommands base = app.commands(BaseSceneCommands.class);
             DerivedSceneACommands sceneA = app.commands(DerivedSceneACommands.class);
             DerivedSceneBCommands sceneB = app.commands(DerivedSceneBCommands.class);
+            assertThat(example.scenes())
+                    .extracting(scene -> ((TitledBorder) scene.getBorder()).getTitle())
+                    .containsExactly("BaseScenePanel", "DerivedScenePanelA", "DerivedScenePanelB");
+            assertThat(example.scenes())
+                    .allSatisfy(scene -> assertThat(scene.getIcon()).isNotNull());
 
             base.create().execute();
             sceneA.create().execute();

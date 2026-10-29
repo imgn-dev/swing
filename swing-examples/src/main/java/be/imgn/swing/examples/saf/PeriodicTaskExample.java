@@ -37,7 +37,7 @@ public final class PeriodicTaskExample implements SingleFrame {
         this.ready = ready;
         this.ticker = ticker;
         this.messages = messages;
-        this.elapsed = Property.of("Ready...");
+        this.elapsed = Property.of(messages.ready());
     }
 
     /**

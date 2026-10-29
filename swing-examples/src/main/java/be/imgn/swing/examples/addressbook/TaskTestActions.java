@@ -29,14 +29,16 @@ public class TaskTestActions {
     private static final int GROUP_SIZE = 5;
 
     private final Ui ui;
+    private final AddressBookMessages messages;
     private final RandomGenerator random = RandomGenerator.getDefault();
     private final Semaphore serial = new Semaphore(1);
     private final List<String> log = new CopyOnWriteArrayList<>();
     private Duration chunk = CHUNK;
 
     @Inject
-    TaskTestActions(Ui ui) {
+    TaskTestActions(Ui ui, AddressBookMessages messages) {
         this.ui = ui;
+        this.messages = messages;
     }
 
     @Command
@@ -131,11 +133,11 @@ public class TaskTestActions {
             int chunks = chunks();
             record(name, "starting execute() for " + chunk.multipliedBy(chunks).toMillis() + " ms");
             for (int index = 0; index < chunks; index++) {
-                context.message("Sleep chunk #" + (index + 1) + "...");
+                context.message(messages.sleepChunk(index + 1));
                 Thread.sleep(chunk);
                 context.progress((index + 1) / (double) chunks);
             }
-            context.message("Task done!");
+            context.message(messages.taskDone());
             record(name, "ending execute()");
             return name;
         });
