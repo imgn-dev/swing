@@ -8,13 +8,18 @@ import be.imgn.toml.Toml;
 import be.imgn.toml.TomlTable;
 import java.awt.EventQueue;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.IntStream;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
 import org.junit.jupiter.api.Test;
 
 class ComponentExamplesTest {
@@ -84,6 +89,24 @@ class ComponentExamplesTest {
     }
 
     @Test
+    void tabbedClosesATabFromTheButtonOfItsHeader() throws Exception {
+        try (AppTester<Tabbed> app = AppTester.start(Tabbed.class)) {
+            JTabbedPane tabs = app.component(JTabbedPane.class);
+            assertThat(titles(tabs)).containsExactly("One", "Two", "Three");
+            assertThat(app.components(JLabel.class))
+                    .extracting(JLabel::getText)
+                    .containsExactlyInAnyOrder(
+                            "The first tab", "The second tab", "The third tab", "One", "Two", "Three");
+            JButton close = (JButton) ((JPanel) tabs.getTabComponentAt(1)).getComponent(1);
+            assertThat(close.getToolTipText()).isEqualTo("close this tab");
+
+            onEdt(close::doClick);
+
+            assertThat(titles(tabs)).containsExactly("One", "Three");
+        }
+    }
+
+    @Test
     void singleFrameExample6ShowsItsSecondaryWindowsAsDialogs() {
         try (AppTester<SingleFrameExample6> app = AppTester.start(SingleFrameExample6.class)) {
             app.dialogs().answerDialog(SecondaryWindow.One.class, dialog -> {
@@ -97,5 +120,13 @@ class ComponentExamplesTest {
             assertThat(app.dialogs().shown()).containsExactly(SecondaryWindow.One.class);
             assertThat(app.component(JLabel.class).getText()).isEqualTo("Main Label");
         }
+    }
+
+    private static List<String> titles(JTabbedPane tabs) {
+        return IntStream.range(0, tabs.getTabCount()).mapToObj(tabs::getTitleAt).toList();
+    }
+
+    private static void onEdt(Runnable action) throws InterruptedException, InvocationTargetException {
+        EventQueue.invokeAndWait(action);
     }
 }

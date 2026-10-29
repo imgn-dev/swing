@@ -1,0 +1,11 @@
+[one]
+tab-title = "One"
+text = "The first tab"
+
+[two]
+tab-title = "Two"
+text = "The second tab"
+
+[three]
+tab-title = "Three"
+text = "The third tab"

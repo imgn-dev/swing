@@ -139,4 +139,11 @@ public interface ExampleMessages {
      * @return the message
      */
     String loadedFile(String file);
+
+    /**
+     * Returns the tooltip of the button that closes a tab of {@link Tabbed}.
+     *
+     * @return the text
+     */
+    String closeTab();
 }
