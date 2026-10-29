@@ -7,6 +7,22 @@ import org.junit.jupiter.api.Test;
 
 class ResourcesStepTest {
 
+    private static final String TWO_COMMANDS = """
+            package p;
+
+            public final class NotesView implements be.imgn.swing.ui.View {
+                public javax.swing.JComponent content() {
+                    return new javax.swing.JPanel();
+                }
+
+                @be.imgn.swing.ui.Command
+                void first() {}
+
+                @be.imgn.swing.ui.Command
+                void second() {}
+            }
+            """;
+
     private static Sources counter(String resources) {
         return Sources.create().source("p.CounterApp", Sources.COUNTER).resource("p/CounterApp.toml", resources);
     }
@@ -158,21 +174,7 @@ class ResourcesStepTest {
     @Test
     void rejectsTwoCommandsWithTheSameShortcut() {
         var compilation = Sources.create()
-                .source("p.NotesView", """
-                        package p;
-
-                        public final class NotesView implements be.imgn.swing.ui.View {
-                            public javax.swing.JComponent content() {
-                                return new javax.swing.JPanel();
-                            }
-
-                            @be.imgn.swing.ui.Command
-                            void first() {}
-
-                            @be.imgn.swing.ui.Command
-                            void second() {}
-                        }
-                        """)
+                .source("p.NotesView", TWO_COMMANDS)
                 .resource("p/NotesView.toml", """
                         [commands.first]
                         text = "First"
@@ -185,5 +187,52 @@ class ResourcesStepTest {
                 .compile();
 
         assertThat(compilation).failed().hadErrorContaining("The commands first and second have the same shortcut");
+    }
+
+    @Test
+    void rejectsAShortcutAPlatformFileSetsToAnotherCommands() {
+        var compilation = Sources.create()
+                .source("p.NotesView", TWO_COMMANDS)
+                .resource("p/NotesView.toml", """
+                        [commands.first]
+                        text = "First"
+                        shortcut = "shortcut F"
+
+                        [commands.second]
+                        text = "Second"
+                        shortcut = "shortcut S"
+                        """)
+                .resource("p/NotesView.macos.toml", """
+                        [commands.second]
+                        shortcut = "shortcut F"
+                        """)
+                .compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("NotesView.macos.toml:2:12: The commands first and second have the same shortcut"
+                        + " shortcut F (first in NotesView.toml)");
+    }
+
+    @Test
+    void keepsTheShortcutModifierApartFromControlAndMeta() {
+        var compilation = Sources.create()
+                .source("p.NotesView", TWO_COMMANDS)
+                .resource("p/NotesView.toml", """
+                        [commands.first]
+                        text = "First"
+                        shortcut = "shortcut F"
+
+                        [commands.second]
+                        text = "Second"
+                        shortcut = "ctrl F"
+                        """)
+                .resource("p/NotesView.windows.toml", """
+                        [commands.second]
+                        shortcut = "meta F"
+                        """)
+                .compile();
+
+        assertThat(compilation).succeeded();
     }
 }

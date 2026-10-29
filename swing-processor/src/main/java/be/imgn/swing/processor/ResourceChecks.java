@@ -4,13 +4,17 @@ import be.imgn.gaia.processing.ProcessingContext;
 import be.imgn.toml.TomlBoolean;
 import be.imgn.toml.TomlDocument;
 import be.imgn.toml.TomlInteger;
+import be.imgn.toml.TomlPosition;
 import be.imgn.toml.TomlPositions;
 import be.imgn.toml.TomlString;
 import be.imgn.toml.TomlTable;
 import be.imgn.toml.TomlValue;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -24,6 +28,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.swing.KeyStroke;
+import org.jspecify.annotations.Nullable;
 
 /** The build-time checks of a class's TOML resources, each file against its own parse. */
 final class ResourceChecks {
@@ -67,6 +72,7 @@ final class ResourceChecks {
                 checkFile(model, file, file.parsed().orElseThrow(), icons);
             }
         }
+        checkShortcuts(model, files);
         checkTexts(model, files);
         checkTranslations(model, files);
         if (!files.isEmpty() || !icons.isEmpty()) {
@@ -114,7 +120,6 @@ final class ResourceChecks {
 
     private void checkCommands(
             Model model, ResourceFile file, TomlPositions positions, TomlTable commands, Set<String> icons) {
-        Map<KeyStroke, String> shortcuts = new HashMap<>();
         for (String id : commands.entries().keySet()) {
             if (!model.commands().containsKey(id) && !Names.STANDARD_COMMANDS_IDS.contains(id)) {
                 reporter.error(
@@ -145,24 +150,13 @@ final class ResourceChecks {
                     reporter.error(element, file, positions.value(table.get(), key), key + " must be a string");
                     continue;
                 }
-                checkCommandValue(model, file, positions, table.get(), key, string.value(), element, icons)
-                        .ifPresent(keyStroke -> {
-                            String previous = shortcuts.putIfAbsent(keyStroke, id);
-                            if (previous != null) {
-                                reporter.error(
-                                        element,
-                                        file,
-                                        positions.value(table.get(), key),
-                                        "The commands " + previous + " and " + id + " have the same shortcut "
-                                                + string.value());
-                            }
-                        });
+                checkCommandValue(model, file, positions, table.get(), key, string.value(), element, icons);
             }
         }
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private Optional<KeyStroke> checkCommandValue(
+    private void checkCommandValue(
             Model model,
             ResourceFile file,
             TomlPositions positions,
@@ -175,25 +169,93 @@ final class ResourceChecks {
             case "text" -> checkMnemonics(element, file, positions, table, key, value);
             case "icon" -> checkIcon(model, element, file, positions, table, key, value, icons);
             case "shortcut" -> {
-                if (value.contains("${")) {
-                    return Optional.empty();
-                }
-                KeyStroke keyStroke =
-                        KeyStroke.getKeyStroke(SHORTCUT.matcher(value).replaceAll("ctrl"));
-                if (keyStroke == null) {
+                if (!value.contains("${") && Shortcut.parse(value) == null) {
                     reporter.error(
                             element,
                             file,
                             positions.value(table, key),
                             "The shortcut \"" + value + "\" does not parse as a key stroke");
                 }
-                return Optional.ofNullable(keyStroke);
             }
             default -> {
                 // Free text.
             }
         }
-        return Optional.empty();
+    }
+
+    // Two commands of the class have different shortcuts on every platform: in the base file merged with each platform
+    // variant, as the runtime reads them, and with shortcut as a modifier of its own, since it is Ctrl on one platform
+    // and Meta on another. A collision is reported once, at the shortcut the later file of the chain set.
+    private void checkShortcuts(Model model, List<ResourceFile> files) {
+        List<ResourceFile> chain = files.stream()
+                .filter(file -> file.language().isEmpty() && file.document() != null)
+                .toList();
+        Set<String> platforms = new LinkedHashSet<>();
+        platforms.add("");
+        chain.forEach(file -> platforms.add(file.platform()));
+        Set<List<String>> reported = new HashSet<>();
+        for (String platform : platforms) {
+            Map<String, Shortcut> merged = new LinkedHashMap<>();
+            for (ResourceFile file : chain) {
+                if (file.platform().isEmpty() || file.platform().equals(platform)) {
+                    merged.putAll(shortcuts(file, file.platform().isEmpty() ? 0 : 1));
+                }
+            }
+            checkCollisions(model, merged.values(), reported);
+        }
+    }
+
+    private void checkCollisions(Model model, Collection<Shortcut> shortcuts, Set<List<String>> reported) {
+        Map<Shortcut.Key, Shortcut> seen = new HashMap<>();
+        for (Shortcut shortcut : shortcuts) {
+            Shortcut previous = seen.putIfAbsent(shortcut.key(), shortcut);
+            if (previous == null) {
+                continue;
+            }
+            boolean later = shortcut.rank() >= previous.rank();
+            Shortcut at = later ? shortcut : previous;
+            Shortcut other = later ? previous : shortcut;
+            if (reported.add(
+                    List.of(other.id(), other.file().name(), at.id(), at.file().name()))) {
+                reporter.error(
+                        elementOf(model, at.id()),
+                        at.file(),
+                        at.position(),
+                        "The commands " + other.id() + " and " + at.id() + " have the same shortcut " + at.value()
+                                + (other.file().equals(at.file())
+                                        ? ""
+                                        : " (" + other.id() + " in "
+                                                + other.file().name() + ")"));
+            }
+        }
+    }
+
+    // The shortcuts a file sets, by command id: those that parse, with their position in the file.
+    private static Map<String, Shortcut> shortcuts(ResourceFile file, int rank) {
+        Map<String, Shortcut> shortcuts = new LinkedHashMap<>();
+        TomlDocument document = file.parsed().orElseThrow();
+        if (!(document.root().entries().get("commands") instanceof TomlTable commands)) {
+            return shortcuts;
+        }
+        commands.entries().forEach((id, value) -> {
+            if (value instanceof TomlTable command
+                    && command.entries().get("shortcut") instanceof TomlString shortcut
+                    && !shortcut.value().contains("${")) {
+                Shortcut.Key key = Shortcut.parse(shortcut.value());
+                if (key != null) {
+                    shortcuts.put(
+                            id,
+                            new Shortcut(
+                                    id,
+                                    shortcut.value(),
+                                    key,
+                                    file,
+                                    document.positions().value(command, "shortcut"),
+                                    rank));
+                }
+            }
+        });
+        return shortcuts;
     }
 
     private void checkMnemonics(
@@ -523,4 +585,34 @@ final class ResourceChecks {
      * @param key the key
      */
     private record Leaf(TomlTable table, String key) {}
+
+    /**
+     * A shortcut a file sets.
+     *
+     * @param id the command
+     * @param value the shortcut as written
+     * @param key the shortcut as compared
+     * @param file the file that sets it
+     * @param position the position of the value in the file
+     * @param rank the place of the file in its chain: the base file first, then its platform variant
+     */
+    private record Shortcut(String id, String value, Key key, ResourceFile file, TomlPosition position, int rank) {
+
+        /** Parses a shortcut; {@code null} if it does not parse. */
+        static @Nullable Key parse(String value) {
+            KeyStroke control = KeyStroke.getKeyStroke(SHORTCUT.matcher(value).replaceAll("ctrl"));
+            KeyStroke meta = KeyStroke.getKeyStroke(SHORTCUT.matcher(value).replaceAll("meta"));
+            return control == null || meta == null ? null : new Key(control, meta);
+        }
+
+        /**
+         * A shortcut as compared: the key stroke it is where {@code shortcut} is Ctrl, and where it is Meta. Two
+         * shortcuts are the same when they are the same key stroke on both, which keeps {@code shortcut S} apart from
+         * {@code ctrl S} and from {@code meta S}.
+         *
+         * @param control the key stroke with {@code shortcut} read as Ctrl
+         * @param meta the key stroke with {@code shortcut} read as Meta
+         */
+        record Key(KeyStroke control, KeyStroke meta) {}
+    }
 }
