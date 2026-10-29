@@ -15,6 +15,7 @@ import be.imgn.swing.ui.Ui;
 import java.awt.EventQueue;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JLabel;
@@ -49,11 +50,12 @@ class AppTesterTest {
             while (application.parent().isPresent()) {
                 application = application.parent().orElseThrow();
             }
-            Task<String> task = Task.of((TaskContext context) -> {
+            // Work that returns once cancelled succeeds; ending by CancellationException runs onCancel.
+            Task<?> task = Task.of((TaskContext context) -> {
                         while (!context.isCancelled()) {
                             Thread.sleep(Duration.ofMillis(10));
                         }
-                        return "cancelled";
+                        throw new CancellationException();
                     })
                     .onCancel(cancelled::countDown);
 
