@@ -25,7 +25,7 @@ Milestone 2 builds on milestone 1 as implemented. Everything milestone 1 specifi
 
 Milestone 2 adds no module. Each module gains the types of its layer: core gets observable lists, `Validator`, the event bus and settings; `swing-ui` gets `@OnEdt`, `@Exposed`, the bindings, forms, `Converter`, `Column` and `ValidationFeedback`; `swing-flatlaf` gets FlatLaf's validation feedback; `swing-processor` gets two steps; `swing-testing` gets the harness additions. Core still doesn't read `java.desktop`, which `ModuleTest.doesNotReadJavaDesktop` keeps checking.
 
-The imgn libraries are those of milestone 1, plus `be.imgn.gaia:gaia-processor` at `gaia.version` (0.1.2-SNAPSHOT) on the annotation processor path, and the [upstream changes](#upstream-changes) that milestone 2 requires: toml's, from toml 0.2.0-SNAPSHOT, gaia's, and imgn-parent's. The event bus is in `gaia-core`, which core already depends on. The root POM's `toml.version` becomes `0.2.0-SNAPSHOT`.
+The imgn libraries are those of milestone 1, plus `be.imgn.gaia:gaia-processor` at `gaia.version` (0.1.2-SNAPSHOT) on the annotation processor path, and the [upstream changes](#upstream-changes) that milestone 2 requires: toml's, from toml 0.2.0-SNAPSHOT, gaia's, and imgn-parent's. The event bus is in `gaia-core`, which core already depends on. The root POM sets `checkstyle.visibility.ignoredAnnotations` to `be.imgn.swing.ui.Exposed` ([P1](#imgn-devimgn-parent)). The root POM's `toml.version` becomes `0.2.0-SNAPSHOT`.
 
 ---
 
@@ -398,7 +398,7 @@ Window state keeps the file of [milestone 1](milestone-1.md#window-state), keys 
 
 ## Exposed fields
 
-Generated code reads three kinds of fields of the classes it serves: component fields, for their resources (`$X$$Injector`) and their window state (`$X$$State`), and the fields that `enabled` and `selected` name (`<Class>Commands`). Without reflection, it can't read a private field, so in milestone 1 these fields are package-private, and the examples silence the parent's Checkstyle `VisibilityModifier` check on them with `@SuppressWarnings`. From milestone 2, each of these fields is annotated `@Exposed`, which says on the field itself that generated code reads it, and the parent's Checkstyle exempts annotated fields ([P1](#imgn-devimgn-parent)), as it exempts JUnit's `@TempDir` fields:
+Generated code reads three kinds of fields of the classes it serves: component fields, for their resources (`$X$$Injector`) and their window state (`$X$$State`), and the fields that `enabled` and `selected` name (`<Class>Commands`). Without reflection, it can't read a private field, so in milestone 1 these fields are package-private, and the examples silence the parent's Checkstyle `VisibilityModifier` check on them with `@SuppressWarnings`. From milestone 2, each of these fields is annotated `@Exposed`, which says on the field itself that generated code reads it, and the build's Checkstyle exempts annotated fields, as it exempts JUnit's `@TempDir` fields, through a property that the root POM sets ([P1](#imgn-devimgn-parent)):
 
 ```java
 package be.imgn.swing.ui;
@@ -411,6 +411,7 @@ public @interface Exposed {}
 ```
 
 - Its `CLASS` retention lets the processor read it from the class files of superclasses compiled separately.
+- An application built on the imgn parent sets `checkstyle.visibility.ignoredAnnotations` to `be.imgn.swing.ui.Exposed` too; one with its own Checkstyle configuration adds `be.imgn.swing.ui.Exposed` to its `VisibilityModifier`'s `ignoreAnnotationCanonicalNames`. The javadoc of `@Exposed` says so.
 - An `@Exposed` field is neither private nor static, and its type is a subtype of `java.awt.Component` or of `Observable<Boolean>`. Any other `@Exposed` field is a compile error, so that the annotation exempts no other field from the check.
 - **Resources.** A top-level table other than `commands` and `menus` names an `@Exposed` component field. `$X$$Injector` writes to `@Exposed` component fields only.
 - **Window state.** The state of `@Exposed` `JSplitPane`, `JTabbedPane` and `JTable` fields is saved and restored. A field of these types that isn't `@Exposed` is not saved, with no warning: exposing it is how a view asks for its state to be kept. Milestone 1's warning on a private field of these types is removed. An `@Exposed` field inherited from a superclass in another package, which the generated class reaches only when it is public, is skipped with milestone 1's warning when it isn't.
@@ -533,7 +534,7 @@ Provided from the parent 2026-11-SNAPSHOT, which the root POM already uses.
 
 | Id | Change | Needed for | API swing uses |
 |---|---|---|---|
-| P1 | **Exempting exposed fields.** Checkstyle's `VisibilityModifier`, in `be/imgn/build/checkstyle.xml`, adds `be.imgn.swing.ui.Exposed` to `ignoreAnnotationCanonicalNames`, with a comment that generated code reads these fields, so they can't be private | Exposed fields with no `@SuppressWarnings` | None: the build's Checkstyle configuration |
+| P1 | **Annotations exempted by the child.** Checkstyle's `VisibilityModifier`, in `be/imgn/build/checkstyle.xml`, appends `${checkstyle.visibility.ignoredAnnotations}` to `ignoreAnnotationCanonicalNames`. The parent POM declares that property empty and passes it to Checkstyle with `<propertyExpansion>checkstyle.visibility.ignoredAnnotations=${checkstyle.visibility.ignoredAnnotations}</propertyExpansion>`, since maven-checkstyle-plugin doesn't pass project properties on its own. A child project sets the property to a comma-separated list of canonical names. The parent names no project | Exposed fields with no `@SuppressWarnings` | The property `checkstyle.visibility.ignoredAnnotations` |
 
 ### Existing behavior
 
