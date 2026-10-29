@@ -64,6 +64,21 @@ class LifecycleTest {
     }
 
     @Test
+    void withdrawsACancelListener() {
+        DisposalScope view = application.child("view");
+        vetoes.register(view, () -> false);
+        List<String> cancelled = new ArrayList<>();
+        Runnable withdraw = lifecycle.onCancel(() -> cancelled.add("cancelled"));
+
+        lifecycle.requestExit();
+        withdraw.run();
+        lifecycle.requestExit();
+
+        assertThat(cancelled).containsExactly("cancelled");
+        assertThat(exits).isEmpty();
+    }
+
+    @Test
     void forgetsTheVetoesOfAClosedScope() {
         DisposalScope view = application.child("view");
         List<String> asked = new ArrayList<>();

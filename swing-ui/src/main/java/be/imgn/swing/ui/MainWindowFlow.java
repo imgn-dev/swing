@@ -104,12 +104,21 @@ final class MainWindowFlow implements MainWindowStarter {
         Desktop desktop = Desktop.getDesktop();
         if (desktop.isSupported(Desktop.Action.APP_QUIT_HANDLER)) {
             desktop.setQuitHandler((event, response) -> {
-                registry.standard(Standard.EXIT).execute(system(SystemAction.QUIT));
-                services.executor().execute(() -> {
-                    if (!services.lifecycle().isShuttingDown()) {
-                        response.cancelQuit();
-                    }
+                // A veto that shows a dialog pumps a nested event loop, so the answer can't be posted after the
+                // command: the lifecycle tells us when a veto cancels, and a shutdown that goes through exits the JVM.
+                if (services.lifecycle().isShuttingDown()) {
+                    response.cancelQuit();
+                    return;
+                }
+                Runnable[] withdraw = new Runnable[1];
+                withdraw[0] = services.lifecycle().onCancel(() -> {
+                    withdraw[0].run();
+                    response.cancelQuit();
                 });
+                if (!registry.standard(Standard.EXIT).execute(system(SystemAction.QUIT))) {
+                    withdraw[0].run();
+                    response.cancelQuit();
+                }
             });
         }
         if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
