@@ -1,6 +1,6 @@
 # Milestone 1: requirements
 
-This is the requirement document of the first useful release described in the [vision](vision.md#milestone-1-first-useful-release). The goal is enough to write a real small application. The release is accepted when SwingAppFramework's examples and Guts' Address Book demo are ported, except the two locale examples, `LocaleExample3` and `LocaleExample4`, which need live locale switching (milestone 4). The Address Book's three views are one view, the application class, and its locale menu is left out (milestones 3 and 4); `SingleFrameExample6` shows its secondary frames as dialog views owned by the main frame (milestone 3).
+This is the requirement document of the first useful release described in the [vision](vision.md#milestone-1-first-useful-release). The goal is enough to write a real small application. The release is accepted when SwingAppFramework's examples and Guts' Address Book demo are ported, except the two locale examples, `LocaleExample3` and `LocaleExample4`, which need live locale switching (milestone 4). The Address Book's three views are one view, the application class, and its locale menu is left out (milestones 3 and 4); `SingleFrameExample6` shows its secondary frames as dialog views owned by the main frame (milestone 3). The ports keep the originals' texts, fonts and colors in resources, and their demo data in code.
 
 Every part of every sentence in this document is a requirement, and must be followed exactly: names, packages, signatures, behaviors, orders and error cases. Any deviation, whether a part that can't be implemented as written, a part that contradicts another, or a gap, is reported at once, before working around it or going further. The document is then updated, and only then does the implementation follow the new text.
 
@@ -150,7 +150,7 @@ Core reaches the UI only through beans that the UI module provides, each with a 
 | `FailureHandler` | `void failed(Throwable failure)` | Logs the failure at `ERROR` | Shows the error dialog, owned by the focused window, else by the main window | Records the failure and fails the test |
 | `Exit` | `void exit(int status)` | `System.exit(status)` | — | Records the status and stops the tester |
 
-`ExitVeto` is a core interface with `boolean canExit()`, called on the `UiExecutor`'s thread. A veto is any `@IntoSet(ExitVeto.class)` singleton, or any bean of a window or view scope that implements the interface, the application class and views included. inject reports every constructed instance to the framework, with the injector it belongs to ([I6](#imgn-devinject)); the framework registers the vetoes among them in their scope. An instance found both ways is asked once. Within a scope, vetoes are asked in the order their instances were constructed; the `@IntoSet` singletons, in the application scope, are asked last, sorted by class name.
+`ExitVeto` is a core interface with `boolean canExit()`, called on the `UiExecutor`'s thread. A veto is any `@IntoSet(ExitVeto.class)` singleton, or any bean of a window or view scope that implements the interface, the application class and views included. inject reports every constructed instance to the framework, with the injector it belongs to ([I6](#imgn-devinject)); the framework registers the vetoes among them in their scope. A window or view host is registered with the framework before anything is resolved through it; a scoped veto reported with an injector that hosts no window or view is an error, never silently dropped. An instance found both ways is asked once. Within a scope, vetoes are asked in the order their instances were constructed; the `@IntoSet` singletons, in the application scope, are asked last, sorted by class name.
 
 ---
 
@@ -181,7 +181,7 @@ public interface View {                    // UI
 
 In milestone 1, the views are the single-frame application class and dialog views. Placing other views in windows comes with multi-frame applications, in milestone 3.
 
-The framework's own `Scope` (`be.imgn.swing.Scope`) is the disposal list of a scope, for what is not a bean: subscriptions, input map entries, running tasks. The framework closes it when it closes the scope's injector.
+The framework's own `Scope` (`be.imgn.swing.Scope`) is the disposal list of a scope, for what is not a bean: subscriptions, input map entries, running tasks. The framework closes it right after it closes the scope's injector, so a bean's `@PreDestroy` runs before the subscriptions and tasks of its scope are released.
 
 ```java
 public interface Scope {
@@ -446,7 +446,7 @@ accessible-description = "Saves the note to its file"
 
 - Menu items show the shortcut as their accelerator.
 - Each window registers the shortcut of every command [attached](#attaching) in its scopes in its root pane's `WHEN_IN_FOCUSED_WINDOW` input map, so a shortcut works even when the command is only on a toolbar or a button, or nowhere.
-- Two commands with the same shortcut in one class's resources, on any one platform (the base file merged with that platform's variant), fail the build; `shortcut` counts as its own modifier, so `shortcut S` and `ctrl S` differ. Two in the same window but from different classes are reported when the second one is attached: an exception in development mode (`-Dbe.imgn.swing.dev=true`) and in tests, a warning otherwise. The same command, attached through several views of one window, registers its shortcut once.
+- Two commands with the same shortcut in one class's resources, on any one platform (the base file merged with that platform's variant), fail the build; `shortcut` counts as its own modifier, so `shortcut S`, `ctrl S` and `meta S` are three shortcuts. Two in the same window but from different classes are reported when the second one is attached: an exception in development mode (`-Dbe.imgn.swing.dev=true`) and in tests, a warning otherwise. The same command, attached through several views of one window, registers its shortcut once.
 
 ### Menus and toolbars
 
@@ -525,7 +525,7 @@ menus.file().with(
         commands.exit())
 ```
 
-- `MenuEntry.dynamic(Observable<? extends List<? extends DynamicEntry>>)`: when the observable changes, the framework rebuilds that section of every menu created from the description, checks its mnemonics again and hides the separators it leaves doubled. The subscription belongs to the scope the menu was built in.
+- `MenuEntry.dynamic(Observable<? extends List<? extends DynamicEntry>>)`: when the observable changes, the framework rebuilds that section of every menu created from the description, checks its mnemonics again and hides the separators it leaves doubled. The subscription belongs to the scope the menu was built in; the components of the section, a submenu's own dynamic sections included, subscribe in a child scope of it that is closed and opened again at each rebuild, so a replaced submenu takes its subscriptions with it.
 - Threading follows the [delivery rule](#delivery-to-the-edt). The `map` that builds the entries runs on the thread that changed the list, which is safe: entries are immutable descriptions, not components. Only the rebuild, on the EDT, creates components. If the menu is open, the rebuild revalidates it and resizes its popup with `pack()`.
 - An item's action runs on the EDT, like a command handler.
 - `DynamicEntry.item(String text, Runnable action)` returns an `Item`, a plain item. `Item` is a `DynamicEntry` and not a `MenuEntry`, so it exists only inside a dynamic entry. Dynamic items are data, like a file name: they have no resources, no fixed id, and an action that needs an argument, which command handlers don't take. They have no shortcut. `&` marks a mnemonic as in resources; `DynamicEntry.numbered(List<Item>)` returns the items with `&1 ` to `&9 `, a space after the digit, prefixed to the first nine, as recent-file lists usually do. It takes items only: a command's text belongs to its `Action`, shared by every component.
@@ -553,7 +553,7 @@ Platform ids are `windows`, `macos` and `linux`, from gaia's `Platform`. On a Un
 
 ### Reading resources on the module path
 
-For each package that contains a class with resources, the processor generates `$$Resources implements ResourceOpener`. It has `String packageName()` and `Optional<InputStream> open(String fileName)`, which calls `$$Resources.class.getResourceAsStream(fileName)`. That call is in the package's own module, so it works without opening the package. The opener is written in the last round, once every class of the package is known, and registered through `ServiceFiles`; on the module path, gaia's `register-services` adds the `provides` clause.
+For each package that contains a class with resources, the processor generates `$$Resources implements ResourceOpener`. It has `String packageName()` and `Optional<InputStream> open(String fileName)`, which calls `$$Resources.class.getResourceAsStream(fileName)`. That call is in the package's own module, so it works without opening the package. The opener is written in the first round that adds no class to the package, so that a class gaia defers to a later round, such as a view injecting its own generated menus class, still adds its icons; a class checked after that is a warning, since the startup check of the icon loaders doesn't cover its icons. It is registered through `ServiceFiles`; on the module path, gaia's `register-services` adds the `provides` clause.
 
 `Resources` (core, singleton) finds openers through `ServiceLoader` by package name, parses with `Toml.parse(ByteSource)`, merges, and caches the merged table per class; the locale is fixed per `Resources` instance.
 
@@ -569,6 +569,7 @@ public interface IconLoader {
 ```
 
 - `swing-ui` contributes the PNG loader, with `@2x` variants (`MultiResolutionImage`). `swing-flatlaf` contributes the SVG loader, through `FlatSVGIcon`.
+- A command icon is loaded against the package of the class whose table gives it; a component icon against the view class's package, then its superclasses' packages, nearest first, since the merged table no longer tells which file named it.
 - Each `$$Resources` also has `Set<String> icons()`, the icon paths its package's resources name, which the processor knows. Startup step 4 checks that a loader supports every one of them: an `.svg` icon without `swing-flatlaf` on the module path is an error at startup.
 
 ### Locale
@@ -644,9 +645,9 @@ For every application, command or view class, and every `@Messages` interface, t
 | Syntax | The file doesn't parse (`TomlParseException` gives line and column) |
 | Command ids | A `[commands.<id>]` table names no command of the class, its superclasses or `StandardCommands`, or a handler named like a standard command has another id. A command overriding a standard command is a warning, not an error (see [Overriding standard commands](#overriding-standard-commands)) |
 | Command properties | A key is not a known property, or its value has the wrong type |
-| Shortcuts | A `shortcut` doesn't parse, or two commands of the class share one on a platform, the base file merged with the platform's variant; the error is reported in the file that set the colliding key |
+| Shortcuts | A `shortcut` doesn't parse, or two commands of the class share one on a platform, the base file merged with the platform's variant; the error is reported at the shortcut the later file set, naming the other file |
 | Mnemonics | A `text` has more than one `&` mnemonic |
-| Icons | An `icon`, its `${…}` references resolved within the file, names a resource that doesn't exist, or a reference names no key of the file |
+| Icons | An `icon`, its `${…}` references resolved within its own file, names a resource that doesn't exist. A reference to a key the file lacks, which only the merged table resolves, is a warning, and the icon goes unchecked |
 | Text | A command or menu has no `text` in the base file |
 | Translations | A language file (`X_fr.toml`) lacks a key of the base file, or any locale or platform file has a key the base file lacks; a country file and a platform file override their base key by key, so they may hold a few keys only |
 | `enabled`, `selected` | The name matches no field or method of the right type |
@@ -660,7 +661,7 @@ For every application, command or view class, and every `@Messages` interface, t
 Diagnostics are attached to the Java element (the `@Command` method, the class, the field), with the file, line and column in the message:
 
 - The processor parses each file with `Toml.parse`, which returns a `TomlDocument`: its `root()` table and its `positions()`.
-- It checks each file against its own parse, before merging, since positions belong to the parsed tables: a merged or copied table has none.
+- It checks each file against its own parse, before merging, since positions belong to the parsed tables: a merged or copied table has none. The duplicate-shortcut check is the exception: it merges the base file with each platform variant and reports at the position of the file that set the colliding key.
 - An error on a key is reported at `positions().key(table, key)`, on a value at `value(table, key)`, on an array element at `element(array, index)`. The lookups throw when the key is absent, so the processor looks a key up only after finding it in the table.
 - A syntax or semantic error is reported at `TomlParseException.position()`.
 - A key that a locale file lacks is reported at the base file's position of that key.
@@ -881,8 +882,9 @@ void exitAsksForConfirmation() {
 - **Exit.** `AppTester`'s `Exit` records the status instead of exiting: after an exit, `isRunning()` is `false` and `exitStatus()` returns the status.
 - **EDT.** Every call on `AppTester` that reaches the application, and every call on the commands it returns, runs on the EDT and waits; `dialogs()` and `ticker()` return the fakes, which tests configure from their own thread and the application reads on the EDT. `execute()` waits for the task a command starts, through the test `UiExecutor`. Before returning, the tester runs the updates posted by observables, so assertions see the components up to date.
 - **Fakes.** `FakeDialogs` records dialogs and answers them. `AppTester.start(type, locale)` binds `DisplayLocale`; `AppTester.start(type)` binds `Locale.ROOT`, which reads the base files. The platform and directories are gaia's `FakePlatform` and `FakeDirectories` on a `gaia-memfs` file system, so window state is saved in memory. Time uses `InstantSource` and gaia's `FakeTicker`.
+- **Close.** `AppTester.close()` closes the windows, then the root injector and the application `Scope` through the lifecycle's close, without asking the exit vetoes or running the shutdown steps: tasks and subscriptions registered in the application scope are released between tests.
 - **EDT checker.** A `RepaintManager` replacement fails the test when a component is repainted or invalidated off the EDT.
-- **Mnemonic checker.** Menus check themselves when they are built and rebuilt (see [Menus and toolbars](#menus-and-toolbars)); in tests that check throws, and the tester records the failure and fails the test at its next call. The tester itself checks every dialog it builds for duplicate mnemonics and duplicate shortcuts. Closing the tester closes the application scope too, as a shutdown does.
+- **Mnemonic checker.** Menus check themselves when they are built and rebuilt (see [Menus and toolbars](#menus-and-toolbars)); in tests that check throws, and the tester records the failure and fails the test at its next call. The tester itself checks every dialog it builds for duplicate mnemonics and duplicate shortcuts. 
 
 ---
 
