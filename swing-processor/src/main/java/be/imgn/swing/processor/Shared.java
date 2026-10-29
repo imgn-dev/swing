@@ -91,25 +91,32 @@ final class Shared {
         PackageEntry entry = packages.computeIfAbsent(
                 packageElement.getQualifiedName().toString(), name -> new PackageEntry(name, packageElement));
         entry.origins.add(origin);
+        entry.touched = true;
         for (String icon : icons) {
             if (entry.icons.add(icon) && entry.written) {
-                reporter.error(
+                reporter.warning(
                         origin,
                         "The icon " + icon + " of " + origin.getQualifiedName() + " is named after the package's"
-                                + " $$Resources was generated: compile the class with the other classes of its"
-                                + " package");
+                                + " $$Resources was generated, so the startup check of the icon loaders does not"
+                                + " cover it");
             }
         }
     }
 
-    /** Returns the packages whose opener is not generated yet, and marks them generated. */
+    /**
+     * Returns the packages whose opener is to be generated in this round, and marks them generated: those no class was
+     * added to in this round. A class checked in a round had a source generated for it, which gives javac a further
+     * round, so a package gets its opener in the first round that adds nothing to it, after the classes gaia deferred
+     * to a later round, and the last round is too late for a source.
+     */
     List<PackageEntry> takeUnwrittenPackages() {
         List<PackageEntry> unwritten = new ArrayList<>();
         for (PackageEntry entry : packages.values()) {
-            if (!entry.written) {
+            if (!entry.written && !entry.touched) {
                 entry.written = true;
                 unwritten.add(entry);
             }
+            entry.touched = false;
         }
         return unwritten;
     }
@@ -129,6 +136,7 @@ final class Shared {
         private final PackageElement element;
         private final Set<String> icons = new TreeSet<>();
         private final List<TypeElement> origins = new ArrayList<>();
+        private boolean touched;
         private boolean written;
 
         PackageEntry(String name, PackageElement element) {

@@ -57,6 +57,46 @@ class ResourcesStepTest {
     }
 
     @Test
+    void listsTheIconsOfAClassDeferredToALaterRound() {
+        // The view injects its generated menus class, so it is resolved, and its resources checked, a round later
+        // than the application class of its package.
+        var compilation = counter("""
+                        [commands.increment]
+                        text = "&Increment"
+                        icon = "icons/plus.png"
+                        """)
+                .source("p.NotesView", """
+                        package p;
+
+                        public final class NotesView implements be.imgn.swing.ui.View {
+                            javax.swing.JLabel label = new javax.swing.JLabel();
+
+                            @be.imgn.inject.Inject
+                            NotesView(NotesViewMenus menus) {}
+
+                            public javax.swing.JComponent content() {
+                                return label;
+                            }
+                        }
+                        """)
+                .resource("p/NotesView.toml", """
+                        [menus.notes]
+                        text = "&Notes"
+
+                        [label]
+                        icon = "icons/notes.png"
+                        """)
+                .resource("p/icons/plus.png", new byte[] {1, 2, 3})
+                .resource("p/icons/notes.png", new byte[] {1, 2, 3})
+                .compile();
+
+        assertThat(compilation).succeeded().hadNoWarnings();
+        assertThat(compilation)
+                .generatedSourceFile("p.$$Resources")
+                .contains("return Set.of(\"icons/notes.png\", \"icons/plus.png\");");
+    }
+
+    @Test
     void warnsOnAFileOfAClassTheProcessorGeneratesNothingFor() {
         var compilation = counter("[commands.increment]\ntext = \"&Increment\"\n")
                 .source("p.Helper", "package p;\n\npublic final class Helper {}\n")

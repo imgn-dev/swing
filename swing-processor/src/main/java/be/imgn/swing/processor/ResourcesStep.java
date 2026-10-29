@@ -21,7 +21,8 @@ import javax.lang.model.util.ElementFilter;
 
 /**
  * Checks the resources of the classes the other steps found, and generates {@code $$Resources}, the opener of each
- * package with resources, with its service entry. After the last round, it warns about the TOML files of the packages
+ * package with resources, with its service entry, in the first round that adds no class to the package, so that a class
+ * deferred to a later round still adds its icons. After the last round, it warns about the TOML files of the packages
  * it saw that belong to no class the processor generates for, which nothing would read.
  */
 final class ResourcesStep implements Step {
