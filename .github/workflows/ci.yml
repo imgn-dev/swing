@@ -20,9 +20,48 @@ jobs:
         java: ['21', '25']
     steps:
       - uses: actions/checkout@v5
+      # The snapshots swing depends on are published nowhere: check out the
+      # upstream repositories at pinned commits and install them in the local
+      # repository, in dependency order, each from its own directory. Their
+      # builds need JDK 25: the parent requires it, and gaia and toml run Error
+      # Prone, which the parent configures for it. Drop these steps, up to the
+      # matrix JDK, at the first releases of the parent, gaia, toml and inject.
+      - uses: actions/checkout@v5
+        with:
+          repository: imgn-dev/imgn-parent
+          ref: 750718e
+          path: upstream/imgn-parent
+      - uses: actions/checkout@v5
+        with:
+          repository: imgn-dev/gaia
+          ref: 6256bea
+          path: upstream/gaia
+      - uses: actions/checkout@v5
+        with:
+          repository: imgn-dev/toml
+          ref: 60678e0
+          path: upstream/toml
+      - uses: actions/checkout@v5
+        with:
+          repository: imgn-dev/inject
+          ref: 14b7cb9
+          path: upstream/inject
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - run: ./mvnw -B -q install -DskipTests
+        working-directory: upstream/imgn-parent
+      - run: ./mvnw -B -q install -DskipTests
+        working-directory: upstream/gaia
+      - run: ./mvnw -B -q install -DskipTests
+        working-directory: upstream/toml
+      - run: ./mvnw -B -q install -DskipTests
+        working-directory: upstream/inject
+      # The matrix JDK, for swing itself.
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
-          cache: maven
       - run: ./mvnw -B verify
