@@ -8,10 +8,11 @@ import org.jspecify.annotations.Nullable;
 /**
  * An application class that is the only view of the main window. Its commands and resources work as in any view.
  *
- * <p>When the application class implements it, the framework creates the main window, resolves the application class
- * through the view's child injector, applies its component resources, then puts its content, menu bar and toolbar in
- * the window, sets the title from the {@code title} resource, else the displayed name, calls
- * {@link #configureFrame(JFrame)}, and restores the saved window state.
+ * <p>When the application class implements it, the framework creates the main window and sets its title from the
+ * {@code title} resource, else the displayed name. It then resolves the application class through the view's child
+ * injector, applies its component resources, puts its content, menu bar and toolbar in the window, calls
+ * {@link #configureFrame(JFrame)}, restores the saved window state and shows the window. Once the application is ready,
+ * it calls {@link #ready()}.
  */
 public interface SingleFrame extends View {
 
@@ -48,4 +49,11 @@ public interface SingleFrame extends View {
     default boolean restoreBounds() {
         return true;
     }
+
+    /**
+     * Called once, on the EDT, when the application is ready: the main window is shown and the events posted meanwhile
+     * have run. It is called before the {@code ReadyListener}s. Work that must not delay showing the window, such as
+     * loading its first data, starts here.
+     */
+    default void ready() {}
 }

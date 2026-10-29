@@ -31,7 +31,8 @@ public final class Swing {
      *       {@code DisplayLocale} and the application {@code Scope};
      *   <li>on the main thread, runs every {@code StartupStep}, sorted by order then by class name;
      *   <li>on the EDT, installs the look and feel, checks the icons, creates the main window and shows it;
-     *   <li>on the EDT, once the events posted while showing the window have run, calls every {@code ReadyListener}.
+     *   <li>on the EDT, once the events posted while showing the window have run, calls the main view's
+     *       {@link SingleFrame#ready()}, then every {@code ReadyListener}.
      * </ol>
      *
      * <p>A failure in steps 2 to 4 shows the error dialog if the look and feel is installed, in the application's

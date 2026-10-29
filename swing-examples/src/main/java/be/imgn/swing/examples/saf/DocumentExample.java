@@ -105,9 +105,7 @@ public final class DocumentExample implements SingleFrame, ExitVeto {
                 modified.set(true);
             }
         });
-        // The framework sets the window's title once the view is built, after content(): binding it later wins.
-        SwingUtilities.invokeLater(() -> ui.bind(
-                path -> window.setTitle(messages.title(path.getFileName().toString(), application.name())), file));
+        ui.bind(path -> window.setTitle(messages.title(path.getFileName().toString(), application.name())), file);
         JScrollPane scroll = new JScrollPane(textArea);
         scroll.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         return scroll;

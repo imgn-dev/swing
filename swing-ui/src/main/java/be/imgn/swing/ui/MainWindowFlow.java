@@ -42,7 +42,7 @@ final class MainWindowFlow implements MainWindowStarter {
     }
 
     @Override
-    public void start(Class<?> type, Injector root, DisposalScope application) {
+    public SingleFrame start(Class<?> type, Injector root, DisposalScope application) {
         if (!SingleFrame.class.isAssignableFrom(type)) {
             throw new IllegalStateException(type.getName() + " must implement SingleFrame in milestone 1");
         }
@@ -57,6 +57,11 @@ final class MainWindowFlow implements MainWindowStarter {
                 }
             });
         }
+        // Before the view is built, so that a title the view binds in content() wins.
+        window.setTitle(
+                services.resources().table(type).entries().get("title") instanceof TomlString title
+                        ? title.value()
+                        : services.application().displayedName());
         WindowHost host = builder.openWindow(window, root, application, null, "main", "main window");
         ViewHost view =
                 builder.buildView(host, Optional.of(type), injector -> injector.getInstance(type), null, built -> {
@@ -64,10 +69,6 @@ final class MainWindowFlow implements MainWindowStarter {
                     place(window.rootPane(), single.content(), single.menuBar(), single.toolBar());
                 });
         SingleFrame single = (SingleFrame) view.view().orElseThrow();
-        window.setTitle(
-                services.resources().table(type).entries().get("title") instanceof TomlString title
-                        ? title.value()
-                        : services.application().displayedName());
         if (frame != null) {
             // A fresh frame sits at (0, 0), so a sentinel location tells a configureFrame that moves it there apart
             // from one that leaves it alone; one that asks the platform for the location has moved it as well.
@@ -84,6 +85,7 @@ final class MainWindowFlow implements MainWindowStarter {
         }
         wireDesktop(view);
         services.windows().show(window);
+        return single;
     }
 
     static void place(JRootPane rootPane, JComponent content, @Nullable JMenuBar menuBar, @Nullable JToolBar toolBar) {

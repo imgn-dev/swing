@@ -117,7 +117,7 @@ public record Arguments(List<String> values) {}    // core, the arguments given 
 2. **Injector** (main thread): `Injector.builder()` binds `ApplicationInfo`, `Arguments`, `DisplayLocale` (see [Locale](#locale)) and the application `Scope`, then builds. Building it loads every factory through `ServiceLoader`.
 3. **Startup steps** (main thread): every `@IntoSet(StartupStep.class)` bean, sorted by `order()` then by class name. A `StartupStep` has `int order()` and `void run()`. The framework contributes steps for resources (order 100) and window state loading (order 200). Steps run off the EDT, so they may do I/O.
 4. **UI** (EDT): install the look and feel through the `LookAndFeelInstaller` bean, check icons (see [Icons](#icons)), start following the focus owner for the standard editing commands, create the main window (see [Windows](#windows)), show it.
-5. **Ready** (EDT): after showing, one `invokeLater` calls `ready()` on every `@IntoSet(ReadyListener.class)` bean. Events posted while showing the window run first, so the window is laid out and painted.
+5. **Ready** (EDT): after showing, one `invokeLater` calls the main view's `ready()` (see [`SingleFrame`](#singleframe)), then `ready()` on every `@IntoSet(ReadyListener.class)` bean. Events posted while showing the window run first, so the window is laid out and painted.
 
 `LookAndFeelInstaller` (UI) has `void install()`, called on the EDT before any component is created. `swing-ui` provides a `@Provides @Default` one that installs the system look and feel; `swing-flatlaf` provides one that installs FlatLaf, which replaces the default through inject's `@Default` rule. `ReadyListener` (core) has `void ready()`.
 
@@ -741,18 +741,21 @@ public interface SingleFrame extends View {
     default JToolBar toolBar() { return null; }       // placed at BorderLayout.NORTH
     default void configureFrame(JFrame frame) {}
     default boolean restoreBounds() { return true; }
+    default void ready() {}
 }
 ```
 
 `SingleFrame` extends `View`. When the application class implements it, the framework, on the EDT:
 
 1. Creates the main window with `Windows.createFrame()`, with `DO_NOTHING_ON_CLOSE` and a listener that requests exit.
-2. Creates the window's host with `scopedChildBuilder(WindowScoped.class)`, binding that `Window` and the window's `Scope`, and the view's host as its child with `scopedChildBuilder(ViewScoped.class)`, binding the view's `Scope`.
-3. Resolves the application class through the view's child injector. `SingleFrame` makes it view-scoped, so this is the instance that its generated commands reach.
-4. Applies its component resources, then calls `content()`, `menuBar()` and `toolBar()`, puts them in the window's root pane, then applies the `tab-title` properties. The build of the view ends here, and its commands are [attached](#attaching).
-5. Sets the window's title from the class's `title` resource, else the displayed name.
+2. Sets the window's title from the class's `title` resource, else the displayed name. This comes before the view is built, so that a title the view sets or binds in `content()` wins.
+3. Creates the window's host with `scopedChildBuilder(WindowScoped.class)`, binding that `Window` and the window's `Scope`, and the view's host as its child with `scopedChildBuilder(ViewScoped.class)`, binding the view's `Scope`.
+4. Resolves the application class through the view's child injector. `SingleFrame` makes it view-scoped, so this is the instance that its generated commands reach.
+5. Applies its component resources, then calls `content()`, `menuBar()` and `toolBar()`, puts them in the window's root pane, then applies the `tab-title` properties. The build of the view ends here, and its commands are [attached](#attaching).
 6. Calls `configureFrame(frame)` with the `JFrame` that the real `Windows` wraps, then `pack()`. With no saved state, centers the frame on the screen unless `configureFrame` moved it or asked the platform to place it (`setLocationByPlatform`).
 7. Restores the saved window state, which overrides the position set by `configureFrame`. A frame that must always open at the same place overrides `restoreBounds()` to return `false`.
+
+It then shows the window. Once the application is ready (see [Startup](#startup)), it calls `ready()` once, on the EDT, before the `ReadyListener`s. Work that must not delay showing the window, such as loading its first data or starting a periodic task, goes there, as it went in SwingAppFramework's `Application.ready()`.
 
 Windows are created by `Windows` (UI, singleton), and the framework sees them as `Window` (UI):
 
@@ -772,7 +775,7 @@ public interface Windows {
 
 The real `Windows` wraps a `JFrame` or a modal `JDialog`. `AppTester`'s headless `Windows` wraps a bare `JRootPane`, which is lightweight: steps 6 and 7 are skipped there, since no frame exists, and every other step runs.
 
-In milestone 1, the `@Application` class must implement `SingleFrame`; otherwise it is a compile error. Opening windows from code comes with multi-frame applications, in milestone 3: from then on, `@Application` is required and `SingleFrame` is not. `ReadyListener` is part of milestone 1 regardless: it is the ready signal of the lifecycle, for work that must wait until the main window is shown.
+In milestone 1, the `@Application` class must implement `SingleFrame`; otherwise it is a compile error. Opening windows from code comes with multi-frame applications, in milestone 3: from then on, `@Application` is required and `SingleFrame` is not. `ReadyListener` is part of milestone 1 regardless: it is the ready signal of the lifecycle, for beans other than the main view, such as singletons, that must wait until the main window is shown.
 
 ### Dialogs
 
