@@ -171,7 +171,7 @@ public interface SettingsStore {                                       // core, 
 
 ### Loading
 
-A startup step (order 150, between resources and window state) loads every settings record whose descriptor `ServiceLoader` finds, from `<id>.toml` in `ApplicationInfo.directories().config()`:
+A startup step (order 150, between resources and window state) loads every settings record whose descriptor `ServiceLoader` finds, from `<id>.toml` in the `config()` directory of the [`ApplicationDirectories` bean](milestone-1.md#declaration-and-launch), which the step injects:
 
 - A missing file gives the defaults, and no file is written.
 - Otherwise, the file's table is merged over the table of the defaults, written with toml's [writer](#upstream-changes), as resources are merged: tables key by key, any other value replacing the previous one. The merged table is bound with toml's binder, ignoring unknown keys. A key the file lacks, such as a component added by a newer version of the record, therefore takes its default, and a key the record no longer has is ignored.
@@ -473,7 +473,7 @@ void applyChangesTheFontSize() {
 - **Settling.** Before returning, every call already runs the posted updates and waits for the tasks commands start. It now also waits for the tasks of the application scope, which `@OnVirtualThread` deliveries are, and the pending settings saves, wherever they come from. `@OnEdt` deliveries go through the tester's `UiExecutor`, so they run with the posted updates.
 - **Dialogs.** In an answer given with `FakeDialogs.answerDialog`, which runs on the EDT, a test changes the dialog's components directly. `OpenDialog` gains `boolean isOpen()`, `false` once `ok()` or `cancel()` closed the dialog, and `<B> B bean(Class<B> type)`, which resolves through the dialog's view injector, the dialog's `Form` included. A dialog left open when the answer returns is cancelled, as in milestone 1.
 - **Feedback.** `AppTester` keeps the `ValidationFeedback` of the modules on its path, so tests check the errors as the user sees them: through the tool tip text and accessible description.
-- **Directories.** The fake config directory is `app.info().directories().config()`, on the memory file system, so tests read what a save wrote with `Files.readString`.
+- **Directories.** The fake config directory is `app.bean(ApplicationDirectories.class).config()`, the default directories that follow the tester's `FakePlatform`, on the memory file system, so tests read what a save wrote with `Files.readString`.
 
 ---
 
