@@ -99,6 +99,48 @@ class LifecycleTest {
         assertThat(exits).containsExactly(0);
     }
 
+    @Test
+    void asksTheVetoesOnceForTwoRequestsQueuedBeforeTheFirstRuns() {
+        List<Runnable> queue = new ArrayList<>();
+        UiExecutor later = new UiExecutor() {
+            @Override
+            public void execute(Runnable task) {
+                queue.add(task);
+            }
+
+            @Override
+            public boolean isUiThread() {
+                return true;
+            }
+        };
+        DefaultLifecycle queued = new DefaultLifecycle(
+                later, vetoes, new TaskRunner(later, failure -> {}), injector, application, exits::add);
+        DisposalScope view = application.child("view");
+        List<String> asked = new ArrayList<>();
+        vetoes.register(view, veto(asked, "view", false));
+
+        queued.requestExit();
+        queued.requestExit();
+        assertThat(queued.isShuttingDown()).isTrue();
+        drain(queue);
+
+        assertThat(asked).containsExactly("view");
+        assertThat(exits).isEmpty();
+        assertThat(queued.isShuttingDown()).isFalse();
+
+        // The cancelled request leaves the lifecycle running: a later request asks again.
+        queued.requestExit();
+        drain(queue);
+
+        assertThat(asked).containsExactly("view", "view");
+    }
+
+    private static void drain(List<Runnable> queue) {
+        List<Runnable> pending = List.copyOf(queue);
+        queue.clear();
+        pending.forEach(Runnable::run);
+    }
+
     private static ExitVeto veto(List<String> asked, String name, boolean answer) {
         return () -> {
             asked.add(name);

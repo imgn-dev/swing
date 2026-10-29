@@ -51,15 +51,16 @@ public final class DefaultLifecycle implements Lifecycle {
 
     @Override
     public void requestExit(int status) {
-        if (state.get() == State.RUNNING) {
+        // The request takes the state at once, so a second one made before the executor runs the first is ignored.
+        if (state.compareAndSet(State.RUNNING, State.REQUESTED)) {
             executor.execute(() -> shutdown(status));
         }
     }
 
     /**
-     * Returns whether a shutdown runs or has run.
+     * Returns whether a shutdown is requested, runs or has run.
      *
-     * @return {@code true} once a shutdown that no veto cancelled has started
+     * @return {@code true} once a request is in flight that no veto has cancelled
      */
     public boolean isShuttingDown() {
         return state.get() != State.RUNNING;
@@ -77,7 +78,7 @@ public final class DefaultLifecycle implements Lifecycle {
     }
 
     private void shutdown(int status) {
-        if (!state.compareAndSet(State.RUNNING, State.ASKING)) {
+        if (!state.compareAndSet(State.REQUESTED, State.ASKING)) {
             return;
         }
         for (ExitVeto veto : vetoes.ordered(Contributions.of(injector, ExitVeto.class))) {
@@ -119,6 +120,7 @@ public final class DefaultLifecycle implements Lifecycle {
 
     private enum State {
         RUNNING,
+        REQUESTED,
         ASKING,
         SHUTTING_DOWN
     }
