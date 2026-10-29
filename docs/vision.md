@@ -85,7 +85,7 @@ These features need nothing from Swing, so a module that doesn't require `java.d
   - You write an interface, the processor checks it against the TOML file, and it generates the implementation.
   - A placeholder that doesn't match a parameter fails the build.
   - So does a key that is missing in any locale file.
-- **Typed resource keys.** Generated constants for icons, so code never looks up resources by string. Commands are reached through their generated `<Class>Commands` class instead.
+- **Typed resource keys.** Code never looks up resources by string: commands are reached through their generated `<Class>Commands` class, and icons through the resources of commands and components.
 - **Resource injection into components.**
   - Per-class TOML files (`NotesView.toml`, `NotesView_fr.toml`, `NotesView.macos.toml`) are merged along the class hierarchy.
   - Keys are kebab-case properties. Generated accessors write them to the components the class holds.
@@ -220,7 +220,7 @@ public final class NotesView implements View {
     }
 
     @Override
-    public JComponent component() {
+    public JComponent content() {
         return new JScrollPane(editor);
     }
 
@@ -383,11 +383,9 @@ confirmExit = "Voulez-vous vraiment quitter ?"
 | `<Class>Commands` classes, extending `StandardCommands`, with one `BoundCommand` method per command: id, handler, enabled/selected observables, blocking scope, whether the handler returns a `Task` | `@Command` methods | SwingAppFramework's actions found by method name; Guts' `GutsAction` field scanning |
 | Subscription registrars, with exact generic event types | `@Subscribe` methods | Guts' `@Consumes` discovery through `getMethods()` |
 | Message implementations, checked against every locale file | `@Messages` interfaces + TOML | `TextMap`, `MessageFormat` lookups by string |
-| Resource key constants | TOML files | String lookups |
 | Property accessors for the components a class holds and for common Swing types | Fields, plus a pre-generated list of Swing types | commons-beanutils, Guts' `UntypedProperty` |
 | One resource opener per package | Packages that contain resources | Reading other modules' resources, which the module path forbids |
 | Build-time checks of TOML resources: syntax with line and column, keys, value types, command ids (see below) | TOML files | Runtime warnings |
-| EDT adapters for listener interfaces | `@EdtListener` interfaces | `java.lang.reflect.Proxy` |
 
 ### Checks of command resources
 
