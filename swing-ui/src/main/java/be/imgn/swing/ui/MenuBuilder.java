@@ -1,5 +1,6 @@
 package be.imgn.swing.ui;
 
+import be.imgn.swing.internal.DisposalScope;
 import be.imgn.swing.ui.internal.Mnemonics;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
@@ -54,6 +55,11 @@ final class MenuBuilder {
     }
 
     JMenu createMenu(MenuSpec spec) {
+        return createMenu(spec, view.scope());
+    }
+
+    /** Creates a menu whose dynamic sections subscribe in a scope: the view's, or a dynamic section's for a submenu. */
+    JMenu createMenu(MenuSpec spec, DisposalScope scope) {
         JMenu menu = new JMenu();
         Mnemonics text = spec.menu().text();
         menu.setText(text.text());
@@ -62,7 +68,7 @@ final class MenuBuilder {
             menu.setDisplayedMnemonicIndex(text.index());
         }
         MenuContent content = new MenuContent(
-                this, menu.getPopupMenu(), "the menu " + spec.menu().id());
+                this, menu.getPopupMenu(), "the menu " + spec.menu().id(), scope);
         spec.entries().forEach(content::add);
         content.built();
         return menu;
@@ -82,7 +88,7 @@ final class MenuBuilder {
         JPopupMenu popup = new JPopupMenu();
         popup.putClientProperty(CommandAction.INVOKER, invoker);
         MenuContent content = new MenuContent(
-                this, popup, "the popup menu of " + invoker.getClass().getName());
+                this, popup, "the popup menu of " + invoker.getClass().getName(), view.scope());
         for (MenuEntry entry : entries) {
             content.add(entry);
         }
@@ -108,12 +114,15 @@ final class MenuBuilder {
         return toolBar;
     }
 
-    /** Creates the component of an entry, or none for a command the macOS application menu shows. */
-    List<Component> components(DynamicEntry entry) {
+    /**
+     * Creates the component of an entry of a dynamic section, or none for a command the macOS application menu shows; a
+     * submenu subscribes in the section's scope.
+     */
+    List<Component> components(DynamicEntry entry, DisposalScope scope) {
         return switch (entry) {
             case BoundCommand command -> commandItem(command);
             case Separator ignored -> List.of(new JPopupMenu.Separator());
-            case MenuSpec spec -> List.of(createMenu(spec));
+            case MenuSpec spec -> List.of(createMenu(spec, scope));
             case DynamicEntry.Item item -> List.of(item(item));
         };
     }
