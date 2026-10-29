@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -95,13 +96,20 @@ final class DialogFlow {
     private static void place(ViewHost view) {
         DialogView<?> dialog = (DialogView<?>) view.view().orElseThrow();
         StandardCommands commands = view.injector().getInstance(StandardCommands.class);
+        JRootPane rootPane = view.window().window().rootPane();
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.TRAILING));
         List<BoundCommand> commandsOfButtons = dialog.buttons(commands);
-        commandsOfButtons.forEach(command -> buttons.add(command.createButton()));
+        commandsOfButtons.forEach(command -> {
+            JButton button = command.createButton();
+            buttons.add(button);
+            // The OK button is the default button, for its visual and for Enter in a component that consumes it.
+            if (command.equals(commands.ok())) {
+                rootPane.setDefaultButton(button);
+            }
+        });
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(dialog.content(), BorderLayout.CENTER);
         panel.add(buttons, BorderLayout.SOUTH);
-        JRootPane rootPane = view.window().window().rootPane();
         rootPane.setContentPane(panel);
         bind(rootPane, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), OK, commands.ok());
         bind(rootPane, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), CANCEL, commands.cancel());

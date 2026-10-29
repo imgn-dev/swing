@@ -78,6 +78,10 @@ class AddressBookAppTest {
                 ContactDialog view = dialog.view();
                 assertThat(view.firstNameLabel.getText()).isEqualTo("First Name");
                 assertThat(((TitledBorder) view.home.getBorder()).getTitle()).isEqualTo("Home Address");
+                assertThat(SwingUtilities.getRootPane(view.firstName)
+                                .getDefaultButton()
+                                .getAction())
+                        .isSameAs(dialog.commands(StandardCommands.class).ok().asAction());
                 view.firstName.setText("Ada");
                 view.lastName.setText("Lovelace");
                 view.birth.setText("1815-12-10");
