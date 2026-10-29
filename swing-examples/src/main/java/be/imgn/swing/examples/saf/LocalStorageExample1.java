@@ -1,8 +1,8 @@
 package be.imgn.swing.examples.saf;
 
+import be.imgn.gaia.core.platform.ApplicationDirectories;
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
-import be.imgn.swing.ApplicationInfo;
 import be.imgn.swing.Task;
 import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Exposed;
@@ -30,7 +30,7 @@ import javax.swing.JTextField;
 /**
  * A map of keys and values that the application saves to, and loads from, a file of its data directory. In
  * SwingAppFramework, the file is written by {@code LocalStorage} with {@code XMLEncoder}; in swing, it is a TOML table
- * in {@link ApplicationInfo#directories()}, written atomically.
+ * in the application's {@link ApplicationDirectories}, written atomically.
  */
 @Application(name = "LocalStorageExample1", vendor = "Sun")
 public final class LocalStorageExample1 implements SingleFrame {
@@ -51,13 +51,14 @@ public final class LocalStorageExample1 implements SingleFrame {
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
     private final RandomGenerator random = RandomGenerator.getDefault();
     private final LocalStorageExample1Commands commands;
-    private final ApplicationInfo application;
+    private final ApplicationDirectories directories;
     private final ExampleMessages messages;
 
     @Inject
-    LocalStorageExample1(LocalStorageExample1Commands commands, ApplicationInfo application, ExampleMessages messages) {
+    LocalStorageExample1(
+            LocalStorageExample1Commands commands, ApplicationDirectories directories, ExampleMessages messages) {
         this.commands = commands;
-        this.application = application;
+        this.directories = directories;
         this.messages = messages;
     }
 
@@ -161,6 +162,6 @@ public final class LocalStorageExample1 implements SingleFrame {
     }
 
     private Path file() {
-        return application.directories().data().resolve(FILE);
+        return directories.data().resolve(FILE);
     }
 }

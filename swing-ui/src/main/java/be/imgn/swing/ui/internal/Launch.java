@@ -1,5 +1,6 @@
 package be.imgn.swing.ui.internal;
 
+import be.imgn.gaia.core.platform.Platform;
 import be.imgn.inject.Injector;
 import be.imgn.swing.ApplicationDescriptor;
 import be.imgn.swing.ReadyListener;
@@ -36,7 +37,8 @@ public final class Launch {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static Optional<Injector> start(Class<?> type, List<String> arguments, LaunchOptions options) {
         ApplicationDescriptor descriptor = Launcher.descriptor(type);
-        if (options.systemProperties() && options.platform().isMacOS()) {
+        // Before any AWT class, so before the injector and its Platform bean: the real operating system decides.
+        if (options.systemProperties() && Platform.current().isMacOS()) {
             System.setProperty("apple.awt.application.name", descriptor.name());
             System.setProperty("apple.laf.useScreenMenuBar", "true");
         }
@@ -44,7 +46,7 @@ public final class Launch {
         AtomicBoolean lookAndFeel = new AtomicBoolean();
         AtomicReference<SingleFrame> main = new AtomicReference<>();
         try {
-            DefaultApplicationInfo info = new DefaultApplicationInfo(descriptor, options.platform());
+            DefaultApplicationInfo info = new DefaultApplicationInfo(descriptor);
             DisposalScope application = DisposalScope.root("application");
             Injector.Builder builder = Launcher.rootBuilder(info, arguments, options.locale(), application);
             options.bindings().accept(builder);

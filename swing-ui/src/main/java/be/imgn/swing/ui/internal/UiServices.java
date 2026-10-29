@@ -1,5 +1,6 @@
 package be.imgn.swing.ui.internal;
 
+import be.imgn.gaia.core.platform.Platform;
 import be.imgn.inject.Inject;
 import be.imgn.inject.Singleton;
 import be.imgn.swing.ApplicationInfo;
@@ -16,6 +17,7 @@ public final class UiServices {
 
     private final Resources resources;
     private final ApplicationInfo application;
+    private final Platform platform;
     private final UiExecutor executor;
     private final TaskRunner tasks;
     private final DefaultLifecycle lifecycle;
@@ -33,6 +35,7 @@ public final class UiServices {
     UiServices(
             Resources resources,
             ApplicationInfo application,
+            Platform platform,
             UiExecutor executor,
             TaskRunner tasks,
             DefaultLifecycle lifecycle,
@@ -46,6 +49,7 @@ public final class UiServices {
             UiTexts texts) {
         this.resources = resources;
         this.application = application;
+        this.platform = platform;
         this.executor = executor;
         this.tasks = tasks;
         this.lifecycle = lifecycle;
@@ -94,7 +98,7 @@ public final class UiServices {
      * @return {@code true} on macOS
      */
     public boolean isMacOS() {
-        return application.platform().isMacOS();
+        return platform.isMacOS();
     }
 
     /**

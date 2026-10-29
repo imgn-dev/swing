@@ -1,5 +1,6 @@
 package be.imgn.swing.testing;
 
+import be.imgn.gaia.core.platform.Platform;
 import be.imgn.gaia.core.testing.FakePlatform;
 import be.imgn.gaia.core.testing.FakeTicker;
 import be.imgn.gaia.core.testing.OperatingSystem;
@@ -126,9 +127,9 @@ public final class AppTester<T> implements AutoCloseable {
                 .build();
         AtomicReference<@Nullable Throwable> startupFailure = new AtomicReference<>();
         LaunchOptions options = new LaunchOptions(
-                platform,
                 locale,
-                builder -> builder.bind(UiExecutor.class, executor)
+                builder -> builder.bind(Platform.class, platform)
+                        .bind(UiExecutor.class, executor)
                         .bind(FailureHandler.class, failures::add)
                         .bind(Exit.class, (Exit) this::exited)
                         .bind(Windows.class, windows)

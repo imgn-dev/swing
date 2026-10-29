@@ -3,6 +3,9 @@ package be.imgn.swing.examples.counter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import be.imgn.gaia.core.platform.ApplicationDirectories;
+import be.imgn.gaia.core.platform.Platform;
+import be.imgn.swing.ApplicationInfo;
 import be.imgn.swing.Arguments;
 import be.imgn.swing.Property;
 import be.imgn.swing.Scope;
@@ -14,6 +17,7 @@ import be.imgn.swing.ui.DynamicEntry;
 import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.Ui;
 import java.awt.EventQueue;
+import java.nio.file.FileSystems;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +35,21 @@ class AppTesterTest {
                 .arguments("--file", "notes.txt")
                 .start()) {
             assertThat(app.commands(Arguments.class).values()).containsExactly("--file", "notes.txt");
+        }
+    }
+
+    @Test
+    void bindsItsPlatformInPlaceOfTheDefaultAndTheDirectoriesFollowIt() {
+        try (AppTester<CounterApp> app = AppTester.start(CounterApp.class)) {
+            Platform platform = app.commands(Platform.class);
+            ApplicationDirectories directories = app.commands(ApplicationDirectories.class);
+            ApplicationInfo info = app.commands(ApplicationInfo.class);
+
+            assertThat(platform.isMacOS()).isFalse();
+            assertThat(directories.data().getFileSystem()).isNotEqualTo(FileSystems.getDefault());
+            assertThat(directories.data()).hasToString("/data-home/counter");
+            assertThat(info.platform()).isSameAs(platform);
+            assertThat(info.directories()).isSameAs(directories);
         }
     }
 

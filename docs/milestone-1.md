@@ -75,11 +75,15 @@ public static void main(String[] args) {
 | `qualifier` | Optional, and only with `vendor`. The vendor's top-level domain (`be`). |
 | `version` | Optional. Shown in the About dialog. |
 
-These are the three names gaia's `Platform.applicationDirectories(...)` takes, so the directories are fully determined by the annotation:
+These are the three names gaia's `Platform.applicationDirectories(...)` takes, so by default the directories are fully determined by the annotation and the platform:
 
 - With `qualifier` and `vendor`: `applicationDirectories(qualifier, vendor, name)`. Only macOS uses the qualifier, for the bundle-style identifier: `~/Library/Application Support/be.imgn.Counter`.
 - With `vendor` only: `applicationDirectories(vendor, name)`. Only Windows uses the vendor, as a directory above the application's: `%APPDATA%\imgn\Counter`.
 - With neither: `applicationDirectories(name)`. Linux uses the name only, in lower case with spaces replaced by `-`: `~/.config/counter`.
+
+`Platform` and `ApplicationDirectories` are beans of the root injector, which any bean injects. Core provides each as a `@Provides @Default @Singleton` fallback: `Platform.current()`, and the directories above, computed from the `Platform` bean, so a platform bound in its place moves the default directories with it. As for every `@Default` bean, a bean of the same key in an application's module replaces the fallback, such as a portable application's `ApplicationDirectories` next to its JAR, and so does a binding of the root injector's builder, which `AppTester` uses for its `FakePlatform`. `ApplicationInfo.platform()` and `directories()` are shortcuts to the two beans, usable once the root injector is built.
+
+The launch sets the macOS system properties before any AWT class loads, so before the injector exists: they follow the operating system the JVM runs on, `Platform.current()`, not the `Platform` bean. A `Platform` bean that claims another operating system than the real one leaves them as the real one asks.
 
 Directories never depend on the locale: a localized displayed name comes from resources, never from `name`. The processor checks the names with gaia's rules (not blank, not `.` or `..`, no leading or trailing whitespace, no control character, none of `/ \ : < > " | ? *`) and reports a `qualifier` without a `vendor`. The application's identifier, for the single instance in milestone 3, is `qualifier.vendor.name`, with the parts that are present.
 
@@ -102,8 +106,8 @@ public interface ApplicationInfo {                // core, bound in the root inj
     Optional<String> qualifier();
     Optional<String> version();
     String identifier();                          // qualifier.vendor.name, with the parts that are present
-    Platform platform();
-    ApplicationDirectories directories();
+    Platform platform();                          // the Platform bean
+    ApplicationDirectories directories();         // the ApplicationDirectories bean
 }
 
 public record Arguments(List<String> values) {}    // core, the arguments given to launch
@@ -902,7 +906,7 @@ void exitAsksForConfirmation() {
 - **Finding components.** `component(Class<T> type)` returns the one component of that type in the main window, and throws `IllegalStateException` when there is none or more than one. `components(Class<T> type)` returns them all, in depth-first order. `component(Class<T> type, String name)` returns the one whose accessible name is `name`, which is the text of the label whose `labelFor` it is or its `accessible-name` resource, with the same exception; tests find the components of a view this way, not through its fields. The dialog a test answers through `FakeDialogs.answerDialog` has the same three methods.
 - **Exit.** `AppTester`'s `Exit` records the status instead of exiting: after an exit, `isRunning()` is `false` and `exitStatus()` returns the status.
 - **EDT.** Every call on `AppTester` that reaches the application, and every call on the commands it returns, runs on the EDT and waits; `dialogs()` and `ticker()` return the fakes, which tests configure from their own thread and the application reads on the EDT. `execute()` waits for the task a command starts, through the test `UiExecutor`. Before returning, the tester runs the updates posted by observables, so assertions see the components up to date.
-- **Fakes.** `FakeDialogs` records dialogs and answers them. `AppTester.start(type, locale)` binds `DisplayLocale`; `AppTester.start(type)` binds `Locale.ROOT`, which reads the base files. The platform and directories are gaia's `FakePlatform` and `FakeDirectories` on a `gaia-memfs` file system, so window state is saved in memory. Time uses `InstantSource` and gaia's `FakeTicker`.
+- **Fakes.** `FakeDialogs` records dialogs and answers them. `AppTester.start(type, locale)` binds `DisplayLocale`; `AppTester.start(type)` binds `Locale.ROOT`, which reads the base files. The platform and directories are gaia's `FakePlatform` and `FakeDirectories` on a `gaia-memfs` file system, so window state is saved in memory: the tester binds the `FakePlatform` as the `Platform` bean, and core's default directories follow it. Time uses `InstantSource` and gaia's `FakeTicker`.
 - **Configuration.** `AppTester.builder(type)` configures the start: `Builder.locale(Locale)` binds the `DisplayLocale` (`Locale.ROOT` by default), `Builder.arguments(String...)` gives the arguments, bound as `Arguments` as `Swing.launch` binds them (none by default), and `Builder.start()` starts the application. `start(type)` and `start(type, locale)` are shortcuts for it.
 - **Close.** `AppTester.close()` closes the windows, then the root injector and the application `Scope` through the lifecycle's close, without asking the exit vetoes or running the shutdown steps: tasks and subscriptions registered in the application scope are released between tests.
 - **EDT checker.** A `RepaintManager` replacement fails the test when a component is repainted or invalidated off the EDT.

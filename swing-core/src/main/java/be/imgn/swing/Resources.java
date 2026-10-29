@@ -32,8 +32,8 @@ public final class Resources {
     private final Map<Class<?>, TomlTable> cache = new ConcurrentHashMap<>();
 
     @Inject
-    Resources(ApplicationInfo application, DisplayLocale locale) {
-        this(ResourceTables.loaded(platformId(application.platform())), locale.locale());
+    Resources(Platform platform, DisplayLocale locale) {
+        this(ResourceTables.loaded(platformId(platform)), locale.locale());
     }
 
     private Resources(ResourceTables tables, Locale locale) {

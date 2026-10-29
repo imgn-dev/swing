@@ -2,7 +2,6 @@ package be.imgn.swing.ui;
 
 import be.imgn.inject.Injector;
 import be.imgn.swing.Exit;
-import be.imgn.swing.internal.Launcher;
 import be.imgn.swing.ui.internal.Edt;
 import be.imgn.swing.ui.internal.ErrorDialog;
 import be.imgn.swing.ui.internal.Launch;
@@ -48,12 +47,7 @@ public final class Swing {
                 type,
                 List.of(args),
                 new LaunchOptions(
-                        Launcher.platform(),
-                        Locale.getDefault(Locale.Category.DISPLAY),
-                        builder -> {},
-                        root -> {},
-                        true,
-                        Swing::failed));
+                        Locale.getDefault(Locale.Category.DISPLAY), builder -> {}, root -> {}, true, Swing::failed));
     }
 
     // The stack trace is printed when no dialog can show it, also when the display is headless.
