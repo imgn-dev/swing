@@ -3,6 +3,7 @@ package be.imgn.swing.examples.counter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import be.imgn.swing.Arguments;
 import be.imgn.swing.Property;
 import be.imgn.swing.Scope;
 import be.imgn.swing.Task;
@@ -15,6 +16,7 @@ import be.imgn.swing.ui.Ui;
 import java.awt.EventQueue;
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JLabel;
@@ -22,6 +24,33 @@ import org.junit.jupiter.api.Test;
 
 /** What the tester checks of its own, on the counter. */
 class AppTesterTest {
+
+    @Test
+    void givesTheArgumentsToTheApplication() {
+        try (AppTester<CounterApp> app = AppTester.builder(CounterApp.class)
+                .arguments("--file", "notes.txt")
+                .start()) {
+            assertThat(app.commands(Arguments.class).values()).containsExactly("--file", "notes.txt");
+        }
+    }
+
+    @Test
+    void givesNoArgumentsByDefault() {
+        try (AppTester<CounterApp> app = AppTester.start(CounterApp.class)) {
+            assertThat(app.commands(Arguments.class).values()).isEmpty();
+        }
+    }
+
+    @Test
+    void combinesTheArgumentsWithALocale() {
+        try (AppTester<CounterApp> app = AppTester.builder(CounterApp.class)
+                .locale(Locale.FRENCH)
+                .arguments("one")
+                .start()) {
+            assertThat(app.commands(Arguments.class).values()).containsExactly("one");
+            assertThat(app.component(JLabel.class).getText()).startsWith("Le compte est");
+        }
+    }
 
     @Test
     void duplicateMnemonicsInARebuiltDynamicSectionFailTheNextCall() throws Exception {

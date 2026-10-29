@@ -87,7 +87,7 @@ public final class AppTester<T> implements AutoCloseable {
      * @throws AssertionError if the startup fails
      */
     public static <T> AppTester<T> start(Class<T> type) {
-        return start(type, Locale.ROOT);
+        return builder(type).start();
     }
 
     /**
@@ -100,12 +100,22 @@ public final class AppTester<T> implements AutoCloseable {
      * @throws AssertionError if the startup fails
      */
     public static <T> AppTester<T> start(Class<T> type, Locale locale) {
-        AppTester<T> tester = new AppTester<>(Objects.requireNonNull(type, "type"));
-        tester.launch(Objects.requireNonNull(locale, "locale"));
-        return tester;
+        return builder(type).locale(locale).start();
     }
 
-    private void launch(Locale locale) {
+    /**
+     * Starts the configuration of an application, which {@link Builder#start()} starts: in {@code Locale.ROOT} and with
+     * no arguments unless the builder says otherwise.
+     *
+     * @param type the application class
+     * @param <T> the application class
+     * @return the builder
+     */
+    public static <T> Builder<T> builder(Class<T> type) {
+        return new Builder<>(Objects.requireNonNull(type, "type"));
+    }
+
+    private void launch(Locale locale, List<String> arguments) {
         Edt.invokeAndWait(() -> {
             previousRepaintManager = RepaintManager.currentManager(null);
             RepaintManager.setCurrentManager(new EdtChecker(failures));
@@ -132,7 +142,7 @@ public final class AppTester<T> implements AutoCloseable {
                 },
                 false,
                 (failure, injector, lookAndFeel) -> startupFailure.set(failure));
-        Optional<Injector> started = Launch.start(type, List.of(), options);
+        Optional<Injector> started = Launch.start(type, arguments, options);
         Throwable failure = startupFailure.get();
         if (started.isEmpty() || failure != null) {
             restore();
@@ -345,6 +355,58 @@ public final class AppTester<T> implements AutoCloseable {
             fileSystem.close();
         } catch (IOException | UnsupportedOperationException e) {
             failures.add(e);
+        }
+    }
+
+    /**
+     * The configuration of an application to start.
+     *
+     * @param <T> the application class
+     */
+    public static final class Builder<T> {
+
+        private final Class<T> type;
+        private Locale locale = Locale.ROOT;
+        private List<String> arguments = List.of();
+
+        private Builder(Class<T> type) {
+            this.type = type;
+        }
+
+        /**
+         * Sets the locale, bound as the application's {@code DisplayLocale}.
+         *
+         * @param locale the display locale; {@code Locale.ROOT}, which reads the base files of resources, by default
+         * @return this builder
+         */
+        public Builder<T> locale(Locale locale) {
+            this.locale = Objects.requireNonNull(locale, "locale");
+            return this;
+        }
+
+        /**
+         * Sets the arguments given to the launch, bound as the application's {@code Arguments}, as
+         * {@code Swing.launch(type, args)} binds them.
+         *
+         * @param arguments the arguments, in order; none by default
+         * @return this builder
+         * @throws NullPointerException if an argument is {@code null}
+         */
+        public Builder<T> arguments(String... arguments) {
+            this.arguments = List.of(arguments);
+            return this;
+        }
+
+        /**
+         * Starts the application.
+         *
+         * @return the tester, to close
+         * @throws AssertionError if the startup fails
+         */
+        public AppTester<T> start() {
+            AppTester<T> tester = new AppTester<>(type);
+            tester.launch(locale, arguments);
+            return tester;
         }
     }
 }
