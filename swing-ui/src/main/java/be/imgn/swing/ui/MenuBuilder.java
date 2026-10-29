@@ -37,6 +37,9 @@ final class MenuBuilder {
             Map<Class<?>, TomlTable> tables = new LinkedHashMap<>();
             if (STANDARD_MENUS.contains(id)) {
                 tables.put(StandardMenus.class, section(StandardMenus.class, id));
+                // An override in the application class's resources renames the menu in every view; the view class's
+                // own resources come last.
+                services.applicationType().ifPresent(application -> tables.put(application, section(application, id)));
             }
             Class<?> type = owner == StandardMenus.class ? view.type() : owner;
             tables.put(type, section(type, id));

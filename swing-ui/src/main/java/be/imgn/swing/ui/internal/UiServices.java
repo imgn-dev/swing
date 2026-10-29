@@ -8,6 +8,7 @@ import be.imgn.swing.UiExecutor;
 import be.imgn.swing.internal.DefaultLifecycle;
 import be.imgn.swing.internal.TaskRunner;
 import be.imgn.swing.ui.Windows;
+import java.util.Optional;
 
 /** The application's services that the beans of the windows and views share. */
 @Singleton
@@ -74,6 +75,17 @@ public final class UiServices {
      */
     public ApplicationInfo application() {
         return application;
+    }
+
+    /**
+     * Returns the application class: the class of the main window's view, in milestone 1.
+     *
+     * @return the class, empty before the main view is built
+     */
+    public Optional<Class<?>> applicationType() {
+        return registry.main()
+                .flatMap(main -> main.views().stream().findFirst())
+                .map(ViewHost::type);
     }
 
     /**
