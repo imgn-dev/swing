@@ -565,7 +565,16 @@ These depart from the [vision](vision.md), and are to be applied to it:
 
 `./mvnw -B verify` succeeds on JDK 21 and on JDK 25, with the snapshots of milestone 1, gaia 0.1.2-SNAPSHOT with its event bus, gaia-processor, G1 and G2, and toml 0.2.0-SNAPSHOT installed in the local Maven repository, and the parent 2026-11-SNAPSHOT with P1. Every test of milestone 1 still passes, and `swing-examples` has the following, each with `AppTester` tests of every behavior listed.
 
-No source of the project suppresses Checkstyle's `VisibilityModifier`: the examples of milestone 1 drop their `@SuppressWarnings("checkstyle:VisibilityModifier")` and its comment, and annotate `@Exposed` the fields that generated code reads. Their other fields are private.
+No source of the project suppresses Checkstyle's `VisibilityModifier`. Every example class of milestone 1 that carries this annotation, with one of these three comments above it, loses both the annotation and the comment:
+
+```java
+// The framework reaches component fields and command targets from generated code, so they are package-private.
+// The framework reaches component fields from generated code, so they are package-private.
+// The framework reaches command targets from generated code, so they are package-private.
+@SuppressWarnings("checkstyle:VisibilityModifier")
+```
+
+Instead, each field that generated code reads is annotated `@Exposed`, and every other field is private. These are the classes, in `be.imgn.swing.examples`: `addressbook.AddressBookApp`, `addressbook.ContactDialog`, `addressbook.ContactTabsDialog`, `addressbook.ContactWizardDialog`, `addressbook.WizardSteps`, `saf.ActionExample2`, `saf.ActionExample3`, `saf.ActionExample4`, `saf.ActionMapExample`, `saf.ApplicationExample1`, `saf.ApplicationExample2`, `saf.DocumentExample`, `saf.ExitExample1`, `saf.LocalStorageExample1`, `saf.SecondaryWindow`, `saf.SelectedPropertyExample`, `saf.SessionStorageExample1`, `saf.SingleFrameExample1`, `saf.SingleFrameExample2`, `saf.SingleFrameExample3`, `saf.SingleFrameExample5`, `saf.SingleFrameExample6`, `saf.Tabbed`.
 
 ### The Address Book, as in Guts
 
@@ -598,7 +607,7 @@ A test in `swing-core`, which has no `java.desktop`, builds an inject root with 
 ## Order of work
 
 1. toml 0.2.0-SNAPSHOT with T1 to T3, gaia 0.1.2-SNAPSHOT with G1 and G2, and the parent with P1; until they are released, local snapshots.
-2. UI and processor: `@Exposed` and its checks, and the examples of milestone 1 annotated with it.
+2. UI and processor: `@Exposed` and its checks. The examples of milestone 1 annotate with it the fields that generated code reads, make their other fields private, and drop their `@SuppressWarnings("checkstyle:VisibilityModifier")` and the comment above it.
 3. Core: observable lists and `Validator`.
 4. Core, UI and processor: the application's bus, `@OnEdt`, the registration of beans, and the subscribers step.
 5. Core and processor: settings, the settings step and its checks; window state on toml's generated code.
