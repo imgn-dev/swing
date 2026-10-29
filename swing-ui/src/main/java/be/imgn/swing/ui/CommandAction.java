@@ -33,7 +33,11 @@ final class CommandAction extends AbstractAction {
     }
 
     static CommandContext contextOf(ActionEvent event, boolean macOS) {
-        return CommandContext.of(triggerOf(event.getSource()), modifiersOf(event.getModifiers()), macOS);
+        Trigger trigger = triggerOf(event.getSource());
+        // A programmatic trigger carries no modifiers, whatever the event says.
+        Set<Modifier> modifiers =
+                trigger instanceof Trigger.Programmatic ? Set.of() : modifiersOf(event.getModifiers());
+        return CommandContext.of(trigger, modifiers, macOS);
     }
 
     static Set<Modifier> modifiersOf(int modifiers) {
