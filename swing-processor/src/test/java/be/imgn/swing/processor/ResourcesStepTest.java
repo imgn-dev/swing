@@ -41,6 +41,19 @@ class ResourcesStepTest {
     }
 
     @Test
+    void warnsOnAFileOfAClassTheProcessorGeneratesNothingFor() {
+        var compilation = counter("[commands.increment]\ntext = \"&Increment\"\n")
+                .source("p.Helper", "package p;\n\npublic final class Helper {}\n")
+                .resource("p/Helper.toml", "title = \"Helper\"\n")
+                .compile();
+
+        assertThat(compilation)
+                .succeeded()
+                .hadWarningContaining("Helper.toml belongs to no class the processor generates for")
+                .inFile("p/Helper.java");
+    }
+
+    @Test
     void reportsASyntaxErrorAtItsPosition() {
         var compilation = counter("[commands.increment]\ntext = \n").compile();
 
