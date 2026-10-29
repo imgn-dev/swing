@@ -4,6 +4,7 @@ import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
 import be.imgn.swing.ExitVeto;
 import be.imgn.swing.ui.Dialogs;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import javax.swing.BorderFactory;
@@ -13,13 +14,13 @@ import javax.swing.SwingConstants;
 
 /** Closing the window asks the exit veto, which asks for a confirmation. */
 @Application(name = "ExitExample1")
-// The framework reaches component fields from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class ExitExample1 implements SingleFrame, ExitVeto {
 
     private static final int MARGIN = 100;
 
+    @Exposed
     final JLabel label = new JLabel("", SwingConstants.CENTER);
+
     private final Dialogs dialogs;
     private final ExampleMessages messages;
 

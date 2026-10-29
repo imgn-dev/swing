@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.JMenuItem;
+import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -31,7 +32,7 @@ class DocumentExamplesTest {
 
             onEdt(() -> {
                 example.file(file);
-                example.textArea.setText("Hello");
+                app.component(JTextArea.class).setText("Hello");
             });
 
             assertThat(example.modified.get()).isTrue();
@@ -47,7 +48,7 @@ class DocumentExamplesTest {
     @Test
     void documentExampleAsksBeforeExitingWithModifications() throws Exception {
         try (AppTester<DocumentExample> app = AppTester.start(DocumentExample.class)) {
-            onEdt(() -> app.application().textArea.setText("Hello"));
+            onEdt(() -> app.component(JTextArea.class).setText("Hello"));
             app.dialogs().answerConfirm(false);
 
             app.commands(StandardCommands.class).exit().execute();

@@ -6,6 +6,7 @@ import be.imgn.swing.Property;
 import be.imgn.swing.Task;
 import be.imgn.swing.TaskContext;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.StandardMenus;
@@ -39,8 +40,6 @@ import javax.swing.SwingConstants;
  * Rover images from JPL; the port loads images of its own resources, so that it works offline.
  */
 @Application(name = "SingleFrameExample5", vendor = "Sun", version = "1.0")
-// The framework reaches component fields and command targets from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class SingleFrameExample5 implements SingleFrame {
 
     private static final List<String> IMAGES =
@@ -49,12 +48,19 @@ public final class SingleFrameExample5 implements SingleFrame {
     private static final int HEIGHT = 480;
     private static final double PERCENT = 100;
 
+    @Exposed
     final JLabel image = new JLabel();
+
+    @Exposed
     final Property<Boolean> nextImageEnabled = Property.of(true);
+
+    @Exposed
     final Property<Boolean> previousImageEnabled = Property.of(false);
+
+    @Exposed
     final Property<Boolean> stopLoadingEnabled = Property.of(false);
     // Each load gets a generation; stopping moves to the next one, which the running load sees.
-    final Property<Integer> current = Property.of(0);
+    private final Property<Integer> current = Property.of(0);
     private final SingleFrameExample5Commands commands;
     private final StandardMenus menus;
     private final Ui ui;

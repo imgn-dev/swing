@@ -2,6 +2,7 @@ package be.imgn.swing.examples.saf;
 
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import javax.swing.JComponent;
@@ -14,10 +15,9 @@ import javax.swing.SwingConstants;
  * code in the original, are in the resources.
  */
 @Application(name = "ApplicationExample1")
-// The framework reaches component fields from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class ApplicationExample1 implements SingleFrame {
 
+    @Exposed
     final JLabel label = new JLabel("", SwingConstants.CENTER);
 
     @Inject

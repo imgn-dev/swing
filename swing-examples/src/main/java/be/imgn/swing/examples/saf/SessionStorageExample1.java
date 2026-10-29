@@ -2,6 +2,7 @@ package be.imgn.swing.examples.saf;
 
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import java.awt.BorderLayout;
@@ -24,34 +25,76 @@ import javax.swing.table.AbstractTableModel;
  * demo's data.
  */
 @Application(name = "SessionStorageExample1")
-// The framework reaches component fields and command targets from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class SessionStorageExample1 implements SingleFrame {
 
     private static final double HALF = 0.5;
 
+    @Exposed
     final JLabel explanation = new JLabel();
+
+    @Exposed
     final JTabbedPane colors = new JTabbedPane();
+
+    @Exposed
     final JLabel redDarker = swatch(Color.RED.darker());
+
+    @Exposed
     final JLabel redBrighter = swatch(Color.RED.brighter());
+
+    @Exposed
     final JSplitPane red = split(redDarker, redBrighter);
+
+    @Exposed
     final JLabel blueDarker = swatch(Color.BLUE.darker());
+
+    @Exposed
     final JLabel blueBrighter = swatch(Color.BLUE.brighter());
+
+    @Exposed
     final JSplitPane blue = split(blueDarker, blueBrighter);
+
+    @Exposed
     final JLabel greenDarker = swatch(Color.GREEN.darker());
+
+    @Exposed
     final JLabel greenBrighter = swatch(Color.GREEN.brighter());
+
+    @Exposed
     final JSplitPane green = split(greenDarker, greenBrighter);
+
+    @Exposed
     final JLabel yellowDarker = swatch(Color.YELLOW.darker());
+
+    @Exposed
     final JLabel yellowBrighter = swatch(Color.YELLOW.brighter());
+
+    @Exposed
     final JSplitPane yellow = split(yellowDarker, yellowBrighter);
+
+    @Exposed
     final JLabel orangeDarker = swatch(Color.ORANGE.darker());
+
+    @Exposed
     final JLabel orangeBrighter = swatch(Color.ORANGE.brighter());
+
+    @Exposed
     final JSplitPane orange = split(orangeDarker, orangeBrighter);
+
+    @Exposed
     final JLabel pinkDarker = swatch(Color.PINK.darker());
+
+    @Exposed
     final JLabel pinkBrighter = swatch(Color.PINK.brighter());
+
+    @Exposed
     final JSplitPane pink = split(pinkDarker, pinkBrighter);
+
+    @Exposed
     final JTable all = new JTable(new TabColorTableModel());
+
+    @Exposed
     final JScrollPane allColors = new JScrollPane(all);
+
     private final ExampleMessages messages;
 
     @Inject

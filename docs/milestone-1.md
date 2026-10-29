@@ -256,11 +256,11 @@ void toggleWordWrap() { ... }
 | Attribute | Meaning |
 |---|---|
 | `id` | Defaults to the method name. It is also the TOML key and the Swing action command. |
-| `enabled` | Name of a non-private field or no-arg method of the class whose type is `Observable<Boolean>`. Absent: always enabled. |
+| `enabled` | Name of an [`@Exposed`](#exposed-fields) field or a non-private no-arg method of the class whose type is `Observable<Boolean>`. Absent: always enabled. |
 | `selected` | Same, for a `Property<Boolean>`. The command becomes a toggle: activating it flips the property, then calls the handler. |
 | `block` | `Block.NONE` (default), `COMMAND`, `COMPONENT`, `WINDOW` or `APPLICATION`. Allowed only when the handler returns a `Task`: any other value on a `void` handler is a compile error. |
 
-The handler is a non-private, non-static method returning `void` or `Task<?>`. A private handler, `enabled` target or `selected` target is a compile error, since the generated class in the same package must reach it. It takes no parameter, or a single `CommandContext`; any other parameter is a compile error. It is called on the EDT.
+The handler is a non-private, non-static method returning `void` or `Task<?>`. A private handler, `enabled` target or `selected` target is a compile error, since the generated class in the same package must reach it; so is a target field that isn't `@Exposed`. It takes no parameter, or a single `CommandContext`; any other parameter is a compile error. It is called on the EDT.
 
 ```java
 @Command
@@ -583,7 +583,7 @@ The locale reaches `Resources` and messages through `DisplayLocale` (core), a `r
 At the top level of a class's resources:
 
 - The tables `commands` and `menus` hold commands and menus.
-- Every other table names a component field of that class. Its keys are properties written to the component the field holds.
+- Every other table names an `@Exposed` component field of that class (see [Exposed fields](#exposed-fields)). Its keys are properties written to the component the field holds.
 - Plain values, not tables, are properties of the class itself: `name` and `theme` on the application class, `title` on a single-frame application class and on dialog views. Any other plain value, or one on a class it doesn't apply to, is a compile error.
 
 Messages are not in a class's resources: they have their own files (see [Messages](#messages)).
@@ -594,7 +594,7 @@ font = "Monospaced-14"
 accessible-name = "Note text"
 ```
 
-- The processor checks that `editor` is a non-private field whose type is a `java.awt.Component` subtype, and that each key is a supported property of that type.
+- The processor checks that `editor` is an `@Exposed` field whose type is a `java.awt.Component` subtype, and that each key is a supported property of that type.
 - It generates `$NotesView$$Injector`, which sets the properties with plain setter calls. Every property except `tab-title` is applied after the view's constructor, before `content()` is called; `tab-title` is applied after `content()` returns, once tabs exist.
 - Milestone 1 supports: `text`, `tool-tip-text`, `icon`, `font`, `foreground`, `background`, `enabled`, `visible`, `accessible-name`, `accessible-description`, `columns`, `rows`, `title` and `tab-title`. Wider coverage comes with the pre-generated property list of the vision.
 - `title` applies to `JComponent` fields: it is the title of the component's `TitledBorder`. When the component has no border, the injector sets `BorderFactory.createTitledBorder(title)`; when it has another kind of border, it throws `IllegalStateException`.
@@ -608,6 +608,23 @@ Value formats:
 | Font | `Font.decode` syntax: `"Monospaced-14"`, `"SansSerif-BOLD-12"` |
 | Icon | A path, as for commands, relative to the package of the class whose file names it |
 | References | `${key.path}` inside a string, resolved after merging, in the same class's table |
+
+
+### Exposed fields
+
+Generated code reads three kinds of fields: component fields, for their resources (`$X$$Injector`) and their window state (`$X$$State`), and the fields that `enabled` and `selected` name (`<Class>Commands`). Without reflection, it can't read a private field, so each of these fields is package-private and annotated `@Exposed` (`be.imgn.swing.ui`), which says on the field itself that generated code reads it. Generated code reads no other field.
+
+```java
+@Documented
+@Retention(RetentionPolicy.CLASS)
+@Target(ElementType.FIELD)
+public @interface Exposed {}
+```
+
+- Its `CLASS` retention lets the processor read it from the class files of superclasses compiled separately.
+- An `@Exposed` field is neither private nor static, and its type is a subtype of `java.awt.Component` or of `Observable<Boolean>`. Any other `@Exposed` field is a compile error, so that the annotation exempts no other field from Checkstyle.
+- **Checkstyle.** The parent's `VisibilityModifier` accepts the fields annotated with the annotations that a project lists in the property `checkstyle.visibility.ignoredAnnotations` (see [Other libraries](#other-libraries)). The root POM sets it to `be.imgn.swing.ui.Exposed`, so no source of the project suppresses the check. An application built on the imgn parent sets it too; one with its own Checkstyle configuration adds `be.imgn.swing.ui.Exposed` to its `VisibilityModifier`'s `ignoreAnnotationCanonicalNames`. The javadoc of `@Exposed` says so.
+- Every other field of the examples is private. Their tests find components through the harness, by type or by accessible name (see [Test harness](#test-harness)), not through fields.
 
 ---
 
@@ -650,11 +667,12 @@ For every application, command or view class, and every `@Messages` interface, t
 | Icons | An `icon`, its `${…}` references resolved within its own file, names a resource that doesn't exist. A reference to a key the file lacks, which only the merged table resolves, is a warning, and the icon goes unchecked |
 | Text | A command or menu has no `text` in the base file |
 | Translations | A language file (`X_fr.toml`) lacks a key of the base file, or any locale or platform file has a key the base file lacks; a country file and a platform file override their base key by key, so they may hold a few keys only |
-| `enabled`, `selected` | The name matches no field or method of the right type |
+| `enabled`, `selected` | The name matches no field or method of the right type, or names a field that isn't `@Exposed` |
 | `block` | A value other than `NONE` is given on a handler that doesn't return a `Task` |
 | Scope widening | A class whose scope is `@Singleton`, `@WindowScoped` or `@ViewScoped`, declared or inherited, has an injection point (constructor parameter, `@Inject` field or method parameter) whose type has a narrower one of these scopes, not through `Provider`. The order is `@Singleton`, then `@WindowScoped`, then `@ViewScoped`. Every class the processor compiles is checked, its inherited injection points included, with the types of its injection points read from sources and from class files; records and enums are not beans of a scope and are not checked; classes compiled without swing's processor are left to inject's runtime checks (I4) |
 | Messages | A placeholder names no parameter, or a pattern doesn't parse as a `MessageFormat`; a `@Messages` interface is private, declares a generic method, or two methods with one name |
-| Component fields | A top-level table other than `commands` and `menus` names no non-private component field, or a key is not a supported property of its type |
+| Component fields | A top-level table other than `commands` and `menus` names no `@Exposed` component field, or a key is not a supported property of its type |
+| Exposed fields | An `@Exposed` field is private or static, or its type is a subtype of neither `java.awt.Component` nor `Observable<Boolean>` |
 | Class properties | A top-level plain value is not a property of the class (`name` and `theme` on the application class, `title` on a single-frame application class or a dialog view), is not a string, or `theme` is none of `system`, `light` and `dark` |
 | Application | A name of `@Application` breaks gaia's rules, `qualifier` is given without `vendor`, or the annotated class doesn't implement `SingleFrame` |
 
@@ -832,7 +850,7 @@ bounds = [300, 200, 320, 160]
 | `JTabbedPane` selected index | Fields of the window's view | `components.<field>.selected-index` |
 | `JTable` column order and widths | Fields of the window's view | `components.<field>.columns`, an array of tables with `model-index` and `width`, in view order |
 
-Components are found through the non-private fields of the view, which the processor knows: no component needs a name. A private `JSplitPane`, `JTabbedPane` or `JTable` field, or one inherited from another package that is not public, is skipped, with a compile warning. The processor generates the field access in `$NotesView$$State`.
+Components are found through the [`@Exposed`](#exposed-fields) fields of the view, which the processor knows: no component needs a name. A `JSplitPane`, `JTabbedPane` or `JTable` field that isn't `@Exposed` is not saved, with no warning: exposing it is how a view asks for its state to be kept. An `@Exposed` one inherited from another package that is not public is skipped, with a compile warning. The processor generates the field access in `$NotesView$$State`.
 
 Saved bounds that don't lie entirely within the usable bounds of one current screen (its `GraphicsConfiguration` bounds minus its insets) are ignored: the window opens as with no saved state, not maximized, and its components' state is still restored.
 
@@ -878,7 +896,7 @@ void exitAsksForConfirmation() {
 ```
 
 - **Headless.** `AppTester` runs the real lifecycle with its headless `Windows` (see [Windows](#windows)): frames and dialogs are never realized, which works in headless JVMs. The content, menu bar and toolbar are built and laid out in a bare root pane, so components can be found and inspected.
-- **Finding components.** `component(Class<T> type)` returns the one component of that type in the main window, and throws `IllegalStateException` when there is none or more than one. `components(Class<T> type)` returns them all, in depth-first order.
+- **Finding components.** `component(Class<T> type)` returns the one component of that type in the main window, and throws `IllegalStateException` when there is none or more than one. `components(Class<T> type)` returns them all, in depth-first order. `component(Class<T> type, String name)` returns the one whose accessible name is `name`, which is the text of the label whose `labelFor` it is or its `accessible-name` resource, with the same exception; tests find the components of a view this way, not through its fields. The dialog a test answers through `FakeDialogs.answerDialog` has the same three methods.
 - **Exit.** `AppTester`'s `Exit` records the status instead of exiting: after an exit, `isRunning()` is `false` and `exitStatus()` returns the status.
 - **EDT.** Every call on `AppTester` that reaches the application, and every call on the commands it returns, runs on the EDT and waits; `dialogs()` and `ticker()` return the fakes, which tests configure from their own thread and the application reads on the EDT. `execute()` waits for the task a command starts, through the test `UiExecutor`. Before returning, the tester runs the updates posted by observables, so assertions see the components up to date.
 - **Fakes.** `FakeDialogs` records dialogs and answers them. `AppTester.start(type, locale)` binds `DisplayLocale`; `AppTester.start(type)` binds `Locale.ROOT`, which reads the base files. The platform and directories are gaia's `FakePlatform` and `FakeDirectories` on a `gaia-memfs` file system, so window state is saved in memory. Time uses `InstantSource` and gaia's `FakeTicker`.
@@ -941,6 +959,7 @@ Existing inject behavior the design relies on, as inject's sources and documenta
 | imgn-dev/toml | Source positions of keys, values and array elements, and of syntax and semantic errors, at the offending key, header or value | Build-time errors at the right line and column | `TomlDocument`, `TomlPositions.key`, `value`, `element`, `TomlParseException.position()` |
 | imgn-dev/gaia | `TestCompiler` support for text and binary resource files on the class output | Processor tests, icons included | `TestCompiler.withResource(Location, String, String)` and `withResource(Location, String, byte[])` |
 | imgn-dev/gaia | A `Step` that sees every root element | The views step | `Step.processesRootElements()`, `AnnotatedElements.rootElements()` |
+| imgn-dev/imgn-parent | Checkstyle's `VisibilityModifier` appends `${checkstyle.visibility.ignoredAnnotations}` to its `ignoreAnnotationCanonicalNames`; the parent POM declares the property empty and passes it with `<propertyExpansion>`, since maven-checkstyle-plugin doesn't pass project properties on its own. The parent names no project | [Exposed fields](#exposed-fields) with no `@SuppressWarnings` | The property `checkstyle.visibility.ignoredAnnotations`, from the parent 2026-11-SNAPSHOT |
 | imgn-dev/gaia | A public check of application names | Checking `@Application` at compile time with gaia's exact rules | `ApplicationDirectories.checkName(String name, String role)`, with the attribute's name as the role |
 
 The toml writer and the lenient mode from the vision's list are not needed in milestone 1: window state is converted by hand, and a state file that doesn't bind is discarded.
@@ -958,6 +977,7 @@ These depart from the [vision](vision.md), and are to be applied to it:
 - **The ready signal.** The vision fires it "once the event queue is idle". One `invokeLater` posted after the main window is shown is what idle means on the EDT.
 - **Timings.** The vision puts timings in resources. The framework's own timings, the 300 ms of the blocking glass pane and the 2 s of the shutdown, are constants until an application needs to tune one; an application's timings go in its resources. The principle is about what applications write.
 - **`content()`.** The vision's `NotesView` overrides `component()`; the hook is `content()`, as its `CounterApp` and this document have it.
+- **Exposed fields.** The vision's `NotesView` has private `editor` and `dirty` fields, which its resources and its `save` command name. Generated code can't read a private field without reflection, which the vision rules out: they are `@Exposed` package-private fields (see [Exposed fields](#exposed-fields)).
 - **`SingleFrame` hooks.** `toolBar()` and `restoreBounds()` join the vision's `content()`, `menuBar()` and `configureFrame(JFrame)`.
 - **`execute()`.** It returns `boolean`, `false` when the command is disabled, so that tests can tell.
 - **The processor's dependencies.** `swing-processor` requires `java.desktop` and `gaia-core` besides the vision's gaia-processing and toml (see [Modules](#modules)).

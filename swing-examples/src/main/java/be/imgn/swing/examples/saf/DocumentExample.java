@@ -9,6 +9,7 @@ import be.imgn.swing.Task;
 import be.imgn.swing.ui.Block;
 import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Dialogs;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.StandardMenus;
@@ -38,15 +39,15 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * whose exit veto asks before losing modifications. The window's title follows the file.
  */
 @Application(name = "DocumentExample")
-// The framework reaches component fields and command targets from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class DocumentExample implements SingleFrame, ExitVeto {
 
     private static final int WIDTH = 640;
     private static final int HEIGHT = 480;
 
+    @Exposed
     final Property<Boolean> modified = Property.of(false);
-    final JTextArea textArea = new JTextArea();
+
+    private final JTextArea textArea = new JTextArea();
     private final Property<Path> file = Property.of(Path.of("untitled.txt"));
     private final DocumentExampleCommands commands;
     private final StandardMenus menus;

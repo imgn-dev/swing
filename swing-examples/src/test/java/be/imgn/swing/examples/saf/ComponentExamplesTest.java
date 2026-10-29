@@ -21,6 +21,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import org.junit.jupiter.api.Test;
 
 class ComponentExamplesTest {
@@ -63,7 +64,7 @@ class ComponentExamplesTest {
             commands.buttonAction().execute();
 
             assertThat(app.component(JCheckBox.class).isSelected()).isFalse();
-            assertThat(app.application().textArea.getText())
+            assertThat(app.component(JTextArea.class).getText())
                     .contains("selected true, toggle action true, check box true, radio button true")
                     .contains("selected false, toggle action false, check box false, radio button false");
         }

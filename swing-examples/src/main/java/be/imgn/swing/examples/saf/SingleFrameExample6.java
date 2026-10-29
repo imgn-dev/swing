@@ -3,6 +3,7 @@ package be.imgn.swing.examples.saf;
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.StandardMenus;
@@ -19,11 +20,11 @@ import javax.swing.SwingConstants;
  * hides it.
  */
 @Application(name = "SingleFrameExample6", vendor = "Sun", version = "1.0")
-// The framework reaches component fields and command targets from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class SingleFrameExample6 implements SingleFrame {
 
+    @Exposed
     final JLabel mainLabel = new JLabel("", SwingConstants.CENTER);
+
     private final SingleFrameExample6Commands commands;
     private final StandardMenus menus;
     private final Ui ui;

@@ -18,6 +18,7 @@ final class Names {
     static final String TASK = "be.imgn.swing.Task";
 
     static final String COMMAND = "be.imgn.swing.ui.Command";
+    static final String EXPOSED = "be.imgn.swing.ui.Exposed";
     static final String BLOCK = "be.imgn.swing.ui.Block";
     static final String BOUND_COMMAND = "be.imgn.swing.ui.BoundCommand";
     static final String BOUND_MENU = "be.imgn.swing.ui.BoundMenu";

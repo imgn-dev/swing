@@ -2,6 +2,7 @@ package be.imgn.swing.examples.addressbook;
 
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.StandardCommands;
@@ -33,23 +34,35 @@ import javax.swing.SwingConstants;
  * are fields of the application class.
  */
 @Application(name = "AddressBook", vendor = "jfpoilpret")
-// The framework reaches component fields from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class AddressBookApp implements SingleFrame {
 
     private static final int NAME_COLUMNS = 20;
     private static final int IMAGE_SIZE = 200;
 
+    @Exposed
     final JTable table = new JTable();
+
+    @Exposed
     final JLabel firstNameLabel = new JLabel();
-    final JTextField firstName = new JTextField(NAME_COLUMNS);
+
+    @Exposed
     final JLabel lastNameLabel = new JLabel();
-    final JTextField lastName = new JTextField(NAME_COLUMNS);
+
+    @Exposed
     final JLabel birthLabel = new JLabel();
-    final JTextField birth = new JTextField(NAME_COLUMNS);
+
+    @Exposed
     final JLabel picture = new JLabel("", SwingConstants.CENTER);
+
+    @Exposed
     final JSplitPane secondarySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+    @Exposed
     final JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+
+    private final JTextField firstName = new JTextField(NAME_COLUMNS);
+    private final JTextField lastName = new JTextField(NAME_COLUMNS);
+    private final JTextField birth = new JTextField(NAME_COLUMNS);
     private final AddressBookService service;
     private final ContactSelection selection;
     private final AddressBookAppMenus menus;

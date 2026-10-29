@@ -6,6 +6,7 @@ import be.imgn.swing.Observable;
 import be.imgn.swing.Property;
 import be.imgn.swing.ui.BoundCommand;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.ViewScoped;
 import java.util.List;
 
@@ -15,19 +16,40 @@ import java.util.List;
  * parameters name a type generated in the same round as missing, so this bean holds them.
  */
 @ViewScoped
-// The framework reaches command targets from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class WizardSteps {
 
-    final Property<Integer> step = Property.of(0);
-    final Property<Integer> count = Property.of(1);
+    private final Property<Integer> step = Property.of(0);
+    private final Property<Integer> count = Property.of(1);
+
+    @Exposed
     final Observable<Boolean> hasPrevious = step.map(index -> index > 0);
+
+    @Exposed
     final Observable<Boolean> hasNext = Observable.combine(step, count, (index, steps) -> index < steps - 1);
+
     private final Provider<WizardStepsCommands> commands;
 
     @Inject
     WizardSteps(Provider<WizardStepsCommands> commands) {
         this.commands = commands;
+    }
+
+    /**
+     * Returns the index of the current step.
+     *
+     * @return the current step, from 0
+     */
+    Property<Integer> step() {
+        return step;
+    }
+
+    /**
+     * Returns the number of steps.
+     *
+     * @return the number of steps
+     */
+    Property<Integer> count() {
+        return count;
     }
 
     /**

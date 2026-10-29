@@ -2,6 +2,7 @@ package be.imgn.swing.examples.saf;
 
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import javax.swing.JComponent;
@@ -9,10 +10,9 @@ import javax.swing.JLabel;
 
 /** The simplest single-frame application: a label that says Hello World. Its text and font come from resources. */
 @Application(name = "SingleFrameExample1")
-// The framework reaches component fields and command targets from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class SingleFrameExample1 implements SingleFrame {
 
+    @Exposed
     final JLabel label = new JLabel();
 
     @Inject

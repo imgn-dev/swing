@@ -16,10 +16,12 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import org.junit.jupiter.api.Test;
@@ -38,7 +40,7 @@ class AddressBookAppTest {
                     .extracting(JMenuItem::getText)
                     .startsWith("Throw Exception", "Exit", "Cut", "Copy", "Paste", "Create Contact...");
             assertThat(names(app)).containsExactly("John Smith", "Phoebe Smith", "Luke Smith", "Linda Doe", "Mary Doe");
-            assertThat(app.application().picture.getText()).isEqualTo("No contact selected");
+            assertThat(app.component(JLabel.class, "Contact picture").getText()).isEqualTo("No contact selected");
             ContactActionsCommands contacts = app.commands(ContactActionsCommands.class);
             assertThat(contacts.modifyContact().asAction().isEnabled()).isFalse();
             assertThat(contacts.deleteContact().asAction().isEnabled()).isFalse();
@@ -50,13 +52,14 @@ class AddressBookAppTest {
         try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
             AddressBookApp book = app.application();
 
+            JLabel picture = app.component(JLabel.class, "Contact picture");
             select(book, 0);
 
-            assertThat(book.firstName.getText()).isEqualTo("John");
-            assertThat(book.lastName.getText()).isEqualTo("Smith");
-            assertThat(book.birth.getText()).isEqualTo("1966-09-24");
-            assertThat(book.picture.getIcon()).isNotNull();
-            assertThat(book.picture.getText()).isEmpty();
+            assertThat(app.component(JTextField.class, "First Name").getText()).isEqualTo("John");
+            assertThat(app.component(JTextField.class, "Last Name").getText()).isEqualTo("Smith");
+            assertThat(app.component(JTextField.class, "Birth Date").getText()).isEqualTo("1966-09-24");
+            assertThat(picture.getIcon()).isNotNull();
+            assertThat(picture.getText()).isEmpty();
             assertThat(app.commands(ContactActionsCommands.class)
                             .modifyContact()
                             .asAction()
@@ -65,9 +68,9 @@ class AddressBookAppTest {
 
             select(book, 4);
 
-            assertThat(book.firstName.getText()).isEqualTo("Mary");
-            assertThat(book.picture.getIcon()).isNull();
-            assertThat(book.picture.getText()).isEqualTo("No picture for this contact");
+            assertThat(app.component(JTextField.class, "First Name").getText()).isEqualTo("Mary");
+            assertThat(picture.getIcon()).isNull();
+            assertThat(picture.getText()).isEqualTo("No picture for this contact");
         }
     }
 
@@ -78,13 +81,14 @@ class AddressBookAppTest {
                 ContactDialog view = dialog.view();
                 assertThat(view.firstNameLabel.getText()).isEqualTo("First Name");
                 assertThat(((TitledBorder) view.home.getBorder()).getTitle()).isEqualTo("Home Address");
-                assertThat(SwingUtilities.getRootPane(view.firstName)
+                JTextField firstName = dialog.component(JTextField.class, "First Name");
+                assertThat(SwingUtilities.getRootPane(firstName)
                                 .getDefaultButton()
                                 .getAction())
                         .isSameAs(dialog.commands(StandardCommands.class).ok().asAction());
-                view.firstName.setText("Ada");
-                view.lastName.setText("Lovelace");
-                view.birth.setText("1815-12-10");
+                firstName.setText("Ada");
+                dialog.component(JTextField.class, "Last Name").setText("Lovelace");
+                dialog.component(JTextField.class, "Birth Date").setText("1815-12-10");
                 ok(dialog);
             });
 
@@ -104,15 +108,16 @@ class AddressBookAppTest {
                 JTabbedPane tabs = dialog.component(JTabbedPane.class);
                 assertThat(IntStream.range(0, tabs.getTabCount()).mapToObj(tabs::getTitleAt))
                         .containsExactly("General", "Home Address", "Office Address");
-                assertThat(dialog.view().firstName.getText()).isEqualTo("Linda");
-                dialog.view().firstName.setText("Belinda");
+                JTextField firstName = dialog.component(JTextField.class, "First Name");
+                assertThat(firstName.getText()).isEqualTo("Linda");
+                firstName.setText("Belinda");
                 ok(dialog);
             });
 
             app.commands(ContactActionsCommands.class).modifyContactWithTabs().execute();
 
             assertThat(names(app)).contains("Belinda Doe").doesNotContain("Linda Doe");
-            assertThat(book.firstName.getText()).isEqualTo("Belinda");
+            assertThat(app.component(JTextField.class, "First Name").getText()).isEqualTo("Belinda");
         }
     }
 
@@ -120,7 +125,7 @@ class AddressBookAppTest {
     void cancellingADialogChangesNothing() {
         try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
             app.dialogs().answerDialog(ContactTabsDialog.class, dialog -> {
-                dialog.view().firstName.setText("Nobody");
+                dialog.component(JTextField.class, "First Name").setText("Nobody");
                 dialog.commands(StandardCommands.class).cancel().execute();
             });
 
@@ -134,14 +139,15 @@ class AddressBookAppTest {
     void createsAContactStepByStepWithTheWizard() {
         try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
             app.dialogs().answerDialog(ContactWizardDialog.class, dialog -> {
-                ContactWizardDialog view = dialog.view();
                 WizardStepsCommands steps = dialog.commands(WizardStepsCommands.class);
-                assertThat(view.stepLabel.getText()).isEqualTo("Step 1 of 3: Contact Information");
+                assertThat(dialog.components(JLabel.class))
+                        .extracting(JLabel::getText)
+                        .contains("Step 1 of 3: Contact Information");
                 assertThat(steps.previous().execute()).isFalse();
-                view.firstName.setText("Grace");
-                view.lastName.setText("Hopper");
+                dialog.component(JTextField.class, "First Name").setText("Grace");
+                dialog.component(JTextField.class, "Last Name").setText("Hopper");
                 steps.next().execute();
-                view.home.setAddress(Address.ofCity("Arlington"));
+                dialog.component(AddressPanel.class, "Home Address").setAddress(Address.ofCity("Arlington"));
                 steps.next().execute();
                 assertThat(steps.next().execute()).isFalse();
                 assertThat(steps.previous().execute()).isTrue();
@@ -178,7 +184,7 @@ class AddressBookAppTest {
                             "Are you sure you want to delete contact \"Phoebe Smith\"?");
             assertThat(app.dialogs().informed()).containsExactly("Contact has been removed!");
             assertThat(contacts.deleteContact().asAction().isEnabled()).isFalse();
-            assertThat(book.firstName.getText()).isEmpty();
+            assertThat(app.component(JTextField.class, "First Name").getText()).isEmpty();
         }
     }
 
@@ -255,8 +261,8 @@ class AddressBookAppTest {
             app.commands(TaskTestActions.class).chunk(Duration.ofMillis(100));
             AtomicReference<Component> glassPane = new AtomicReference<>();
             app.dialogs().answerDialog(ContactDialog.class, dialog -> {
-                glassPane.set(
-                        SwingUtilities.getRootPane(dialog.view().firstName).getGlassPane());
+                glassPane.set(SwingUtilities.getRootPane(dialog.component(JTextField.class, "First Name"))
+                        .getGlassPane());
                 dialog.commands(StandardCommands.class).cancel().execute();
             });
 
@@ -281,7 +287,8 @@ class AddressBookAppTest {
                     .extracting(JMenu::getText)
                     .containsExactly("Fichier", "Édition", "Contacts", "Tests de tâches");
             assertThat(app.application().table.getColumnName(0)).isEqualTo("Prénom");
-            assertThat(app.application().picture.getText()).isEqualTo("Aucun contact sélectionné");
+            assertThat(app.component(JLabel.class, "Photo du contact").getText())
+                    .isEqualTo("Aucun contact sélectionné");
         }
     }
 

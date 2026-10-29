@@ -8,3 +8,9 @@ text = "&Last Name"
 
 [birthLabel]
 text = "&Birth Date"
+
+[home]
+accessible-name = "Home Address"
+
+[office]
+accessible-name = "Office Address"

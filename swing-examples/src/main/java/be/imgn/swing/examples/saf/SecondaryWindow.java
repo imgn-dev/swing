@@ -3,6 +3,7 @@ package be.imgn.swing.examples.saf;
 import be.imgn.inject.Inject;
 import be.imgn.swing.ui.BoundCommand;
 import be.imgn.swing.ui.DialogView;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.StandardCommands;
 import java.awt.BorderLayout;
 import java.util.List;
@@ -13,10 +14,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 /** A secondary window of {@link SingleFrameExample6}: a label, and a button that hides it. */
-// The framework reaches component fields and command targets from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public abstract class SecondaryWindow implements DialogView<Void> {
 
+    @Exposed
     final JLabel label = new JLabel("", SwingConstants.CENTER);
 
     SecondaryWindow() {}

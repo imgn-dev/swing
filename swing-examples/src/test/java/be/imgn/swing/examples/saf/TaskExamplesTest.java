@@ -16,7 +16,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JRootPane;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -156,12 +158,11 @@ class TaskExamplesTest {
         Files.writeString(directory.resolve("a.txt"), "a");
         Files.writeString(directory.resolve("sub").resolve("b.txt"), "b");
         try (AppTester<ActionExample4> app = AppTester.start(ActionExample4.class)) {
-            ActionExample4 example = app.application();
-            onEdt(() -> example.root.setText(directory.toString()));
+            onEdt(() -> app.component(JTextField.class).setText(directory.toString()));
 
             app.commands(ActionExample4Commands.class).go().execute();
 
-            assertThat(example.files.size()).isEqualTo(2);
+            assertThat(app.component(JList.class).getModel().getSize()).isEqualTo(2);
             assertThat(app.components(JLabel.class).getLast().getText()).isEqualTo("2 files listed");
             assertThat(app.commands(ActionExample4Commands.class)
                             .stop()

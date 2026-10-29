@@ -15,3 +15,6 @@ tool-tip-text = "Load the most recently saved map from the data directory"
 [commands.clearMap]
 text = "&Clear"
 tool-tip-text = "Clear the all of the map's entries"
+
+[message]
+accessible-name = "Message"

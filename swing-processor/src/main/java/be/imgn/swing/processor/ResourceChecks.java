@@ -383,7 +383,7 @@ final class ResourceChecks {
                     model.type(),
                     file,
                     positions.key(root, field),
-                    "[" + field + "] names no non-private" + " component field of "
+                    "[" + field + "] names no @Exposed component field of "
                             + model.type().getQualifiedName());
             return;
         }

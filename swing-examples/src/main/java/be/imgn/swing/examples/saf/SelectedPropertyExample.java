@@ -4,6 +4,7 @@ import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
 import be.imgn.swing.Property;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
@@ -24,15 +25,15 @@ import javax.swing.JTextArea;
  * from code: every component follows it, and the text area logs each change.
  */
 @Application(name = "SelectedPropertyExample", vendor = "Sun", version = "1.0")
-// The framework reaches component fields and command targets from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class SelectedPropertyExample implements SingleFrame {
 
+    @Exposed
     final Property<Boolean> selected = Property.of(false);
-    final JCheckBox check = new JCheckBox();
-    final JRadioButton radio = new JRadioButton();
-    final JButton button = new JButton();
-    final JTextArea textArea = new JTextArea();
+
+    private final JCheckBox check = new JCheckBox();
+    private final JRadioButton radio = new JRadioButton();
+    private final JButton button = new JButton();
+    private final JTextArea textArea = new JTextArea();
     private final SelectedPropertyExampleCommands commands;
     private final Ui ui;
     private final ExampleMessages messages;

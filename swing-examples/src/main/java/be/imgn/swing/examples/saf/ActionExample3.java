@@ -5,6 +5,7 @@ import be.imgn.inject.Provider;
 import be.imgn.swing.Application;
 import be.imgn.swing.Property;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Window;
 import java.awt.BorderLayout;
@@ -14,11 +15,11 @@ import javax.swing.JPanel;
 
 /** {@link ActionExample2}, where clearing the title is enabled only once a title was set. */
 @Application(name = "ActionExample3")
-// The framework reaches component fields and command targets from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class ActionExample3 extends ActionExample2 {
 
+    @Exposed
     final Property<Boolean> clearEnabled = Property.of(false);
+
     private final ActionExample3Commands commands;
 
     @Inject

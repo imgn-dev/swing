@@ -15,3 +15,6 @@ text = "Nom"
 
 [birthLabel]
 text = "Date de naissance"
+
+[picture]
+accessible-name = "Photo du contact"

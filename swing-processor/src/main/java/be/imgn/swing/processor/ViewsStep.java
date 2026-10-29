@@ -23,8 +23,8 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 
 /**
- * Generates the {@code $X$$Injector} and {@code $X$$State} of each view class, and checks the scope widening of every
- * class. Views carry no annotation, so the step gets every root element.
+ * Generates the {@code $X$$Injector} and {@code $X$$State} of each view class, and checks the scope widening and the
+ * {@code @Exposed} fields of every class. Views carry no annotation, so the step gets every root element.
  */
 final class ViewsStep implements Step {
 
@@ -66,6 +66,7 @@ final class ViewsStep implements Step {
             return;
         }
         checkScopes(type);
+        checkExposed(type);
         if (!type.getModifiers().contains(Modifier.ABSTRACT) && context.isSubtype(type.asType(), Names.VIEW)) {
             processView(type);
         }
@@ -98,6 +99,33 @@ final class ViewsStep implements Step {
                 }
             } else if (member.getKind() == ElementKind.FIELD && injected) {
                 checkDependency(type, scope.get(), member);
+            }
+        }
+    }
+
+    // Generated code reads an @Exposed field from the class's package, as a component or as the target of a command, so
+    // the annotation exempts no other field from Checkstyle's VisibilityModifier.
+    private void checkExposed(TypeElement type) {
+        for (VariableElement field : ElementFilter.fieldsIn(type.getEnclosedElements())) {
+            if (context.annotation(field, Names.EXPOSED).isEmpty()) {
+                continue;
+            }
+            if (field.getModifiers().contains(Modifier.PRIVATE)
+                    || field.getModifiers().contains(Modifier.STATIC)) {
+                shared.reporter()
+                        .error(
+                                field,
+                                "An @Exposed field must be neither private nor static: generated code in the same"
+                                        + " package reads it from an instance");
+            } else if (!context.isSubtype(field.asType(), Names.COMPONENT)
+                    && !context.types()
+                            .isAssignable(
+                                    field.asType(), context.type(Names.OBSERVABLE, context.type(Boolean.class)))) {
+                shared.reporter()
+                        .error(
+                                field,
+                                "An @Exposed field must be a java.awt.Component or an Observable<Boolean>, not "
+                                        + field.asType() + ": generated code reads no other field");
             }
         }
     }
@@ -206,12 +234,12 @@ final class ViewsStep implements Step {
     }
 
     private void generateState(TypeElement type) {
-        for (VariableElement field : ViewModel.hiddenFields(type)) {
-            if (!ViewModel.hasState(context, field)) {
-                continue;
-            }
-            if (field.getEnclosingElement() instanceof TypeElement owner && !owner.equals(type)) {
-                // An inherited field may come from a class file, so the view carries the warning.
+        for (VariableElement field : ViewModel.hiddenFields(context, type)) {
+            // A private field of the class itself is an error of checkExposed. An inherited field may come from a
+            // class file, so the view carries the warning.
+            if (ViewModel.hasState(context, field)
+                    && field.getEnclosingElement() instanceof TypeElement owner
+                    && !owner.equals(type)) {
                 shared.reporter()
                         .warning(
                                 type,
@@ -220,16 +248,10 @@ final class ViewsStep implements Step {
                                                 ? " is private"
                                                 : " is not public")
                                         + ", so the state of " + type.getQualifiedName() + " can't save it");
-            } else {
-                shared.reporter()
-                        .warning(
-                                field,
-                                "The state of the private field " + field.getSimpleName()
-                                        + " is not saved with the window: make it package-private to save it");
             }
         }
         Map<String, VariableElement> fields = new LinkedHashMap<>();
-        ViewModel.accessibleFields(type).forEach((name, field) -> {
+        ViewModel.accessibleFields(context, type).forEach((name, field) -> {
             if (ViewModel.hasState(context, field)) {
                 fields.put(name, field);
             }

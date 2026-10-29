@@ -4,6 +4,7 @@ import be.imgn.inject.Inject;
 import be.imgn.inject.Provider;
 import be.imgn.swing.Application;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Window;
@@ -15,11 +16,11 @@ import javax.swing.JTextField;
 
 /** Two commands that set and clear the window's title, from a text field. */
 @Application(name = "ActionExample2")
-// The framework reaches component fields and command targets from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public class ActionExample2 implements SingleFrame {
 
+    @Exposed
     final JTextField field = new JTextField();
+
     private final Window window;
     private final Provider<ActionExample2Commands> commands;
 

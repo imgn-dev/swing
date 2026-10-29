@@ -5,6 +5,7 @@ import be.imgn.swing.Application;
 import be.imgn.swing.ApplicationInfo;
 import be.imgn.swing.Task;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import be.imgn.toml.Toml;
@@ -32,8 +33,6 @@ import javax.swing.JTextField;
  * in {@link ApplicationInfo#directories()}, written atomically.
  */
 @Application(name = "LocalStorageExample1", vendor = "Sun")
-// The framework reaches component fields from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class LocalStorageExample1 implements SingleFrame {
 
     private static final String FILE = "map.toml";
@@ -42,10 +41,12 @@ public final class LocalStorageExample1 implements SingleFrame {
     private static final int BOUND = 10_000;
     private static final int BORDER = 4;
 
-    final JTextField key = new JTextField(" Key ", COLUMNS);
-    final JTextField value = new JTextField(" Value ", COLUMNS);
+    @Exposed
     final JTextField message = new JTextField();
-    final JList<String> mapList = new JList<>();
+
+    private final JTextField key = new JTextField(" Key ", COLUMNS);
+    private final JTextField value = new JTextField(" Value ", COLUMNS);
+    private final JList<String> mapList = new JList<>();
     private final Map<String, String> map = new LinkedHashMap<>();
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
     private final RandomGenerator random = RandomGenerator.getDefault();

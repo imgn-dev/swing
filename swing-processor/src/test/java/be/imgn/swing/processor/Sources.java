@@ -18,6 +18,7 @@ final class Sources {
             import be.imgn.swing.Application;
             import be.imgn.swing.Property;
             import be.imgn.swing.ui.Command;
+            import be.imgn.swing.ui.Exposed;
             import be.imgn.swing.ui.SingleFrame;
             import javax.swing.JComponent;
             import javax.swing.JLabel;
@@ -25,7 +26,7 @@ final class Sources {
             @Application(name = "Counter", vendor = "imgn", qualifier = "be", version = "1.0")
             public final class CounterApp implements SingleFrame {
                 final Property<Integer> count = Property.of(0);
-                JLabel label = new JLabel();
+                @Exposed JLabel label = new JLabel();
 
                 @Override
                 public JComponent content() {

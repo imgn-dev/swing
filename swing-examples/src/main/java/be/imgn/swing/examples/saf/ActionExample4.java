@@ -6,6 +6,7 @@ import be.imgn.swing.Property;
 import be.imgn.swing.Task;
 import be.imgn.swing.TaskContext;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
@@ -29,8 +30,6 @@ import javax.swing.JTextField;
  * directory it lists, and a command that stops it, enabled only while it runs.
  */
 @Application(name = "ActionExample4", vendor = "Sun", version = "1.0")
-// The framework reaches component fields and command targets from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class ActionExample4 implements SingleFrame {
 
     private static final int COLUMNS = 32;
@@ -39,9 +38,11 @@ public final class ActionExample4 implements SingleFrame {
     private static final int MARGIN = 2;
     private static final int PADDING = 4;
 
+    @Exposed
     final Property<Boolean> stopEnabled = Property.of(false);
-    final JTextField root = new JTextField(System.getProperty("java.home"), COLUMNS);
-    final DefaultListModel<File> files = new DefaultListModel<>();
+
+    private final JTextField root = new JTextField(System.getProperty("java.home"), COLUMNS);
+    private final DefaultListModel<File> files = new DefaultListModel<>();
     private final Property<String> message = Property.of(" ");
     private final ActionExample4Commands commands;
     private final Ui ui;

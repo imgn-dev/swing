@@ -69,7 +69,7 @@ class ResourcesStepTest {
                         package p;
 
                         public final class NotesView implements be.imgn.swing.ui.View {
-                            javax.swing.JLabel label = new javax.swing.JLabel();
+                            @be.imgn.swing.ui.Exposed javax.swing.JLabel label = new javax.swing.JLabel();
 
                             @be.imgn.inject.Inject
                             NotesView(NotesViewMenus menus) {}
@@ -238,7 +238,7 @@ class ResourcesStepTest {
         assertThat(compilation).hadErrorContaining("CounterApp.toml:9:14: The color \"blue\" is not");
         assertThat(compilation)
                 .hadErrorContaining(
-                        "CounterApp.toml:11:2: [missing] names no non-private component" + " field of p.CounterApp");
+                        "CounterApp.toml:11:2: [missing] names no @Exposed component field of p.CounterApp");
     }
 
     @Test
@@ -248,7 +248,7 @@ class ResourcesStepTest {
                         package p;
 
                         public final class NotesView implements be.imgn.swing.ui.View {
-                            java.awt.Component plain = new java.awt.Canvas();
+                            @be.imgn.swing.ui.Exposed java.awt.Component plain = new java.awt.Canvas();
 
                             public javax.swing.JComponent content() {
                                 return new javax.swing.JPanel();

@@ -3,6 +3,7 @@ package be.imgn.swing.examples.addressbook;
 import be.imgn.inject.Assisted;
 import be.imgn.inject.Inject;
 import be.imgn.swing.ui.DialogView;
+import be.imgn.swing.ui.Exposed;
 import java.util.Optional;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -14,22 +15,34 @@ import javax.swing.JTextField;
  * The dialog that creates or modifies a contact in three tabs: its information, its home address and its office
  * address. Guts' {@code ContactDetailTabPanel}.
  */
-// The framework reaches component fields from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class ContactTabsDialog implements DialogView<Contact> {
 
     private static final int NAME_COLUMNS = 20;
 
+    @Exposed
     final JTabbedPane tabs = new JTabbedPane();
+
+    @Exposed
     final JPanel contactTab = Forms.panel();
+
+    @Exposed
     final JLabel firstNameLabel = new JLabel();
-    final JTextField firstName = new JTextField(NAME_COLUMNS);
+
+    @Exposed
     final JLabel lastNameLabel = new JLabel();
-    final JTextField lastName = new JTextField(NAME_COLUMNS);
+
+    @Exposed
     final JLabel birthLabel = new JLabel();
-    final JTextField birth = new JTextField(NAME_COLUMNS);
+
+    @Exposed
     final AddressPanel home;
+
+    @Exposed
     final AddressPanel office;
+
+    private final JTextField firstName = new JTextField(NAME_COLUMNS);
+    private final JTextField lastName = new JTextField(NAME_COLUMNS);
+    private final JTextField birth = new JTextField(NAME_COLUMNS);
     private final Contact contact;
 
     @Inject

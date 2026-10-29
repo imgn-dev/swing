@@ -16,13 +16,14 @@ class CommandsStepTest {
                 import be.imgn.swing.ui.Block;
                 import be.imgn.swing.ui.Command;
                 import be.imgn.swing.ui.CommandContext;
+                import be.imgn.swing.ui.Exposed;
                 import be.imgn.swing.ui.View;
                 import javax.swing.JComponent;
                 import javax.swing.JPanel;
 
                 public final class NotesView implements View {
-                    final Property<Boolean> dirty = Property.of(false);
-                    final Property<Boolean> wordWrap = Property.of(false);
+                    @Exposed final Property<Boolean> dirty = Property.of(false);
+                    @Exposed final Property<Boolean> wordWrap = Property.of(false);
 
                     @Override
                     public JComponent content() {
@@ -172,16 +173,27 @@ class CommandsStepTest {
                     Observable<Boolean> dirtyView() {
                         return dirty;
                     }
-                """)
-                .resource(
-                        "p/NotesView.toml",
-                        "[commands.first]\ntext = \"First\"\n[commands.second]\ntext = \"Second\"\n")
-                .compile();
+
+                    final Observable<Boolean> plain = Property.of(true);
+
+                    @Command(enabled = "plain")
+                    void third() {}
+                """).resource("p/NotesView.toml", """
+                        [commands.first]
+                        text = "First"
+                        [commands.second]
+                        text = "Second"
+                        [commands.third]
+                        text = "Third"
+                        """).compile();
 
         assertThat(compilation)
                 .failed()
                 .hadErrorContaining("enabled = \"missing\" names no field or no-argument method");
         assertThat(compilation).hadErrorContaining("selected = \"dirtyView\" must be of type Property<Boolean>");
+        assertThat(compilation)
+                .hadErrorContaining("enabled = \"plain\" names a field that is not @Exposed: generated code reads only"
+                        + " @Exposed fields");
     }
 
     @Test

@@ -49,6 +49,9 @@
     <inject.version>0.1.1-SNAPSHOT</inject.version>
     <toml.version>0.1.0-SNAPSHOT</toml.version>
     <flatlaf.version>3.7.2</flatlaf.version>
+
+    <!-- Generated code reads @Exposed fields, so they can't be private. -->
+    <checkstyle.visibility.ignoredAnnotations>be.imgn.swing.ui.Exposed</checkstyle.visibility.ignoredAnnotations>
   </properties>
 
   <build>

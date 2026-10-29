@@ -27,7 +27,7 @@ public @interface Command {
     String id() default "";
 
     /**
-     * Returns the name of a non-private field or no-argument method of the class whose type is
+     * Returns the name of an {@link Exposed} field or a non-private no-argument method of the class whose type is
      * {@code Observable<Boolean>}, which tells whether the command is enabled.
      *
      * @return the name; empty for a command that is always enabled
@@ -35,7 +35,7 @@ public @interface Command {
     String enabled() default "";
 
     /**
-     * Returns the name of a non-private field or no-argument method of the class whose type is
+     * Returns the name of an {@link Exposed} field or a non-private no-argument method of the class whose type is
      * {@code Property<Boolean>}, which makes the command a toggle: activating it flips the property, then calls the
      * handler.
      *

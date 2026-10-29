@@ -188,7 +188,8 @@ final class CommandsStep implements Step {
     }
 
     /**
-     * Returns why a target does not name a non-private field or no-argument method of the right type, if it does not.
+     * Returns why a target does not name an {@code @Exposed} field or a non-private no-argument method of the right
+     * type, if it does not.
      */
     private Optional<String> targetProblem(
             TypeElement type, CommandInfo command, String name, String expected, String attribute) {
@@ -199,9 +200,27 @@ final class CommandsStep implements Step {
                     + command.declaring().getQualifiedName());
         }
         Element element = target.get();
+        Optional<String> access = accessProblem(type, command, element, described);
+        if (access.isPresent()) {
+            return access;
+        }
+        TypeMirror actual = element instanceof ExecutableElement method ? method.getReturnType() : element.asType();
+        TypeMirror wanted = context.type(expected, context.type(Boolean.class));
+        return context.types().isAssignable(actual, wanted)
+                ? Optional.empty()
+                : Optional.of(described + " must be of type " + simple(expected) + "<Boolean>, not " + actual);
+    }
+
+    // Returns why the generated class, in the package of type, can't read the target, if it can't.
+    private Optional<String> accessProblem(TypeElement type, CommandInfo command, Element element, String described) {
         if (element.getModifiers().contains(Modifier.PRIVATE)) {
             return Optional.of(
                     described + " names a private member: the generated class in the same package must" + " reach it");
+        }
+        if (element instanceof VariableElement
+                && context.annotation(element, Names.EXPOSED).isEmpty()) {
+            return Optional.of(
+                    described + " names a field that is not @Exposed: generated code reads only @Exposed fields");
         }
         if (!command.declaring().equals(type)
                 && !samePackage(type, command.declaring())
@@ -209,11 +228,7 @@ final class CommandsStep implements Step {
             return Optional.of(described + " of " + command.declaring().getQualifiedName()
                     + " is in another package, so it must be public");
         }
-        TypeMirror actual = element instanceof ExecutableElement method ? method.getReturnType() : element.asType();
-        TypeMirror wanted = context.type(expected, context.type(Boolean.class));
-        return context.types().isAssignable(actual, wanted)
-                ? Optional.empty()
-                : Optional.of(described + " must be of type " + simple(expected) + "<Boolean>, not " + actual);
+        return Optional.empty();
     }
 
     private static String simple(String qualifiedName) {

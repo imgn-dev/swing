@@ -2,6 +2,7 @@ package be.imgn.swing.examples.saf;
 
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import java.awt.BasicStroke;
@@ -29,14 +30,20 @@ import org.jspecify.annotations.Nullable;
  * resources as {@code tab-title} properties and the button's tooltip as a message.
  */
 @Application(name = "Tabbed")
-// The framework reaches component fields from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class Tabbed implements SingleFrame {
 
+    @Exposed
     final JTabbedPane tabs = new JTabbedPane();
+
+    @Exposed
     final JLabel one = new JLabel();
+
+    @Exposed
     final JLabel two = new JLabel();
+
+    @Exposed
     final JLabel three = new JLabel();
+
     private final ExampleMessages messages;
 
     @Inject

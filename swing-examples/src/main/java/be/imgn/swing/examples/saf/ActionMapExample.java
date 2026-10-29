@@ -2,6 +2,7 @@ package be.imgn.swing.examples.saf;
 
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import java.awt.GridBagConstraints;
@@ -17,14 +18,17 @@ import javax.swing.JPanel;
  * hold them.
  */
 @Application(name = "ActionMapExample")
-// The framework reaches component fields from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class ActionMapExample implements SingleFrame {
 
     private static final double HALF = 0.5;
 
+    @Exposed
     final ScenePanel basePanel;
+
+    @Exposed
     final ScenePanel panelA;
+
+    @Exposed
     final ScenePanel panelB;
 
     @Inject

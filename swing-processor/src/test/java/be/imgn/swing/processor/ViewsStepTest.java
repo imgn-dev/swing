@@ -15,9 +15,10 @@ class ViewsStepTest {
                         import javax.swing.*;
 
                         public final class NotesView implements be.imgn.swing.ui.View {
-                            final JTextArea editor = new JTextArea();
-                            final JPanel panel = new JPanel();
-                            final JSplitPane split = new JSplitPane();
+                            @be.imgn.swing.ui.Exposed final JTextArea editor = new JTextArea();
+                            @be.imgn.swing.ui.Exposed final JPanel panel = new JPanel();
+                            @be.imgn.swing.ui.Exposed final JSplitPane split = new JSplitPane();
+                            final JTable plain = new JTable();
                             private final JTable hidden = new JTable();
 
                             public JComponent content() {
@@ -36,7 +37,7 @@ class ViewsStepTest {
                         """)
                 .compile();
 
-        assertThat(compilation).succeeded().hadWarningContaining("The state of the private field hidden is not saved");
+        assertThat(compilation).succeeded().hadNoWarnings();
         assertThat(compilation)
                 .generatedSourceFile("p.$NotesView$$Injector")
                 .contains("public final class $NotesView$$Injector implements ComponentInjector<NotesView>")
@@ -44,10 +45,13 @@ class ViewsStepTest {
                 .contains("resources.integer(\"editor\", \"rows\").ifPresent(value -> view.editor.setRows(value));")
                 .contains("ComponentResources.setAccessibleName(view.editor, value)")
                 .contains("ComponentResources.setTitle(view.panel, value)")
-                .contains("ComponentResources.setTabTitle(view.panel, value)");
+                .contains("ComponentResources.setTabTitle(view.panel, value)")
+                .doesNotContain("plain")
+                .doesNotContain("hidden");
         assertThat(compilation)
                 .generatedSourceFile("p.$NotesView$$State")
                 .contains("components.put(\"split\", view.split);")
+                .doesNotContain("plain")
                 .doesNotContain("hidden");
     }
 
@@ -58,7 +62,10 @@ class ViewsStepTest {
                         package p;
 
                         public class Base {
+                            @be.imgn.swing.ui.Exposed
                             javax.swing.JSplitPane split = new javax.swing.JSplitPane();
+
+                            @be.imgn.swing.ui.Exposed
                             public javax.swing.JTabbedPane tabs = new javax.swing.JTabbedPane();
                         }
                         """)
@@ -81,6 +88,43 @@ class ViewsStepTest {
                 .generatedSourceFile("q.$NotesView$$State")
                 .contains("components.put(\"tabs\", view.tabs);")
                 .doesNotContain("split");
+    }
+
+    @Test
+    void rejectsExposedFieldsThatGeneratedCodeCannotRead() {
+        var compilation = Sources.create().source("p.Holder", """
+                        package p;
+
+                        import be.imgn.swing.Observable;
+                        import be.imgn.swing.Property;
+                        import be.imgn.swing.ui.Exposed;
+
+                        public final class Holder {
+                            @Exposed private final javax.swing.JLabel hidden = new javax.swing.JLabel();
+                            @Exposed static javax.swing.JLabel shared = new javax.swing.JLabel();
+                            @Exposed final String text = "";
+                            @Exposed final Observable<Integer> count = Property.of(0);
+                            @Exposed final Property<Boolean> enabled = Property.of(true);
+                            @Exposed final javax.swing.JButton button = new javax.swing.JButton();
+                        }
+                        """).compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("An @Exposed field must be neither private nor static")
+                .inFile("p/Holder.java")
+                .onLine(8);
+        assertThat(compilation)
+                .hadErrorContaining("An @Exposed field must be neither private nor static")
+                .inFile("p/Holder.java")
+                .onLine(9);
+        assertThat(compilation)
+                .hadErrorContaining("An @Exposed field must be a java.awt.Component or an Observable<Boolean>, not"
+                        + " java.lang.String");
+        assertThat(compilation)
+                .hadErrorContaining("An @Exposed field must be a java.awt.Component or an Observable<Boolean>, not"
+                        + " be.imgn.swing.Observable<java.lang.Integer>");
+        assertThat(compilation).hadErrorCount(4);
     }
 
     @Test

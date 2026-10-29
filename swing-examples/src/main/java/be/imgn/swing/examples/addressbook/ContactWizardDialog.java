@@ -4,6 +4,7 @@ import be.imgn.inject.Assisted;
 import be.imgn.inject.Inject;
 import be.imgn.swing.ui.BoundCommand;
 import be.imgn.swing.ui.DialogView;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.StandardCommands;
 import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
@@ -22,22 +23,30 @@ import javax.swing.JTextField;
  * {@code ContactDetailWizardController}, whose wizard comes from Guts' {@code WizardModule}, and here from the dialog's
  * own commands. Its {@code ok()} finishes the wizard from any step.
  */
-// The framework reaches component fields from generated code, so they are package-private.
-@SuppressWarnings("checkstyle:VisibilityModifier")
 public final class ContactWizardDialog implements DialogView<Contact> {
 
     private static final int NAME_COLUMNS = 20;
     private static final int GAP = 8;
 
-    final JLabel stepLabel = new JLabel();
+    @Exposed
     final JLabel firstNameLabel = new JLabel();
-    final JTextField firstName = new JTextField(NAME_COLUMNS);
+
+    @Exposed
     final JLabel lastNameLabel = new JLabel();
-    final JTextField lastName = new JTextField(NAME_COLUMNS);
+
+    @Exposed
     final JLabel birthLabel = new JLabel();
-    final JTextField birth = new JTextField(NAME_COLUMNS);
+
+    @Exposed
     final AddressPanel home;
+
+    @Exposed
     final AddressPanel office;
+
+    private final JLabel stepLabel = new JLabel();
+    private final JTextField firstName = new JTextField(NAME_COLUMNS);
+    private final JTextField lastName = new JTextField(NAME_COLUMNS);
+    private final JTextField birth = new JTextField(NAME_COLUMNS);
     private final Contact contact;
     private final Ui ui;
     private final AddressBookMessages messages;
@@ -55,7 +64,7 @@ public final class ContactWizardDialog implements DialogView<Contact> {
         this.home = new AddressPanel(messages);
         this.office = new AddressPanel(messages);
         this.names = List.of(messages.contactStep(), messages.homeAddressStep(), messages.officeAddressStep());
-        wizard.count.set(names.size());
+        wizard.count().set(names.size());
     }
 
     @Override
@@ -78,7 +87,7 @@ public final class ContactWizardDialog implements DialogView<Contact> {
                     stepLabel.setText(messages.wizardStep(index + 1, names.size(), names.get(index)));
                     cards.show(steps, names.get(index));
                 },
-                wizard.step);
+                wizard.step());
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(stepLabel, BorderLayout.PAGE_START);
         panel.add(steps, BorderLayout.CENTER);
