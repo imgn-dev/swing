@@ -7,6 +7,7 @@ import be.imgn.swing.ui.internal.Edt;
 import be.imgn.swing.ui.internal.ErrorDialog;
 import be.imgn.swing.ui.internal.Launch;
 import be.imgn.swing.ui.internal.LaunchOptions;
+import be.imgn.swing.ui.internal.UiTexts;
 import java.awt.EventQueue;
 import java.awt.HeadlessException;
 import java.util.List;
@@ -33,8 +34,9 @@ public final class Swing {
      *   <li>on the EDT, once the events posted while showing the window have run, calls every {@code ReadyListener}.
      * </ol>
      *
-     * <p>A failure in steps 2 to 4 shows the error dialog if the look and feel is installed, prints the stack trace
-     * otherwise, and exits with status 1 through {@link Exit}.
+     * <p>A failure in steps 2 to 4 shows the error dialog if the look and feel is installed, in the application's
+     * language once the injector exists and in English before, prints the stack trace otherwise, and exits with status
+     * 1 through {@link Exit}.
      *
      * @param type the application class, annotated with {@code @Application}
      * @param args the arguments
@@ -57,8 +59,11 @@ public final class Swing {
     @SuppressWarnings("SystemOut")
     private static void failed(Throwable failure, Optional<Injector> injector, boolean lookAndFeelInstalled) {
         if (lookAndFeelInstalled) {
-            Runnable show = () -> ErrorDialog.show(
-                    null, "Error", String.valueOf(failure.getMessage()), failure, "Details", "Copy", "Close");
+            String message = String.valueOf(failure.getMessage());
+            Runnable show = () -> texts(injector, failure)
+                    .ifPresentOrElse(
+                            texts -> ErrorDialog.show(null, texts, texts.error(), message, failure),
+                            () -> ErrorDialog.show(null, "Error", message, failure, "Details", "Copy", "Close"));
             try {
                 if (EventQueue.isDispatchThread()) {
                     show.run();
@@ -73,5 +78,17 @@ public final class Swing {
             failure.printStackTrace();
         }
         injector.map(root -> root.getInstance(Exit.class)).orElse(System::exit).exit(FAILURE);
+    }
+
+    // The framework's texts, in the application's language, come from the injector: before it exists, or when the
+    // failure leaves it unable to read resources, the dialog speaks English.
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private static Optional<UiTexts> texts(Optional<Injector> injector, Throwable failure) {
+        try {
+            return injector.map(root -> root.getInstance(UiTexts.class));
+        } catch (RuntimeException e) {
+            failure.addSuppressed(e);
+            return Optional.empty();
+        }
     }
 }
