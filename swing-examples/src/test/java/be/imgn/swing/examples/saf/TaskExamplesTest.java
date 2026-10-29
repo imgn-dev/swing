@@ -113,6 +113,7 @@ class TaskExamplesTest {
     void blockingExample1DisablesTheButtonThatStartedTheTask() throws Exception {
         try (AppTester<BlockingExample1> app = AppTester.start(BlockingExample1.class)) {
             app.application().step(Duration.ofMillis(20));
+            BlockingExample1Commands commands = app.commands(BlockingExample1Commands.class);
             JButton button = app.components(JButton.class).stream()
                     .filter(candidate -> "Block Component".equals(candidate.getText()))
                     .findFirst()
@@ -120,11 +121,18 @@ class TaskExamplesTest {
 
             onEdt(button::doClick);
             AtomicBoolean enabled = new AtomicBoolean(true);
-            onEdt(() -> enabled.set(button.isEnabled()));
+            AtomicBoolean actionEnabled = new AtomicBoolean(true);
+            onEdt(() -> {
+                enabled.set(button.isEnabled());
+                actionEnabled.set(commands.blockComponent().asAction().isEnabled());
+            });
 
+            // The button shares the command's Action, so the command is blocked, which the Action can't undo.
             assertThat(enabled).isFalse();
+            assertThat(actionEnabled).isFalse();
             awaitStatus(app, "Done");
             assertThat(button.isEnabled()).isTrue();
+            assertThat(commands.blockComponent().asAction().isEnabled()).isTrue();
         }
     }
 

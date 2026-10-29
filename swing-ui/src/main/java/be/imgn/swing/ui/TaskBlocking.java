@@ -6,6 +6,7 @@ import be.imgn.swing.ui.internal.ViewHost;
 import be.imgn.swing.ui.internal.WindowHost;
 import java.awt.Component;
 import java.util.List;
+import javax.swing.AbstractButton;
 import javax.swing.JRootPane;
 import org.jspecify.annotations.Nullable;
 
@@ -36,9 +37,12 @@ final class TaskBlocking {
             case NONE -> () -> {};
             case COMMAND -> requireCommand(command).blockItself();
             case COMPONENT -> {
+                // A component that shares the command's Action is blocked through the command, so that an enabled
+                // change delivered to the Action can't re-enable it.
+                BoundCommand owner = requireCommand(command);
                 Component component = context == null ? null : componentOf(context.trigger());
-                yield component == null
-                        ? requireCommand(command).blockItself()
+                yield component == null || sharesAction(component, owner)
+                        ? owner.blockItself()
                         : services.blocker().disable(component);
             }
             case WINDOW ->
@@ -52,6 +56,10 @@ final class TaskBlocking {
             throw new IllegalArgumentException("COMMAND and COMPONENT apply only to a task a command starts");
         }
         return command;
+    }
+
+    private static boolean sharesAction(Component component, BoundCommand command) {
+        return component instanceof AbstractButton button && command.asAction().equals(button.getAction());
     }
 
     private static List<JRootPane> rootPanes(UiServices services) {
