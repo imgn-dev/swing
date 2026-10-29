@@ -8,8 +8,11 @@ final class Failures {
 
     private final List<Throwable> failures = new ArrayList<>();
 
+    // A strict-mode failure arrives twice: from UiMode's sink, then from the handler of the thread it is thrown on.
     synchronized void add(Throwable failure) {
-        failures.add(failure);
+        if (!failures.contains(failure)) {
+            failures.add(failure);
+        }
     }
 
     /** Throws the recorded failures, the first with the others suppressed, and forgets them. */

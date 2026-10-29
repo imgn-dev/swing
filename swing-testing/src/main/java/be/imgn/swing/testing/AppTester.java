@@ -50,7 +50,8 @@ import org.jspecify.annotations.Nullable;
  * are built and laid out. Every call on the tester, and on the commands it returns, runs on the EDT and waits; before
  * returning, the tester runs the updates posted by observables and waits for the tasks commands start, so assertions
  * see the components as the user will. A component repainted or invalidated off the EDT, a failure no handler handles,
- * and duplicate mnemonics or shortcuts in a dialog fail the test at the tester's next call.
+ * and duplicate mnemonics or shortcuts, in a dialog or in a menu the framework rebuilt after a dynamic section changed,
+ * fail the test at the tester's next call.
  *
  * <p>The platform is gaia's {@link FakePlatform} for Linux, with its directories on a {@code gaia-memfs} file system,
  * so window state is saved in memory. Time is a {@link FakeTicker} and an {@link InstantSource} fixed at the epoch.
@@ -121,7 +122,7 @@ public final class AppTester<T> implements AutoCloseable {
                         .bind(Exit.class, (Exit) this::exited)
                         .bind(Windows.class, windows)
                         .bind(Dialogs.class, dialogs)
-                        .bind(UiMode.class, new UiMode(true))
+                        .bind(UiMode.class, new UiMode(true, failures::add))
                         .bind(Ticker.class, ticker)
                         .bind(InstantSource.class, InstantSource.fixed(Instant.EPOCH)),
                 injector -> {
