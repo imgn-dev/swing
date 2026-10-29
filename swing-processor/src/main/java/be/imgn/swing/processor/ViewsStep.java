@@ -82,13 +82,14 @@ final class ViewsStep implements Step {
         generateState(type);
     }
 
-    // A bean of a wider scope reaches a bean of a narrower one only through a Provider.
+    // A bean of a wider scope reaches a bean of a narrower one only through a Provider. The injection points include
+    // the inherited ones, since a field or method of an unscoped superclass is injected into a bean of this scope.
     private void checkScopes(TypeElement type) {
         Optional<Scopes> scope = Scopes.of(context, type);
         if (scope.isEmpty()) {
             return;
         }
-        for (Element member : type.getEnclosedElements()) {
+        for (Element member : context.elements().getAllMembers(type)) {
             boolean injected = context.annotation(member, Names.INJECT).isPresent();
             boolean executable = member.getKind() == ElementKind.CONSTRUCTOR || member.getKind() == ElementKind.METHOD;
             if (executable && injected) {

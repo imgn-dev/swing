@@ -88,4 +88,31 @@ class ViewsStepTest {
                 .hadErrorContaining("@Singleton p.Registry depends directly on @ViewScoped be.imgn.swing.ui.Ui")
                 .onLine(6);
     }
+
+    @Test
+    void checksTheInjectionPointsInheritedFromAnUnscopedSuperclass() {
+        var compilation =
+                Sources.create().source("p.Base", """
+                        package p;
+
+                        public class Base {
+                            @be.imgn.inject.Inject
+                            be.imgn.swing.ui.Ui ui;
+
+                            @be.imgn.inject.Inject
+                            void setLater(be.imgn.inject.Provider<be.imgn.swing.ui.Ui> later) {}
+                        }
+                        """).source("p.Registry", """
+                        package p;
+
+                        @be.imgn.inject.Singleton
+                        public final class Registry extends Base {}
+                        """).compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("@Singleton p.Registry depends directly on @ViewScoped be.imgn.swing.ui.Ui")
+                .inFile("p/Base.java")
+                .onLine(5);
+    }
 }
