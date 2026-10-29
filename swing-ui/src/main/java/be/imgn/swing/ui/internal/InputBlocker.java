@@ -5,13 +5,22 @@ import be.imgn.inject.Inject;
 import be.imgn.inject.Singleton;
 import be.imgn.swing.internal.RunningTask;
 import java.awt.Component;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.Window;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import javax.swing.JRootPane;
+import javax.swing.RootPaneContainer;
+import javax.swing.SwingUtilities;
 import org.jspecify.annotations.Nullable;
 
-/** Blocks components and windows while tasks run. Used on the EDT. */
+/**
+ * Blocks components and windows while tasks run. While a window is blocked, a key event dispatcher consumes the key
+ * events of the blocked windows before any input map sees them. Used on the EDT.
+ */
 @Singleton
 public final class InputBlocker {
 
@@ -20,6 +29,7 @@ public final class InputBlocker {
     private final IdentityHashMap<Component, Integer> disabled = new IdentityHashMap<>();
     private final IdentityHashMap<JRootPane, Installed> glassPanes = new IdentityHashMap<>();
     private final List<ApplicationBlock> applicationBlocks = new ArrayList<>();
+    private final KeyEventDispatcher keys = this::consumeIfBlocked;
 
     @Inject
     InputBlocker(Ticker ticker, UiTexts texts) {
@@ -101,6 +111,9 @@ public final class InputBlocker {
     }
 
     private void coverWindow(JRootPane rootPane, RunningTask task) {
+        if (glassPanes.isEmpty()) {
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keys);
+        }
         Installed installed = glassPanes.computeIfAbsent(rootPane, this::install);
         installed.count++;
         installed.pane.block(task);
@@ -116,7 +129,30 @@ public final class InputBlocker {
             glassPanes.remove(rootPane);
             rootPane.setGlassPane(installed.previous);
             installed.previous.setVisible(false);
+            if (glassPanes.isEmpty()) {
+                KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(keys);
+            }
         }
+    }
+
+    // Consumes a key event whose window is blocked, unless it is for the glass pane's own Cancel button.
+    private boolean consumeIfBlocked(KeyEvent event) {
+        @Nullable Component source = event.getComponent();
+        if (source == null) {
+            return false;
+        }
+        Window window = source instanceof Window own ? own : SwingUtilities.getWindowAncestor(source);
+        @Nullable
+        JRootPane rootPane = window instanceof RootPaneContainer container
+                ? container.getRootPane()
+                : SwingUtilities.getRootPane(source);
+        if (rootPane == null
+                || !glassPanes.containsKey(rootPane)
+                || SwingUtilities.getAncestorOfClass(BlockingGlassPane.class, source) != null) {
+            return false;
+        }
+        event.consume();
+        return true;
     }
 
     private Installed install(JRootPane rootPane) {

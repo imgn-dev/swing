@@ -13,6 +13,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -63,8 +64,9 @@ public final class BlockingGlassPane extends JComponent {
         setFocusTraversalKeysEnabled(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         setLayout(new GridBagLayout());
-        addMouseListener(new MouseAdapter() {});
-        addMouseMotionListener(new MouseAdapter() {});
+        MouseAdapter mouse = new ConsumingMouseAdapter();
+        addMouseListener(mouse);
+        addMouseMotionListener(mouse);
         addMouseWheelListener(event -> event.consume());
         addKeyListener(new KeyAdapter() {
             @Override
@@ -192,6 +194,44 @@ public final class BlockingGlassPane extends JComponent {
             shaded.fillRect(0, 0, getWidth(), getHeight());
         } finally {
             shaded.dispose();
+        }
+    }
+
+    // Consumes every mouse event the glass pane receives, so that nothing under it acts on one.
+    private static final class ConsumingMouseAdapter extends MouseAdapter {
+        @Override
+        public void mouseClicked(MouseEvent event) {
+            event.consume();
+        }
+
+        @Override
+        public void mousePressed(MouseEvent event) {
+            event.consume();
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent event) {
+            event.consume();
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent event) {
+            event.consume();
+        }
+
+        @Override
+        public void mouseExited(MouseEvent event) {
+            event.consume();
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent event) {
+            event.consume();
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent event) {
+            event.consume();
         }
     }
 }

@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import be.imgn.swing.testing.AppTester;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -88,6 +90,26 @@ class TaskExamplesTest {
     }
 
     @Test
+    void blockingExample1ConsumesTheKeysOfTheBlockedWindow() throws Exception {
+        try (AppTester<BlockingExample1> app = AppTester.start(BlockingExample1.class)) {
+            app.application().step(Duration.ofMillis(20));
+            BlockingExample1Commands commands = app.commands(BlockingExample1Commands.class);
+            JButton button = app.components(JButton.class).getFirst();
+
+            onEdt(() -> commands.blockWindow()
+                    .asAction()
+                    .actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "test")));
+            AtomicBoolean consumed = new AtomicBoolean();
+            onEdt(() -> consumed.set(dispatch(button)));
+
+            assertThat(consumed).isTrue();
+            awaitStatus(app, "Done");
+            onEdt(() -> consumed.set(dispatch(button)));
+            assertThat(consumed).isFalse();
+        }
+    }
+
+    @Test
     void blockingExample1DisablesTheButtonThatStartedTheTask() throws Exception {
         try (AppTester<BlockingExample1> app = AppTester.start(BlockingExample1.class)) {
             app.application().step(Duration.ofMillis(20));
@@ -149,6 +171,13 @@ class TaskExamplesTest {
         }
         assertThat(app.isRunning()).isTrue();
         assertThat(app.application().status().get()).isEqualTo(status);
+    }
+
+    // Dispatches a key press on a component as the keyboard focus manager does, and returns whether it was consumed.
+    private static boolean dispatch(Component component) {
+        KeyEvent key = new KeyEvent(component, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, KeyEvent.VK_A, 'a');
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().dispatchEvent(key);
+        return key.isConsumed();
     }
 
     private static void onEdt(Runnable code) throws InterruptedException, InvocationTargetException {
