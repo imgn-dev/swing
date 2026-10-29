@@ -6,14 +6,15 @@ import be.imgn.swing.Scope;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
 import be.imgn.toml.TomlTable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.EnumMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Every command of a view, keyed by the class the generated class is for ({@code StandardCommands} for standard
@@ -31,7 +32,8 @@ public final class CommandRegistry {
     private final Map<Standard, Class<? extends StandardCommands>> overridingClasses = new EnumMap<>(Standard.class);
     private final IdentityHashMap<StandardCommands, List<BoundCommand>> byInstance = new IdentityHashMap<>();
     private final StandardHandlers standards;
-    private @Nullable StandardCommands constructing;
+    // The instances under construction, the innermost first: a constructor that resolves another commands class nests.
+    private final Deque<StandardCommands> constructing = new ArrayDeque<>();
 
     @Inject
     CommandRegistry(Window window, Scope scope, Injector injector, UiServices services) {
@@ -83,7 +85,7 @@ public final class CommandRegistry {
         }
         BoundCommand command = new BoundCommand(this, builder, resourcesOf(builder.owner(), builder.id()));
         commands.put(key, command);
-        StandardCommands instance = constructing;
+        StandardCommands instance = constructing.peek();
         if (instance != null) {
             byInstance.computeIfAbsent(instance, ignored -> new ArrayList<>()).add(command);
         }
@@ -143,7 +145,7 @@ public final class CommandRegistry {
     }
 
     void constructing(StandardCommands instance) {
-        constructing = instance;
+        constructing.push(instance);
     }
 
     /**
@@ -153,9 +155,7 @@ public final class CommandRegistry {
      * @return the commands
      */
     List<BoundCommand> constructed(StandardCommands instance) {
-        if (Objects.equals(constructing, instance)) {
-            constructing = null;
-        }
+        constructing.removeFirstOccurrence(instance);
         List<BoundCommand> bound = byInstance.remove(instance);
         return bound == null ? List.of() : bound;
     }
