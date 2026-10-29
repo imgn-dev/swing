@@ -106,7 +106,9 @@ class ResourcesStepTest {
         assertThat(compilation)
                 .failed()
                 .hadErrorContaining("CounterApp.toml:1:1: CounterApp_fr.toml lacks the key title");
-        assertThat(compilation).hadErrorContaining("CounterApp_fr.toml:3:1: The key commands");
+        assertThat(compilation)
+                .hadErrorContaining("CounterApp_fr.toml:3:1: The key commands.increment.tool-tip-text is not in the"
+                        + " base file CounterApp.toml");
     }
 
     @Test

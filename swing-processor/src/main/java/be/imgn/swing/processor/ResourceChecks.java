@@ -18,6 +18,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -32,6 +34,7 @@ final class ResourceChecks {
     private static final Set<String> THEMES = Set.of("system", "light", "dark");
     private static final Pattern COLOR = Pattern.compile("#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?");
     private static final Pattern SHORTCUT = Pattern.compile("\\bshortcut\\b");
+    private static final Pattern BARE_KEY = Pattern.compile("[A-Za-z0-9_-]+");
 
     private final Shared shared;
     private final ProcessingContext context;
@@ -433,13 +436,13 @@ final class ResourceChecks {
             return;
         }
         TomlDocument baseDocument = base.get().document();
-        Map<String, Leaf> baseLeaves = leaves(baseDocument.root());
+        Map<List<String>, Leaf> baseLeaves = leaves(baseDocument.root());
         for (ResourceFile file : files) {
             if (!file.isLocale() || file.document() == null) {
                 continue;
             }
-            Map<String, Leaf> leaves = leaves(file.document().root());
-            for (Map.Entry<String, Leaf> leaf : leaves.entrySet()) {
+            Map<List<String>, Leaf> leaves = leaves(file.document().root());
+            for (Map.Entry<List<String>, Leaf> leaf : leaves.entrySet()) {
                 if (!baseLeaves.containsKey(leaf.getKey())) {
                     reporter.error(
                             leafElement(model, leaf.getKey()),
@@ -449,12 +452,12 @@ final class ResourceChecks {
                                     .key(
                                             leaf.getValue().table(),
                                             leaf.getValue().key()),
-                            "The key " + leaf.getKey() + " is not in the base file "
+                            "The key " + keyPath(leaf.getKey()) + " is not in the base file "
                                     + base.get().name());
                 }
             }
             if (file.isLanguage()) {
-                for (Map.Entry<String, Leaf> leaf : baseLeaves.entrySet()) {
+                for (Map.Entry<List<String>, Leaf> leaf : baseLeaves.entrySet()) {
                     if (!leaves.containsKey(leaf.getKey())) {
                         reporter.error(
                                 leafElement(model, leaf.getKey()),
@@ -464,27 +467,37 @@ final class ResourceChecks {
                                         .key(
                                                 leaf.getValue().table(),
                                                 leaf.getValue().key()),
-                                file.name() + " lacks the key " + leaf.getKey());
+                                file.name() + " lacks the key " + keyPath(leaf.getKey()));
                     }
                 }
             }
         }
     }
 
-    private Element leafElement(Model model, String path) {
-        List<String> parts = List.of(path.split("\u0000", -1));
-        return parts.size() >= 2 && "commands".equals(parts.get(0)) ? elementOf(model, parts.get(1)) : model.type();
+    private Element leafElement(Model model, List<String> path) {
+        return path.size() >= 2 && "commands".equals(path.get(0)) ? elementOf(model, path.get(1)) : model.type();
     }
 
-    private static Map<String, Leaf> leaves(TomlTable root) {
-        Map<String, Leaf> leaves = new LinkedHashMap<>();
-        collect(root, "", leaves);
+    // The path as TOML writes a dotted key, quoting the keys that are not bare.
+    private static String keyPath(List<String> path) {
+        return path.stream().map(ResourceChecks::key).collect(Collectors.joining("."));
+    }
+
+    private static String key(String key) {
+        return BARE_KEY.matcher(key).matches()
+                ? key
+                : "\"" + key.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+    }
+
+    private static Map<List<String>, Leaf> leaves(TomlTable root) {
+        Map<List<String>, Leaf> leaves = new LinkedHashMap<>();
+        collect(root, List.of(), leaves);
         return leaves;
     }
 
-    private static void collect(TomlTable table, String prefix, Map<String, Leaf> leaves) {
+    private static void collect(TomlTable table, List<String> prefix, Map<List<String>, Leaf> leaves) {
         table.entries().forEach((key, value) -> {
-            String path = prefix.isEmpty() ? key : prefix + "\u0000" + key;
+            List<String> path = Stream.concat(prefix.stream(), Stream.of(key)).toList();
             if (value instanceof TomlTable nested) {
                 collect(nested, path, leaves);
             } else {
