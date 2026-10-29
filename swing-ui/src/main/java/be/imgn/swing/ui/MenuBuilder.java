@@ -133,10 +133,12 @@ final class MenuBuilder {
         return menuItem;
     }
 
-    /** Reports the duplicate mnemonics and shortcuts among the visible items of a menu or a menu bar. */
+    /**
+     * Reports the duplicate mnemonics among the visible items of a menu or a menu bar. Duplicate shortcuts are not a
+     * menu's concern: attaching a command reports them for the whole window, placed in a menu or not.
+     */
     void check(List<Component> items, String where) {
         Map<Integer, String> mnemonics = new HashMap<>();
-        Map<Object, String> shortcuts = new HashMap<>();
         for (Component component : items) {
             if (!component.isVisible() || !(component instanceof AbstractButton button)) {
                 continue;
@@ -147,12 +149,6 @@ final class MenuBuilder {
                 String previous = mnemonics.putIfAbsent(mnemonic, name);
                 if (previous != null) {
                     services.mode().report(LOGGER, "Duplicate mnemonic in " + where + ": " + previous + " and " + name);
-                }
-            }
-            if (button instanceof JMenuItem item && !(item instanceof JMenu) && item.getAccelerator() != null) {
-                String previous = shortcuts.putIfAbsent(item.getAccelerator(), name);
-                if (previous != null) {
-                    services.mode().report(LOGGER, "Duplicate shortcut in " + where + ": " + previous + " and " + name);
                 }
             }
         }
