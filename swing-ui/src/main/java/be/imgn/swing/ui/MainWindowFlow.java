@@ -69,9 +69,12 @@ final class MainWindowFlow implements MainWindowStarter {
                         ? title.value()
                         : services.application().displayedName());
         if (frame != null) {
-            Point before = frame.getLocation();
+            // A fresh frame sits at (0, 0), so a sentinel location tells a configureFrame that moves it there apart
+            // from one that leaves it alone; one that asks the platform for the location has moved it as well.
+            Point before = new Point(-1, -1);
+            frame.setLocation(before);
             single.configureFrame(frame);
-            boolean moved = !before.equals(frame.getLocation());
+            boolean moved = frame.isLocationByPlatform() || !before.equals(frame.getLocation());
             frame.pack();
             boolean restored =
                     host.injector().getInstance(WindowStateSupport.class).restore(single.restoreBounds());
