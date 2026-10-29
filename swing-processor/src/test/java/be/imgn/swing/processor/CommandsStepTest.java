@@ -90,6 +90,25 @@ class CommandsStepTest {
     }
 
     @Test
+    void warnsThatAnOverrideOutsideAViewAppliesNowhere() {
+        var compilation = Sources.create().source("p.Helper", """
+                        package p;
+
+                        @be.imgn.inject.Singleton
+                        public class Helper {
+                            @be.imgn.swing.ui.Command
+                            void exit() {}
+                        }
+                        """).compile();
+
+        assertThat(compilation)
+                .succeeded()
+                .hadWarningContaining("Command `exit` of `p.Helper` overrides the standard command `exit`, but"
+                        + " `p.Helper` is not a view: the override applies nowhere");
+        assertThat(compilation).generatedSourceFile("p.HelperCommands").contains("public BoundCommand exit()");
+    }
+
+    @Test
     void addsTheStandardMethodToAnOverrideWithAnotherName() {
         var compilation = view("""
                     @Command(id = "exit")

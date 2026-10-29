@@ -97,12 +97,21 @@ final class CommandsStep implements Step {
                     .ifPresent(problems::add);
         }
         if (own && command.isStandard()) {
+            String overrides = "Command `" + command.id() + "` of `" + type.getQualifiedName()
+                    + "` overrides the standard command `" + command.id() + "`";
+            // An override applies in the views whose class, or a superclass of it, declares it: one declared in a
+            // helper that is not a view, nor abstract and so possibly extended by one, applies nowhere.
+            boolean view = context.isSubtype(type.asType(), Names.VIEW)
+                    || type.getModifiers().contains(Modifier.ABSTRACT);
             shared.reporter()
                     .warning(
                             command.handler(),
-                            "Command `" + command.id() + "` of `"
-                                    + type.getQualifiedName() + "` overrides the standard command `" + command.id()
-                                    + "`. Overriding standard commands may become an error in a future version.");
+                            view
+                                    ? overrides
+                                            + ". Overriding standard commands may become an error in a future"
+                                            + " version."
+                                    : overrides + ", but `" + type.getQualifiedName()
+                                            + "` is not a view: the override applies nowhere");
         }
         problems.forEach(problem -> shared.reporter().error(where, problem));
         return problems.isEmpty();
