@@ -46,8 +46,9 @@ final class ViewBuilder {
                 .bind(Window.class, window)
                 .bind(Scope.class, scope)
                 .build();
-        WindowHost host = new WindowHost(window, injector, scope, opener, stateKey, services.mode());
+        // Registered before anything is resolved through the host, so that its vetoes are reported in its scope.
         hosts.register(injector, scope);
+        WindowHost host = new WindowHost(window, injector, scope, opener, stateKey, services.mode());
         services.registry().addWindow(host);
         return host;
     }
@@ -68,8 +69,8 @@ final class ViewBuilder {
                 .scopedChildBuilder(ViewScoped.class)
                 .bind(Scope.class, scope)
                 .build();
-        ViewHost view = new ViewHost(type.isPresent() ? type.get() : Object.class, injector, scope, window, dialog);
         hosts.register(injector, scope);
+        ViewHost view = new ViewHost(type.isPresent() ? type.get() : Object.class, injector, scope, window, dialog);
         services.registry().addView(view);
         type.ifPresent(known -> overrides(known, injector));
         Object instance = resolve.apply(injector);
