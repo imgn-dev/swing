@@ -99,9 +99,7 @@ final class ViewBuilder {
 
     private ComponentResources resources(Class<?> type) {
         return new ComponentResources(
-                services.resources().table(type),
-                path -> services.icons().load(type.getPackageName(), path),
-                !services.isMacOS());
+                services.resources().table(type), path -> services.icons().load(type, path), !services.isMacOS());
     }
 
     private <V> void inject(Class<V> type, Object instance, ComponentResources resources, boolean tabTitles) {

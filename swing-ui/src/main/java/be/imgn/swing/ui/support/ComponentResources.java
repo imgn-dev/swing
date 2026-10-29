@@ -37,7 +37,8 @@ public final class ComponentResources {
      * Creates the resources of a view class.
      *
      * @param table the merged resources of the class
-     * @param icons loads an icon by its path, relative to the class's package
+     * @param icons loads an icon by its path, relative to the package of the class, or of the superclass whose file
+     *     names it
      * @param mnemonics whether mnemonics are set; not on macOS
      */
     public ComponentResources(TomlTable table, Function<String, Icon> icons, boolean mnemonics) {
@@ -108,7 +109,8 @@ public final class ComponentResources {
     }
 
     /**
-     * Returns an icon property: a path relative to the class's package.
+     * Returns an icon property: a path relative to the package of the class whose file names it, resolved against the
+     * class's package first, then its superclasses'.
      *
      * @param field the field
      * @param key the property

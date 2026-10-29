@@ -7,6 +7,8 @@ import be.imgn.swing.ResourceOpener;
 import be.imgn.swing.Resources;
 import be.imgn.swing.internal.Contributions;
 import be.imgn.swing.ui.IconLoader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,6 +67,43 @@ public final class IconCache {
                     loaderOf(path).orElseThrow(() -> new IllegalArgumentException("No icon loader supports " + path));
             return loader.load(opener, path);
         });
+    }
+
+    /**
+     * Loads an icon of a class: its path is resolved against the package of the class, then against the packages of its
+     * superclasses, nearest first, since the merged resources of a class no longer tell which class's file named the
+     * icon, and the processor checked it against the package of that file.
+     *
+     * @param type the class whose resources name the icon
+     * @param path the icon's path
+     * @return the icon
+     * @throws IllegalArgumentException if no loader supports the icon, or no package of the hierarchy has it
+     */
+    public Icon load(Class<?> type, String path) {
+        for (Class<?> current = type; current != null && current != Object.class; current = current.getSuperclass()) {
+            String packageName = current.getPackageName();
+            if (resources
+                    .opener(packageName)
+                    .filter(opener -> has(opener, path))
+                    .isPresent()) {
+                return load(packageName, path);
+            }
+        }
+        throw new IllegalArgumentException(
+                "No icon " + path + " in the package of " + type.getName() + " or of its superclasses");
+    }
+
+    private static boolean has(ResourceOpener opener, String path) {
+        Optional<InputStream> stream = opener.open(path);
+        if (stream.isEmpty()) {
+            return false;
+        }
+        try {
+            stream.get().close();
+        } catch (IOException e) {
+            // The loader reports a resource it cannot read.
+        }
+        return true;
     }
 
     /**
