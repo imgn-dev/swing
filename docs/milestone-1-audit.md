@@ -15,6 +15,8 @@ The branch implements milestone 1 faithfully in structure and in API. Every modu
 
 It is not yet acceptable: six behaviors contradict the requirements ([A](#a-behaviors-that-contradict-the-requirements)), four required things are missing ([B](#b-required-and-missing)), the vision's principles are broken in three places ([C](#c-vision-principles-broken-in-the-code)), and the requirements were departed from in eight places without the document being updated first, as its own rule demands ([D](#d-code-that-departs-from-the-requirements-without-the-document-being-updated)): "Any deviation […] is reported at once, before working around it or going further. The document is then updated, and only then does the implementation follow the new text" ([source](milestone-1.md#milestone-1-requirements)). Section [F](#f-where-milestone-1-departs-from-the-vision-without-recording-it) lists the places where milestone 1 departs from the vision without recording it, a documentation debt rather than a code one.
 
+The fixes of section A are applied on this branch, after the audit; each finding there says what was done. The other sections are as found.
+
 Severity, throughout:
 
 - **DEVIATION**: the code behaves or is named otherwise than the document says.
@@ -30,7 +32,8 @@ Severity, throughout:
 - Code: `swing-ui/src/main/java/be/imgn/swing/ui/MainWindowFlow.java:106-112`.
 - The quit handler runs the `exit` command, which posts the shutdown with `invokeLater`, then posts a second runnable that calls `cancelQuit()` only if `!lifecycle.isShuttingDown()`. A veto that shows a modal dialog, as `CounterApp.canExit()` does through `Dialogs.confirm`, pumps a nested event loop: the check runs while the state is `ASKING`, sees a shutdown in progress, and does nothing. When the veto then returns `false`, the `QuitResponse` is left unanswered.
 - `DefaultLifecycle.onCancel(Runnable)` (`swing-core/src/main/java/be/imgn/swing/internal/DefaultLifecycle.java:74-77`) exists for exactly this and has no caller outside tests.
-- Fix: in the quit handler, register a one-shot cancel listener before running `exit`: `Runnable withdraw = lifecycle.onCancel(() -> { withdraw.run(); response.cancelQuit(); })`, and withdraw it when the shutdown goes through instead. When the request is ignored because a shutdown already runs (`isShuttingDown()` before the call), call `cancelQuit()` at once. The requirement can't be dropped: an unanswered `QuitResponse` leaves macOS believing the application is quitting, so a second ⌘Q is ignored. Add a `LifecycleTest` case with a veto that calls `requestExit()`'s cancel path re-entrantly.
+- Fix: in the quit handler, register a one-shot cancel listener before running `exit`: `Runnable withdraw = lifecycle.onCancel(() -> { withdraw.run(); response.cancelQuit(); })`, and withdraw it when the shutdown goes through instead. When the request is ignored because a shutdown already runs (`isShuttingDown()` before the call), call `cancelQuit()` at once. The requirement can't be dropped: an unanswered `QuitResponse` leaves macOS believing the application is quitting, so a second ⌘Q is ignored.
+- Applied: `MainWindowFlow` answers the `QuitResponse` through `DefaultLifecycle.onCancel`, at once when a shutdown already runs, and when the `exit` command is disabled; `LifecycleTest.withdrawsACancelListener` covers the withdrawal.
 
 ### A2. The error dialog is never owned by its window — DEVIATION
 
@@ -39,6 +42,7 @@ Severity, throughout:
 - `SwingDialogs` passes the AWT `JFrame` or `JDialog` itself as the owner component, and `ErrorDialog` resolves the owner with `SwingUtilities.getWindowAncestor(owner)`, which starts at `getParent()`: `null` for a `JFrame`, the owner frame for a `JDialog`. The error dialog is created with no owner, and `setLocationRelativeTo(null)` centers it on the screen.
 - `confirm` and `inform` are unaffected: `JOptionPane` special-cases a `Window` argument.
 - Fix: in `ErrorDialog.show`, resolve the owner as `owner instanceof Window window ? window : SwingUtilities.getWindowAncestor(owner)`, or change the parameter to `@Nullable Window` and have `SwingDialogs` pass `real.awt()` directly. One line either way.
+- Applied: `ErrorDialog.show` takes a window given as the owner as its own owner.
 
 ### A3. The French standard menus `view` and `help` share a mnemonic — DEVIATION
 
@@ -46,6 +50,7 @@ Severity, throughout:
 - Code: `swing-ui/src/main/resources/be/imgn/swing/ui/StandardMenus_fr.toml:7-8,13-14`.
 - `[menus.view] text = "&Affichage"` and `[menus.help] text = "&Aide"` both mark `A`. A French menu bar that holds `view()` and `help()` fails the framework's own check (`MenuBuilder.java:137-151`) in tests and in development mode, and warns otherwise.
 - Fix: give `help` another letter, `Aid&e` (`d` is `É&dition`'s, `n` is `Fe&nêtre`'s), or `view` one, `Afficha&ge`. Guard it: a `swing-ui` test that builds a bar from the five standard menus in every locale the framework ships and runs `MenuBuilder.check`; with [B1](#b1-the-actionevent-to-commandcontext-test-doesnt-exist--gap) it starts `swing-ui`'s test suite.
+- Applied: `help` is `Aid&e`; `swing-ui`'s first test, `StandardMenusResourcesTest`, parses `StandardMenus.toml` and `StandardMenus_fr.toml` and fails on a missing or shared mnemonic.
 
 ### A4. Standard-command overrides are ignored in dialogs built from a factory — DEVIATION
 
@@ -54,6 +59,7 @@ Severity, throughout:
 - `showDialog(factory, create)` passes the type as `Optional.empty()`, so `ViewBuilder` skips `overrides(known, injector)` and `view.type()` is `Object.class` while the dialog's generated commands class is constructed; `CommandRegistry.bind` records an override only if `owner.isAssignableFrom(view.type())`. A dialog built through an assisted factory that overrides `ok`, `cancel` or any other standard command gets the standard one. Views resolved by type conform.
 - As written, the requirement can't be met for the factory form, since the type is unknown before `create` runs.
 - Fix: `StandardCommands.exit()` and its siblings call `registry.standard(...)` on every call (`StandardCommands.java:35-55`), so the overrides only need to be in place before anything calls them, not before resolution. In `ViewBuilder.buildView`, once `type` is empty and the instance exists, set `view.type(instance.getClass())` and call `overrides(type, injector)`, and have `CommandRegistry` re-run the override check over the commands already bound (those whose owner is assignable from the now-known type). That happens before `content()` and `buttons()`, which is where standard commands are placed. Then reword the requirement: "before it resolves the view, or, for a view created by a factory, as soon as the view exists and before its component resources are applied". A standard command called from the dialog's constructor stays the standard one; say so.
+- Applied: `ViewBuilder.buildView` registers the overrides of a factory-built view as soon as it exists, and `CommandRegistry.viewTypeKnown()` records the overrides among the commands bound in its constructor; the [overriding section](milestone-1.md#overriding-standard-commands) says so.
 
 ### A5. A `Programmatic` context reached through the `Action` carries modifiers — DEVIATION
 
@@ -61,6 +67,7 @@ Severity, throughout:
 - Code: `swing-ui/src/main/java/be/imgn/swing/ui/CommandAction.java:35-37,56-66`.
 - An `ActionEvent` whose source is neither a `JMenuItem` nor an `AbstractButton` maps to `Trigger.Programmatic`, but the event's modifiers are still read into the context, so a `Programmatic` context can carry `SHIFT`.
 - Fix: in `contextOf`, compute the trigger first and pass `Set.of()` when it is `Programmatic`. Cover it in the [B1](#b1-the-actionevent-to-commandcontext-test-doesnt-exist--gap) test with an event whose source is a plain `Object`.
+- Applied: `CommandAction.contextOf` gives a `Programmatic` trigger no modifiers; the test waits for [B1](#b1-the-actionevent-to-commandcontext-test-doesnt-exist--gap).
 
 ### A6. Translation diagnostics contain NUL characters — DEVIATION
 
@@ -68,6 +75,7 @@ Severity, throughout:
 - Code: `swing-processor/src/main/java/be/imgn/swing/processor/ResourceChecks.java:487,552,567`.
 - The key paths of the Translations check are joined with `"\u0000"` and printed as such: `The key commands<NUL>increment<NUL>tool-tip-text is not in the base file`. `ResourcesStepTest.java:109` asserts the prefix only.
 - Fix: key the `leaves` map by `List<String>` instead of a joined string, and print the path as a TOML key path, `commands.increment.tool-tip-text`, quoting a segment that isn't a bare key. Make `ResourcesStepTest` assert the whole message.
+- Applied: the paths are `List<String>` keys and print as dotted TOML keys; `ResourcesStepTest.checksTheTranslations` asserts the whole message.
 
 ## B. Required and missing
 
