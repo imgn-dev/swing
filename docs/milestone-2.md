@@ -464,7 +464,7 @@ void applyChangesTheFontSize() {
 
 | Method | Does |
 |---|---|
-| `static <T> Builder<T> builder(Class<T> type)` | Starts a configuration. `Builder.locale(Locale)` sets the `DisplayLocale` (`Locale.ROOT` by default); `Builder.settings(Record value)` writes a settings record to the fake config directory before startup, with the store's own writer, a later value of the same record replacing an earlier one; `Builder.start()` starts the application. `start(type)` and `start(type, locale)` are shortcuts for it |
+| `Builder.settings(Record value)` | Joins milestone 1's [`AppTester.builder(type)`](milestone-1.md#test-harness), next to `locale` and `arguments`: writes a settings record to the fake config directory before startup, with the store's own writer, a later value of the same record replacing an earlier one |
 | `<B> B bean(Class<B> type)` | Resolves a bean through the main view's injector, so beans of every scope of the main window are reachable |
 | `void run(Runnable action)`, `<R> R call(Supplier<R> action)` | Runs the action on the EDT and waits, then settles as every other call does. Tests change components this way, since the EDT checker fails a test that changes them on its own thread |
 | `void publish(Object event)` | Publishes the event on the application's bus, on the EDT, then settles |
