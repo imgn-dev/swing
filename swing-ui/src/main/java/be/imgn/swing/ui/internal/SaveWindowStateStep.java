@@ -5,7 +5,7 @@ import be.imgn.inject.IntoSet;
 import be.imgn.inject.Singleton;
 import be.imgn.swing.ShutdownStep;
 
-/** Saves the state of the main frame at shutdown. */
+/** Saves the state of every open window at shutdown: the main frame, and a dialog open at exit. */
 @Singleton
 @IntoSet(ShutdownStep.class)
 public final class SaveWindowStateStep implements ShutdownStep {
@@ -26,8 +26,8 @@ public final class SaveWindowStateStep implements ShutdownStep {
 
     @Override
     public void run() {
-        registry.main()
-                .ifPresent(main ->
-                        main.injector().getInstance(WindowStateSupport.class).save());
+        for (WindowHost window : registry.windows()) {
+            window.injector().getInstance(WindowStateSupport.class).save();
+        }
     }
 }
