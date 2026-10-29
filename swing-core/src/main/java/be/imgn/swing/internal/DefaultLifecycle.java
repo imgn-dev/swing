@@ -106,8 +106,12 @@ public final class DefaultLifecycle implements Lifecycle {
         }
     }
 
+    /**
+     * Closes the root injector, then the application scope: the last steps of the shutdown. A test harness that ends an
+     * application without a shutdown calls it too, so that the application scope releases its tasks and subscriptions.
+     */
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void close() {
+    public void close() {
         try {
             injector.close();
         } catch (RuntimeException e) {

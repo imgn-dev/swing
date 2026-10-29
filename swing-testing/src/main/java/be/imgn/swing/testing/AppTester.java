@@ -10,6 +10,7 @@ import be.imgn.swing.ApplicationInfo;
 import be.imgn.swing.Exit;
 import be.imgn.swing.FailureHandler;
 import be.imgn.swing.UiExecutor;
+import be.imgn.swing.internal.DefaultLifecycle;
 import be.imgn.swing.internal.TaskRunner;
 import be.imgn.swing.ui.Dialogs;
 import be.imgn.swing.ui.Windows;
@@ -294,7 +295,11 @@ public final class AppTester<T> implements AutoCloseable {
         });
     }
 
-    /** Closes the application if it runs, without asking its exit vetoes, then the fakes. */
+    /**
+     * Closes the application if it runs, without asking its exit vetoes nor running its shutdown steps: its windows,
+     * then, through the lifecycle, its root injector and its application scope, which cancels the tasks and releases
+     * the subscriptions registered there. Then closes the fakes.
+     */
     @Override
     public void close() {
         try {
@@ -308,7 +313,7 @@ public final class AppTester<T> implements AutoCloseable {
                         window.injector().close();
                         window.scope().close();
                     }
-                    injector.close();
+                    injector.getInstance(DefaultLifecycle.class).close();
                 });
                 running = false;
             }
