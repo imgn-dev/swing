@@ -26,7 +26,7 @@ public final class CommandRegistry {
     private final ViewHost view;
     private final Injector injector;
     private final UiServices services;
-    private final Map<String, BoundCommand> commands = new LinkedHashMap<>();
+    private final Map<Key, BoundCommand> commands = new LinkedHashMap<>();
     private final Map<Standard, BoundCommand> overrides = new EnumMap<>(Standard.class);
     private final Map<Standard, Class<? extends StandardCommands>> overridingClasses = new EnumMap<>(Standard.class);
     private final IdentityHashMap<StandardCommands, List<BoundCommand>> byInstance = new IdentityHashMap<>();
@@ -70,7 +70,7 @@ public final class CommandRegistry {
     }
 
     BoundCommand bind(CommandBuilder builder) {
-        String key = builder.owner().getName() + "#" + builder.id();
+        Key key = new Key(builder.owner(), builder.id());
         BoundCommand existing = commands.get(key);
         if (existing != null) {
             return existing;
@@ -87,10 +87,23 @@ public final class CommandRegistry {
         if (instance != null) {
             byInstance.computeIfAbsent(instance, ignored -> new ArrayList<>()).add(command);
         }
-        if (builder.owner() != StandardCommands.class && builder.owner().isAssignableFrom(view.type())) {
-            Standard.of(builder.id()).ifPresent(standard -> overrides.putIfAbsent(standard, command));
-        }
+        recordOverride(key, command);
         return command;
+    }
+
+    /**
+     * Records the overrides among the commands already bound, once the view class is known: a view created by an
+     * assisted factory binds the commands of its constructor before its class is known.
+     */
+    void viewTypeKnown() {
+        commands.forEach(this::recordOverride);
+    }
+
+    // A command of the view class, or of a superclass of it, whose id is a standard command's overrides it.
+    private void recordOverride(Key key, BoundCommand command) {
+        if (key.owner() != StandardCommands.class && key.owner().isAssignableFrom(view.type())) {
+            Standard.of(key.id()).ifPresent(standard -> overrides.putIfAbsent(standard, command));
+        }
     }
 
     private CommandResources resourcesOf(Class<?> owner, String id) {
@@ -120,7 +133,7 @@ public final class CommandRegistry {
                 return override;
             }
         }
-        BoundCommand existing = commands.get(StandardCommands.class.getName() + "#" + standard.id());
+        BoundCommand existing = commands.get(new Key(StandardCommands.class, standard.id()));
         return existing != null ? existing : standards.create(standard);
     }
 
@@ -157,5 +170,13 @@ public final class CommandRegistry {
 
     UiServices services() {
         return services;
+    }
+
+    /** The class the generated class is for, and the id. */
+    private record Key(Class<?> owner, String id) {
+        @Override
+        public String toString() {
+            return owner.getName() + "#" + id;
+        }
     }
 }

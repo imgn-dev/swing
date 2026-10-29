@@ -75,7 +75,11 @@ final class ViewBuilder {
         Object instance = resolve.apply(injector);
         view.view(instance);
         if (type.isEmpty()) {
+            // The class of a view created by a factory is known only now: register its overrides, among the
+            // commands it already bound as well, before its resources and components are built.
             view.type(instance.getClass());
+            overrides(view.type(), injector);
+            injector.getInstance(CommandRegistry.class).viewTypeKnown();
         }
         ComponentResources resources = resources(view.type());
         inject(view.type(), instance, resources, false);
