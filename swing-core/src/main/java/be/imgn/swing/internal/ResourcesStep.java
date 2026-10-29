@@ -30,8 +30,6 @@ public final class ResourcesStep implements StartupStep {
 
     @Override
     public void run() {
-        if (application instanceof DefaultApplicationInfo info) {
-            resources.table(info.descriptor().type());
-        }
+        resources.table(application.type());
     }
 }
