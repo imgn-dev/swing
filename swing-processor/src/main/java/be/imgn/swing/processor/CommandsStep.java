@@ -7,6 +7,7 @@ import be.imgn.gaia.processing.Step;
 import be.imgn.gaia.processing.source.ClassName;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -22,11 +23,16 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 
-/** Generates the {@code <Class>Commands} of each class that declares {@code @Command} methods. */
+/**
+ * Generates the {@code <Class>Commands} of each class that declares or inherits {@code @Command} methods, which extends
+ * the generated class of its superclass, so that a superclass's code receives the commands of its subclass.
+ */
 final class CommandsStep implements Step {
 
     private final Shared shared;
     private final ProcessingContext context;
+    // A class reaches the step through its annotations and as a root element, possibly in several rounds.
+    private final Set<String> processed = new HashSet<>();
 
     CommandsStep(Shared shared) {
         this.shared = shared;
@@ -39,6 +45,11 @@ final class CommandsStep implements Step {
     }
 
     @Override
+    public boolean processesRootElements() {
+        return true;
+    }
+
+    @Override
     public Set<Element> process(AnnotatedElements elements) {
         Set<TypeElement> classes = new LinkedHashSet<>();
         for (Element element : elements.annotatedWith(Names.COMMAND)) {
@@ -46,8 +57,20 @@ final class CommandsStep implements Step {
                 classes.add(type);
             }
         }
+        // A class that only inherits commands gets its own generated class too, whose commands act on it.
+        for (TypeElement root : ElementFilter.typesIn(elements.rootElements())) {
+            collectInheriting(root, classes);
+        }
+        classes.removeIf(type -> processed.contains(type.getQualifiedName().toString()));
         context.forEach(classes, this::processClass);
         return Set.of();
+    }
+
+    private void collectInheriting(TypeElement type, Set<TypeElement> classes) {
+        if (type.getKind() == ElementKind.CLASS && !Commands.all(context, type).isEmpty()) {
+            classes.add(type);
+        }
+        ElementFilter.typesIn(type.getEnclosedElements()).forEach(nested -> collectInheriting(nested, classes));
     }
 
     private void processClass(TypeElement type) {
@@ -61,6 +84,7 @@ final class CommandsStep implements Step {
         if (valid) {
             generate(type, commands);
         }
+        processed.add(type.getQualifiedName().toString());
     }
 
     private boolean checkClass(TypeElement type) {
@@ -264,44 +288,109 @@ final class CommandsStep implements Step {
 
     private String body(SourceScope scope, TypeElement type, String simpleName, Map<String, CommandInfo> commands) {
         String owner = scope.name(type);
-        List<String> fields = new ArrayList<>();
-        List<String> bindings = new ArrayList<>();
-        List<String> methods = new ArrayList<>();
+        Optional<TypeElement> parent = Commands.superclass(type)
+                .filter(superclass -> !Commands.all(context, superclass).isEmpty());
+        String extended = parent.map(
+                        superclass -> scope.name(Java.qualified(superclass, Commands.generatedName(superclass))))
+                .orElse(scope.name(Names.STANDARD_COMMANDS));
+        Set<String> inherited = new HashSet<>();
+        parent.ifPresent(
+                superclass -> Commands.all(context, superclass).values().forEach(command -> {
+                    inherited.add(command.handlerName());
+                    inherited.add(command.id());
+                }));
+        boolean isAbstract = type.getModifiers().contains(Modifier.ABSTRACT);
+        Parts parts = new Parts(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         for (CommandInfo command : commands.values()) {
             String field = command.handlerName();
-            fields.add("    private final %s %s;".formatted(scope.name(Names.BOUND_COMMAND), field));
-            bindings.add(binding(scope, owner, command));
-            methods.add(method(scope, field, field, false));
+            parts.fields().add("    private final %s %s;".formatted(scope.name(Names.BOUND_COMMAND), field));
+            parts.bindings().add(binding(scope, owner, command));
+            parts.unbound().add("        this.%s = null;".formatted(field));
+            boolean overrides = inherited.contains(field) || Names.STANDARD_COMMANDS_IDS.contains(field);
+            parts.methods().add(method(scope, field, field, overrides, isAbstract));
             if (command.isStandard() && !field.equals(command.id())) {
-                methods.add(method(scope, command.id(), field, true));
+                parts.methods().add(method(scope, command.id(), field, true, isAbstract));
             }
         }
+        return isAbstract
+                ? abstractBody(scope, owner, simpleName, extended, parts)
+                : concreteBody(scope, type, simpleName, extended, parts);
+    }
+
+    // An abstract class has no instance to run commands on: its generated class only declares them, for the generated
+    // classes of its subclasses.
+    private static String abstractBody(
+            SourceScope scope, String owner, String simpleName, String extended, Parts parts) {
+        return """
+                /** The commands of {@link %1$s}, which the generated classes of its subclasses implement. */
+                %2$s
+                public abstract class %3$s extends %4$s {
+
+                    /**
+                     * Creates the commands of a subclass, whose generated class binds them.
+                     *
+                     * @param registry the commands of the view
+                     */
+                    protected %3$s(%5$s registry) {
+                        super(registry);
+                    }
+                %6$s}
+                """.formatted(
+                        owner,
+                        scope.generated(),
+                        simpleName,
+                        extended,
+                        scope.name(Names.COMMAND_REGISTRY),
+                        String.join("", parts.methods()));
+    }
+
+    // A class that may be extended also gets a constructor that binds nothing, which the generated class of a subclass
+    // calls: that one binds every command, its inherited ones included, on the subclass's instance.
+    private static String concreteBody(
+            SourceScope scope, TypeElement type, String simpleName, String extended, Parts parts) {
+        boolean isFinal = type.getModifiers().contains(Modifier.FINAL);
+        String registry = scope.name(Names.COMMAND_REGISTRY);
+        String unbound = String.join("\n", parts.unbound());
+        String forSubclasses = isFinal ? "" : """
+
+                            /**
+                             * Creates the commands of a subclass, whose generated class binds them.
+                             *
+                             * @param registry the commands of the view
+                             */
+                            protected %1$s(%2$s registry) {
+                                super(registry);
+                        %3$s
+                            }
+                        """.formatted(simpleName, registry, unbound);
         return """
                 /** The commands of {@link %1$s}. */
                 %2$s
                 @%3$s
-                public final class %4$s extends %5$s {
+                public %4$sclass %5$s extends %6$s {
 
-                %6$s
+                %7$s
 
-                    @%7$s
-                    %4$s(%8$s registry, %9$s<%1$s> owner) {
+                    @%8$s
+                    %5$s(%9$s registry, %10$s<%1$s> owner) {
                         super(registry);
-                %10$s
+                %11$s
                     }
-                %11$s}
+                %12$s%13$s}
                 """.formatted(
-                        owner,
+                        scope.name(type),
                         scope.generated(),
                         scope.name(Names.VIEW_SCOPED),
+                        isFinal ? "final " : "",
                         simpleName,
-                        scope.name(Names.STANDARD_COMMANDS),
-                        String.join("\n", fields),
+                        extended,
+                        String.join("\n", parts.fields()),
                         scope.name(Names.INJECT),
                         scope.name(Names.COMMAND_REGISTRY),
                         scope.name(Names.PROVIDER),
-                        String.join("\n", bindings),
-                        String.join("", methods));
+                        String.join("\n", parts.bindings()),
+                        forSubclasses,
+                        String.join("", parts.methods()));
     }
 
     private String binding(SourceScope scope, String owner, CommandInfo command) {
@@ -343,7 +432,19 @@ final class CommandsStep implements Step {
         return target(command.declaring(), name).orElseThrow() instanceof ExecutableElement ? name + "()" : name;
     }
 
-    private static String method(SourceScope scope, String name, String field, boolean override) {
+    private static String method(SourceScope scope, String name, String field, boolean override, boolean isAbstract) {
+        String annotation = override ? "@Override\n    " : "";
+        if (isAbstract) {
+            return """
+
+                        /**
+                         * Returns the command %3$s.
+                         *
+                         * @return the command
+                         */
+                        %4$spublic abstract %1$s %2$s();
+                    """.formatted(scope.name(Names.BOUND_COMMAND), name, field, annotation);
+        }
         return """
 
                     /**
@@ -354,6 +455,9 @@ final class CommandsStep implements Step {
                     %4$spublic %1$s %2$s() {
                         return %3$s;
                     }
-                """.formatted(scope.name(Names.BOUND_COMMAND), name, field, override ? "@Override\n    " : "");
+                """.formatted(scope.name(Names.BOUND_COMMAND), name, field, annotation);
     }
+
+    // The pieces of a generated class, one per command.
+    private record Parts(List<String> fields, List<String> bindings, List<String> unbound, List<String> methods) {}
 }

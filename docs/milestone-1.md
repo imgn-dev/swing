@@ -325,7 +325,7 @@ Handlers take no `ActionEvent`:
 
 ### Generated class
 
-For each class that declares commands, the processor generates a public `<Class>Commands` in the same package:
+For each class that declares or inherits commands, the processor generates a public `<Class>Commands` in the same package. It extends the generated class of the superclass when the superclass has commands, else `StandardCommands` (see [Inheritance and naming](#inheritance-and-naming)):
 
 ```java
 @ViewScoped
@@ -387,7 +387,34 @@ A class may declare a command whose id is a standard command's (`exit`, `about`,
 
 ### Inheritance and naming
 
-A class inherits the commands of its superclasses: its generated class has a method for each, which calls the handler on the subclass's instance. An inherited handler, `enabled` target or `selected` target in another package must be `public`, since the generated class of the subclass is not a subclass of the declaring class and can't reach a `protected` member there; otherwise it is a compile error.
+A class inherits the commands of its superclasses: its generated class has a method for each, which calls the handler on the subclass's instance, with the subclass's resources. That class extends the generated class of the superclass, so a superclass's code that takes its own generated class runs the subclass's commands once the subclass passes its own to `super(...)`:
+
+```java
+@ViewScoped
+public class BaseScene {
+    @Inject
+    BaseScene(Ui ui, BaseSceneCommands commands) {
+        ui.popupMenu(panel, commands.create(), commands.remove());
+    }
+
+    @Command
+    void create() { ... }
+}
+
+public final class DerivedScene extends BaseScene {
+    @Inject
+    DerivedScene(Ui ui, DerivedSceneCommands commands) {    // DerivedSceneCommands extends BaseSceneCommands
+        super(ui, commands);
+    }
+}
+```
+
+- The generated class of a class that is not final is not final either. Besides its `@Inject` constructor, it has a protected one that binds no command, which the generated class of a subclass calls: that one binds every command, inherited ones included, on the subclass's instance, and overrides every method.
+- The generated class of an abstract class is abstract: it declares a method per command and binds none. inject builds no instance of it.
+- A bean's own class wins over a key that another bean has only through its supertypes, so injecting `BaseSceneCommands` still gives the base scene's own commands.
+- A class that only inherits commands is found among the root elements of the compilation. gaia holds a root element back while its signature names a type it can't resolve, so a class whose constructor names its own generated class, which only the processor writes, is never processed. Until gaia gives a step such elements (see [Other libraries](#other-libraries)), such a class declares one of its commands again, as an override that calls `super`.
+
+An inherited handler, `enabled` target or `selected` target in another package must be `public`, since the generated class of the subclass is not a subclass of the declaring class and can't reach a `protected` member there; otherwise it is a compile error.
 
 A nested class gets `<Outer><Nested>Commands`. Two classes in one package that would produce the same name are a compile error, whether they are compiled together or not: the processor also checks that no type with the name exists already.
 
@@ -968,6 +995,7 @@ Existing inject behavior the design relies on, as inject's sources and documenta
 | imgn-dev/gaia | `TestCompiler` support for text and binary resource files on the class output | Processor tests, icons included | `TestCompiler.withResource(Location, String, String)` and `withResource(Location, String, byte[])` |
 | imgn-dev/gaia | A `Step` that sees every root element | The views step | `Step.processesRootElements()`, `AnnotatedElements.rootElements()` |
 | imgn-dev/imgn-parent | Checkstyle's `VisibilityModifier` appends `${checkstyle.visibility.ignoredAnnotations}` to its `ignoreAnnotationCanonicalNames`; the parent POM declares the property empty and passes it with `<propertyExpansion>`, since maven-checkstyle-plugin doesn't pass project properties on its own. The parent names no project | [Exposed fields](#exposed-fields) with no `@SuppressWarnings` | The property `checkstyle.visibility.ignoredAnnotations`, from the parent 2026-11-SNAPSHOT |
+| imgn-dev/gaia | A step that processes root elements can also get those whose members' signatures name a type javac can't resolve yet, as long as the type's own declaration resolves | Generating the commands of a class that only inherits them and names them in its constructor | To be named by gaia |
 | imgn-dev/gaia | A public check of application names | Checking `@Application` at compile time with gaia's exact rules | `ApplicationDirectories.checkName(String name, String role)`, with the attribute's name as the role |
 
 The toml writer and the lenient mode from the vision's list are not needed in milestone 1: window state is converted by hand, and a state file that doesn't bind is discarded.

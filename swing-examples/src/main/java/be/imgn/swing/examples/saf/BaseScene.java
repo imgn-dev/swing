@@ -1,7 +1,6 @@
 package be.imgn.swing.examples.saf;
 
 import be.imgn.inject.Inject;
-import be.imgn.inject.Provider;
 import be.imgn.swing.Observable;
 import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Ui;
@@ -18,11 +17,9 @@ public class BaseScene {
     private final ScenePanel panel = new ScenePanel();
 
     @Inject
-    BaseScene(Ui ui, Provider<BaseSceneCommands> commands) {
-        ui.popupMenu(panel, commands.get().create(), commands.get().remove());
+    BaseScene(Ui ui, BaseSceneCommands commands) {
+        ui.popupMenu(panel, commands.create(), commands.remove());
     }
-
-    BaseScene() {}
 
     /**
      * Returns the panel of the scene.

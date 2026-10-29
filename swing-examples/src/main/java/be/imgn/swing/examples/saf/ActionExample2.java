@@ -1,7 +1,6 @@
 package be.imgn.swing.examples.saf;
 
 import be.imgn.inject.Inject;
-import be.imgn.inject.Provider;
 import be.imgn.swing.Application;
 import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Exposed;
@@ -22,11 +21,10 @@ public class ActionExample2 implements SingleFrame {
     final JTextField field = new JTextField();
 
     private final Window window;
-    private final Provider<ActionExample2Commands> commands;
+    private final ActionExample2Commands commands;
 
-    // A Provider, so that a subclass, which builds its own buttons, never builds these commands.
     @Inject
-    ActionExample2(Window window, Provider<ActionExample2Commands> commands) {
+    ActionExample2(Window window, ActionExample2Commands commands) {
         this.window = window;
         this.commands = commands;
     }
@@ -43,8 +41,8 @@ public class ActionExample2 implements SingleFrame {
     @Override
     public JComponent content() {
         JPanel buttons = new JPanel(new FlowLayout());
-        buttons.add(commands.get().clearTitle().createButton());
-        buttons.add(commands.get().updateTitle().createButton());
+        buttons.add(commands.clearTitle().createButton());
+        buttons.add(commands.updateTitle().createButton());
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(field, BorderLayout.CENTER);
         panel.add(buttons, BorderLayout.PAGE_END);
