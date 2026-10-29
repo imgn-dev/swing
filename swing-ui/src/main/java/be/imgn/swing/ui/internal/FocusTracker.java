@@ -1,6 +1,7 @@
 package be.imgn.swing.ui.internal;
 
 import be.imgn.inject.Inject;
+import be.imgn.inject.PreDestroy;
 import be.imgn.inject.Singleton;
 import be.imgn.swing.Observable;
 import be.imgn.swing.Property;
@@ -26,6 +27,7 @@ import org.jspecify.annotations.Nullable;
 public final class FocusTracker {
 
     private final Property<Focus> focus = Property.of(new Focus(null, 0));
+    private final PropertyChangeListener focusListener = this::focusChanged;
     private final CaretListener caretListener = event -> bump();
     private @Nullable JTextComponent caretSource;
     private boolean listening;
@@ -33,15 +35,29 @@ public final class FocusTracker {
     @Inject
     FocusTracker() {}
 
-    /** Starts following the focus; called on the EDT. Idempotent. */
+    /** Starts following the focus; called on the EDT. Idempotent, and {@link #stop()} allows a new start. */
     public synchronized void start() {
         if (listening) {
             return;
         }
         listening = true;
-        PropertyChangeListener listener = this::focusChanged;
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
-                .addPropertyChangeListener("permanentFocusOwner", listener);
+                .addPropertyChangeListener("permanentFocusOwner", focusListener);
+    }
+
+    /**
+     * Stops following the focus, and forgets the focused component: the root injector closing calls it, on the EDT.
+     * Idempotent.
+     */
+    @PreDestroy
+    public synchronized void stop() {
+        if (!listening) {
+            return;
+        }
+        listening = false;
+        KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                .removePropertyChangeListener("permanentFocusOwner", focusListener);
+        follow(null);
     }
 
     private void focusChanged(PropertyChangeEvent event) {
