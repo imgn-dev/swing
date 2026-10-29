@@ -165,9 +165,7 @@ public final class WindowStateFile {
                                 new TomlInteger(bounds.y),
                                 new TomlInteger(bounds.width),
                                 new TomlInteger(bounds.height))));
-        if (window.maximized()) {
-            table.put(MAXIMIZED, true);
-        }
+        table.put(MAXIMIZED, window.maximized());
         if (!window.components().isEmpty()) {
             TomlTable.Builder components = TomlTable.builder();
             window.components().forEach((field, component) -> components.put(field, writeComponent(component)));
