@@ -52,6 +52,38 @@ class ViewsStepTest {
     }
 
     @Test
+    void warnsOnAnInheritedComponentTheStateCannotReach() {
+        var compilation = Sources.create()
+                .source("p.Base", """
+                        package p;
+
+                        public class Base {
+                            javax.swing.JSplitPane split = new javax.swing.JSplitPane();
+                            public javax.swing.JTabbedPane tabs = new javax.swing.JTabbedPane();
+                        }
+                        """)
+                .source("q.NotesView", """
+                        package q;
+
+                        public final class NotesView extends p.Base implements be.imgn.swing.ui.View {
+                            public javax.swing.JComponent content() {
+                                return tabs;
+                            }
+                        }
+                        """)
+                .compile();
+
+        assertThat(compilation)
+                .succeeded()
+                .hadWarningContaining("split of p.Base is not public, so the state of q.NotesView can't save it")
+                .inFile("q/NotesView.java");
+        assertThat(compilation)
+                .generatedSourceFile("q.$NotesView$$State")
+                .contains("components.put(\"tabs\", view.tabs);")
+                .doesNotContain("split");
+    }
+
+    @Test
     void registersTheOverridesOfTheViewClass() {
         var compilation = Sources.create().source("p.NotesView", """
                         package p;

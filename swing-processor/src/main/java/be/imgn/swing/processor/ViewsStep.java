@@ -206,8 +206,21 @@ final class ViewsStep implements Step {
     }
 
     private void generateState(TypeElement type) {
-        for (VariableElement field : ElementFilter.fieldsIn(type.getEnclosedElements())) {
-            if (field.getModifiers().contains(Modifier.PRIVATE) && ViewModel.hasState(context, field)) {
+        for (VariableElement field : ViewModel.hiddenFields(type)) {
+            if (!ViewModel.hasState(context, field)) {
+                continue;
+            }
+            if (field.getEnclosingElement() instanceof TypeElement owner && !owner.equals(type)) {
+                // An inherited field may come from a class file, so the view carries the warning.
+                shared.reporter()
+                        .warning(
+                                type,
+                                field.getSimpleName() + " of " + owner.getQualifiedName()
+                                        + (field.getModifiers().contains(Modifier.PRIVATE)
+                                                ? " is private"
+                                                : " is not public")
+                                        + ", so the state of " + type.getQualifiedName() + " can't save it");
+            } else {
                 shared.reporter()
                         .warning(
                                 field,
