@@ -2,7 +2,6 @@ package be.imgn.swing.examples.saf;
 
 import be.imgn.inject.ExposeAs;
 import be.imgn.inject.Inject;
-import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Ui;
 
 /**
@@ -15,13 +14,5 @@ public final class DerivedSceneB extends BaseScene {
     @Inject
     DerivedSceneB(Ui ui, DerivedSceneBCommands commands) {
         super(ui, commands);
-    }
-
-    // Declared again only so that the processor sees the class, which names its generated commands in its constructor:
-    // gaia holds back a root element whose signature it can't resolve yet.
-    @Override
-    @Command
-    void create() {
-        super.create();
     }
 }

@@ -2,6 +2,7 @@ package be.imgn.swing.processor;
 
 import static be.imgn.gaia.processing.testing.CompilationAssert.assertThat;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class ViewsStepTest {
@@ -125,6 +126,107 @@ class ViewsStepTest {
                 .hadErrorContaining("An @Exposed field must be a java.awt.Component or an Observable<Boolean>, not"
                         + " be.imgn.swing.Observable<java.lang.Integer>");
         assertThat(compilation).hadErrorCount(4);
+    }
+
+    @Test
+    void generatesTheFactoryOfADialogWithAssistedParameters() {
+        var compilation = Sources.create()
+                .source("p.RenameDialog", """
+                        package p;
+
+                        import be.imgn.inject.Assisted;
+                        import be.imgn.inject.Inject;
+                        import be.imgn.swing.ui.DialogView;
+                        import java.util.Optional;
+                        import javax.swing.JComponent;
+                        import javax.swing.JPanel;
+
+                        public final class RenameDialog implements DialogView<String> {
+                            @Inject
+                            RenameDialog(@Assisted String current, @Assisted("hint") String hint) {}
+
+                            public JComponent content() {
+                                return new JPanel();
+                            }
+
+                            public Optional<String> result() {
+                                return Optional.empty();
+                            }
+                        }
+                        """)
+                .source("p.PlainDialog", """
+                        package p;
+
+                        import be.imgn.inject.Inject;
+                        import be.imgn.swing.ui.DialogView;
+                        import java.util.Optional;
+                        import javax.swing.JComponent;
+                        import javax.swing.JPanel;
+
+                        public final class PlainDialog implements DialogView<String> {
+                            @Inject
+                            PlainDialog() {}
+
+                            public JComponent content() {
+                                return new JPanel();
+                            }
+
+                            public Optional<String> result() {
+                                return Optional.empty();
+                            }
+                        }
+                        """)
+                .compile();
+
+        assertThat(compilation).succeeded();
+        assertThat(compilation)
+                .generatedSourceFile("p.RenameDialogFactory")
+                .contains("public interface RenameDialogFactory")
+                .contains("@AssistedFactory")
+                .contains("RenameDialog create(String current, @Assisted(\"hint\") String hint);");
+        Assertions.assertThat(compilation.generatedSourceFile("p.PlainDialogFactory"))
+                .isEmpty();
+    }
+
+    @Test
+    void rejectsADialogFactoryWrittenByHand() {
+        var compilation = Sources.create()
+                .source("p.RenameDialog", """
+                        package p;
+
+                        import be.imgn.inject.Assisted;
+                        import be.imgn.inject.Inject;
+                        import be.imgn.swing.ui.DialogView;
+                        import java.util.Optional;
+                        import javax.swing.JComponent;
+                        import javax.swing.JPanel;
+
+                        public final class RenameDialog implements DialogView<String> {
+                            @Inject
+                            RenameDialog(@Assisted String current) {}
+
+                            public JComponent content() {
+                                return new JPanel();
+                            }
+
+                            public Optional<String> result() {
+                                return Optional.empty();
+                            }
+                        }
+                        """)
+                .source("p.RenameDialogFactory", """
+                        package p;
+
+                        public interface RenameDialogFactory {
+                            @be.imgn.inject.AssistedFactory
+                            RenameDialog create(String current);
+                        }
+                        """)
+                .compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("The class p.RenameDialogFactory that p.RenameDialog generates already exists");
     }
 
     @Test

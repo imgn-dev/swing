@@ -139,7 +139,7 @@ class AddressBookAppTest {
     void createsAContactStepByStepWithTheWizard() {
         try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
             app.dialogs().answerDialog(ContactWizardDialog.class, dialog -> {
-                WizardStepsCommands steps = dialog.commands(WizardStepsCommands.class);
+                ContactWizardDialogCommands steps = dialog.commands(ContactWizardDialogCommands.class);
                 assertThat(dialog.components(JLabel.class))
                         .extracting(JLabel::getText)
                         .contains("Step 1 of 3: Contact Information");

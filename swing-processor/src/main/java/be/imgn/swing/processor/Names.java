@@ -37,6 +37,8 @@ final class Names {
     static final String COMPONENT_STATE = "be.imgn.swing.ui.support.ComponentState";
 
     static final String INJECT = "be.imgn.inject.Inject";
+    static final String ASSISTED = "be.imgn.inject.Assisted";
+    static final String ASSISTED_FACTORY = "be.imgn.inject.AssistedFactory";
     static final String SINGLETON = "be.imgn.inject.Singleton";
     static final String PROVIDER = "be.imgn.inject.Provider";
     static final String EXPOSE_AS = "be.imgn.inject.ExposeAs";

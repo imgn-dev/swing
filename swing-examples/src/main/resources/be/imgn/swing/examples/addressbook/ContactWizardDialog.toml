@@ -14,3 +14,9 @@ accessible-name = "Home Address"
 
 [office]
 accessible-name = "Office Address"
+
+[commands.previous]
+text = "< P&revious"
+
+[commands.next]
+text = "&Next >"

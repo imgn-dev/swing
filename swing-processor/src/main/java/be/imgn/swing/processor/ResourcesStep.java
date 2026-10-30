@@ -102,7 +102,7 @@ final class ResourcesStep implements Step {
         return context.annotation(type, Names.APPLICATION).isPresent()
                 || context.annotation(type, Names.MESSAGES).isPresent()
                 || context.isSubtype(type.asType(), Names.VIEW)
-                || !Commands.declared(context, type).isEmpty();
+                || !Commands.all(context, type).isEmpty();
     }
 
     private void generate(Shared.PackageEntry entry) {

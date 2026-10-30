@@ -49,6 +49,12 @@ final class CommandsStep implements Step {
         return true;
     }
 
+    // A class that only inherits commands names its generated class in its constructor, which only this step writes.
+    @Override
+    public boolean processesUnresolvedRootElements() {
+        return true;
+    }
+
     @Override
     public Set<Element> process(AnnotatedElements elements) {
         Set<TypeElement> classes = new LinkedHashSet<>();
