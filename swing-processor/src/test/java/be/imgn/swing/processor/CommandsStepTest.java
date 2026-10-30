@@ -116,7 +116,7 @@ class CommandsStepTest {
 
                         public final class Inheriting extends Base {
                             @Inject
-                            Inheriting() {}
+                            Inheriting(InheritingCommands commands) {}
                         }
                         """)
                 .source("p.Shape", """

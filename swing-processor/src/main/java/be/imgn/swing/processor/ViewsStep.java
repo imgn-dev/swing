@@ -81,6 +81,7 @@ final class ViewsStep implements Step {
         shared.pending(type);
         generateInjector(type);
         generateState(type);
+        DialogFactories.generate(shared, type);
     }
 
     // A bean of a wider scope reaches a bean of a narrower one only through a Provider. The injection points include
