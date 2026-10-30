@@ -1,5 +1,6 @@
 package be.imgn.swing.flatlaf;
 
+import be.imgn.gaia.core.platform.Platform;
 import be.imgn.inject.IntoSet;
 import be.imgn.inject.Provides;
 import be.imgn.inject.Singleton;
@@ -15,8 +16,8 @@ final class FlatLafBeans {
 
     @Provides
     @Singleton
-    static LookAndFeelInstaller flatLaf(ApplicationInfo application, Resources resources) {
-        return new FlatLafInstaller(application, resources, DarkMode.system(), System::getProperty);
+    static LookAndFeelInstaller flatLaf(ApplicationInfo application, Platform platform, Resources resources) {
+        return new FlatLafInstaller(application, platform, resources, DarkMode.system(), System::getProperty);
     }
 
     @Provides

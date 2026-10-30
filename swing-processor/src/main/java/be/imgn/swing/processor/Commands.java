@@ -79,16 +79,4 @@ final class Commands {
     static String generatedName(TypeElement type) {
         return String.join("", Java.simpleNames(type)) + "Commands";
     }
-
-    /** Returns the nearest class of a hierarchy, the class itself first, that declares commands. */
-    static Optional<TypeElement> nearestDeclaring(ProcessingContext context, TypeElement type) {
-        Optional<TypeElement> current = Optional.of(type);
-        while (current.isPresent()) {
-            if (!declared(context, current.get()).isEmpty()) {
-                return current;
-            }
-            current = superclass(current.get());
-        }
-        return Optional.empty();
-    }
 }

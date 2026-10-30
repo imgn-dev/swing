@@ -2,6 +2,7 @@ package be.imgn.swing.examples.saf;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import be.imgn.gaia.core.platform.ApplicationDirectories;
 import be.imgn.swing.testing.AppTester;
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
@@ -21,7 +22,7 @@ class StorageExamplesTest {
         try (AppTester<LocalStorageExample1> app = AppTester.start(LocalStorageExample1.class)) {
             LocalStorageExample1 example = app.application();
             LocalStorageExample1Commands commands = app.commands(LocalStorageExample1Commands.class);
-            Path file = app.info().directories().data().resolve("map.toml");
+            Path file = app.commands(ApplicationDirectories.class).data().resolve("map.toml");
             onEdt(() -> {
                 example.put("Hello", "World");
                 example.put("Bonjour", "Monde");

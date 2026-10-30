@@ -217,19 +217,17 @@ final class ViewsStep implements Step {
                         String.join("\n", overrides));
     }
 
-    // The standard commands that the nearest class of the hierarchy declaring commands overrides, with its generated
-    // class.
+    // The standard commands that the view class or its superclasses override, with the view class's generated class,
+    // which every class with commands, declared or inherited, has.
     private List<String> overrides(SourceScope scope, TypeElement type) {
         List<String> overrides = new ArrayList<>();
-        Commands.nearestDeclaring(context, type).ifPresent(declaring -> {
-            String commands = Java.qualified(declaring, Commands.generatedName(declaring));
-            for (CommandInfo command : Commands.all(context, declaring).values()) {
-                if (command.isStandard()) {
-                    overrides.add("        registry.override(%s, %s.class);"
-                            .formatted(Java.literal(command.id()), scope.name(commands)));
-                }
+        String commands = Java.qualified(type, Commands.generatedName(type));
+        for (CommandInfo command : Commands.all(context, type).values()) {
+            if (command.isStandard()) {
+                overrides.add("        registry.override(%s, %s.class);"
+                        .formatted(Java.literal(command.id()), scope.name(commands)));
             }
-        });
+        }
         return overrides;
     }
 

@@ -1,13 +1,12 @@
 package be.imgn.swing.examples.saf;
 
 import be.imgn.inject.Inject;
-import be.imgn.inject.Provider;
 import be.imgn.swing.Application;
 import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
-import be.imgn.swing.ui.Window;
+import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import javax.swing.JComponent;
@@ -21,13 +20,12 @@ public class ActionExample2 implements SingleFrame {
     @Exposed
     final JTextField field = new JTextField();
 
-    private final Window window;
-    private final Provider<ActionExample2Commands> commands;
+    private final Ui ui;
+    private final ActionExample2Commands commands;
 
-    // A Provider, so that a subclass, which builds its own buttons, never builds these commands.
     @Inject
-    ActionExample2(Window window, Provider<ActionExample2Commands> commands) {
-        this.window = window;
+    ActionExample2(Ui ui, ActionExample2Commands commands) {
+        this.ui = ui;
         this.commands = commands;
     }
 
@@ -43,8 +41,8 @@ public class ActionExample2 implements SingleFrame {
     @Override
     public JComponent content() {
         JPanel buttons = new JPanel(new FlowLayout());
-        buttons.add(commands.get().clearTitle().createButton());
-        buttons.add(commands.get().updateTitle().createButton());
+        buttons.add(commands.clearTitle().createButton());
+        buttons.add(commands.updateTitle().createButton());
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(field, BorderLayout.CENTER);
         panel.add(buttons, BorderLayout.PAGE_END);
@@ -53,11 +51,11 @@ public class ActionExample2 implements SingleFrame {
 
     @Command
     void updateTitle() {
-        window.setTitle(field.getText());
+        ui.window().setTitle(field.getText());
     }
 
     @Command
     void clearTitle() {
-        window.setTitle("");
+        ui.window().setTitle("");
     }
 }

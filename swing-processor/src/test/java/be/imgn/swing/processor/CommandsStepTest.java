@@ -77,6 +77,93 @@ class CommandsStepTest {
     }
 
     @Test
+    void extendsTheGeneratedClassOfTheSuperclass() {
+        var compilation = Sources.create()
+                .source("p.Base", """
+                        package p;
+
+                        import be.imgn.inject.Inject;
+                        import be.imgn.swing.ui.Command;
+                        import be.imgn.swing.ui.ViewScoped;
+
+                        @ViewScoped
+                        public class Base {
+                            @Inject
+                            Base() {}
+
+                            @Command
+                            void create() {}
+                        }
+                        """)
+                .source("p.Derived", """
+                        package p;
+
+                        import be.imgn.inject.Inject;
+                        import be.imgn.swing.ui.Command;
+
+                        public final class Derived extends Base {
+                            @Inject
+                            Derived() {}
+
+                            @Command
+                            void remove() {}
+                        }
+                        """)
+                .source("p.Inheriting", """
+                        package p;
+
+                        import be.imgn.inject.Inject;
+
+                        public final class Inheriting extends Base {
+                            @Inject
+                            Inheriting() {}
+                        }
+                        """)
+                .source("p.Shape", """
+                        package p;
+
+                        import be.imgn.swing.ui.Command;
+                        import be.imgn.swing.ui.ViewScoped;
+
+                        @ViewScoped
+                        public abstract class Shape {
+                            @Command
+                            void draw() {}
+                        }
+                        """)
+                .resource("p/Base.toml", "[commands.create]\ntext = \"&Create\"\n")
+                .resource("p/Derived.toml", "[commands.remove]\ntext = \"&Remove\"\n")
+                .resource("p/Shape.toml", "[commands.draw]\ntext = \"&Draw\"\n")
+                .compile();
+
+        assertThat(compilation).succeeded();
+        assertThat(compilation)
+                .generatedSourceFile("p.BaseCommands")
+                .contains("public class BaseCommands extends StandardCommands")
+                .contains("BaseCommands(CommandRegistry registry, Provider<Base> owner)")
+                .contains("protected BaseCommands(CommandRegistry registry)")
+                .contains("this.create = null;");
+        assertThat(compilation)
+                .generatedSourceFile("p.DerivedCommands")
+                .contains("public final class DerivedCommands extends BaseCommands")
+                .contains("this.create = registry.command(Derived.class, \"create\")")
+                .contains("this.remove = registry.command(Derived.class, \"remove\")")
+                .contains("@Override\n    public BoundCommand create()")
+                .doesNotContain("protected DerivedCommands");
+        assertThat(compilation)
+                .generatedSourceFile("p.InheritingCommands")
+                .contains("public final class InheritingCommands extends BaseCommands")
+                .contains("this.create = registry.command(Inheriting.class, \"create\")")
+                .contains(".handler(context -> owner.get().create())");
+        assertThat(compilation)
+                .generatedSourceFile("p.ShapeCommands")
+                .contains("public abstract class ShapeCommands extends StandardCommands")
+                .contains("protected ShapeCommands(CommandRegistry registry)")
+                .contains("public abstract BoundCommand draw();")
+                .doesNotContain("Provider");
+    }
+
+    @Test
     void warnsAboutAnOverrideOfAStandardCommand() {
         var compilation = view("""
                     @Command

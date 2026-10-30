@@ -1,5 +1,6 @@
 package be.imgn.swing.flatlaf;
 
+import be.imgn.gaia.core.platform.Platform;
 import be.imgn.swing.ApplicationInfo;
 import be.imgn.swing.Resources;
 import be.imgn.swing.ui.LookAndFeelInstaller;
@@ -18,6 +19,7 @@ public final class FlatLafInstaller implements LookAndFeelInstaller {
     private static final System.Logger LOGGER = System.getLogger(FlatLafInstaller.class.getName());
 
     private final ApplicationInfo application;
+    private final Platform platform;
     private final Resources resources;
     private final DarkMode darkMode;
     private final Function<String, String> properties;
@@ -26,13 +28,19 @@ public final class FlatLafInstaller implements LookAndFeelInstaller {
      * Creates the installer.
      *
      * @param application the application's information
+     * @param platform the platform, whose dark mode {@link Theme#SYSTEM} follows
      * @param resources the resources, for the application class's {@code theme} key
      * @param darkMode reads the operating system's setting
      * @param properties reads system properties
      */
     public FlatLafInstaller(
-            ApplicationInfo application, Resources resources, DarkMode darkMode, Function<String, String> properties) {
+            ApplicationInfo application,
+            Platform platform,
+            Resources resources,
+            DarkMode darkMode,
+            Function<String, String> properties) {
         this.application = application;
+        this.platform = platform;
         this.resources = resources;
         this.darkMode = darkMode;
         this.properties = properties;
@@ -74,7 +82,7 @@ public final class FlatLafInstaller implements LookAndFeelInstaller {
         return switch (theme()) {
             case LIGHT -> false;
             case DARK -> true;
-            case SYSTEM -> darkMode.isDark(application.platform());
+            case SYSTEM -> darkMode.isDark(platform);
         };
     }
 

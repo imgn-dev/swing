@@ -2,7 +2,7 @@ package be.imgn.swing.internal;
 
 import be.imgn.gaia.core.platform.ApplicationDirectories;
 import be.imgn.gaia.core.platform.Platform;
-import be.imgn.inject.Provider;
+import be.imgn.inject.Injector;
 import be.imgn.swing.ApplicationDescriptor;
 import be.imgn.swing.ApplicationInfo;
 import be.imgn.swing.Resources;
@@ -17,41 +17,25 @@ import org.jspecify.annotations.Nullable;
 public final class DefaultApplicationInfo implements ApplicationInfo {
 
     private final ApplicationDescriptor descriptor;
-    private final Platform platform;
-    private final ApplicationDirectories directories;
-    private volatile @Nullable Provider<Resources> resources;
+    private volatile @Nullable Injector injector;
 
     /**
      * Creates the information of an application.
      *
      * @param descriptor the application's descriptor
-     * @param platform the platform it runs on
      */
-    public DefaultApplicationInfo(ApplicationDescriptor descriptor, Platform platform) {
+    public DefaultApplicationInfo(ApplicationDescriptor descriptor) {
         this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
-        this.platform = Objects.requireNonNull(platform, "platform");
-        this.directories = directoriesOf(descriptor, platform);
-    }
-
-    private static ApplicationDirectories directoriesOf(ApplicationDescriptor descriptor, Platform platform) {
-        Optional<String> vendor = descriptor.vendor();
-        Optional<String> qualifier = descriptor.qualifier();
-        if (vendor.isPresent() && qualifier.isPresent()) {
-            return platform.applicationDirectories(qualifier.get(), vendor.get(), descriptor.name());
-        }
-        if (vendor.isPresent()) {
-            return platform.applicationDirectories(vendor.get(), descriptor.name());
-        }
-        return platform.applicationDirectories(descriptor.name());
     }
 
     /**
-     * Gives the resources the displayed name is read from, once the root injector is built.
+     * Gives the root injector, which the displayed name, the platform and the directories are read from, once it is
+     * built.
      *
-     * @param provider the provider of the resources
+     * @param root the root injector
      */
-    public void attach(Provider<Resources> provider) {
-        this.resources = provider;
+    public void attach(Injector root) {
+        this.injector = root;
     }
 
     /**
@@ -75,11 +59,15 @@ public final class DefaultApplicationInfo implements ApplicationInfo {
 
     @Override
     public String displayedName() {
-        Provider<Resources> provider = resources;
-        if (provider == null) {
+        Injector root = injector;
+        if (root == null) {
             return name();
         }
-        return provider.get().table(descriptor.type()).entries().get("name") instanceof TomlString name
+        return root.getInstance(Resources.class)
+                                .table(descriptor.type())
+                                .entries()
+                                .get("name")
+                        instanceof TomlString name
                 ? name.value()
                 : name();
     }
@@ -108,11 +96,19 @@ public final class DefaultApplicationInfo implements ApplicationInfo {
 
     @Override
     public Platform platform() {
-        return platform;
+        return root().getInstance(Platform.class);
     }
 
     @Override
     public ApplicationDirectories directories() {
-        return directories;
+        return root().getInstance(ApplicationDirectories.class);
+    }
+
+    private Injector root() {
+        Injector root = injector;
+        if (root == null) {
+            throw new IllegalStateException("The platform and the directories are known once the injector is built");
+        }
+        return root;
     }
 }

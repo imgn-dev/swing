@@ -1,8 +1,8 @@
 package be.imgn.swing.ui.internal;
 
+import be.imgn.gaia.core.platform.ApplicationDirectories;
 import be.imgn.inject.Inject;
 import be.imgn.inject.Singleton;
-import be.imgn.swing.ApplicationInfo;
 import be.imgn.toml.Toml;
 import be.imgn.toml.TomlParseException;
 import java.io.IOException;
@@ -25,8 +25,8 @@ public final class WindowStateStore {
     private final Map<String, SavedWindow> windows = new LinkedHashMap<>();
 
     @Inject
-    WindowStateStore(ApplicationInfo application) {
-        this.file = application.directories().state().resolve(FILE_NAME);
+    WindowStateStore(ApplicationDirectories directories) {
+        this.file = directories.state().resolve(FILE_NAME);
     }
 
     /**

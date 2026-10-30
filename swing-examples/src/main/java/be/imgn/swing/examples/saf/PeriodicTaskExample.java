@@ -26,15 +26,12 @@ public final class PeriodicTaskExample implements SingleFrame {
 
     private final Property<String> elapsed;
     private final Ui ui;
-    private final Ready ready;
     private final Ticker ticker;
     private final ExampleMessages messages;
-    private boolean started;
 
     @Inject
-    PeriodicTaskExample(Ui ui, Ready ready, Ticker ticker, ExampleMessages messages) {
+    PeriodicTaskExample(Ui ui, Ticker ticker, ExampleMessages messages) {
         this.ui = ui;
-        this.ready = ready;
         this.ticker = ticker;
         this.messages = messages;
         this.elapsed = Property.of(messages.ready());
@@ -53,15 +50,11 @@ public final class PeriodicTaskExample implements SingleFrame {
     public JComponent content() {
         JLabel label = new JLabel();
         ui.bind(label::setText, elapsed);
-        ui.bind(isReady -> start(isReady), ready.isReady());
         return label;
     }
 
-    private void start(boolean isReady) {
-        if (!isReady || started) {
-            return;
-        }
-        started = true;
+    @Override
+    public void ready() {
         long start = ticker.read();
         ui.run(
                 Task.of((TaskContext context) -> {

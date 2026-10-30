@@ -5,7 +5,6 @@ import be.imgn.swing.Observable;
 import be.imgn.swing.Task;
 import be.imgn.swing.ui.Block;
 import be.imgn.swing.ui.Command;
-import be.imgn.swing.ui.Dialogs;
 import be.imgn.swing.ui.Ui;
 import be.imgn.swing.ui.ViewScoped;
 
@@ -19,20 +18,13 @@ public class ContactActions {
     private final ContactSelection selection;
     private final AddressBookService service;
     private final Ui ui;
-    private final Dialogs dialogs;
     private final AddressBookMessages messages;
 
     @Inject
-    ContactActions(
-            ContactSelection selection,
-            AddressBookService service,
-            Ui ui,
-            Dialogs dialogs,
-            AddressBookMessages messages) {
+    ContactActions(ContactSelection selection, AddressBookService service, Ui ui, AddressBookMessages messages) {
         this.selection = selection;
         this.service = service;
         this.ui = ui;
-        this.dialogs = dialogs;
         this.messages = messages;
     }
 
@@ -84,10 +76,11 @@ public class ContactActions {
     @Command(enabled = "hasSelection", block = Block.COMMAND)
     Task<Void> deleteContact() {
         Contact contact = selected();
-        if (!dialogs.confirm(messages.confirmDelete(contact.firstName(), contact.lastName()))) {
+        if (!ui.dialogs().confirm(messages.confirmDelete(contact.firstName(), contact.lastName()))) {
             return Task.of(() -> {});
         }
-        return Task.of(() -> service.removeContact(contact)).onSuccess(done -> dialogs.inform(messages.deleteDone()));
+        return Task.of(() -> service.removeContact(contact))
+                .onSuccess(done -> ui.dialogs().inform(messages.deleteDone()));
     }
 
     private Contact selected() {

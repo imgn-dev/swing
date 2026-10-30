@@ -57,16 +57,21 @@ public interface ApplicationInfo {
     String identifier();
 
     /**
-     * Returns the platform the application runs on.
+     * Returns the platform the application runs on: the {@code Platform} bean, which this method is a shortcut to.
+     * Core's default is {@code Platform.current()}; a bean of an application, or a binding, replaces it.
      *
      * @return the platform
+     * @throws IllegalStateException if called before the root injector is built
      */
     Platform platform();
 
     /**
-     * Returns the application's directories, fully determined by its names.
+     * Returns the application's directories: the {@code ApplicationDirectories} bean, which this method is a shortcut
+     * to. Core's default derives them from the {@code Platform} bean and the application's names; a bean of an
+     * application, or a binding, replaces it.
      *
      * @return the directories
+     * @throws IllegalStateException if called before the root injector is built
      */
     ApplicationDirectories directories();
 }

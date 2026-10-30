@@ -1,12 +1,10 @@
 package be.imgn.swing.internal;
 
-import be.imgn.gaia.core.platform.Platform;
 import be.imgn.inject.Injector;
 import be.imgn.swing.ApplicationDescriptor;
 import be.imgn.swing.ApplicationInfo;
 import be.imgn.swing.Arguments;
 import be.imgn.swing.DisplayLocale;
-import be.imgn.swing.Resources;
 import be.imgn.swing.Scope;
 import be.imgn.swing.StartupStep;
 import java.util.List;
@@ -64,7 +62,7 @@ public final class Launcher {
      */
     public static Injector build(Injector.Builder builder, DefaultApplicationInfo info) {
         Injector injector = builder.build();
-        info.attach(injector.getProvider(Resources.class));
+        info.attach(injector);
         return injector;
     }
 
@@ -77,14 +75,5 @@ public final class Launcher {
         for (StartupStep step : Contributions.sorted(injector, StartupStep.class, StartupStep::order)) {
             step.run();
         }
-    }
-
-    /**
-     * Returns the platform of the running JVM.
-     *
-     * @return the current platform
-     */
-    public static Platform platform() {
-        return Platform.current();
     }
 }

@@ -3,11 +3,11 @@ package be.imgn.swing.examples.saf;
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
 import be.imgn.swing.ExitVeto;
-import be.imgn.swing.ui.Dialogs;
 import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.StandardCommands;
 import be.imgn.swing.ui.Swing;
+import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -27,14 +27,14 @@ public class SingleFrameExample3 implements SingleFrame, ExitVeto {
     @Exposed
     final JButton button = new JButton();
 
+    private final Ui ui;
     private final StandardCommands commands;
-    private final Dialogs dialogs;
     private final ExampleMessages messages;
 
     @Inject
-    SingleFrameExample3(StandardCommands commands, Dialogs dialogs, ExampleMessages messages) {
+    SingleFrameExample3(Ui ui, StandardCommands commands, ExampleMessages messages) {
+        this.ui = ui;
         this.commands = commands;
-        this.dialogs = dialogs;
         this.messages = messages;
     }
 
@@ -65,6 +65,6 @@ public class SingleFrameExample3 implements SingleFrame, ExitVeto {
 
     @Override
     public boolean canExit() {
-        return dialogs.confirm(messages.reallyExit());
+        return ui.dialogs().confirm(messages.reallyExit());
     }
 }

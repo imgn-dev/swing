@@ -75,11 +75,15 @@ public static void main(String[] args) {
 | `qualifier` | Optional, and only with `vendor`. The vendor's top-level domain (`be`). |
 | `version` | Optional. Shown in the About dialog. |
 
-These are the three names gaia's `Platform.applicationDirectories(...)` takes, so the directories are fully determined by the annotation:
+These are the three names gaia's `Platform.applicationDirectories(...)` takes, so by default the directories are fully determined by the annotation and the platform:
 
 - With `qualifier` and `vendor`: `applicationDirectories(qualifier, vendor, name)`. Only macOS uses the qualifier, for the bundle-style identifier: `~/Library/Application Support/be.imgn.Counter`.
 - With `vendor` only: `applicationDirectories(vendor, name)`. Only Windows uses the vendor, as a directory above the application's: `%APPDATA%\imgn\Counter`.
 - With neither: `applicationDirectories(name)`. Linux uses the name only, in lower case with spaces replaced by `-`: `~/.config/counter`.
+
+`Platform` and `ApplicationDirectories` are beans of the root injector, which any bean injects. Core provides each as a `@Provides @Default @Singleton` fallback: `Platform.current()`, and the directories above, computed from the `Platform` bean, so a platform bound in its place moves the default directories with it. As for every `@Default` bean, a bean of the same key in an application's module replaces the fallback, such as a portable application's `ApplicationDirectories` next to its JAR, and so does a binding of the root injector's builder, which `AppTester` uses for its `FakePlatform`. `ApplicationInfo.platform()` and `directories()` are shortcuts to the two beans, usable once the root injector is built.
+
+The launch sets the macOS system properties before any AWT class loads, so before the injector exists: they follow the operating system the JVM runs on, `Platform.current()`, not the `Platform` bean. A `Platform` bean that claims another operating system than the real one leaves them as the real one asks.
 
 Directories never depend on the locale: a localized displayed name comes from resources, never from `name`. The processor checks the names with gaia's rules (not blank, not `.` or `..`, no leading or trailing whitespace, no control character, none of `/ \ : < > " | ? *`) and reports a `qualifier` without a `vendor`. The application's identifier, for the single instance in milestone 3, is `qualifier.vendor.name`, with the parts that are present.
 
@@ -102,8 +106,8 @@ public interface ApplicationInfo {                // core, bound in the root inj
     Optional<String> qualifier();
     Optional<String> version();
     String identifier();                          // qualifier.vendor.name, with the parts that are present
-    Platform platform();
-    ApplicationDirectories directories();
+    Platform platform();                          // the Platform bean
+    ApplicationDirectories directories();         // the ApplicationDirectories bean
 }
 
 public record Arguments(List<String> values) {}    // core, the arguments given to launch
@@ -117,7 +121,7 @@ public record Arguments(List<String> values) {}    // core, the arguments given 
 2. **Injector** (main thread): `Injector.builder()` binds `ApplicationInfo`, `Arguments`, `DisplayLocale` (see [Locale](#locale)) and the application `Scope`, then builds. Building it loads every factory through `ServiceLoader`.
 3. **Startup steps** (main thread): every `@IntoSet(StartupStep.class)` bean, sorted by `order()` then by class name. A `StartupStep` has `int order()` and `void run()`. The framework contributes steps for resources (order 100) and window state loading (order 200). Steps run off the EDT, so they may do I/O.
 4. **UI** (EDT): install the look and feel through the `LookAndFeelInstaller` bean, check icons (see [Icons](#icons)), start following the focus owner for the standard editing commands, create the main window (see [Windows](#windows)), show it.
-5. **Ready** (EDT): after showing, one `invokeLater` calls `ready()` on every `@IntoSet(ReadyListener.class)` bean. Events posted while showing the window run first, so the window is laid out and painted.
+5. **Ready** (EDT): after showing, one `invokeLater` calls the main view's `ready()` (see [`SingleFrame`](#singleframe)), then `ready()` on every `@IntoSet(ReadyListener.class)` bean. Events posted while showing the window run first, so the window is laid out and painted.
 
 `LookAndFeelInstaller` (UI) has `void install()`, called on the EDT before any component is created. `swing-ui` provides a `@Provides @Default` one that installs the system look and feel; `swing-flatlaf` provides one that installs FlatLaf, which replaces the default through inject's `@Default` rule. `ReadyListener` (core) has `void ready()`.
 
@@ -321,7 +325,7 @@ Handlers take no `ActionEvent`:
 
 ### Generated class
 
-For each class that declares commands, the processor generates a public `<Class>Commands` in the same package:
+For each class that declares or inherits commands, the processor generates a public `<Class>Commands` in the same package. It extends the generated class of the superclass when the superclass has commands, else `StandardCommands` (see [Inheritance and naming](#inheritance-and-naming)):
 
 ```java
 @ViewScoped
@@ -383,7 +387,34 @@ A class may declare a command whose id is a standard command's (`exit`, `about`,
 
 ### Inheritance and naming
 
-A class inherits the commands of its superclasses: its generated class has a method for each, which calls the handler on the subclass's instance. An inherited handler, `enabled` target or `selected` target in another package must be `public`, since the generated class of the subclass is not a subclass of the declaring class and can't reach a `protected` member there; otherwise it is a compile error.
+A class inherits the commands of its superclasses: its generated class has a method for each, which calls the handler on the subclass's instance, with the subclass's resources. That class extends the generated class of the superclass, so a superclass's code that takes its own generated class runs the subclass's commands once the subclass passes its own to `super(...)`:
+
+```java
+@ViewScoped
+public class BaseScene {
+    @Inject
+    BaseScene(Ui ui, BaseSceneCommands commands) {
+        ui.popupMenu(panel, commands.create(), commands.remove());
+    }
+
+    @Command
+    void create() { ... }
+}
+
+public final class DerivedScene extends BaseScene {
+    @Inject
+    DerivedScene(Ui ui, DerivedSceneCommands commands) {    // DerivedSceneCommands extends BaseSceneCommands
+        super(ui, commands);
+    }
+}
+```
+
+- The generated class of a class that is not final is not final either. Besides its `@Inject` constructor, it has a protected one that binds no command, which the generated class of a subclass calls: that one binds every command, inherited ones included, on the subclass's instance, and overrides every method.
+- The generated class of an abstract class is abstract: it declares a method per command and binds none. inject builds no instance of it.
+- A bean's own class wins over a key that another bean has only through its supertypes, so injecting `BaseSceneCommands` still gives the base scene's own commands.
+- A class that only inherits commands is found among the root elements of the compilation. gaia holds a root element back while its signature names a type it can't resolve, so a class whose constructor names its own generated class, which only the processor writes, is never processed. Until gaia gives a step such elements (see [Other libraries](#other-libraries)), such a class declares one of its commands again, as an override that calls `super`.
+
+An inherited handler, `enabled` target or `selected` target in another package must be `public`, since the generated class of the subclass is not a subclass of the declaring class and can't reach a `protected` member there; otherwise it is a compile error.
 
 A nested class gets `<Outer><Nested>Commands`. Two classes in one package that would produce the same name are a compile error, whether they are compiled together or not: the processor also checks that no type with the name exists already.
 
@@ -741,18 +772,21 @@ public interface SingleFrame extends View {
     default JToolBar toolBar() { return null; }       // placed at BorderLayout.NORTH
     default void configureFrame(JFrame frame) {}
     default boolean restoreBounds() { return true; }
+    default void ready() {}
 }
 ```
 
 `SingleFrame` extends `View`. When the application class implements it, the framework, on the EDT:
 
 1. Creates the main window with `Windows.createFrame()`, with `DO_NOTHING_ON_CLOSE` and a listener that requests exit.
-2. Creates the window's host with `scopedChildBuilder(WindowScoped.class)`, binding that `Window` and the window's `Scope`, and the view's host as its child with `scopedChildBuilder(ViewScoped.class)`, binding the view's `Scope`.
-3. Resolves the application class through the view's child injector. `SingleFrame` makes it view-scoped, so this is the instance that its generated commands reach.
-4. Applies its component resources, then calls `content()`, `menuBar()` and `toolBar()`, puts them in the window's root pane, then applies the `tab-title` properties. The build of the view ends here, and its commands are [attached](#attaching).
-5. Sets the window's title from the class's `title` resource, else the displayed name.
+2. Sets the window's title from the class's `title` resource, else the displayed name. This comes before the view is built, so that a title the view sets or binds in `content()` wins.
+3. Creates the window's host with `scopedChildBuilder(WindowScoped.class)`, binding that `Window` and the window's `Scope`, and the view's host as its child with `scopedChildBuilder(ViewScoped.class)`, binding the view's `Scope`.
+4. Resolves the application class through the view's child injector. `SingleFrame` makes it view-scoped, so this is the instance that its generated commands reach.
+5. Applies its component resources, then calls `content()`, `menuBar()` and `toolBar()`, puts them in the window's root pane, then applies the `tab-title` properties. The build of the view ends here, and its commands are [attached](#attaching).
 6. Calls `configureFrame(frame)` with the `JFrame` that the real `Windows` wraps, then `pack()`. With no saved state, centers the frame on the screen unless `configureFrame` moved it or asked the platform to place it (`setLocationByPlatform`).
 7. Restores the saved window state, which overrides the position set by `configureFrame`. A frame that must always open at the same place overrides `restoreBounds()` to return `false`.
+
+It then shows the window. Once the application is ready (see [Startup](#startup)), it calls `ready()` once, on the EDT, before the `ReadyListener`s. Work that must not delay showing the window, such as loading its first data or starting a periodic task, goes there, as it went in SwingAppFramework's `Application.ready()`.
 
 Windows are created by `Windows` (UI, singleton), and the framework sees them as `Window` (UI):
 
@@ -772,7 +806,7 @@ public interface Windows {
 
 The real `Windows` wraps a `JFrame` or a modal `JDialog`. `AppTester`'s headless `Windows` wraps a bare `JRootPane`, which is lightweight: steps 6 and 7 are skipped there, since no frame exists, and every other step runs.
 
-In milestone 1, the `@Application` class must implement `SingleFrame`; otherwise it is a compile error. Opening windows from code comes with multi-frame applications, in milestone 3: from then on, `@Application` is required and `SingleFrame` is not. `ReadyListener` is part of milestone 1 regardless: it is the ready signal of the lifecycle, for work that must wait until the main window is shown.
+In milestone 1, the `@Application` class must implement `SingleFrame`; otherwise it is a compile error. Opening windows from code comes with multi-frame applications, in milestone 3: from then on, `@Application` is required and `SingleFrame` is not. `ReadyListener` is part of milestone 1 regardless: it is the ready signal of the lifecycle, for beans other than the main view, such as singletons, that must wait until the main window is shown.
 
 ### Dialogs
 
@@ -813,7 +847,7 @@ Both block until the dialog closes, on the EDT, as modal dialogs do, and return 
 
 ### `Ui`
 
-`Ui` (UI, `@ViewScoped`) gathers what a view needs to build its components. Every method is called on the EDT, and every subscription it makes belongs to its view's scope.
+`Ui` (UI, `@ViewScoped`) gathers what a view needs to build its components, so a view injects `Ui`, its generated commands and its messages, rather than each service. Every method is called on the EDT, and every subscription it makes belongs to its view's scope.
 
 | Method | See |
 |---|---|
@@ -823,6 +857,11 @@ Both block until the dialog closes, on the EDT, as modal dialogs do, and return 
 | `JToolBar toolBar(ToolBarEntry... entries)` | [Menus and toolbars](#menus-and-toolbars) |
 | `void run(Task<?> task, Block block)` | [Tasks](#tasks) |
 | `showDialog(...)`, both forms | [Dialogs](#dialogs) |
+| `Window window()` | The view's window, the `Window` of its window scope |
+| `Dialogs dialogs()` | The `Dialogs` of the view's window |
+| `StandardMenus menus()` | The view's `StandardMenus`, which `Ui` reaches through a `Provider`, since `StandardMenus` depends on `Ui` |
+
+`Window`, `Dialogs` and `StandardMenus` stay beans of their scopes, which any bean may inject.
 
 ---
 
@@ -899,7 +938,8 @@ void exitAsksForConfirmation() {
 - **Finding components.** `component(Class<T> type)` returns the one component of that type in the main window, and throws `IllegalStateException` when there is none or more than one. `components(Class<T> type)` returns them all, in depth-first order. `component(Class<T> type, String name)` returns the one whose accessible name is `name`, which is the text of the label whose `labelFor` it is or its `accessible-name` resource, with the same exception; tests find the components of a view this way, not through its fields. The dialog a test answers through `FakeDialogs.answerDialog` has the same three methods.
 - **Exit.** `AppTester`'s `Exit` records the status instead of exiting: after an exit, `isRunning()` is `false` and `exitStatus()` returns the status.
 - **EDT.** Every call on `AppTester` that reaches the application, and every call on the commands it returns, runs on the EDT and waits; `dialogs()` and `ticker()` return the fakes, which tests configure from their own thread and the application reads on the EDT. `execute()` waits for the task a command starts, through the test `UiExecutor`. Before returning, the tester runs the updates posted by observables, so assertions see the components up to date.
-- **Fakes.** `FakeDialogs` records dialogs and answers them. `AppTester.start(type, locale)` binds `DisplayLocale`; `AppTester.start(type)` binds `Locale.ROOT`, which reads the base files. The platform and directories are gaia's `FakePlatform` and `FakeDirectories` on a `gaia-memfs` file system, so window state is saved in memory. Time uses `InstantSource` and gaia's `FakeTicker`.
+- **Fakes.** `FakeDialogs` records dialogs and answers them. `AppTester.start(type, locale)` binds `DisplayLocale`; `AppTester.start(type)` binds `Locale.ROOT`, which reads the base files. The platform and directories are gaia's `FakePlatform` and `FakeDirectories` on a `gaia-memfs` file system, so window state is saved in memory: the tester binds the `FakePlatform` as the `Platform` bean, and core's default directories follow it. Time uses `InstantSource` and gaia's `FakeTicker`.
+- **Configuration.** `AppTester.builder(type)` configures the start: `Builder.locale(Locale)` binds the `DisplayLocale` (`Locale.ROOT` by default), `Builder.arguments(String...)` gives the arguments, bound as `Arguments` as `Swing.launch` binds them (none by default), and `Builder.start()` starts the application. `start(type)` and `start(type, locale)` are shortcuts for it.
 - **Close.** `AppTester.close()` closes the windows, then the root injector and the application `Scope` through the lifecycle's close, without asking the exit vetoes or running the shutdown steps: tasks and subscriptions registered in the application scope are released between tests.
 - **EDT checker.** A `RepaintManager` replacement fails the test when a component is repainted or invalidated off the EDT.
 - **Mnemonic checker.** Menus check themselves when they are built and rebuilt (see [Menus and toolbars](#menus-and-toolbars)); in tests that check throws, and the tester records the failure and fails the test at its next call. The tester itself checks every dialog it builds for duplicate mnemonics and duplicate shortcuts. 
@@ -960,6 +1000,7 @@ Existing inject behavior the design relies on, as inject's sources and documenta
 | imgn-dev/gaia | `TestCompiler` support for text and binary resource files on the class output | Processor tests, icons included | `TestCompiler.withResource(Location, String, String)` and `withResource(Location, String, byte[])` |
 | imgn-dev/gaia | A `Step` that sees every root element | The views step | `Step.processesRootElements()`, `AnnotatedElements.rootElements()` |
 | imgn-dev/imgn-parent | Checkstyle's `VisibilityModifier` appends `${checkstyle.visibility.ignoredAnnotations}` to its `ignoreAnnotationCanonicalNames`; the parent POM declares the property empty and passes it with `<propertyExpansion>`, since maven-checkstyle-plugin doesn't pass project properties on its own. The parent names no project | [Exposed fields](#exposed-fields) with no `@SuppressWarnings` | The property `checkstyle.visibility.ignoredAnnotations`, from the parent 2026-11-SNAPSHOT |
+| imgn-dev/gaia | A step that processes root elements can also get those whose members' signatures name a type javac can't resolve yet, as long as the type's own declaration resolves | Generating the commands of a class that only inherits them and names them in its constructor | To be named by gaia |
 | imgn-dev/gaia | A public check of application names | Checking `@Application` at compile time with gaia's exact rules | `ApplicationDirectories.checkName(String name, String role)`, with the attribute's name as the role |
 
 The toml writer and the lenient mode from the vision's list are not needed in milestone 1: window state is converted by hand, and a state file that doesn't bind is discarded.

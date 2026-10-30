@@ -2,7 +2,6 @@ package be.imgn.swing.ui;
 
 import be.imgn.inject.Injector;
 import be.imgn.swing.Exit;
-import be.imgn.swing.internal.Launcher;
 import be.imgn.swing.ui.internal.Edt;
 import be.imgn.swing.ui.internal.ErrorDialog;
 import be.imgn.swing.ui.internal.Launch;
@@ -31,7 +30,8 @@ public final class Swing {
      *       {@code DisplayLocale} and the application {@code Scope};
      *   <li>on the main thread, runs every {@code StartupStep}, sorted by order then by class name;
      *   <li>on the EDT, installs the look and feel, checks the icons, creates the main window and shows it;
-     *   <li>on the EDT, once the events posted while showing the window have run, calls every {@code ReadyListener}.
+     *   <li>on the EDT, once the events posted while showing the window have run, calls the main view's
+     *       {@link SingleFrame#ready()}, then every {@code ReadyListener}.
      * </ol>
      *
      * <p>A failure in steps 2 to 4 shows the error dialog if the look and feel is installed, in the application's
@@ -47,12 +47,7 @@ public final class Swing {
                 type,
                 List.of(args),
                 new LaunchOptions(
-                        Launcher.platform(),
-                        Locale.getDefault(Locale.Category.DISPLAY),
-                        builder -> {},
-                        root -> {},
-                        true,
-                        Swing::failed));
+                        Locale.getDefault(Locale.Category.DISPLAY), builder -> {}, root -> {}, true, Swing::failed));
     }
 
     // The stack trace is printed when no dialog can show it, also when the display is headless.

@@ -6,17 +6,19 @@ import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Ui;
 
 /**
- * A scene that inherits the create and remove commands of {@link BaseScene}. It declares create again, so that it gets
- * its own generated commands, which act on it rather than on the base scene.
+ * A scene that inherits the create and remove commands of {@link BaseScene}. Its generated commands extend the base
+ * scene's and act on it, so the base scene's constructor builds its popup menu with them.
  */
 @ExposeAs(DerivedSceneA.class)
 public final class DerivedSceneA extends BaseScene {
 
     @Inject
     DerivedSceneA(Ui ui, DerivedSceneACommands commands) {
-        ui.popupMenu(panel(), commands.create(), commands.remove());
+        super(ui, commands);
     }
 
+    // Declared again only so that the processor sees the class, which names its generated commands in its constructor:
+    // gaia holds back a root element whose signature it can't resolve yet.
     @Override
     @Command
     void create() {

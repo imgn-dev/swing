@@ -9,7 +9,6 @@ import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
-import be.imgn.swing.ui.StandardMenus;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.ToolBarEntry;
 import be.imgn.swing.ui.Ui;
@@ -62,21 +61,16 @@ public final class SingleFrameExample5 implements SingleFrame {
     // Each load gets a generation; stopping moves to the next one, which the running load sees.
     private final Property<Integer> current = Property.of(0);
     private final SingleFrameExample5Commands commands;
-    private final StandardMenus menus;
     private final Ui ui;
     private final ExampleMessages messages;
-    private final Ready ready;
     private int imageIndex;
     private int loading;
 
     @Inject
-    SingleFrameExample5(
-            SingleFrameExample5Commands commands, StandardMenus menus, Ui ui, ExampleMessages messages, Ready ready) {
+    SingleFrameExample5(SingleFrameExample5Commands commands, Ui ui, ExampleMessages messages) {
         this.commands = commands;
-        this.menus = menus;
         this.ui = ui;
         this.messages = messages;
-        this.ready = ready;
     }
 
     /**
@@ -96,20 +90,19 @@ public final class SingleFrameExample5 implements SingleFrame {
         JScrollPane scroll = new JScrollPane(image);
         scroll.setBorder(BorderFactory.createEmptyBorder(0, 2, 2, 2));
         scroll.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        // Once the main window is shown, the first image loads.
-        ui.bind(
-                isReady -> {
-                    if (isReady && image.getIcon() == null) {
-                        commands.refreshImage().execute();
-                    }
-                },
-                ready.isReady());
         return scroll;
+    }
+
+    // As in the original, the first image loads once the main window is shown, so that loading it doesn't delay it.
+    @Override
+    public void ready() {
+        commands.refreshImage().execute();
     }
 
     @Override
     public JMenuBar menuBar() {
-        return ui.menuBar(menus.file()
+        return ui.menuBar(ui.menus()
+                .file()
                 .with(
                         commands.previousImage(),
                         commands.nextImage(),

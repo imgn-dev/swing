@@ -3,9 +3,7 @@ package be.imgn.swing.examples.addressbook;
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
 import be.imgn.swing.ui.Exposed;
-import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
-import be.imgn.swing.ui.StandardCommands;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
@@ -65,34 +63,21 @@ public final class AddressBookApp implements SingleFrame {
     private final JTextField birth = new JTextField(NAME_COLUMNS);
     private final AddressBookService service;
     private final ContactSelection selection;
-    private final AddressBookAppMenus menus;
-    private final StandardCommands standard;
-    private final ContactActionsCommands contacts;
-    private final GeneralActionsCommands general;
-    private final TaskTestActionsCommands tasks;
+    private final AddressBookMenuBar menuBar;
     private final Ui ui;
     private final AddressBookMessages messages;
     private final ContactsTableModel model;
 
     @Inject
-    @SuppressWarnings("checkstyle:ParameterNumber")
     AddressBookApp(
             AddressBookService service,
             ContactSelection selection,
-            AddressBookAppMenus menus,
-            StandardCommands standard,
-            ContactActionsCommands contacts,
-            GeneralActionsCommands general,
-            TaskTestActionsCommands tasks,
+            AddressBookMenuBar menuBar,
             Ui ui,
             AddressBookMessages messages) {
         this.service = service;
         this.selection = selection;
-        this.menus = menus;
-        this.standard = standard;
-        this.contacts = contacts;
-        this.general = general;
-        this.tasks = tasks;
+        this.menuBar = menuBar;
         this.ui = ui;
         this.messages = messages;
         this.model = new ContactsTableModel(messages);
@@ -168,33 +153,7 @@ public final class AddressBookApp implements SingleFrame {
 
     @Override
     public JMenuBar menuBar() {
-        return ui.menuBar(
-                menus.file().with(general.throwException(), standard.exit()),
-                menus.edit().with(standard.cut(), standard.copy(), standard.paste()),
-                menus.contacts()
-                        .with(
-                                contacts.createContact(),
-                                contacts.createContactWithTabs(),
-                                contacts.createContactWithWizard(),
-                                MenuEntry.SEPARATOR,
-                                contacts.modifyContact(),
-                                contacts.modifyContactWithTabs(),
-                                contacts.modifyContactWithWizard(),
-                                MenuEntry.SEPARATOR,
-                                contacts.deleteContact()),
-                menus.taskTests()
-                        .with(
-                                tasks.oneTaskNoBlocker(),
-                                tasks.oneTaskComponentBlocker(),
-                                tasks.oneTaskActionBlocker(),
-                                tasks.oneTaskWindowBlocker(),
-                                tasks.oneTaskDialogBlocker(),
-                                tasks.oneTaskProgressDialogBlocker(),
-                                MenuEntry.SEPARATOR,
-                                tasks.oneTaskSerialExecutor(),
-                                tasks.fiveTasksDialogBlocker(),
-                                tasks.twoSerialTaskDialogBlocker(),
-                                tasks.twoSerialGroupsDialogBlocker()));
+        return menuBar.create();
     }
 
     @Override
