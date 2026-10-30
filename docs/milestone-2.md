@@ -79,7 +79,7 @@ A dynamic menu entry ([milestone 1](milestone-1.md#dynamic-entries)) takes any `
 The [delivery rule](milestone-1.md#delivery-to-the-edt) of milestone 1 reads the latest value when its update runs, so several changes cause one update. A component that shows a list needs every change instead, in order, to update its rows and keep its selection. For every component bound to an observable list:
 
 1. The UI layer keeps, on the EDT, its own copy of the list, made when the component is bound.
-2. Its change listener, on the thread that modified the list, touches no component: it adds the change to a queue and, if no update is pending, posts one with `EventQueue.invokeLater`, as rule 1 does.
+2. Its change listener, on the thread that modified the list, touches no component: it adds the change to a queue and, if no update is pending, queues one in milestone 1's delivery queue, as rule 1 does, among the framework's updates: a view's `Ui.bind` targets see the component's rows already following the change.
 3. The update, on the EDT, applies every queued change in order to the copy, and fires the model event of each: for `Added`, an interval added (`fireIntervalAdded`, `fireTableRowsInserted`); for `Removed`, an interval removed (`fireIntervalRemoved`, `fireTableRowsDeleted`); for `Replaced` of as many elements as it removes, the rows changed (`fireContentsChanged`, `fireTableRowsUpdated`); for any other `Replaced`, the whole content changed (`fireContentsChanged` over the copy, `fireTableDataChanged`).
 4. If the subscription's scope closed in the meantime, the update does nothing.
 
