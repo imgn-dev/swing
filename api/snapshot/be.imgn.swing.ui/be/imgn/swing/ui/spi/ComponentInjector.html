@@ -5,7 +5,7 @@
 <title>ComponentInjector (swing 0.1.0-SNAPSHOT API)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="description" content="declaration: module: be.imgn.swing.ui, package: be.imgn.swing.ui.support, interface: ComponentInjector">
+<meta name="description" content="declaration: module: be.imgn.swing.ui, package: be.imgn.swing.ui.spi, interface: ComponentInjector">
 <meta name="generator" content="javadoc/ClassWriter">
 <link rel="stylesheet" type="text/css" href="../../../../../../resource-files/jquery-ui.min.css">
 <link rel="stylesheet" type="text/css" href="../../../../../../resource-files/stylesheet.css">
@@ -40,7 +40,7 @@ loadScripts(document, 'script');</script>
 <div class="nav-content">
 <ol class="sub-nav-list">
 <li><a href="../../../../../module-summary.html">be.imgn.swing.ui</a></li>
-<li><a href="package-summary.html">be.imgn.swing.ui.support</a></li>
+<li><a href="package-summary.html">be.imgn.swing.ui.spi</a></li>
 <li><a href="ComponentInjector.html" class="current-selection">ComponentInjector</a></li>
 </ol>
 <div class="nav-list-search"><input type="text" id="search-input" disabled placeholder="Search documentation (type /)" aria-label="Search in documentation" autocomplete="off" spellcheck="false"><input type="reset" id="reset-search" disabled value="Reset"></div>
@@ -58,8 +58,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
 <li><a href="#type()" tabindex="0">type()</a></li>
-<li><a href="#inject(V,be.imgn.swing.ui.support.ComponentResources)" tabindex="0">inject(V, ComponentResources)</a></li>
-<li><a href="#injectTabTitles(V,be.imgn.swing.ui.support.ComponentResources)" tabindex="0">injectTabTitles(V, ComponentResources)</a></li>
+<li><a href="#inject(V,be.imgn.swing.ui.spi.ComponentResources)" tabindex="0">inject(V, ComponentResources)</a></li>
+<li><a href="#injectTabTitles(V,be.imgn.swing.ui.spi.ComponentResources)" tabindex="0">injectTabTitles(V, ComponentResources)</a></li>
 <li><a href="#registerOverrides(be.imgn.swing.ui.CommandRegistry)" tabindex="0">registerOverrides(CommandRegistry)</a></li>
 </ol>
 </li>
@@ -96,14 +96,14 @@ one, <code>$X$$Injector</code>, for each view class, and registers it as a servi
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#inject(V,be.imgn.swing.ui.support.ComponentResources)" class="member-name-link">inject</a><wbr>(<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&nbsp;view,
- <a href="ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a>&nbsp;resources)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#inject(V,be.imgn.swing.ui.spi.ComponentResources)" class="member-name-link">inject</a><wbr>(<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&nbsp;view,
+ <a href="ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a>&nbsp;resources)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Applies every property except <code>tab-title</code>: after the view's constructor, before <code>content()</code>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#injectTabTitles(V,be.imgn.swing.ui.support.ComponentResources)" class="member-name-link">injectTabTitles</a><wbr>(<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&nbsp;view,
- <a href="ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a>&nbsp;resources)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#injectTabTitles(V,be.imgn.swing.ui.spi.ComponentResources)" class="member-name-link">injectTabTitles</a><wbr>(<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&nbsp;view,
+ <a href="ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a>&nbsp;resources)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Applies the <code>tab-title</code> properties: after <code>content()</code> returns, once tabs exist.</div>
 </div>
@@ -146,11 +146,11 @@ resolved, so that every <code>StandardCommands</code> of the view returns the us
 </section>
 </li>
 <li>
-<section class="detail" id="inject(V,be.imgn.swing.ui.support.ComponentResources)">
-<h3 id="inject(java.lang.Object,be.imgn.swing.ui.support.ComponentResources)">inject</h3>
+<section class="detail" id="inject(V,be.imgn.swing.ui.spi.ComponentResources)">
+<h3 id="inject(java.lang.Object,be.imgn.swing.ui.spi.ComponentResources)">inject</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">inject</span><wbr><span class="parameters">(<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&nbsp;view,
- <a href="ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a>&nbsp;resources)</span></div>
+ <a href="ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a>&nbsp;resources)</span></div>
 <div class="block">Applies every property except <code>tab-title</code>: after the view's constructor, before <code>content()</code>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -161,11 +161,11 @@ resolved, so that every <code>StandardCommands</code> of the view returns the us
 </section>
 </li>
 <li>
-<section class="detail" id="injectTabTitles(V,be.imgn.swing.ui.support.ComponentResources)">
-<h3 id="injectTabTitles(java.lang.Object,be.imgn.swing.ui.support.ComponentResources)">injectTabTitles</h3>
+<section class="detail" id="injectTabTitles(V,be.imgn.swing.ui.spi.ComponentResources)">
+<h3 id="injectTabTitles(java.lang.Object,be.imgn.swing.ui.spi.ComponentResources)">injectTabTitles</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">injectTabTitles</span><wbr><span class="parameters">(<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&nbsp;view,
- <a href="ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a>&nbsp;resources)</span></div>
+ <a href="ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a>&nbsp;resources)</span></div>
 <div class="block">Applies the <code>tab-title</code> properties: after <code>content()</code> returns, once tabs exist.</div>
 <dl class="notes">
 <dt>Parameters:</dt>

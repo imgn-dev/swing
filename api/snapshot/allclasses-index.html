@@ -59,7 +59,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab6">
 <div class="block">Declares the application class: its names, as gaia's <code>ApplicationDirectories</code> takes them, and its version.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html" title="interface in be.imgn.swing">ApplicationDescriptor</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html" title="interface in be.imgn.swing.spi">ApplicationDescriptor</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">The names of an <a href="be.imgn.swing/be/imgn/swing/Application.html" title="annotation interface in be.imgn.swing"><code>Application</code></a> class, which the processor generates and registers as a service.</div>
 </div>
@@ -110,15 +110,15 @@ and the dialogs.</div>
 <div class="block">Every command of a view, keyed by the class the generated class is for (<code>StandardCommands</code> for standard
 commands) and the id: asking twice for the same command returns the same <a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html" title="class in be.imgn.swing.ui"><code>BoundCommand</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentInjector.html" title="interface in be.imgn.swing.ui.support">ComponentInjector&lt;V&gt;</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html" title="interface in be.imgn.swing.ui.spi">ComponentInjector&lt;V&gt;</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Writes a view class's resources to the components its fields hold, with plain setter calls.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">The resources of a view class, read by field and property, as the generated injectors write them.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentState.html" title="interface in be.imgn.swing.ui.support">ComponentState&lt;V&gt;</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentState.html" title="interface in be.imgn.swing.ui.spi">ComponentState&lt;V&gt;</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Gives the components of a view whose state is saved with its window: its non-private <code>JSplitPane</code>,
 <code>JTabbedPane</code> and <code>JTable</code> fields.</div>
@@ -200,7 +200,7 @@ application's resources, selects <code>system</code> (the default), <code>light<
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">An immutable description of a menu: its menu and its entries.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing/be/imgn/swing/support/MessagePattern.html" title="class in be.imgn.swing.support">MessagePattern</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html" title="class in be.imgn.swing.spi">MessagePattern</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">The pattern of one message, with its placeholders rewritten from parameter names to indices, formatted with
 <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/text/MessageFormat.html" title="class or interface in java.text" class="external-link"><code>MessageFormat</code></a> for the display locale.</div>

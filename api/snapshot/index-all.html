@@ -93,7 +93,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">The same glass pane on every window.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html" class="type-name-link" title="interface in be.imgn.swing">ApplicationDescriptor</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html" class="type-name-link" title="interface in be.imgn.swing.spi">ApplicationDescriptor</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/spi/package-summary.html">be.imgn.swing.spi</a></dt>
 <dd>
 <div class="block">The names of an <a href="be.imgn.swing/be/imgn/swing/Application.html" title="annotation interface in be.imgn.swing"><code>Application</code></a> class, which the processor generates and registers as a service.</div>
 </dd>
@@ -150,7 +150,7 @@ and the dialogs.</div>
 <dd>
 <div class="block">The annotation processor of swing.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/support/package-summary.html">be.imgn.swing.support</a> - package be.imgn.swing.support</dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/package-summary.html">be.imgn.swing.spi</a> - package be.imgn.swing.spi</dt>
 <dd>
 <div class="block">What the code that swing's processor generates calls; not for applications.</div>
 </dd>
@@ -170,7 +170,7 @@ and the dialogs.</div>
 <dd>
 <div class="block">The user interface layer of swing, in Swing.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/package-summary.html">be.imgn.swing.ui.support</a> - package be.imgn.swing.ui.support</dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/package-summary.html">be.imgn.swing.ui.spi</a> - package be.imgn.swing.ui.spi</dt>
 <dd>
 <div class="block">What the code that swing's processor generates for views implements and calls; not for applications.</div>
 </dd>
@@ -195,7 +195,7 @@ closes.</div>
 <dd>
 <div class="block">What is blocked while a task runs.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#bool(java.lang.String,java.lang.String)" class="member-name-link">bool(String, String)</a> - Method in class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#bool(java.lang.String,java.lang.String)" class="member-name-link">bool(String, String)</a> - Method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Returns a boolean property.</div>
 </dd>
@@ -250,7 +250,7 @@ the subscriptions registered there.</div>
 <div class="block">Returns the command that closes the current window after its vetoes; on the main frame of a single-frame
 application, the same as <a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html#exit()"><code>StandardCommands.exit()</code></a>.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#color(java.lang.String,java.lang.String)" class="member-name-link">color(String, String)</a> - Method in class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#color(java.lang.String,java.lang.String)" class="member-name-link">color(String, String)</a> - Method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Returns a color property: <code>"#rrggbb"</code> or <code>"#rrggbbaa"</code>.</div>
 </dd>
@@ -315,15 +315,15 @@ whose <code>labelFor</code> it is, or the <code>accessible-name</code> of its re
 <div class="block">The component the command was activated from is disabled: the button for a button click, the invoker for a popup
 menu selection, the focus owner for a shortcut.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentInjector.html" class="type-name-link" title="interface in be.imgn.swing.ui.support">ComponentInjector&lt;V&gt;</a> - Interface in <a href="be.imgn.swing.ui/be/imgn/swing/ui/support/package-summary.html">be.imgn.swing.ui.support</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html" class="type-name-link" title="interface in be.imgn.swing.ui.spi">ComponentInjector&lt;V&gt;</a> - Interface in <a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/package-summary.html">be.imgn.swing.ui.spi</a></dt>
 <dd>
 <div class="block">Writes a view class's resources to the components its fields hold, with plain setter calls.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" class="type-name-link" title="class in be.imgn.swing.ui.support">ComponentResources</a> - Class in <a href="be.imgn.swing.ui/be/imgn/swing/ui/support/package-summary.html">be.imgn.swing.ui.support</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" class="type-name-link" title="class in be.imgn.swing.ui.spi">ComponentResources</a> - Class in <a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/package-summary.html">be.imgn.swing.ui.spi</a></dt>
 <dd>
 <div class="block">The resources of a view class, read by field and property, as the generated injectors write them.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#%3Cinit%3E(be.imgn.toml.TomlTable,java.util.function.Function,boolean)" class="member-name-link">ComponentResources(TomlTable, Function, boolean)</a> - Constructor for class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#%3Cinit%3E(be.imgn.toml.TomlTable,java.util.function.Function,boolean)" class="member-name-link">ComponentResources(TomlTable, Function, boolean)</a> - Constructor for class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Creates the resources of a view class.</div>
 </dd>
@@ -335,11 +335,11 @@ menu selection, the focus owner for a shortcut.</div>
 <dd>
 <div class="block">Returns the components of a type in the dialog, in depth-first order.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentState.html#components(V)" class="member-name-link">components(V)</a> - Method in interface be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentState.html" title="interface in be.imgn.swing.ui.support">ComponentState</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentState.html#components(V)" class="member-name-link">components(V)</a> - Method in interface be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentState.html" title="interface in be.imgn.swing.ui.spi">ComponentState</a></dt>
 <dd>
 <div class="block">Returns the components whose state is saved.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentState.html" class="type-name-link" title="interface in be.imgn.swing.ui.support">ComponentState&lt;V&gt;</a> - Interface in <a href="be.imgn.swing.ui/be/imgn/swing/ui/support/package-summary.html">be.imgn.swing.ui.support</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentState.html" class="type-name-link" title="interface in be.imgn.swing.ui.spi">ComponentState&lt;V&gt;</a> - Interface in <a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/package-summary.html">be.imgn.swing.ui.spi</a></dt>
 <dd>
 <div class="block">Gives the components of a view whose state is saved with its window: its non-private <code>JSplitPane</code>,
 <code>JTabbedPane</code> and <code>JTable</code> fields.</div>
@@ -613,11 +613,11 @@ application's resources, selects <code>system</code> (the default), <code>light<
 <dd>
 <div class="block">Returns the value of the <a href="./be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Shortcut.html#param-focusOwner"><code>focusOwner</code></a> record component.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#font(java.lang.String,java.lang.String)" class="member-name-link">font(String, String)</a> - Method in class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#font(java.lang.String,java.lang.String)" class="member-name-link">font(String, String)</a> - Method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Returns a font property, in <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Font.html#decode(java.lang.String)" title="class or interface in java.awt" class="external-link"><code>Font.decode(String)</code></a>'s syntax.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/support/MessagePattern.html#format(java.lang.Object...)" class="member-name-link">format(Object...)</a> - Method in class be.imgn.swing.support.<a href="be.imgn.swing/be/imgn/swing/support/MessagePattern.html" title="class in be.imgn.swing.support">MessagePattern</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html#format(java.lang.Object...)" class="member-name-link">format(Object...)</a> - Method in class be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html" title="class in be.imgn.swing.spi">MessagePattern</a></dt>
 <dd>
 <div class="block">Formats the message.</div>
 </dd>
@@ -682,7 +682,7 @@ application's resources, selects <code>system</code> (the default), <code>light<
 </dl>
 <h2 class="title" id="I:I">I</h2>
 <dl class="index">
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#icon(java.lang.String,java.lang.String)" class="member-name-link">icon(String, String)</a> - Method in class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#icon(java.lang.String,java.lang.String)" class="member-name-link">icon(String, String)</a> - Method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Returns an icon property: a path relative to the package of the class whose file names it, resolved against the
 class's package first, then its superclasses'.</div>
@@ -725,11 +725,11 @@ class's package first, then its superclasses'.</div>
 <dd>
 <div class="block">Returns the messages shown, in order.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentInjector.html#inject(V,be.imgn.swing.ui.support.ComponentResources)" class="member-name-link">inject(V, ComponentResources)</a> - Method in interface be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentInjector.html" title="interface in be.imgn.swing.ui.support">ComponentInjector</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html#inject(V,be.imgn.swing.ui.spi.ComponentResources)" class="member-name-link">inject(V, ComponentResources)</a> - Method in interface be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html" title="interface in be.imgn.swing.ui.spi">ComponentInjector</a></dt>
 <dd>
 <div class="block">Applies every property except <code>tab-title</code>: after the view's constructor, before <code>content()</code>.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentInjector.html#injectTabTitles(V,be.imgn.swing.ui.support.ComponentResources)" class="member-name-link">injectTabTitles(V, ComponentResources)</a> - Method in interface be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentInjector.html" title="interface in be.imgn.swing.ui.support">ComponentInjector</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html#injectTabTitles(V,be.imgn.swing.ui.spi.ComponentResources)" class="member-name-link">injectTabTitles(V, ComponentResources)</a> - Method in interface be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html" title="interface in be.imgn.swing.ui.spi">ComponentInjector</a></dt>
 <dd>
 <div class="block">Applies the <code>tab-title</code> properties: after <code>content()</code> returns, once tabs exist.</div>
 </dd>
@@ -739,7 +739,7 @@ class's package first, then its superclasses'.</div>
 <dd>
 <div class="block">Installs the look and feel.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#integer(java.lang.String,java.lang.String)" class="member-name-link">integer(String, String)</a> - Method in class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#integer(java.lang.String,java.lang.String)" class="member-name-link">integer(String, String)</a> - Method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Returns an integer property.</div>
 </dd>
@@ -880,7 +880,7 @@ class's package first, then its superclasses'.</div>
 <dd>
 <div class="block">Reports what the work is doing.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/support/MessagePattern.html" class="type-name-link" title="class in be.imgn.swing.support">MessagePattern</a> - Class in <a href="be.imgn.swing/be/imgn/swing/support/package-summary.html">be.imgn.swing.support</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html" class="type-name-link" title="class in be.imgn.swing.spi">MessagePattern</a> - Class in <a href="be.imgn.swing/be/imgn/swing/spi/package-summary.html">be.imgn.swing.spi</a></dt>
 <dd>
 <div class="block">The pattern of one message, with its placeholders rewritten from parameter names to indices, formatted with
 <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/text/MessageFormat.html" title="class or interface in java.text" class="external-link"><code>MessageFormat</code></a> for the display locale.</div>
@@ -909,11 +909,11 @@ class's package first, then its superclasses'.</div>
 <div class="block">Returns the application's name, as gaia's <code>ApplicationDirectories</code> takes it, and the displayed name unless
 the class's resources give a <code>name</code> key.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html#name()" class="member-name-link">name()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html" title="interface in be.imgn.swing">ApplicationDescriptor</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#name()" class="member-name-link">name()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
 <dd>
 <div class="block">Returns <a href="be.imgn.swing/be/imgn/swing/Application.html#name()"><code>Application.name()</code></a>.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#name()" class="member-name-link">name()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html#name()" class="member-name-link">name()</a> - Method in interface be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html" title="interface in be.imgn.swing.spi">ApplicationDescriptor</a></dt>
 <dd>
 <div class="block">Returns <a href="be.imgn.swing/be/imgn/swing/Application.html#name()"><code>Application.name()</code></a>.</div>
 </dd>
@@ -948,7 +948,7 @@ the class's resources give a <code>name</code> key.</div>
 <dd>
 <div class="block">Returns a context.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/support/MessagePattern.html#of(be.imgn.toml.TomlTable,java.lang.String,java.util.List,java.util.Locale)" class="member-name-link">of(TomlTable, String, List, Locale)</a> - Static method in class be.imgn.swing.support.<a href="be.imgn.swing/be/imgn/swing/support/MessagePattern.html" title="class in be.imgn.swing.support">MessagePattern</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html#of(be.imgn.toml.TomlTable,java.lang.String,java.util.List,java.util.Locale)" class="member-name-link">of(TomlTable, String, List, Locale)</a> - Static method in class be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html" title="class in be.imgn.swing.spi">MessagePattern</a></dt>
 <dd>
 <div class="block">Reads the pattern of a message and rewrites its placeholders from names to indices, once.</div>
 </dd>
@@ -1032,7 +1032,7 @@ it, before the view is resolved, for each override of the view class and its sup
 <dd>
 <div class="block">Returns the scope this one is nested in, if any.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#parseColor(java.lang.String)" class="member-name-link">parseColor(String)</a> - Static method in class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#parseColor(java.lang.String)" class="member-name-link">parseColor(String)</a> - Static method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Parses a color.</div>
 </dd>
@@ -1089,11 +1089,11 @@ invoker's popup trigger.</div>
 <dd>
 <div class="block">Returns the vendor's top-level domain; only with a <a href="be.imgn.swing/be/imgn/swing/Application.html#vendor()"><code>Application.vendor()</code></a>.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html#qualifier()" class="member-name-link">qualifier()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html" title="interface in be.imgn.swing">ApplicationDescriptor</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#qualifier()" class="member-name-link">qualifier()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
 <dd>
 <div class="block">Returns <a href="be.imgn.swing/be/imgn/swing/Application.html#qualifier()"><code>Application.qualifier()</code></a>, if given.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#qualifier()" class="member-name-link">qualifier()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html#qualifier()" class="member-name-link">qualifier()</a> - Method in interface be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html" title="interface in be.imgn.swing.spi">ApplicationDescriptor</a></dt>
 <dd>
 <div class="block">Returns <a href="be.imgn.swing/be/imgn/swing/Application.html#qualifier()"><code>Application.qualifier()</code></a>, if given.</div>
 </dd>
@@ -1117,7 +1117,7 @@ have run.</div>
 <dd>
 <div class="block">Told when the application is ready: once the main window is shown, and the events posted while showing it have run.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentInjector.html#registerOverrides(be.imgn.swing.ui.CommandRegistry)" class="member-name-link">registerOverrides(CommandRegistry)</a> - Method in interface be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentInjector.html" title="interface in be.imgn.swing.ui.support">ComponentInjector</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html#registerOverrides(be.imgn.swing.ui.CommandRegistry)" class="member-name-link">registerOverrides(CommandRegistry)</a> - Method in interface be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html" title="interface in be.imgn.swing.ui.spi">ComponentInjector</a></dt>
 <dd>
 <div class="block">Registers the standard commands that the view class, or one of its superclasses, overrides, before the view is
 resolved, so that every <code>StandardCommands</code> of the view returns the user-written command.</div>
@@ -1147,7 +1147,7 @@ variants, and cached per class and locale.</div>
 <dd>
 <div class="block">Returns the result, read after <code>ok()</code>.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/support/MessagePattern.html#rewrite(java.lang.String,java.util.List)" class="member-name-link">rewrite(String, List)</a> - Static method in class be.imgn.swing.support.<a href="be.imgn.swing/be/imgn/swing/support/MessagePattern.html" title="class in be.imgn.swing.support">MessagePattern</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html#rewrite(java.lang.String,java.util.List)" class="member-name-link">rewrite(String, List)</a> - Static method in class be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html" title="class in be.imgn.swing.spi">MessagePattern</a></dt>
 <dd>
 <div class="block">Rewrites the placeholders of a pattern from parameter names to their indices, following <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/text/MessageFormat.html" title="class or interface in java.text" class="external-link"><code>MessageFormat</code></a>'s
 quoting rules: a single <code>'</code> starts or ends a quoted section, and <code>''</code> is a literal apostrophe.</div>
@@ -1218,19 +1218,19 @@ handler.</div>
 <dd>
 <div class="block">Sets the value, and tells the listeners if it changed.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#setAccessibleDescription(java.awt.Component,java.lang.String)" class="member-name-link">setAccessibleDescription(Component, String)</a> - Static method in class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#setAccessibleDescription(java.awt.Component,java.lang.String)" class="member-name-link">setAccessibleDescription(Component, String)</a> - Static method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Sets the accessible description of a component.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#setAccessibleName(java.awt.Component,java.lang.String)" class="member-name-link">setAccessibleName(Component, String)</a> - Static method in class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#setAccessibleName(java.awt.Component,java.lang.String)" class="member-name-link">setAccessibleName(Component, String)</a> - Static method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Sets the accessible name of a component.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#setTabTitle(java.awt.Component,java.lang.String)" class="member-name-link">setTabTitle(Component, String)</a> - Static method in class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#setTabTitle(java.awt.Component,java.lang.String)" class="member-name-link">setTabTitle(Component, String)</a> - Static method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Sets the title of a component's tab, in the <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JTabbedPane.html" title="class or interface in javax.swing" class="external-link"><code>JTabbedPane</code></a> that holds it.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#setText(java.awt.Component,java.lang.String)" class="member-name-link">setText(Component, String)</a> - Method in class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#setText(java.awt.Component,java.lang.String)" class="member-name-link">setText(Component, String)</a> - Method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Sets the text of a component: for a button or a label, <code>&amp;</code> marks the mnemonic, except on macOS.</div>
 </dd>
@@ -1238,7 +1238,7 @@ handler.</div>
 <dd>
 <div class="block">Sets the title of the window.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#setTitle(javax.swing.JComponent,java.lang.String)" class="member-name-link">setTitle(JComponent, String)</a> - Static method in class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#setTitle(javax.swing.JComponent,java.lang.String)" class="member-name-link">setTitle(JComponent, String)</a> - Static method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Sets the title of a component's <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/border/TitledBorder.html" title="class or interface in javax.swing.border" class="external-link"><code>TitledBorder</code></a>, creating the border when the component has none.</div>
 </dd>
@@ -1322,7 +1322,7 @@ generated <code>&lt;Class&gt;Menus</code>.</div>
 <dd>
 <div class="block">A step of the startup, contributed with <code>@IntoSet(StartupStep.class)</code>.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html#string(java.lang.String,java.lang.String)" class="member-name-link">string(String, String)</a> - Method in class be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" title="class in be.imgn.swing.ui.support">ComponentResources</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#string(java.lang.String,java.lang.String)" class="member-name-link">string(String, String)</a> - Method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Returns a string property.</div>
 </dd>
@@ -1506,19 +1506,20 @@ the application's resources.</div>
 <dd>
 <div class="block">A shortcut was typed.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html#type()" class="member-name-link">type()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html" title="interface in be.imgn.swing">ApplicationDescriptor</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#type()" class="member-name-link">type()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
+<dd>
+<div class="block">Returns the application class, <a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html#type()"><code>ApplicationDescriptor.type()</code></a>, whose resources are the
+application's.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html#type()" class="member-name-link">type()</a> - Method in interface be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html" title="interface in be.imgn.swing.spi">ApplicationDescriptor</a></dt>
 <dd>
 <div class="block">Returns the annotated class.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#type()" class="member-name-link">type()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
-<dd>
-<div class="block">Returns the application class, <a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html#type()"><code>ApplicationDescriptor.type()</code></a>, whose resources are the application's.</div>
-</dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentInjector.html#type()" class="member-name-link">type()</a> - Method in interface be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentInjector.html" title="interface in be.imgn.swing.ui.support">ComponentInjector</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html#type()" class="member-name-link">type()</a> - Method in interface be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html" title="interface in be.imgn.swing.ui.spi">ComponentInjector</a></dt>
 <dd>
 <div class="block">Returns the view class.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentState.html#type()" class="member-name-link">type()</a> - Method in interface be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentState.html" title="interface in be.imgn.swing.ui.support">ComponentState</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentState.html#type()" class="member-name-link">type()</a> - Method in interface be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentState.html" title="interface in be.imgn.swing.ui.spi">ComponentState</a></dt>
 <dd>
 <div class="block">Returns the view class.</div>
 </dd>
@@ -1585,11 +1586,11 @@ differ only by their resources, opened with <a href="be.imgn.swing.ui/be/imgn/sw
 <dd>
 <div class="block">Returns the organization or person that makes the application.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html#vendor()" class="member-name-link">vendor()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html" title="interface in be.imgn.swing">ApplicationDescriptor</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#vendor()" class="member-name-link">vendor()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
 <dd>
 <div class="block">Returns <a href="be.imgn.swing/be/imgn/swing/Application.html#vendor()"><code>Application.vendor()</code></a>, if given.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#vendor()" class="member-name-link">vendor()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html#vendor()" class="member-name-link">vendor()</a> - Method in interface be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html" title="interface in be.imgn.swing.spi">ApplicationDescriptor</a></dt>
 <dd>
 <div class="block">Returns <a href="be.imgn.swing/be/imgn/swing/Application.html#vendor()"><code>Application.vendor()</code></a>, if given.</div>
 </dd>
@@ -1597,11 +1598,11 @@ differ only by their resources, opened with <a href="be.imgn.swing.ui/be/imgn/sw
 <dd>
 <div class="block">Returns the version, shown in the About dialog.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html#version()" class="member-name-link">version()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html" title="interface in be.imgn.swing">ApplicationDescriptor</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#version()" class="member-name-link">version()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
 <dd>
 <div class="block">Returns <a href="be.imgn.swing/be/imgn/swing/Application.html#version()"><code>Application.version()</code></a>, if given.</div>
 </dd>
-<dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#version()" class="member-name-link">version()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html#version()" class="member-name-link">version()</a> - Method in interface be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html" title="interface in be.imgn.swing.spi">ApplicationDescriptor</a></dt>
 <dd>
 <div class="block">Returns <a href="be.imgn.swing/be/imgn/swing/Application.html#version()"><code>Application.version()</code></a>, if given.</div>
 </dd>

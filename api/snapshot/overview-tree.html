@@ -53,10 +53,10 @@ loadScripts(document, 'script');</script>
 <ul class="horizontal contents-list">
 <li><a href="be.imgn.swing/be/imgn/swing/package-tree.html">be.imgn.swing</a>, </li>
 <li><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/package-tree.html">be.imgn.swing.flatlaf</a>, </li>
-<li><a href="be.imgn.swing/be/imgn/swing/support/package-tree.html">be.imgn.swing.support</a>, </li>
+<li><a href="be.imgn.swing/be/imgn/swing/spi/package-tree.html">be.imgn.swing.spi</a>, </li>
 <li><a href="be.imgn.swing.testing/be/imgn/swing/testing/package-tree.html">be.imgn.swing.testing</a>, </li>
 <li><a href="be.imgn.swing.ui/be/imgn/swing/ui/package-tree.html">be.imgn.swing.ui</a>, </li>
-<li><a href="be.imgn.swing.ui/be/imgn/swing/ui/support/package-tree.html">be.imgn.swing.ui.support</a></li>
+<li><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/package-tree.html">be.imgn.swing.ui.spi</a></li>
 </ul>
 <section class="hierarchy">
 <h2 title="Class Hierarchy">Class Hierarchy</h2>
@@ -70,12 +70,12 @@ loadScripts(document, 'script');</script>
 <li class="circle">be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandBuilder.html" class="type-name-link" title="class in be.imgn.swing.ui">CommandBuilder</a></li>
 <li class="circle">be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandContext.html" class="type-name-link" title="class in be.imgn.swing.ui">CommandContext</a></li>
 <li class="circle">be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandRegistry.html" class="type-name-link" title="class in be.imgn.swing.ui">CommandRegistry</a></li>
-<li class="circle">be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentResources.html" class="type-name-link" title="class in be.imgn.swing.ui.support">ComponentResources</a></li>
+<li class="circle">be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" class="type-name-link" title="class in be.imgn.swing.ui.spi">ComponentResources</a></li>
 <li class="circle">be.imgn.swing.flatlaf.<a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/DarkMode.html" class="type-name-link" title="class in be.imgn.swing.flatlaf">DarkMode</a></li>
 <li class="circle">be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/FakeDialogs.html" class="type-name-link" title="class in be.imgn.swing.testing">FakeDialogs</a> (implements be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html" title="interface in be.imgn.swing.ui">Dialogs</a>)</li>
 <li class="circle">be.imgn.swing.flatlaf.<a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/FlatLafInstaller.html" class="type-name-link" title="class in be.imgn.swing.flatlaf">FlatLafInstaller</a> (implements be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/LookAndFeelInstaller.html" title="interface in be.imgn.swing.ui">LookAndFeelInstaller</a>)</li>
 <li class="circle">be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/MenuSpec.html" class="type-name-link" title="class in be.imgn.swing.ui">MenuSpec</a> (implements be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/DynamicEntry.html" title="interface in be.imgn.swing.ui">DynamicEntry</a>, be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/MenuEntry.html" title="interface in be.imgn.swing.ui">MenuEntry</a>)</li>
-<li class="circle">be.imgn.swing.support.<a href="be.imgn.swing/be/imgn/swing/support/MessagePattern.html" class="type-name-link" title="class in be.imgn.swing.support">MessagePattern</a></li>
+<li class="circle">be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html" class="type-name-link" title="class in be.imgn.swing.spi">MessagePattern</a></li>
 <li class="circle">be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenDialog.html" class="type-name-link" title="class in be.imgn.swing.testing">OpenDialog</a>&lt;V&gt;</li>
 <li class="circle">be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Resources.html" class="type-name-link" title="class in be.imgn.swing">Resources</a></li>
 <li class="circle">be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Separator.html" class="type-name-link" title="class in be.imgn.swing.ui">Separator</a> (implements be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/DynamicEntry.html" title="interface in be.imgn.swing.ui">DynamicEntry</a>, be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/MenuEntry.html" title="interface in be.imgn.swing.ui">MenuEntry</a>, be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/ToolBarEntry.html" title="interface in be.imgn.swing.ui">ToolBarEntry</a>)</li>
@@ -92,15 +92,15 @@ loadScripts(document, 'script');</script>
 <section class="hierarchy">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
-<li class="circle">be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationDescriptor.html" class="type-name-link" title="interface in be.imgn.swing">ApplicationDescriptor</a></li>
+<li class="circle">be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/ApplicationDescriptor.html" class="type-name-link" title="interface in be.imgn.swing.spi">ApplicationDescriptor</a></li>
 <li class="circle">be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" class="type-name-link" title="interface in be.imgn.swing">ApplicationInfo</a></li>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/AutoCloseable.html" class="type-name-link external-link" title="class or interface in java.lang">AutoCloseable</a>
 <ul>
 <li class="circle">be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Subscription.html" class="type-name-link" title="interface in be.imgn.swing">Subscription</a></li>
 </ul>
 </li>
-<li class="circle">be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentInjector.html" class="type-name-link" title="interface in be.imgn.swing.ui.support">ComponentInjector</a>&lt;V&gt;</li>
-<li class="circle">be.imgn.swing.ui.support.<a href="be.imgn.swing.ui/be/imgn/swing/ui/support/ComponentState.html" class="type-name-link" title="interface in be.imgn.swing.ui.support">ComponentState</a>&lt;V&gt;</li>
+<li class="circle">be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html" class="type-name-link" title="interface in be.imgn.swing.ui.spi">ComponentInjector</a>&lt;V&gt;</li>
+<li class="circle">be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentState.html" class="type-name-link" title="interface in be.imgn.swing.ui.spi">ComponentState</a>&lt;V&gt;</li>
 <li class="circle">be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html" class="type-name-link" title="interface in be.imgn.swing.ui">Dialogs</a></li>
 <li class="circle">be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/DynamicEntry.html" class="type-name-link" title="interface in be.imgn.swing.ui">DynamicEntry</a></li>
 <li class="circle">be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Exit.html" class="type-name-link" title="interface in be.imgn.swing">Exit</a></li>

@@ -84,7 +84,7 @@ loadScripts(document, 'script');</script>
 <div class="block">FlatLaf for swing: its installation, with a theme that follows the operating system, and SVG icons.</div>
 </div>
 <div class="col-plain odd-row-color"><a href="../../../module-summary.html">be.imgn.swing</a></div>
-<div class="col-first odd-row-color"><a href="support/package-summary.html">be.imgn.swing.support</a></div>
+<div class="col-first odd-row-color"><a href="spi/package-summary.html">be.imgn.swing.spi</a></div>
 <div class="col-last odd-row-color">
 <div class="block">What the code that swing's processor generates calls; not for applications.</div>
 </div>
@@ -112,97 +112,93 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab6">
 <div class="block">Declares the application class: its names, as gaia's <code>ApplicationDirectories</code> takes them, and its version.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ApplicationDescriptor.html" title="interface in be.imgn.swing">ApplicationDescriptor</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab1">
-<div class="block">The names of an <a href="Application.html" title="annotation interface in be.imgn.swing"><code>Application</code></a> class, which the processor generates and registers as a service.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">What the application is and where it runs, bound in the root injector.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="Arguments.html" title="class in be.imgn.swing">Arguments</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab4">
+<div class="col-first even-row-color class-summary class-summary-tab4"><a href="Arguments.html" title="class in be.imgn.swing">Arguments</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab4">
 <div class="block">The arguments given to the launch of the application, bound in the root injector.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab4"><a href="DisplayLocale.html" title="class in be.imgn.swing">DisplayLocale</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab4">
+<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="DisplayLocale.html" title="class in be.imgn.swing">DisplayLocale</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab4">
 <div class="block">The locale of user-interface text, chosen once at startup and bound in the root injector.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Exit.html" title="interface in be.imgn.swing">Exit</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Exit.html" title="interface in be.imgn.swing">Exit</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Ends the JVM at the end of the shutdown.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="ExitVeto.html" title="interface in be.imgn.swing">ExitVeto</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ExitVeto.html" title="interface in be.imgn.swing">ExitVeto</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">Asked before the application exits, on the <a href="UiExecutor.html" title="interface in be.imgn.swing"><code>UiExecutor</code></a>'s thread.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="FailureHandler.html" title="interface in be.imgn.swing">FailureHandler</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="FailureHandler.html" title="interface in be.imgn.swing">FailureHandler</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Handles a failure nothing else handles, such as a task's with no <code>onFailure</code> handler.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Lifecycle.html" title="interface in be.imgn.swing">Lifecycle</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Lifecycle.html" title="interface in be.imgn.swing">Lifecycle</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">Requests the shutdown of the application.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab6"><a href="Messages.html" title="annotation interface in be.imgn.swing">Messages</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab6">
+<div class="col-first even-row-color class-summary class-summary-tab6"><a href="Messages.html" title="annotation interface in be.imgn.swing">Messages</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab6">
 <div class="block">Declares an interface of typed messages.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Observable.html" title="interface in be.imgn.swing">Observable</a>&lt;T&gt;</div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Observable.html" title="interface in be.imgn.swing">Observable</a>&lt;T&gt;</div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">A value that tells its listeners when it changes.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Property.html" title="interface in be.imgn.swing">Property</a>&lt;T&gt;</div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Property.html" title="interface in be.imgn.swing">Property</a>&lt;T&gt;</div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">An observable value that can be set, from any thread.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="ReadyListener.html" title="interface in be.imgn.swing">ReadyListener</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ReadyListener.html" title="interface in be.imgn.swing">ReadyListener</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">Told when the application is ready: once the main window is shown, and the events posted while showing it have run.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ResourceOpener.html" title="interface in be.imgn.swing">ResourceOpener</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="ResourceOpener.html" title="interface in be.imgn.swing">ResourceOpener</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Opens the resources of one package, from the package's own module, so that reading them needs no open package.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="Resources.html" title="class in be.imgn.swing">Resources</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Resources.html" title="class in be.imgn.swing">Resources</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">The resources of classes: their TOML files, merged along the class hierarchy and across the locale and platform
 variants, and cached per class and locale.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Scope.html" title="interface in be.imgn.swing">Scope</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Scope.html" title="interface in be.imgn.swing">Scope</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">The disposal list of an application, window or view scope, for what is not a bean.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="ShutdownStep.html" title="interface in be.imgn.swing">ShutdownStep</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ShutdownStep.html" title="interface in be.imgn.swing">ShutdownStep</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">A step of the shutdown, contributed with <code>@IntoSet(ShutdownStep.class)</code>.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="StartupStep.html" title="interface in be.imgn.swing">StartupStep</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="StartupStep.html" title="interface in be.imgn.swing">StartupStep</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">A step of the startup, contributed with <code>@IntoSet(StartupStep.class)</code>.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Subscription.html" title="interface in be.imgn.swing">Subscription</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Subscription.html" title="interface in be.imgn.swing">Subscription</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">A listener's subscription to an <a href="Observable.html" title="interface in be.imgn.swing"><code>Observable</code></a>, released when its scope closes or when it is closed.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Task.html" title="interface in be.imgn.swing">Task</a>&lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Task.html" title="interface in be.imgn.swing">Task</a>&lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Work that runs on a virtual thread, with its completion hooks.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="TaskContext.html" title="interface in be.imgn.swing">TaskContext</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="TaskContext.html" title="interface in be.imgn.swing">TaskContext</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">What the work of a <a href="Task.html" title="interface in be.imgn.swing"><code>Task</code></a> can tell and ask while it runs: <code>Task.of((TaskContext context) -&gt; ...)</code>.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="TaskService.html" title="class in be.imgn.swing">TaskService</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="TaskService.html" title="class in be.imgn.swing">TaskService</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Runs tasks in a scope, without blocking any input.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="TaskWork.html" title="interface in be.imgn.swing">TaskWork</a>&lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="TaskWork.html" title="interface in be.imgn.swing">TaskWork</a>&lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">The work of a <a href="Task.html" title="interface in be.imgn.swing"><code>Task</code></a> that uses its <a href="TaskContext.html" title="interface in be.imgn.swing"><code>TaskContext</code></a>.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="UiExecutor.html" title="interface in be.imgn.swing">UiExecutor</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="UiExecutor.html" title="interface in be.imgn.swing">UiExecutor</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Runs work on the user-interface thread.</div>
 </div>
 </div>

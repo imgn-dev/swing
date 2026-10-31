@@ -1,6 +1,6 @@
 module:be.imgn.swing
 be.imgn.swing
-be.imgn.swing.support
+be.imgn.swing.spi
 module:be.imgn.swing.flatlaf
 be.imgn.swing.flatlaf
 module:be.imgn.swing.processor
@@ -8,4 +8,4 @@ module:be.imgn.swing.testing
 be.imgn.swing.testing
 module:be.imgn.swing.ui
 be.imgn.swing.ui
-be.imgn.swing.ui.support
+be.imgn.swing.ui.spi
