@@ -159,7 +159,7 @@ public record EditorSettings(int fontSize, boolean wordWrap) {
 
 - `@Settings` (core, `CLASS` retention, on types) takes the record's id, the name of its file: `editor` is saved in `editor.toml`. An id is lower-case kebab case: one or more groups of `a`-`z` and `0`-`9`, separated by single `-`.
 - The processor checks that the annotated type is a record, that it is also annotated `@TomlConfig`, that it has a public constructor with no parameter, which gives the defaults, and that the id is valid. Each is a compile error otherwise. Two settings records with the same id in one compilation are a compile error; across compilations, startup fails with an error naming both records.
-- The processor generates `$EditorSettings$$Settings implements SettingsDescriptor<EditorSettings>` (`$Outer$Nested$$Settings` for a nested record), with `Class<T> type()`, `String id()` and `T defaults()`, which calls the constructor with no parameter, and registers it with `ServiceFiles`. `SettingsDescriptor` is in `be.imgn.swing.support`; core declares `uses SettingsDescriptor`.
+- The processor generates `$EditorSettings$$Settings implements SettingsDescriptor<EditorSettings>` (`$Outer$Nested$$Settings` for a nested record), with `Class<T> type()`, `String id()` and `T defaults()`, which calls the constructor with no parameter, and registers it with `ServiceFiles`. `SettingsDescriptor` is in `be.imgn.swing.spi`; core declares `uses SettingsDescriptor`.
 
 ```java
 public interface SettingsStore {                                       // core, singleton
