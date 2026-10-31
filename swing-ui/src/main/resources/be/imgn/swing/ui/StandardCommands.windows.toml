@@ -1,0 +1,5 @@
+[commands.exit]
+shortcut = "alt F4"
+
+[commands.preferences]
+text = "&Options..."

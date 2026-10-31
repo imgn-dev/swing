@@ -1,0 +1,29 @@
+title = "Task Demo: Mars Images"
+
+[commands.previousImage]
+text = "&Previous"
+icon = "resources/previous.png"
+shortcut = "shortcut P"
+tool-tip-text = "show the previous image"
+
+[commands.nextImage]
+text = "&Next"
+icon = "resources/next.png"
+shortcut = "shortcut N"
+tool-tip-text = "show the next image"
+
+[commands.refreshImage]
+text = "&Refresh"
+icon = "resources/refresh.png"
+shortcut = "shortcut R"
+tool-tip-text = "show the image again"
+
+[commands.stopLoading]
+text = "&Stop"
+icon = "resources/stop.png"
+shortcut = "shortcut shift S"
+tool-tip-text = "stop the current image loading task"
+
+[image]
+background = "#000080"
+foreground = "#f0ffff"

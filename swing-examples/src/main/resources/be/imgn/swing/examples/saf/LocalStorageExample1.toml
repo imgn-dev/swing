@@ -1,0 +1,20 @@
+title = "LocalStorageExample1"
+
+[commands.addRandomEntry]
+text = "&Add Random Entry"
+tool-tip-text = "Add a random key value entry to the map"
+
+[commands.saveMap]
+text = "&Save"
+tool-tip-text = "Save the map to the data directory"
+
+[commands.loadMap]
+text = "&Load"
+tool-tip-text = "Load the most recently saved map from the data directory"
+
+[commands.clearMap]
+text = "&Clear"
+tool-tip-text = "Clear the all of the map's entries"
+
+[message]
+accessible-name = "Message"

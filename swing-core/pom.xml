@@ -17,6 +17,21 @@
 
   <dependencies>
     <dependency>
+      <groupId>be.imgn.inject</groupId>
+      <artifactId>inject</artifactId>
+      <version>${inject.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.toml</groupId>
+      <artifactId>toml</artifactId>
+      <version>${toml.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.gaia</groupId>
+      <artifactId>gaia-core</artifactId>
+      <version>${gaia.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.jspecify</groupId>
       <artifactId>jspecify</artifactId>
     </dependency>
@@ -31,5 +46,32 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <!-- inject's processor reads every annotation and claims none,
+               which javac's processing lint reports. -->
+          <compilerArgs combine.children="append">
+            <arg>-Xlint:-processing</arg>
+          </compilerArgs>
+          <annotationProcessorPaths combine.children="append">
+            <path>
+              <groupId>be.imgn.inject</groupId>
+              <artifactId>inject-processor</artifactId>
+              <version>${inject.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>be.imgn.inject</groupId>
+        <artifactId>inject-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

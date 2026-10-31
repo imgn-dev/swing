@@ -1,6 +1,6 @@
 # Milestone 1: requirements
 
-This is the requirement document of the first useful release described in the [vision](vision.md#milestone-1-first-useful-release). The goal is enough to write a real small application. The release is accepted when SwingAppFramework's examples and Guts' Address Book demo are ported.
+This is the requirement document of the first useful release described in the [vision](vision.md#milestone-1-first-useful-release). The goal is enough to write a real small application. The release is accepted when SwingAppFramework's examples and Guts' Address Book demo are ported, except the two locale examples, `LocaleExample3` and `LocaleExample4`, which need live locale switching (milestone 4). The Address Book's three views are one view, the application class, and its locale menu is left out (milestones 3 and 4); `SingleFrameExample6` shows its secondary frames as dialog views owned by the main frame (milestone 3). The ports keep the originals' texts, fonts and colors in resources, and their demo data in code.
 
 Every part of every sentence in this document is a requirement, and must be followed exactly: names, packages, signatures, behaviors, orders and error cases. Any deviation, whether a part that can't be implemented as written, a part that contradicts another, or a gap, is reported at once, before working around it or going further. The document is then updated, and only then does the implementation follow the new text.
 
@@ -75,15 +75,19 @@ public static void main(String[] args) {
 | `qualifier` | Optional, and only with `vendor`. The vendor's top-level domain (`be`). |
 | `version` | Optional. Shown in the About dialog. |
 
-These are the three names gaia's `Platform.applicationDirectories(...)` takes, so the directories are fully determined by the annotation:
+These are the three names gaia's `Platform.applicationDirectories(...)` takes, so by default the directories are fully determined by the annotation and the platform:
 
 - With `qualifier` and `vendor`: `applicationDirectories(qualifier, vendor, name)`. Only macOS uses the qualifier, for the bundle-style identifier: `~/Library/Application Support/be.imgn.Counter`.
 - With `vendor` only: `applicationDirectories(vendor, name)`. Only Windows uses the vendor, as a directory above the application's: `%APPDATA%\imgn\Counter`.
 - With neither: `applicationDirectories(name)`. Linux uses the name only, in lower case with spaces replaced by `-`: `~/.config/counter`.
 
+`Platform` and `ApplicationDirectories` are beans of the root injector, which any bean injects. Core provides each as a `@Provides @Default @Singleton` fallback: `Platform.current()`, and the directories above, computed from the `Platform` bean, so a platform bound in its place moves the default directories with it. As for every `@Default` bean, a bean of the same key in an application's module replaces the fallback, such as a portable application's `ApplicationDirectories` next to its JAR, and so does a binding of the root injector's builder, which `AppTester` uses for its `FakePlatform`. `ApplicationInfo.platform()` and `directories()` are shortcuts to the two beans, usable once the root injector is built.
+
+The launch sets the macOS system properties before any AWT class loads, so before the injector exists: they follow the operating system the JVM runs on, `Platform.current()`, not the `Platform` bean. A `Platform` bean that claims another operating system than the real one leaves them as the real one asks.
+
 Directories never depend on the locale: a localized displayed name comes from resources, never from `name`. The processor checks the names with gaia's rules (not blank, not `.` or `..`, no leading or trailing whitespace, no control character, none of `/ \ : < > " | ? *`) and reports a `qualifier` without a `vendor`. The application's identifier, for the single instance in milestone 3, is `qualifier.vendor.name`, with the parts that are present.
 
-For the annotated class, the processor generates `$CounterApp$$Application implements ApplicationDescriptor` and registers it with `ServiceFiles`. `Swing.launch` finds the descriptor whose `type()` is the given class through `ServiceLoader`. The descriptor holds no handlers, since the application class is a bean.
+For the annotated class, the processor generates `$CounterApp$$Application implements ApplicationDescriptor` (`be.imgn.swing.spi`) and registers it with `ServiceFiles`. `Swing.launch` finds the descriptor whose `type()` is the given class through `ServiceLoader`. The descriptor holds no handlers, since the application class is a bean.
 
 ```java
 public interface ApplicationDescriptor {
@@ -95,14 +99,15 @@ public interface ApplicationDescriptor {
 }
 
 public interface ApplicationInfo {                // core, bound in the root injector
+    Class<?> type();                              // the application class
     String name();                                // @Application.name
     String displayedName();                       // the `name` resource key, else name()
     Optional<String> vendor();
     Optional<String> qualifier();
     Optional<String> version();
     String identifier();                          // qualifier.vendor.name, with the parts that are present
-    Platform platform();
-    ApplicationDirectories directories();
+    Platform platform();                          // the Platform bean
+    ApplicationDirectories directories();         // the ApplicationDirectories bean
 }
 
 public record Arguments(List<String> values) {}    // core, the arguments given to launch
@@ -115,12 +120,12 @@ public record Arguments(List<String> values) {}    // core, the arguments given 
 1. **Before AWT** (main thread): read the descriptor; on macOS set `apple.awt.application.name` to `@Application.name` and `apple.laf.useScreenMenuBar` to `true`. These must be set before any AWT class is initialized, so before resources are read: the localized displayed name can't be used there.
 2. **Injector** (main thread): `Injector.builder()` binds `ApplicationInfo`, `Arguments`, `DisplayLocale` (see [Locale](#locale)) and the application `Scope`, then builds. Building it loads every factory through `ServiceLoader`.
 3. **Startup steps** (main thread): every `@IntoSet(StartupStep.class)` bean, sorted by `order()` then by class name. A `StartupStep` has `int order()` and `void run()`. The framework contributes steps for resources (order 100) and window state loading (order 200). Steps run off the EDT, so they may do I/O.
-4. **UI** (EDT): install the look and feel through the `LookAndFeelInstaller` bean, check icons (see [Icons](#icons)), create the main window (see [Windows](#windows)), show it.
-5. **Ready** (EDT): after showing, one `invokeLater` calls `ready()` on every `@IntoSet(ReadyListener.class)` bean. Events posted while showing the window run first, so the window is laid out and painted.
+4. **UI** (EDT): install the look and feel through the `LookAndFeelInstaller` bean, check icons (see [Icons](#icons)), start following the focus owner for the standard editing commands, create the main window (see [Windows](#windows)), show it.
+5. **Ready** (EDT): after showing, one `invokeLater` calls the main view's `ready()` (see [`SingleFrame`](#singleframe)), then `ready()` on every `@IntoSet(ReadyListener.class)` bean. Events posted while showing the window run first, so the window is laid out and painted.
 
 `LookAndFeelInstaller` (UI) has `void install()`, called on the EDT before any component is created. `swing-ui` provides a `@Provides @Default` one that installs the system look and feel; `swing-flatlaf` provides one that installs FlatLaf, which replaces the default through inject's `@Default` rule. `ReadyListener` (core) has `void ready()`.
 
-A failure in steps 2 to 4 shows the error dialog if the look and feel is installed, prints the stack trace otherwise, and exits with status 1 through `Exit`.
+A failure in steps 2 to 4 shows the error dialog if the look and feel is installed, in the application's language once the injector exists and in English before, prints the stack trace otherwise, and exits with status 1 through `Exit`, or through `System.exit` when no injector exists yet.
 
 ### Shutdown
 
@@ -133,11 +138,11 @@ public interface Lifecycle {                       // core, singleton
 }
 ```
 
-`requestExit` may be called from any thread. It hands the shutdown to the `UiExecutor`: with the UI module, it returns at once and the shutdown runs on the EDT; with core's default, the shutdown runs on the calling thread before it returns. A request made while a shutdown runs is ignored. The shutdown runs these steps:
+`requestExit` may be called from any thread. It hands the shutdown to the `UiExecutor`: with the UI module, it returns at once and the shutdown runs on the EDT; with core's default, the shutdown runs on the calling thread before it returns. A request made while another is pending or a shutdown runs is ignored. The shutdown runs these steps:
 
 1. Ask every `ExitVeto`, in the order of the [scopes](#scopes) from innermost to outermost. The first one that returns `false` cancels; for the OS Quit, the framework then calls `QuitResponse.cancelQuit()`.
-2. Cancel running tasks and wait for them, up to a timeout (2 s by default).
-3. Run every `@IntoSet(ShutdownStep.class)` bean, sorted by `order()` then by class name. `ShutdownStep` (core) has `int order()` and `void run()`. The UI contributes two steps: saving window state (order 100), then disposing the windows and closing their child injectors from innermost to outermost, which runs `@PreDestroy` on their scoped beans ([I2](#imgn-devinject)) (order 200).
+2. Cancel running tasks and wait for them, up to a timeout of 2 s.
+3. Run every `@IntoSet(ShutdownStep.class)` bean, sorted by `order()` then by class name. `ShutdownStep` (core) has `int order()` and `void run()`. The UI contributes two steps: saving window state (order 100), then disposing the windows and closing their child injectors from innermost to outermost, which runs `@PreDestroy` on their scoped beans ([I2](#imgn-devinject)) (order 200). A step that throws is logged at `ERROR` and skipped; the remaining steps, the closing and the exit still run.
 4. Close the root injector, which runs `@PreDestroy` on the singletons it created.
 5. Call `Exit.exit(status)`.
 
@@ -149,7 +154,7 @@ Core reaches the UI only through beans that the UI module provides, each with a 
 | `FailureHandler` | `void failed(Throwable failure)` | Logs the failure at `ERROR` | Shows the error dialog, owned by the focused window, else by the main window | Records the failure and fails the test |
 | `Exit` | `void exit(int status)` | `System.exit(status)` | — | Records the status and stops the tester |
 
-`ExitVeto` is a core interface with `boolean canExit()`, called on the `UiExecutor`'s thread. A veto is any `@IntoSet(ExitVeto.class)` singleton, or any bean of a window or view scope that implements the interface, the application class and views included. inject reports every constructed instance to the framework, with the injector it belongs to ([I6](#imgn-devinject)); the framework registers the vetoes among them in their scope. An instance found both ways is asked once. Within a scope, vetoes are asked in the order their instances were constructed; the `@IntoSet` singletons, in the application scope, are asked last, sorted by class name.
+`ExitVeto` is a core interface with `boolean canExit()`, called on the `UiExecutor`'s thread. A veto is any `@IntoSet(ExitVeto.class)` singleton, or any bean of a window or view scope that implements the interface, the application class and views included. inject reports every constructed instance to the framework, with the injector it belongs to ([I6](#imgn-devinject)); the framework registers the vetoes among them in their scope. A window or view host is registered with the framework before anything is resolved through it; a scoped veto reported with an injector that hosts no window or view is an error, never silently dropped. An instance found both ways is asked once. Within a scope, vetoes are asked in the order their instances were constructed; the `@IntoSet` singletons, in the application scope, are asked last, sorted by class name.
 
 ---
 
@@ -169,7 +174,7 @@ There are three kinds of scope: the application, one per window, and one per vie
 - **Bindings of a scope.** A window's child binds `Window` (see [Windows](#windows)) and `Scope`; a view's child binds `Scope`. A view's child is always a child of a window's child, so a view-scoped bean also sees its window's `Window`; a dialog's window child is a child of the opener's view child. Beans of these scopes depend on these keys directly: `Ui` and `CommandRegistry`, both `@ViewScoped`, depend on `Window` and on the view's `Scope`. The root declares nothing about scopes: inject checks, when each host is built, that its chain binds every key its scope's beans depend on (I3).
 - **Which beans are scoped.** `View` carries `@ViewScoped`, and `SingleFrame` and `DialogView` extend it, so views, dialog views and a single-frame application class are view-scoped without annotating them (I5). `Ui`, `StandardCommands`, `StandardMenus` and `CommandRegistry` are `@ViewScoped`. `Dialogs` and the window-state support are `@WindowScoped`. Shared services are `@Singleton`.
 - **Scope widening.** A bean of a wider scope can reach a bean of a narrower one only through a `Provider`. swing's processor checks the order `@Singleton`, `@WindowScoped`, `@ViewScoped` at compile time, for every class it compiles. inject checks what it can at runtime (I4): a `@Singleton` depending directly on a window- or view-scoped bean fails when the root is created, and a `@WindowScoped` bean depending directly on a `@ViewScoped` one fails when the main window's host is built. In a dialog's window, whose chain holds the opener's view host, inject can't see that error: the processor's check is the only one there.
-- **Closing.** Closing a window closes its child injector, which closes its views' children first, then runs `@PreDestroy` on the instances of its scopes, in reverse creation order (I2). Resolving through a closed host fails fast. `@PreDestroy` is therefore allowed on window- and view-scoped beans: a view that holds a resource releases it there.
+- **Closing.** Closing a window closes its child injector, which closes its views' children first, then runs `@PreDestroy` on the instances of its scopes, in reverse creation order (I2). The framework's `Scope` of each is closed right after its injector: the view's injector, the view's `Scope`, the window's injector, the window's `Scope`. Resolving through a closed host fails fast. `@PreDestroy` is therefore allowed on window- and view-scoped beans: a view that holds a resource releases it there.
 
 ```java
 @ViewScoped
@@ -180,7 +185,7 @@ public interface View {                    // UI
 
 In milestone 1, the views are the single-frame application class and dialog views. Placing other views in windows comes with multi-frame applications, in milestone 3.
 
-The framework's own `Scope` (`be.imgn.swing.Scope`) is the disposal list of a scope, for what is not a bean: subscriptions, input map entries, running tasks. The framework closes it when it closes the scope's injector.
+The framework's own `Scope` (`be.imgn.swing.Scope`) is the disposal list of a scope, for what is not a bean: subscriptions, input map entries, running tasks. The framework closes it right after it closes the scope's injector, so a bean's `@PreDestroy` runs before the subscriptions and tasks of its scope are released.
 
 ```java
 public interface Scope {
@@ -189,6 +194,8 @@ public interface Scope {
     boolean isClosed();
 }
 ```
+
+Registering a resource in a closed scope, or subscribing with one, throws `IllegalStateException`.
 
 ---
 
@@ -217,6 +224,7 @@ public interface Property<T> extends Observable<T> {
 ```
 
 - Properties are thread-safe: `set` may be called from any thread, and `get` on any thread sees the latest value. A property holds its value in an `AtomicReference`.
+- Observables never hold `null`: `Property.of(null)` and `set(null)` throw `NullPointerException`; an absent value is an `Optional`.
 - Listeners are called synchronously on the thread that calls `set`, only when the value changes (`Objects.equals`). When two threads set the same property at once, listeners may see the values out of order; code for which the order matters sets the property from one thread.
 - `map` and `combine` are lazy: a mapped observable subscribes to its sources only while it has subscribers. While it has some, it keeps its last value and notifies them only when a source change gives a new value (`Objects.equals`), as a property does; its `get()` returns that value. Without subscribers, `get()` computes from the sources' current values. Mapping functions may therefore run more than once, on any thread: they must be cheap and free of side effects.
 - Core has no EDT. The UI layer moves work to the EDT itself (see below); other code that listens runs on the setter's thread.
@@ -226,9 +234,11 @@ public interface Property<T> extends Observable<T> {
 
 Swing components are created and changed only on the EDT, while an observable may change on any thread, for example at the end of a task's background work. Every subscription the UI layer makes follows one rule: `Ui.bind`, the enabled and selected states of commands, and [dynamic menu entries](#dynamic-entries).
 
-1. The listener, on the setter's thread, touches no component. It sets a pending flag and, if the flag was not already set, posts one update with `EventQueue.invokeLater`. It posts even when it is already on the EDT, so an update never runs in the middle of the code that called `set`.
+1. The listener, on the setter's thread, touches no component. It sets a pending flag and, if the flag was not already set, queues one update. The updates of every subscription share one queue, which one `EventQueue.invokeLater` drains on the EDT. It is posted even when the change happens on the EDT, so an update never runs in the middle of the code that called `set`.
 2. The update, on the EDT, clears the flag and reads the latest value with `get()`, not the value the listener received. Several changes before it runs cause one update, with the final value.
 3. If the subscription's scope closed in the meantime, the update does nothing.
+4. The queue runs the framework's updates first, the enabled and selected states of commands and the dynamic menu entries, then the views' `Ui.bind` targets, each group in the order its subscriptions were made. A binding's target so sees every command of its view following the same change, the buttons and menu items of its `Action` included, whether the binding was made before or after the command was attached. An update queued while the queue drains, by a target that sets an observable, runs in the same drain, in its place in that order.
+5. A target that throws ends the drain: the failure goes to the EDT's uncaught exception handler, and the remaining updates run in the next drain, posted at once.
 
 The test harness runs posted updates before each assertion, so tests see the components as the user will.
 
@@ -252,11 +262,18 @@ void toggleWordWrap() { ... }
 | Attribute | Meaning |
 |---|---|
 | `id` | Defaults to the method name. It is also the TOML key and the Swing action command. |
-| `enabled` | Name of a non-private field or no-arg method of the class whose type is `Observable<Boolean>`. Absent: always enabled. |
+| `enabled` | Name of an [`@Exposed`](#exposed-fields) field or a non-private no-arg method of the class whose type is `Observable<Boolean>`. Absent: always enabled. |
 | `selected` | Same, for a `Property<Boolean>`. The command becomes a toggle: activating it flips the property, then calls the handler. |
 | `block` | `Block.NONE` (default), `COMMAND`, `COMPONENT`, `WINDOW` or `APPLICATION`. Allowed only when the handler returns a `Task`: any other value on a `void` handler is a compile error. |
 
-The handler is a non-private, non-static method returning `void` or `Task<?>`. A private handler, `enabled` target or `selected` target is a compile error, since the generated class in the same package must reach it. It takes no parameter, or a single `CommandContext`; any other parameter is a compile error. It is called on the EDT.
+The handler is a non-private, non-static method returning `void` or `Task<?>`. A private handler, `enabled` target or `selected` target is a compile error, since the generated class in the same package must reach it; so is a target field that isn't `@Exposed`. It takes no parameter, or a single `CommandContext`; any other parameter is a compile error. It is called on the EDT.
+
+`@Command` on a field declares a toggle with no handler. The field is a non-private, non-static `Property<Boolean>`: activating the command flips it, and the command's selected state follows it, as with `selected`. Its id defaults to the field's name, and names the command's method in the generated class. It takes `enabled`, but neither `selected` nor `block`; `@Command` on any other field is a compile error.
+
+```java
+@Command(id = "wordWrap")
+final Property<Boolean> wrap = Property.of(true);    // ui.bind(editor::setLineWrap, wrap) does the rest
+```
 
 ```java
 @Command
@@ -273,7 +290,7 @@ void open(CommandContext context) {
 
 | Method | Returns |
 |---|---|
-| `modifiers()` | `Set<Modifier>`: `SHIFT`, `CONTROL`, `ALT`, `META`, and `SHORTCUT`, which is set with `CONTROL` or `META`, whichever is the platform's menu shortcut modifier |
+| `modifiers()` | `Set<Modifier>`: `SHIFT`, `CONTROL`, `ALT`, `META`, and `SHORTCUT`, which is set with `CONTROL` or `META`, whichever is the platform's menu shortcut modifier (⌘ on macOS, Ctrl elsewhere, the platform being gaia's `Platform`, which tests fake, not the toolkit's) |
 | `trigger()` | The `Trigger`, with the objects of the path that activated the command |
 
 ```java
@@ -317,7 +334,7 @@ Handlers take no `ActionEvent`:
 
 ### Generated class
 
-For each class that declares commands, the processor generates a public `<Class>Commands` in the same package:
+For each class that declares or inherits commands, the processor generates a public `<Class>Commands` in the same package. It extends the generated class of the superclass when the superclass has commands, else `StandardCommands` (see [Inheritance and naming](#inheritance-and-naming)):
 
 ```java
 @ViewScoped
@@ -373,14 +390,42 @@ A class may declare a command whose id is a standard command's (`exit`, `about`,
 - The processor reports it as a compiler warning, on the handler: "Command `exit` of `p.CounterApp` overrides the standard command `exit`. Overriding standard commands may become an error in a future version."
 - The standard command is not used where the override applies, and the user-written one is used instead. Its resources default to the standard command's (text, shortcut, icon), and the class's own `[commands.<id>]` table overrides them key by key.
 - In the class's generated class, the standard method (`exit()`) returns the user-written command, as does the method named after the handler when it has another name.
-- In a view whose class, or one of its superclasses, declares the override, every `StandardCommands` instance of the view returns the user-written command. The framework registers the view class's overrides in the view's `CommandRegistry` before it resolves the view. On macOS, the application menu's Quit, About and Preferences run the main view's commands, so an override in a single-frame application class applies there too.
+- In a view whose class, or one of its superclasses, declares the override, every `StandardCommands` instance of the view returns the user-written command. The framework registers the view class's overrides in the view's `CommandRegistry` before it resolves the view, or, for a view created by a factory, whose class is known only once it exists, as soon as it exists and before its component resources are applied: a standard command asked for in such a view's constructor is the standard one. On macOS, the application menu's Quit, About and Preferences run the main view's commands, so an override in a single-frame application class applies there too.
 - A handler whose name is a standard command's method name, but whose id is another one, is a compile error: its generated method would override the standard method with an unrelated command.
+- An override declared in a class that is not a view applies nowhere, since only a view's registry holds overrides; the processor warns about it.
 
 ### Inheritance and naming
 
-A class inherits the commands of its superclasses: its generated class has a method for each, which calls the handler on the subclass's instance. An inherited handler, `enabled` target or `selected` target in another package must be `protected` or `public`; otherwise it is a compile error.
+A class inherits the commands of its superclasses: its generated class has a method for each, which calls the handler on the subclass's instance, with the subclass's resources. That class extends the generated class of the superclass, so a superclass's code that takes its own generated class runs the subclass's commands once the subclass passes its own to `super(...)`:
 
-A nested class gets `<Outer><Nested>Commands`. Two classes in one package that would produce the same name are a compile error.
+```java
+@ViewScoped
+public class BaseScene {
+    @Inject
+    BaseScene(Ui ui, BaseSceneCommands commands) {
+        ui.popupMenu(panel, commands.create(), commands.remove());
+    }
+
+    @Command
+    void create() { ... }
+}
+
+public final class DerivedScene extends BaseScene {
+    @Inject
+    DerivedScene(Ui ui, DerivedSceneCommands commands) {    // DerivedSceneCommands extends BaseSceneCommands
+        super(ui, commands);
+    }
+}
+```
+
+- The generated class of a class that is not final is not final either. Besides its `@Inject` constructor, it has a protected one that binds no command, which the generated class of a subclass calls: that one binds every command, inherited ones included, on the subclass's instance, and overrides every method.
+- The generated class of an abstract class is abstract: it declares a method per command and binds none. inject builds no instance of it.
+- A bean's own class wins over a key that another bean has only through its supertypes, so injecting `BaseSceneCommands` still gives the base scene's own commands.
+- A class that only inherits commands is found among the root elements of the compilation, even when its constructor names its own generated class, which doesn't exist yet: the commands step asks gaia for such root elements, with `Step.processesUnresolvedRootElements()`, and reads only their superclasses and `@Command` methods.
+
+An inherited handler, `enabled` target or `selected` target in another package must be `public`, since the generated class of the subclass is not a subclass of the declaring class and can't reach a `protected` member there; otherwise it is a compile error.
+
+A nested class gets `<Outer><Nested>Commands`. Two classes in one package that would produce the same name are a compile error, whether they are compiled together or not: the processor also checks that no type with the name exists already.
 
 ### `BoundCommand`
 
@@ -390,7 +435,7 @@ A nested class gets `<Outer><Nested>Commands`. Two classes in one package that w
 | `createButton()`, `createMenuItem()` | A new component on each call |
 | `createToggleButton()`, `createCheckBoxMenuItem()` | The same, for commands with a selected state; they throw `IllegalStateException` on other commands |
 | `asAction()` | The same `javax.swing.Action` on each call |
-| `execute()`, `execute(CommandContext)` | Runs the command as if activated, if enabled, and returns `true`; returns `false` otherwise. Whether it is enabled is the `enabled` observable's current `get()`, not the state of the `Action`, which follows it one posted update later. Without a context, the trigger is `Trigger.Programmatic` and no modifier is set. |
+| `execute()`, `execute(CommandContext)` | Runs the command as if activated, if enabled, and returns `true`; returns `false` otherwise. Whether it is enabled is the `enabled` observable's current `get()`, and the command not being blocked by its own running task, not the state of the `Action`, which follows them one posted update later. Without a context, the trigger is `Trigger.Programmatic` and no modifier is set. |
 
 `BoundCommand` also implements `MenuEntry` (see [Menus and toolbars](#menus-and-toolbars)).
 
@@ -406,7 +451,7 @@ Each created component shares the command's `Action`, so text, icon, tooltip, en
 | `about()` | Shows a minimal About dialog: displayed name, `version` and `vendor` from `@Application` |
 | `preferences()` | Calls `PreferencesHandler.showPreferences()`. Disabled unless a `PreferencesHandler` bean exists, which the framework probes with `Injector.getBeanDefinition` |
 | `cut()`, `copy()`, `paste()`, `selectAll()` | Delegate to the focused component's `TransferHandler` actions or its action map; enabled state follows focus and selection |
-| `closeWindow()` | Closes the current window after its vetoes; in a single-frame application, on the main frame, same as `exit()` |
+| `closeWindow()` | Closes the current window: on the main frame, same as `exit()`, after the vetoes; in a dialog, same as `cancel()`, since a dialog has no vetoes |
 | `ok()`, `cancel()` | In dialog views only: close the dialog with or without a result. Outside a dialog view's scope, calling them throws `IllegalStateException` |
 
 On macOS, `exit()`, `about()` and `preferences()` are wired to `Desktop` handlers, with the `Trigger.OperatingSystem` of `SystemAction.QUIT`, `ABOUT` and `PREFERENCES`. They are left out of every menu built from descriptions (`Ui.menuBar`, `Ui.popupMenu`, `MenuSpec.createMenu()`), since the application menu shows them; toolbars and buttons keep them.
@@ -433,7 +478,7 @@ accessible-description = "Saves the note to its file"
 ```
 
 - `text`: `&` marks the mnemonic; `&&` is a literal ampersand. On macOS, mnemonics are not set, following the platform's guidelines.
-- `icon`: a path relative to the class's package, loaded as described in [Icons](#icons).
+- `icon`: a path relative to the package of the class whose file names it, loaded as described in [Icons](#icons).
 - `shortcut`: the `KeyStroke.getKeyStroke(String)` syntax, where `shortcut` stands for the platform's menu shortcut modifier (Ctrl, or ⌘ on macOS).
 - `tool-tip-text`, `accessible-name`, `accessible-description`: as named.
 
@@ -441,11 +486,11 @@ accessible-description = "Saves the note to its file"
 
 - Menu items show the shortcut as their accelerator.
 - Each window registers the shortcut of every command [attached](#attaching) in its scopes in its root pane's `WHEN_IN_FOCUSED_WINDOW` input map, so a shortcut works even when the command is only on a toolbar or a button, or nowhere.
-- Two commands with the same shortcut in one class's resources fail the build. Two in the same window but from different classes are reported when the second one is attached: an exception in development mode (`-Dbe.imgn.swing.dev=true`) and in tests, a warning otherwise. The same command, attached through several views of one window, registers its shortcut once.
+- Two commands with the same shortcut in one class's resources, on any one platform (the base file merged with that platform's variant), fail the build; `shortcut` counts as its own modifier, so `shortcut S`, `ctrl S` and `meta S` are three shortcuts. Two in the same window but from different classes are reported when the second one is attached: an exception in development mode (`-Dbe.imgn.swing.dev=true`) and in tests, a warning otherwise. The same command, attached through several views of one window, registers its shortcut once.
 
 ### Menus and toolbars
 
-Menus are built in code, from descriptions. For each class whose resources have `[menus.<id>]` tables, the processor generates a `<Class>Menus` class, as it does for commands:
+Menus are built in code, from descriptions. For each application, command or view class whose resources have `[menus.<id>]` tables, the processor generates a `<Class>Menus` class, as it does for commands:
 
 ```java
 @ViewScoped
@@ -468,7 +513,7 @@ public final class CounterAppMenus extends StandardMenus {
 - The generated class is `@ViewScoped`, like generated commands.
 - `StandardMenus` (UI) is a `@ViewScoped` bean, injectable on its own by classes that declare no `[menus.*]` table. Its `protected final BoundMenu menu(Class<?> owner, String id)` builds a menu from that class's resources.
 - The method is named after the id, converted to lower camel case (`recent-files` gives `recentFiles()`). An id that doesn't convert to a Java identifier is a compile error.
-- `StandardMenus` provides `file()`, `edit()`, `view()`, `window()` and `help()`, with text and mnemonics from the framework's resources, so most applications declare no `[menus.*]` table for them. A `[menus.file]` table in the application's resources overrides their text and generates no method. A class whose only `[menus.*]` tables override standard menus gets no generated class.
+- `StandardMenus` provides `file()`, `edit()`, `view()`, `window()` and `help()`, with text and mnemonics from the framework's resources, so most applications declare no `[menus.*]` table for them. A `[menus.file]` table in the resources of the application class, or of the view class, overrides their text in that view, the view class's winning, and generates no method. A class whose only `[menus.*]` tables override standard menus gets no generated class.
 - A `BoundMenu` holds the menu's resources and belongs to the scope, like a `BoundCommand`. When the locale changes (milestone 4), the scope refreshes it.
 
 `BoundMenu.with(MenuEntry...)` returns a `MenuSpec`, an immutable description of the menu. The `Ui` turns descriptions into components:
@@ -492,7 +537,7 @@ ui.toolBar(commands.increment(), ToolBarEntry.SEPARATOR, commands.copy());
 
 Building from descriptions lets the framework see the whole menu at once:
 
-- It drops `exit()`, `about()` and `preferences()` on macOS, where the application menu shows them, then drops leading, trailing and doubled separators.
+- It drops `exit()`, `about()` and `preferences()` on macOS, where the application menu shows them, then hides leading, trailing and doubled separators.
 - It checks for duplicate mnemonics in each menu and among the bar's menus when it builds them: an exception in development mode and in tests, a warning otherwise.
 - It can rebuild the components when the locale changes.
 
@@ -520,10 +565,10 @@ menus.file().with(
         commands.exit())
 ```
 
-- `MenuEntry.dynamic(Observable<? extends List<? extends DynamicEntry>>)`: when the observable changes, the framework rebuilds that section of every menu created from the description, checks its mnemonics again and drops the separators it leaves doubled. The subscription belongs to the scope the menu was built in.
+- `MenuEntry.dynamic(Observable<? extends List<? extends DynamicEntry>>)`: when the observable changes, the framework rebuilds that section of every menu created from the description, checks its mnemonics again and hides the separators it leaves doubled. The subscription belongs to the scope the menu was built in; the components of the section, a submenu's own dynamic sections included, subscribe in a child scope of it that is closed and opened again at each rebuild, so a replaced submenu takes its subscriptions with it.
 - Threading follows the [delivery rule](#delivery-to-the-edt). The `map` that builds the entries runs on the thread that changed the list, which is safe: entries are immutable descriptions, not components. Only the rebuild, on the EDT, creates components. If the menu is open, the rebuild revalidates it and resizes its popup with `pack()`.
 - An item's action runs on the EDT, like a command handler.
-- `DynamicEntry.item(String text, Runnable action)` returns an `Item`, a plain item. `Item` is a `DynamicEntry` and not a `MenuEntry`, so it exists only inside a dynamic entry. Dynamic items are data, like a file name: they have no resources, no fixed id, and an action that needs an argument, which command handlers don't take. They have no shortcut. `&` marks a mnemonic as in resources; `DynamicEntry.numbered(List<Item>)` returns the items with `&1` to `&9` prefixed to the first nine, as recent-file lists usually do. It takes items only: a command's text belongs to its `Action`, shared by every component.
+- `DynamicEntry.item(String text, Runnable action)` returns an `Item`, a plain item. `Item` is a `DynamicEntry` and not a `MenuEntry`, so it exists only inside a dynamic entry. Dynamic items are data, like a file name: they have no resources, no fixed id, and an action that needs an argument, which command handlers don't take. They have no shortcut. `&` marks a mnemonic as in resources; `DynamicEntry.numbered(List<Item>)` returns the items with `&1 ` to `&9 `, a space after the digit, prefixed to the first nine, as recent-file lists usually do. It takes items only: a command's text belongs to its `Action`, shared by every component.
 - A dynamic entry can also hold commands and submenus.
 
 Entries are built from the observable rather than filled when the menu opens (`menuSelected`), which is Swing's usual approach. The menu is then always up to date, the mnemonic check and tests see it without opening it, and the result doesn't depend on how `menuSelected` behaves with the macOS screen menu bar.
@@ -548,9 +593,9 @@ Platform ids are `windows`, `macos` and `linux`, from gaia's `Platform`. On a Un
 
 ### Reading resources on the module path
 
-For each package that contains a class with resources, the processor generates `$$Resources implements ResourceOpener`. It has `String packageName()` and `Optional<InputStream> open(String fileName)`, which calls `$$Resources.class.getResourceAsStream(fileName)`. That call is in the package's own module, so it works without opening the package. The opener is registered through `ServiceFiles`; on the module path, gaia's `register-services` adds the `provides` clause.
+For each package that contains a class with resources, the processor generates `$$Resources implements ResourceOpener`. It has `String packageName()` and `Optional<InputStream> open(String fileName)`, which calls `$$Resources.class.getResourceAsStream(fileName)`. That call is in the package's own module, so it works without opening the package. The opener is written in the first round that adds no class to the package, so that a class gaia defers to a later round, such as a view injecting its own generated menus class, still adds its icons; a class checked after that is a warning, since the startup check of the icon loaders doesn't cover its icons. It is registered through `ServiceFiles`; on the module path, gaia's `register-services` adds the `provides` clause.
 
-`Resources` (core, singleton) finds openers through `ServiceLoader` by package name, parses with `Toml.parse(ByteSource)`, merges, and caches the merged table per class and locale.
+`Resources` (core, singleton) finds openers through `ServiceLoader` by package name, parses with `Toml.parse(ByteSource)`, merges, and caches the merged table per class; the locale is fixed per `Resources` instance.
 
 ### Icons
 
@@ -564,6 +609,7 @@ public interface IconLoader {
 ```
 
 - `swing-ui` contributes the PNG loader, with `@2x` variants (`MultiResolutionImage`). `swing-flatlaf` contributes the SVG loader, through `FlatSVGIcon`.
+- A command icon is loaded against the package of the class whose table gives it; a component icon against the view class's package, then its superclasses' packages, nearest first, since the merged table no longer tells which file named it.
 - Each `$$Resources` also has `Set<String> icons()`, the icon paths its package's resources name, which the processor knows. Startup step 4 checks that a loader supports every one of them: an `.svg` icon without `swing-flatlaf` on the module path is an error at startup.
 
 ### Locale
@@ -577,7 +623,7 @@ The locale reaches `Resources` and messages through `DisplayLocale` (core), a `r
 At the top level of a class's resources:
 
 - The tables `commands` and `menus` hold commands and menus.
-- Every other table names a component field of that class. Its keys are properties written to the component the field holds.
+- Every other table names an `@Exposed` component field of that class (see [Exposed fields](#exposed-fields)). Its keys are properties written to the component the field holds.
 - Plain values, not tables, are properties of the class itself: `name` and `theme` on the application class, `title` on a single-frame application class and on dialog views. Any other plain value, or one on a class it doesn't apply to, is a compile error.
 
 Messages are not in a class's resources: they have their own files (see [Messages](#messages)).
@@ -588,7 +634,7 @@ font = "Monospaced-14"
 accessible-name = "Note text"
 ```
 
-- The processor checks that `editor` is a non-private field whose type is a `java.awt.Component` subtype, and that each key is a supported property of that type.
+- The processor checks that `editor` is an `@Exposed` field whose type is a `java.awt.Component` subtype, and that each key is a supported property of that type.
 - It generates `$NotesView$$Injector`, which sets the properties with plain setter calls. Every property except `tab-title` is applied after the view's constructor, before `content()` is called; `tab-title` is applied after `content()` returns, once tabs exist.
 - Milestone 1 supports: `text`, `tool-tip-text`, `icon`, `font`, `foreground`, `background`, `enabled`, `visible`, `accessible-name`, `accessible-description`, `columns`, `rows`, `title` and `tab-title`. Wider coverage comes with the pre-generated property list of the vision.
 - `title` applies to `JComponent` fields: it is the title of the component's `TitledBorder`. When the component has no border, the injector sets `BorderFactory.createTitledBorder(title)`; when it has another kind of border, it throws `IllegalStateException`.
@@ -600,8 +646,25 @@ Value formats:
 |---|---|
 | Color | `"#rrggbb"`, `"#rrggbbaa"` |
 | Font | `Font.decode` syntax: `"Monospaced-14"`, `"SansSerif-BOLD-12"` |
-| Icon | A path, as for commands |
+| Icon | A path, as for commands, relative to the package of the class whose file names it |
 | References | `${key.path}` inside a string, resolved after merging, in the same class's table |
+
+
+### Exposed fields
+
+Generated code reads three kinds of fields: component fields, for their resources (`$X$$Injector`) and their window state (`$X$$State`), and the fields that `enabled` and `selected` name (`<Class>Commands`). It also reads the `Property<Boolean>` fields that `@Command` makes toggles, which `@Command` already marks: they need no `@Exposed`, and the root POM lists `be.imgn.swing.ui.Command` next to `be.imgn.swing.ui.Exposed` for Checkstyle. Without reflection, it can't read a private field, so each of these fields is package-private and annotated `@Exposed` (`be.imgn.swing.ui`), which says on the field itself that generated code reads it. Generated code reads no other field.
+
+```java
+@Documented
+@Retention(RetentionPolicy.CLASS)
+@Target(ElementType.FIELD)
+public @interface Exposed {}
+```
+
+- Its `CLASS` retention lets the processor read it from the class files of superclasses compiled separately.
+- An `@Exposed` field is neither private nor static, and its type is a subtype of `java.awt.Component` or of `Observable<Boolean>`. Any other `@Exposed` field is a compile error, so that the annotation exempts no other field from Checkstyle.
+- **Checkstyle.** The parent's `VisibilityModifier` accepts the fields annotated with the annotations that a project lists in the property `checkstyle.visibility.ignoredAnnotations` (see [Other libraries](#other-libraries)). The root POM sets it to `be.imgn.swing.ui.Exposed, be.imgn.swing.ui.Command`, so no source of the project suppresses the check. An application built on the imgn parent sets it too; one with its own Checkstyle configuration adds `be.imgn.swing.ui.Exposed` to its `VisibilityModifier`'s `ignoreAnnotationCanonicalNames`. The javadoc of `@Exposed` says so.
+- Every other field of the examples is private. Their tests find components through the harness, by type or by accessible name (see [Test harness](#test-harness)), not through fields.
 
 ---
 
@@ -632,30 +695,33 @@ confirmExit = "Do you really want to exit?"
 
 ## Build-time checks
 
-For every class with commands, menus, component fields with resources, or a `@Messages` interface, the processor reads the class's TOML files from `CLASS_OUTPUT` with `Filer.getResource`. Maven copies resources there before compiling. For IDEs that compile without copying, the option `-Abe.imgn.swing.resources=<dir>` adds a directory to look in.
+For every application, command or view class, and every `@Messages` interface, the processor reads the class's TOML files from `CLASS_OUTPUT` with `Filer.getResource`. A TOML file in such a package whose base name is a class the processor generates nothing for is reported as a warning, so that a file doesn't vanish silently. Maven copies resources there before compiling. For IDEs that compile without copying, the option `-Abe.imgn.swing.resources=<dir>` adds a directory to look in.
 
 | Check | Error when |
 |---|---|
 | Syntax | The file doesn't parse (`TomlParseException` gives line and column) |
 | Command ids | A `[commands.<id>]` table names no command of the class, its superclasses or `StandardCommands`, or a handler named like a standard command has another id. A command overriding a standard command is a warning, not an error (see [Overriding standard commands](#overriding-standard-commands)) |
 | Command properties | A key is not a known property, or its value has the wrong type |
-| Shortcuts | A `shortcut` doesn't parse, or two commands of the class share one |
+| Shortcuts | A `shortcut` doesn't parse, or two commands of the class share one on a platform, the base file merged with the platform's variant; the error is reported at the shortcut the later file set, naming the other file |
 | Mnemonics | A `text` has more than one `&` mnemonic |
-| Icons | An `icon` names a resource that doesn't exist |
+| Icons | An `icon`, its `${…}` references resolved within its own file, names a resource that doesn't exist. A reference to a key the file lacks, which only the merged table resolves, is a warning, and the icon goes unchecked |
 | Text | A command or menu has no `text` in the base file |
-| Translations | A locale file lacks a key of the base file, or has a key the base file lacks |
-| `enabled`, `selected` | The name matches no field or method of the right type |
+| Translations | A language file (`X_fr.toml`) lacks a key of the base file, or any locale or platform file has a key the base file lacks; a country file and a platform file override their base key by key, so they may hold a few keys only |
+| `enabled`, `selected` | The name matches no field or method of the right type, or names a field that isn't `@Exposed` |
+| Toggle fields | `@Command` is on a field that is not a `Property<Boolean>`, that is private or static, or with a `selected` or `block` attribute |
+| Variants | `@Variants` marks anything but an enum nested in a dialog view, or a dialog has two; `[variants]` is in the resources of a class with no `@Variants` enum, a table of it names no constant, a constant has no table in the base file, or a variant's table holds commands, menus or variants, or breaks a rule of the base table |
 | `block` | A value other than `NONE` is given on a handler that doesn't return a `Task` |
-| Scope widening | A class whose scope is `@Singleton`, `@WindowScoped` or `@ViewScoped`, declared or inherited, has an injection point (constructor parameter, `@Inject` field or method parameter) whose type has a narrower one of these scopes, not through `Provider`. The order is `@Singleton`, then `@WindowScoped`, then `@ViewScoped`. Every class the processor compiles is checked, with the types of its injection points read from sources and from class files; classes compiled without swing's processor are left to inject's runtime checks (I4) |
-| Messages | A placeholder names no parameter, or a pattern doesn't parse as a `MessageFormat` |
-| Component fields | A top-level table other than `commands` and `menus` names no non-private component field, or a key is not a supported property of its type |
-| Class properties | A top-level plain value is not a property of the class (`name` and `theme` on the application class, `title` on a single-frame application class or a dialog view) |
+| Scope widening | A class whose scope is `@Singleton`, `@WindowScoped` or `@ViewScoped`, declared or inherited, has an injection point (constructor parameter, `@Inject` field or method parameter) whose type has a narrower one of these scopes, not through `Provider`. The order is `@Singleton`, then `@WindowScoped`, then `@ViewScoped`. Every class the processor compiles is checked, its inherited injection points included, with the types of its injection points read from sources and from class files; records and enums are not beans of a scope and are not checked; classes compiled without swing's processor are left to inject's runtime checks (I4) |
+| Messages | A placeholder names no parameter, or a pattern doesn't parse as a `MessageFormat`; a `@Messages` interface is private, declares a generic method, or two methods with one name |
+| Component fields | A top-level table other than `commands` and `menus` names no `@Exposed` component field, or a key is not a supported property of its type |
+| Exposed fields | An `@Exposed` field is private or static, or its type is a subtype of neither `java.awt.Component` nor `Observable<Boolean>` |
+| Class properties | A top-level plain value is not a property of the class (`name` and `theme` on the application class, `title` on a single-frame application class or a dialog view), is not a string, or `theme` is none of `system`, `light` and `dark` |
 | Application | A name of `@Application` breaks gaia's rules, `qualifier` is given without `vendor`, or the annotated class doesn't implement `SingleFrame` |
 
 Diagnostics are attached to the Java element (the `@Command` method, the class, the field), with the file, line and column in the message:
 
 - The processor parses each file with `Toml.parse`, which returns a `TomlDocument`: its `root()` table and its `positions()`.
-- It checks each file against its own parse, before merging, since positions belong to the parsed tables: a merged or copied table has none.
+- It checks each file against its own parse, before merging, since positions belong to the parsed tables: a merged or copied table has none. The duplicate-shortcut check is the exception: it merges the base file with each platform variant and reports at the position of the file that set the colliding key.
 - An error on a key is reported at `positions().key(table, key)`, on a value at `value(table, key)`, on an array element at `element(array, index)`. The lookups throw when the key is absent, so the processor looks a key up only after finding it in the table.
 - A syntax or semantic error is reported at `TomlParseException.position()`.
 - A key that a locale file lacks is reported at the base file's position of that key.
@@ -691,6 +757,8 @@ public interface TaskWork<T> {
 - Cancelling interrupts the thread. A task that ends by `InterruptedException` or `CancellationException` after cancellation runs `onCancel`.
 - A failure with no `onFailure` handler goes to the `FailureHandler`, which shows the error dialog with the UI module.
 - A task belongs to the scope it was started in. Closing the scope cancels it.
+- `Task.none()` is the task with no work, for a command handler that has nothing to run, such as one whose confirmation was declined. Running it, through a command, `TaskService.run` or `Ui.run`, does nothing: no thread starts, no input is blocked, and its hooks never run. It is one shared instance, which may be run any number of times.
+- `progress` throws `IllegalArgumentException` outside 0..1 and -1. Starting a task twice, or in a closed scope, throws `IllegalStateException`.
 
 `TaskService.run(Task<?> task, Scope scope)` (core) runs a task in a scope, without blocking any input. `Ui.run(Task<?> task, Block block)` (UI) runs it in the `Ui`'s view scope with input blocking; outside a command, only `NONE`, `WINDOW` and `APPLICATION` apply, and `COMMAND` or `COMPONENT` throws `IllegalArgumentException`. A command whose handler returns a `Task` is run by its `BoundCommand`, which applies its `block` with the command itself and the command's `CommandContext`.
 
@@ -700,9 +768,9 @@ public interface TaskWork<T> {
 |---|---|
 | `NONE` | Nothing is blocked |
 | `COMMAND` | The command is disabled |
-| `COMPONENT` | One component is disabled, by trigger: for `ButtonClick`, the button; for `PopupMenuSelection`, the invoker; for `Shortcut`, the focus owner. For `MenuSelection`, `OperatingSystem` and `Programmatic`, which have no component acted on, the command is disabled instead, as with `COMMAND` |
-| `WINDOW` | A blocking glass pane covers the window: it consumes mouse and key events, shows a busy cursor and, after 300 ms, a progress indicator with a Cancel button |
-| `APPLICATION` | The same glass pane on every window |
+| `COMPONENT` | One component is disabled, by trigger: for `ButtonClick`, the button, unless it shares the command's `Action`, in which case the command is disabled instead, since the `Action` would re-enable the button; for `PopupMenuSelection`, the invoker; for `Shortcut`, the focus owner. For `MenuSelection`, `OperatingSystem` and `Programmatic`, which have no component acted on, the command is disabled instead, as with `COMMAND` |
+| `WINDOW` | A blocking glass pane covers the window: it consumes mouse and key events, the window's shortcuts included, shows a busy cursor and, after 300 ms (within 350 ms), a progress indicator with a Cancel button, which cancels the task that blocked the window last |
+| `APPLICATION` | The same glass pane on every window, those opened while the task runs included |
 
 ---
 
@@ -716,18 +784,21 @@ public interface SingleFrame extends View {
     default JToolBar toolBar() { return null; }       // placed at BorderLayout.NORTH
     default void configureFrame(JFrame frame) {}
     default boolean restoreBounds() { return true; }
+    default void ready() {}
 }
 ```
 
 `SingleFrame` extends `View`. When the application class implements it, the framework, on the EDT:
 
 1. Creates the main window with `Windows.createFrame()`, with `DO_NOTHING_ON_CLOSE` and a listener that requests exit.
-2. Creates the window's host with `scopedChildBuilder(WindowScoped.class)`, binding that `Window` and the window's `Scope`, and the view's host as its child with `scopedChildBuilder(ViewScoped.class)`, binding the view's `Scope`.
-3. Resolves the application class through the view's child injector. `SingleFrame` makes it view-scoped, so this is the instance that its generated commands reach.
-4. Applies its component resources, then calls `content()`, `menuBar()` and `toolBar()`, puts them in the window's root pane, then applies the `tab-title` properties. The build of the view ends here, and its commands are [attached](#attaching).
-5. Sets the window's title from the class's `title` resource, else the displayed name.
-6. Calls `configureFrame(frame)` with the `JFrame` that the real `Windows` wraps, then `pack()`. With no saved state, centers the frame on the screen unless `configureFrame` moved it.
+2. Sets the window's title from the class's `title` resource, else the displayed name. This comes before the view is built, so that a title the view sets or binds in `content()` wins.
+3. Creates the window's host with `scopedChildBuilder(WindowScoped.class)`, binding that `Window` and the window's `Scope`, and the view's host as its child with `scopedChildBuilder(ViewScoped.class)`, binding the view's `Scope`.
+4. Resolves the application class through the view's child injector. `SingleFrame` makes it view-scoped, so this is the instance that its generated commands reach.
+5. Applies its component resources, then calls `content()`, `menuBar()` and `toolBar()`, puts them in the window's root pane, then applies the `tab-title` properties. The build of the view ends here, and its commands are [attached](#attaching).
+6. Calls `configureFrame(frame)` with the `JFrame` that the real `Windows` wraps, then `pack()`. With no saved state, centers the frame on the screen unless `configureFrame` moved it or asked the platform to place it (`setLocationByPlatform`).
 7. Restores the saved window state, which overrides the position set by `configureFrame`. A frame that must always open at the same place overrides `restoreBounds()` to return `false`.
+
+It then shows the window. Once the application is ready (see [Startup](#startup)), it calls `ready()` once, on the EDT, before the `ReadyListener`s. Work that must not delay showing the window, such as loading its first data or starting a periodic task, goes there, as it went in SwingAppFramework's `Application.ready()`.
 
 Windows are created by `Windows` (UI, singleton), and the framework sees them as `Window` (UI):
 
@@ -747,7 +818,7 @@ public interface Windows {
 
 The real `Windows` wraps a `JFrame` or a modal `JDialog`. `AppTester`'s headless `Windows` wraps a bare `JRootPane`, which is lightweight: steps 6 and 7 are skipped there, since no frame exists, and every other step runs.
 
-In milestone 1, the `@Application` class must implement `SingleFrame`; otherwise it is a compile error. Opening windows from code comes with multi-frame applications, in milestone 3: from then on, `@Application` is required and `SingleFrame` is not. `ReadyListener` is part of milestone 1 regardless: it is the ready signal of the lifecycle, for work that must wait until the main window is shown.
+In milestone 1, the `@Application` class must implement `SingleFrame`; otherwise it is a compile error. Opening windows from code comes with multi-frame applications, in milestone 3: from then on, `@Application` is required and `SingleFrame` is not. `ReadyListener` is part of milestone 1 regardless: it is the ready signal of the lifecycle, for beans other than the main view, such as singletons, that must wait until the main window is shown.
 
 ### Dialogs
 
@@ -778,17 +849,45 @@ Optional<String> name = ui.showDialog(RenameDialog.class);
 Optional<String> name = ui.showDialog(RenameDialogFactory.class, f -> f.create(current));
 ```
 
+Dialogs of one class that differ only by their resources are variants of it, opened with `<R, E extends Enum<E>> Optional<R> showDialog(Class<? extends DialogView<R>> type, E variant)`:
+
+```java
+public final class SecondaryWindow implements DialogView<Void> {
+    @Variants
+    public enum Name { ZERO, ONE, TWO }
+    ...
+}
+
+ui.showDialog(SecondaryWindow.class, SecondaryWindow.Name.ONE);
+```
+
+```toml
+# SecondaryWindow.toml
+[label]
+font = "Lucida-PLAIN-48"
+
+[variants.one]
+title = "Window One"
+
+[variants.one.label]
+text = "Label One"
+```
+
+- `@Variants` (UI, `CLASS` retention) marks the one enum, nested in a dialog view, whose constants name its variants. Each constant has a table `[variants.<constant in kebab case>]`, laid out like the base table, its title and its component tables included, which the dialog's resources merge over the base table, key by key. Commands and menus stay in the base table, for every variant.
+- `showDialog` throws `IllegalArgumentException` when the constant's enum is not nested in the dialog's class, and `IllegalStateException` when the resources have no table for it, which only a class compiled without the processor allows.
+- Each variant keeps its own window state, under the dialog's class name followed by `.` and the variant's name.
+
 Both block until the dialog closes, on the EDT, as modal dialogs do, and return the result of `ok()`, or an empty result for `cancel()`.
 
 - `Ui.showDialog` is called on the opener's `Ui`, which is view-scoped: the dialog is owned by that view's window, is modal to it, and is centered on it.
-- The dialog's window is created with `Windows.createDialog(owner)`. Its child injector is a child of the opener's view injector, and the dialog view gets a view child of it, as any view. The dialog's `title` resource gives the dialog's title.
-- The second form passes arguments through an inject assisted factory, resolved through the dialog view's child injector. inject builds an assisted factory with the context of the injector it is resolved through, so the dialog's dependencies come from the dialog's scopes. The dialog itself must become the view scope's instance of `RenameDialog`, so that its generated commands reach it: an assisted product of a child-local scope is cached in that scope (I7).
+- The dialog's window is created with `Windows.createDialog(owner)`. Its child injector is a child of the opener's view injector, and the dialog view gets a view child of it, as any view. The dialog's `title` resource gives the dialog's title, else the displayed name. The dialog is document-modal; the error dialog is application-modal.
+- The second form passes arguments through an inject assisted factory, resolved through the dialog view's child injector. For a dialog view whose `@Inject` constructor has `@Assisted` parameters, the processor generates that factory, `<Class>Factory` in the dialog's package: an interface whose `@AssistedFactory` method `create` takes the assisted parameters, in order, with their names and their `@Assisted` values. A class of that name that already exists, written by hand or compiled earlier, is a compile error. inject builds an assisted factory with the context of the injector it is resolved through, so the dialog's dependencies come from the dialog's scopes. The dialog itself must become the view scope's instance of `RenameDialog`, so that its generated commands reach it: an assisted product of a child-local scope is cached in that scope (I7).
 - `buttons` receives the dialog view's `StandardCommands` bean, so its `ok()` and `cancel()` are the dialog's own.
-- Enter activates `ok()`, Escape activates `cancel()`; closing the dialog is `cancel()`.
+- Enter activates `ok()`, whose button is the root pane's default button, Escape activates `cancel()`; closing the dialog is `cancel()`.
 
 ### `Ui`
 
-`Ui` (UI, `@ViewScoped`) gathers what a view needs to build its components. Every method is called on the EDT, and every subscription it makes belongs to its view's scope.
+`Ui` (UI, `@ViewScoped`) gathers what a view needs to build its components, so a view injects `Ui`, its generated commands and its messages, rather than each service. Every method is called on the EDT, and every subscription it makes belongs to its view's scope.
 
 | Method | See |
 |---|---|
@@ -798,12 +897,17 @@ Both block until the dialog closes, on the EDT, as modal dialogs do, and return 
 | `JToolBar toolBar(ToolBarEntry... entries)` | [Menus and toolbars](#menus-and-toolbars) |
 | `void run(Task<?> task, Block block)` | [Tasks](#tasks) |
 | `showDialog(...)`, both forms | [Dialogs](#dialogs) |
+| `Window window()` | The view's window, the `Window` of its window scope |
+| `Dialogs dialogs()` | The `Dialogs` of the view's window |
+| `StandardMenus menus()` | The view's `StandardMenus`, which `Ui` reaches through a `Provider`, since `StandardMenus` depends on `Ui` |
+
+`Window`, `Dialogs` and `StandardMenus` stay beans of their scopes, which any bean may inject.
 
 ---
 
 ## Window state
 
-The state of the main frame is saved on exit, and the state of a dialog when it closes. Each is restored when its window is created.
+The state of the main frame is saved on exit, and the state of a dialog when it closes, or on exit if it is still open. Each is restored when its window is created.
 
 ```toml
 [windows.main]
@@ -825,9 +929,9 @@ bounds = [300, 200, 320, 160]
 | `JTabbedPane` selected index | Fields of the window's view | `components.<field>.selected-index` |
 | `JTable` column order and widths | Fields of the window's view | `components.<field>.columns`, an array of tables with `model-index` and `width`, in view order |
 
-Components are found through the non-private fields of the view, which the processor knows: no component needs a name. A private `JSplitPane`, `JTabbedPane` or `JTable` field is skipped, with a compile warning. The processor generates the field access in `$NotesView$$State`.
+Components are found through the [`@Exposed`](#exposed-fields) fields of the view, which the processor knows: no component needs a name. A `JSplitPane`, `JTabbedPane` or `JTable` field that isn't `@Exposed` is not saved, with no warning: exposing it is how a view asks for its state to be kept. An `@Exposed` one inherited from another package that is not public is skipped, with a compile warning. The processor generates the field access in `$NotesView$$State`.
 
-Saved bounds that don't lie entirely within the usable bounds of one current screen (its `GraphicsConfiguration` bounds minus its insets) are ignored: the window opens as with no saved state, and the rest of its state is still restored.
+Saved bounds that don't lie entirely within the usable bounds of one current screen (its `GraphicsConfiguration` bounds minus its insets) are ignored: the window opens as with no saved state, not maximized, and its components' state is still restored.
 
 The state is written to `window-state.toml` in gaia's `ApplicationDirectories.state()`, created with `Files.createDirectories` when missing, with toml's `Toml.writeAtomically`. toml has no writer from records to TOML, so milestone 1 converts its few state records to `TomlTable` by hand. A file that doesn't bind (unknown keys are rejected) is discarded with a warning, and the defaults are used.
 
@@ -837,7 +941,7 @@ The state is written to `window-state.toml` in gaia's `ApplicationDirectories.st
 
 `swing-flatlaf` provides the `LookAndFeelInstaller` that installs FlatLaf, which startup step 4 calls on the EDT before any component is created.
 
-- The `-Dbe.imgn.swing.theme` property, else the `theme` key of the application's resources, selects `system` (default), `light` or `dark`. The property wins, so a user can override what the application ships.
+- The `-Dbe.imgn.swing.theme` property, else the `theme` key of the application's resources, read through `ApplicationInfo.type()`, selects `system` (default), `light` or `dark`. The property wins, so a user can override what the application ships. An unknown value, of either, is logged as a warning and ignored.
 - `system` reads the operating system's setting once at startup: on macOS, `defaults read -g AppleInterfaceStyle`; on Windows, the `AppsUseLightTheme` registry value through `reg query`; on Linux, `gsettings get org.gnome.desktop.interface color-scheme`. Any failure means light.
 - Without `swing-flatlaf`, the system look and feel is used.
 
@@ -871,12 +975,14 @@ void exitAsksForConfirmation() {
 ```
 
 - **Headless.** `AppTester` runs the real lifecycle with its headless `Windows` (see [Windows](#windows)): frames and dialogs are never realized, which works in headless JVMs. The content, menu bar and toolbar are built and laid out in a bare root pane, so components can be found and inspected.
-- **Finding components.** `component(Class<T> type)` returns the one component of that type in the main window, and throws `IllegalStateException` when there is none or more than one. `components(Class<T> type)` returns them all, in depth-first order.
+- **Finding components.** `component(Class<T> type)` returns the one component of that type in the main window, and throws `IllegalStateException` when there is none or more than one. `components(Class<T> type)` returns them all, in depth-first order. `component(Class<T> type, String name)` returns the one whose accessible name is `name`, which is the text of the label whose `labelFor` it is or its `accessible-name` resource, with the same exception; tests find the components of a view this way, not through its fields. The dialog a test answers through `FakeDialogs.answerDialog` has the same three methods.
 - **Exit.** `AppTester`'s `Exit` records the status instead of exiting: after an exit, `isRunning()` is `false` and `exitStatus()` returns the status.
-- **EDT.** Every call on `AppTester` and on the commands it returns runs on the EDT and waits. `execute()` waits for the task a command starts, through the test `UiExecutor`. Before returning, the tester runs the updates posted by observables, so assertions see the components up to date.
-- **Fakes.** `FakeDialogs` records dialogs and answers them. `AppTester.start(type, locale)` binds `DisplayLocale`; `AppTester.start(type)` binds `Locale.ROOT`, which reads the base files. The platform and directories are gaia's `FakePlatform` and `FakeDirectories` on a `gaia-memfs` file system, so window state is saved in memory. Time uses `InstantSource` and gaia's `FakeTicker`.
+- **EDT.** Every call on `AppTester` that reaches the application, and every call on the commands it returns, runs on the EDT and waits; `dialogs()` and `ticker()` return the fakes, which tests configure from their own thread and the application reads on the EDT. `execute()` waits for the task a command starts, through the test `UiExecutor`. Before returning, the tester runs the updates posted by observables, so assertions see the components up to date.
+- **Fakes.** `FakeDialogs` records dialogs and answers them. `AppTester.start(type, locale)` binds `DisplayLocale`; `AppTester.start(type)` binds `Locale.ROOT`, which reads the base files. The platform and directories are gaia's `FakePlatform` and `FakeDirectories` on a `gaia-memfs` file system, so window state is saved in memory: the tester binds the `FakePlatform` as the `Platform` bean, and core's default directories follow it. Time uses `InstantSource` and gaia's `FakeTicker`.
+- **Configuration.** `AppTester.builder(type)` configures the start: `Builder.locale(Locale)` binds the `DisplayLocale` (`Locale.ROOT` by default), `Builder.arguments(String...)` gives the arguments, bound as `Arguments` as `Swing.launch` binds them (none by default), and `Builder.start()` starts the application. `start(type)` and `start(type, locale)` are shortcuts for it.
+- **Close.** `AppTester.close()` closes the windows, then the root injector and the application `Scope` through the lifecycle's close, without asking the exit vetoes or running the shutdown steps: tasks and subscriptions registered in the application scope are released between tests.
 - **EDT checker.** A `RepaintManager` replacement fails the test when a component is repainted or invalidated off the EDT.
-- **Mnemonic checker.** Menus check themselves when they are built (see [Menus and toolbars](#menus-and-toolbars)). The tester also checks every dialog it builds, and every menu after a dynamic section changes, for duplicate mnemonics and duplicate shortcuts.
+- **Mnemonic checker.** Menus check themselves when they are built and rebuilt (see [Menus and toolbars](#menus-and-toolbars)); in tests that check throws, and the tester records the failure and fails the test at its next call. The tester itself checks every dialog it builds for duplicate mnemonics and duplicate shortcuts. 
 
 ---
 
@@ -893,7 +999,7 @@ void exitAsksForConfirmation() {
 | Menus | `[menus.*]` tables in the resources of any of the above | `XMenus` |
 | Resources | Any of the above | `$$Resources` per package, service entries, the build-time checks |
 
-The views step is not triggered by an annotation: it overrides `Step.processesRootElements()` and gets each round's root elements through `AnnotatedElements.rootElements()`. An element it holds back is given back as its top-level type, since a step only gets root elements and elements with its annotations.
+The views step is not triggered by an annotation: it overrides `Step.processesRootElements()` and gets each round's root elements through `AnnotatedElements.rootElements()`. A view that injects its own generated menus class can't be resolved until that class exists; the menus step finds such classes again through their resource files in later rounds rather than by holding elements back.
 
 Generated classes with `@Inject` constructors are picked up by inject's processor in the next round, so the generated code never builds beans by hand.
 
@@ -918,6 +1024,8 @@ Milestone 1 builds on these changes, which inject provides from 0.1.1-SNAPSHOT. 
 | I7 | **Scoped assisted products.** inject's processor accepts any scoped assisted recipe; a product whose scope isn't child-local fails when the root is created. An assisted factory whose product has a child-local scope, resolved and called through a host of that scope, builds the product with dependencies from that host and caches it there under the product's key. From then on, the instance is resolvable through that host and its descendants, `Provider` included. Before the call, `get()` on a provider of the product fails, as resolving an assisted type does today, but the provider itself can be injected. A second call through the same host fails. Assisted products without a scope keep today's behavior. | Dialogs that take arguments and have commands |
 | I8 | **A module for the processor.** `inject-processor` gets a `module-info.java` that requires its dependencies and `provides javax.annotation.processing.Processor`. | Running every processor of an application from the processor module path, as modules |
 | I9 | **Ambiguous implicit keys.** When several beans get a key only through their supertypes (implicit exposure), the duplicate is not an error: the key is left unbound. A dependency on it fails when the injector that must satisfy it is created (the root for `@Singleton` and unscoped beans, the host for beans of a child-local scope), and `getInstance` on it fails; the messages name the key, the injection point when there is one, and every bean implementing it. Explicit keys (a bean's own class, `@ExposeAs`, qualifiers, `@Provides`) still fail as duplicates. swing marks nothing: views implementing `View`, `SingleFrame` and `DialogView` stay exposed under their own class, and injecting one of those interfaces directly is an ambiguity error as soon as two views implement it. | Two views in one application: without it, both are exposed under `View`, and creating the root fails with `DuplicateBindingException` |
+| I10 | **Assisted factories across rounds.** The assisted recipes found in a round stay known in later rounds of the compilation, and a factory whose product is a source of the compilation but whose recipe isn't known yet, such as one whose constructor names a type generated in the same round, waits for a later round; it is an error only after the last one. | Dialogs whose constructor takes their generated commands, and dialog factories generated after their dialog |
+| I11 | **JDK supertypes.** A bean is exposed under a JDK type (`java.*`, `javax.*`) only when it, or one of its own supertypes, implements or extends that interface directly. A JDK superclass is not exposed, nor is any type a JDK type brings in; `@ExposeAs` may still list any of them. | Beans that extend Swing components, such as the scenes of `ActionMapExample` |
 
 Existing inject behavior the design relies on, as inject's sources and documentation describe it:
 
@@ -933,9 +1041,29 @@ Existing inject behavior the design relies on, as inject's sources and documenta
 | imgn-dev/toml | Source positions of keys, values and array elements, and of syntax and semantic errors, at the offending key, header or value | Build-time errors at the right line and column | `TomlDocument`, `TomlPositions.key`, `value`, `element`, `TomlParseException.position()` |
 | imgn-dev/gaia | `TestCompiler` support for text and binary resource files on the class output | Processor tests, icons included | `TestCompiler.withResource(Location, String, String)` and `withResource(Location, String, byte[])` |
 | imgn-dev/gaia | A `Step` that sees every root element | The views step | `Step.processesRootElements()`, `AnnotatedElements.rootElements()` |
+| imgn-dev/imgn-parent | Checkstyle's `VisibilityModifier` appends `${checkstyle.visibility.ignoredAnnotations}` to its `ignoreAnnotationCanonicalNames`; the parent POM declares the property empty and passes it with `<propertyExpansion>`, since maven-checkstyle-plugin doesn't pass project properties on its own. The parent names no project | [Exposed fields](#exposed-fields) with no `@SuppressWarnings` | The property `checkstyle.visibility.ignoredAnnotations`, from the parent 2026-11-SNAPSHOT |
+| imgn-dev/gaia | A step that processes root elements can also get those whose members' signatures name a type javac can't resolve yet, as long as the type's own declaration resolves | Generating the commands of a class that only inherits them and names them in its constructor | `Step.processesUnresolvedRootElements()`, from gaia 0.1.2-SNAPSHOT |
 | imgn-dev/gaia | A public check of application names | Checking `@Application` at compile time with gaia's exact rules | `ApplicationDirectories.checkName(String name, String role)`, with the attribute's name as the role |
 
 The toml writer and the lenient mode from the vision's list are not needed in milestone 1: window state is converted by hand, and a state file that doesn't bind is discarded.
+
+---
+
+## Changes to the vision
+
+These depart from the [vision](vision.md), and are to be applied to it:
+
+- **Scope of the generated commands class.** The vision has it take the declaring class's scope, or the view scope for a singleton. It is always `@ViewScoped`: it builds components for a view through the view's `CommandRegistry`, which no wider scope could hold (see [Generated class](#generated-class)).
+- **What the generated class holds.** The vision has it hold the UI services. Its direct dependencies are the view's `CommandRegistry` and a `Provider` of the declaring class; the registry is the UI service it needs.
+- **Resource key constants.** The vision generates constants for icons so that code never looks up a resource by string. No constants are generated: commands and components get their icons from their resources, and no API takes an icon path, so the goal is met without them. Reconsider if an API ever takes a resource key.
+- **EDT adapters.** The vision's processor generates EDT adapters for `@EdtListener` interfaces. None are generated; the delivery rule and the executors cover the framework's own needs. The row is dropped from the vision, or scheduled with the inspector of milestone 4.
+- **The ready signal.** The vision fires it "once the event queue is idle". One `invokeLater` posted after the main window is shown is what idle means on the EDT.
+- **Timings.** The vision puts timings in resources. The framework's own timings, the 300 ms of the blocking glass pane and the 2 s of the shutdown, are constants until an application needs to tune one; an application's timings go in its resources. The principle is about what applications write.
+- **`content()`.** The vision's `NotesView` overrides `component()`; the hook is `content()`, as its `CounterApp` and this document have it.
+- **Exposed fields.** The vision's `NotesView` has private `editor` and `dirty` fields, which its resources and its `save` command name. Generated code can't read a private field without reflection, which the vision rules out: they are `@Exposed` package-private fields (see [Exposed fields](#exposed-fields)).
+- **`SingleFrame` hooks.** `toolBar()` and `restoreBounds()` join the vision's `content()`, `menuBar()` and `configureFrame(JFrame)`.
+- **`execute()`.** It returns `boolean`, `false` when the command is disabled, so that tests can tell.
+- **The processor's dependencies.** `swing-processor` requires `java.desktop` and `gaia-core` besides the vision's gaia-processing and toml (see [Modules](#modules)).
 
 ---
 

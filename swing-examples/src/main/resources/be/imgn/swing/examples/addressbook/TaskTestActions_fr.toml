@@ -1,0 +1,29 @@
+[commands.oneTaskNoBlocker]
+text = "1 tâche sans blocage"
+
+[commands.oneTaskActionBlocker]
+text = "1 tâche bloquant la commande"
+
+[commands.oneTaskComponentBlocker]
+text = "1 tâche bloquant le composant"
+
+[commands.oneTaskWindowBlocker]
+text = "1 tâche bloquant la fenêtre"
+
+[commands.oneTaskDialogBlocker]
+text = "1 tâche bloquant l'application"
+
+[commands.oneTaskProgressDialogBlocker]
+text = "1 tâche bloquant l'application, avec progression"
+
+[commands.oneTaskSerialExecutor]
+text = "1 tâche sans blocage (en série)"
+
+[commands.fiveTasksDialogBlocker]
+text = "5 tâches en parallèle bloquant l'application"
+
+[commands.twoSerialTaskDialogBlocker]
+text = "1 tâche lançant une autre tâche, bloquant l'application"
+
+[commands.twoSerialGroupsDialogBlocker]
+text = "1 tâche lançant un autre groupe de tâches"

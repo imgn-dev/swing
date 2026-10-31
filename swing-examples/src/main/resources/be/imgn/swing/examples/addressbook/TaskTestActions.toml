@@ -1,0 +1,29 @@
+[commands.oneTaskNoBlocker]
+text = "1 Task without input blocking"
+
+[commands.oneTaskActionBlocker]
+text = "1 Task with action blocking"
+
+[commands.oneTaskComponentBlocker]
+text = "1 Task with component blocking"
+
+[commands.oneTaskWindowBlocker]
+text = "1 Task with window blocking"
+
+[commands.oneTaskDialogBlocker]
+text = "1 Task with dialog blocking"
+
+[commands.oneTaskProgressDialogBlocker]
+text = "1 Task with dialog blocking and progress"
+
+[commands.oneTaskSerialExecutor]
+text = "1 Task without blocking (launched with serial executor)"
+
+[commands.fiveTasksDialogBlocker]
+text = "5 Tasks in parallel with dialog blocking"
+
+[commands.twoSerialTaskDialogBlocker]
+text = "1 Task launching another Task with dialog blocking"
+
+[commands.twoSerialGroupsDialogBlocker]
+text = "1 Task launching another TasksGroup"

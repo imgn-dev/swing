@@ -1,0 +1,22 @@
+title = "Contact details"
+
+[firstNameLabel]
+text = "&First Name"
+
+[lastNameLabel]
+text = "&Last Name"
+
+[birthLabel]
+text = "&Birth Date"
+
+[home]
+accessible-name = "Home Address"
+
+[office]
+accessible-name = "Office Address"
+
+[commands.previous]
+text = "< P&revious"
+
+[commands.next]
+text = "&Next >"

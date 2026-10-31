@@ -22,8 +22,24 @@
       <version>${gaia.version}</version>
     </dependency>
     <dependency>
+      <groupId>be.imgn.gaia</groupId>
+      <artifactId>gaia-core</artifactId>
+      <version>${gaia.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.toml</groupId>
+      <artifactId>toml</artifactId>
+      <version>${toml.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.jspecify</groupId>
       <artifactId>jspecify</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-ui</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>be.imgn.gaia</groupId>

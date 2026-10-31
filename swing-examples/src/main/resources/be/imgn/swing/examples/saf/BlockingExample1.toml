@@ -1,0 +1,28 @@
+title = "ActionExample5"
+
+[menus.blocking-demos]
+text = "&Blocking Demos"
+
+[commands.blockAction]
+text = "Block &Action"
+icon = "resources/pause.png"
+shortcut = "shortcut shift A"
+tool-tip-text = "Defined with @Command(block = Block.COMMAND)"
+
+[commands.blockComponent]
+text = "Block &Component"
+icon = "resources/pause.png"
+shortcut = "shortcut shift C"
+tool-tip-text = "Defined with @Command(block = Block.COMPONENT)"
+
+[commands.blockWindow]
+text = "Block &Window"
+icon = "resources/pause.png"
+shortcut = "shortcut shift W"
+tool-tip-text = "Defined with @Command(block = Block.WINDOW)"
+
+[commands.blockApplication]
+text = "Block A&pplication"
+icon = "resources/pause.png"
+shortcut = "shortcut shift P"
+tool-tip-text = "Defined with @Command(block = Block.APPLICATION)"

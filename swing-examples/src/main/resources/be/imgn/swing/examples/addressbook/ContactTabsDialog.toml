@@ -1,0 +1,19 @@
+title = "Contact details"
+
+[firstNameLabel]
+text = "&First Name"
+
+[lastNameLabel]
+text = "&Last Name"
+
+[birthLabel]
+text = "&Birth Date"
+
+[contactTab]
+tab-title = "General"
+
+[home]
+tab-title = "Home Address"
+
+[office]
+tab-title = "Office Address"

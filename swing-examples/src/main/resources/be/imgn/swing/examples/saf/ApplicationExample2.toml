@@ -1,0 +1,6 @@
+name = "Application Example: Hello World with resources"
+title = "${name} (version 1.0)"
+
+[label]
+text = "Hello World"
+font = "Lucida-PLAIN-32"

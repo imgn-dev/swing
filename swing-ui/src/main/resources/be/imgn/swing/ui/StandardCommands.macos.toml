@@ -1,0 +1,6 @@
+[commands.exit]
+text = "Quit"
+
+[commands.preferences]
+text = "Settings..."
+shortcut = "shortcut COMMA"

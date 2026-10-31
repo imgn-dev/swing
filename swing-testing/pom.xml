@@ -15,4 +15,41 @@
   <name>swing testing</name>
   <description>The test harness of swing applications.</description>
 
+  <dependencies>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-ui</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.inject</groupId>
+      <artifactId>inject</artifactId>
+      <version>${inject.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.gaia</groupId>
+      <artifactId>gaia-core</artifactId>
+      <version>${gaia.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.gaia</groupId>
+      <artifactId>gaia-core-testing</artifactId>
+      <version>${gaia.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.gaia</groupId>
+      <artifactId>gaia-memfs</artifactId>
+      <version>${gaia.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+    </dependency>
+  </dependencies>
+
 </project>

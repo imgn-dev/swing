@@ -1,0 +1,16 @@
+# The text and mnemonics of the standard menus. An application overrides them in its own resources.
+
+[menus.file]
+text = "&File"
+
+[menus.edit]
+text = "&Edit"
+
+[menus.view]
+text = "&View"
+
+[menus.window]
+text = "&Window"
+
+[menus.help]
+text = "&Help"

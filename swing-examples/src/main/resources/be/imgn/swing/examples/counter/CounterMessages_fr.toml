@@ -1,0 +1,2 @@
+count = "Le compte est : {count}."
+confirmExit = "Voulez-vous vraiment quitter ?"

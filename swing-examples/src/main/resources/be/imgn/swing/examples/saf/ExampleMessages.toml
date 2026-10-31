@@ -1,0 +1,31 @@
+reallyExit = "Really exit?"
+errorOnButton = "Ah\nAh\nAh"
+cannotOpen = "Error: can''t open \"{file}\""
+listing = "Listing files in {directory}"
+listed = "{count,choice,0#No file listed|1#One file listed|1<{count,number,integer} files listed}"
+elapsed = "Elapsed time: {millis}"
+defaultText = """
+Load a text file with the open File menu item.
+
+Try the cut, copy and paste toolbar and edit menu commands, and take note of how the enabled state of the items and \
+toolbar buttons track the selection of the editor.
+
+Files edited in this demo app are never saved.
+
+The close File menu item clears the editor and restores this message."""
+loadingWait = "Loading please wait ..."
+loadingCancelled = "Cancelled"
+loadingFailed = "Loading image {image} failed"
+imageTooltip = "Image from {image}  [{width,number,#####} x {height,number,#####}]"
+step = "Working... [{step}]"
+succeeded = "Done"
+cancelled = "Cancelled"
+selectedChanged = "selected {selected}, toggle action {action}, check box {check}, radio button {radio}"
+savedFile = "Saved: {file}"
+loadedFile = "Loaded: {file}"
+closeTab = "close this tab"
+ready = "Ready..."
+nameHeader = "Name"
+redHeader = "Red"
+greenHeader = "Green"
+blueHeader = "Blue"
