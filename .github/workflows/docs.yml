@@ -1,0 +1,144 @@
+name: API docs
+
+# Publishes the API documentation of the main branch on the gh-pages branch,
+# served at https://imgn-dev.github.io/swing/api/snapshot/, replacing it on
+# every push to main.
+on:
+  push:
+    branches: [main]
+
+# Nothing by default: each job asks for what it needs.
+permissions: {}
+
+jobs:
+  # Runs the build, so it gets a read-only token that is not even kept on disk:
+  # a compromised plugin or dependency cannot push anything.
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      commit: ${{ steps.version.outputs.commit }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: source
+          persist-credentials: false
+
+      # The snapshots swing depends on are published nowhere: install them at
+      # the commits CI pins, as CI does. A checkout fetches a commit by its full
+      # SHA only. Drop these steps at the first releases of the parent, gaia,
+      # toml and inject.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: imgn-dev/parent
+          ref: ec1bf2cad8810b34cf6343a8a049abd486236892
+          path: upstream/parent
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: imgn-dev/gaia
+          ref: da992f6d02e31b0699b3d4c760cbc9366c6a63d4
+          path: upstream/gaia
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: imgn-dev/toml
+          ref: 60678e0c4b688f187091f89c0534f05ed37fc8a3
+          path: upstream/toml
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: imgn-dev/inject
+          ref: 42f2489a609cad8797741b44275162634d4dda7b
+          path: upstream/inject
+          persist-credentials: false
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Install the upstream snapshots
+        run: |
+          for project in parent gaia toml inject; do
+            (cd "upstream/$project" && ./mvnw -B -q install -DskipTests)
+          done
+
+      - name: Build the documentation
+        run: source/scripts/javadoc.sh source "$RUNNER_TEMP/site-input/javadoc"
+
+      - id: version
+        name: Read the version
+        run: |
+          version=$(sed -nE 's|.*<title>.*\(swing (.+) API\)</title>.*|\1|p' "$RUNNER_TEMP/site-input/javadoc/index.html" | head -n 1)
+          echo "version=$version" >>"$GITHUB_OUTPUT"
+          echo "commit=$(git -C source rev-parse --short HEAD)" >>"$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: site-input
+          path: ${{ runner.temp }}/site-input
+          if-no-files-found: error
+          retention-days: 1
+
+  # Pushes to gh-pages, so it runs none of the build: only the scripts of the
+  # pushed commit, on what the build job produced.
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    # A pending snapshot gives way to a newer one, as GitHub keeps one pending
+    # run per group.
+    concurrency:
+      group: docs-snapshot
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+      COMMIT: ${{ needs.build.outputs.commit }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: main
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: site-input
+          path: ${{ runner.temp }}/site-input
+
+      - name: Check out gh-pages
+        working-directory: main
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth=1 origin gh-pages:gh-pages; then
+            git worktree add ../site gh-pages
+          else
+            echo 'No gh-pages branch yet: starting it.'
+            git worktree add --orphan -b gh-pages ../site
+          fi
+
+      - name: Update the site
+        run: main/scripts/docs-site.sh snapshot site "$RUNNER_TEMP/site-input/javadoc"
+
+      - name: Push gh-pages
+        working-directory: site
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'Nothing changed.'
+            exit 0
+          fi
+          git commit -m "docs: publish the API of $VERSION ($COMMIT)"
+          # Another run may have pushed meanwhile: its commit is rebased on; a
+          # conflict fails the step.
+          for attempt in 1 2 3; do
+            if git push origin gh-pages; then
+              exit 0
+            fi
+            git pull --rebase origin gh-pages
+          done
+          git push origin gh-pages

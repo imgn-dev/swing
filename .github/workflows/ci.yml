@@ -19,40 +19,41 @@ jobs:
         # 25: the latest LTS, so the build and tests also run on a current JDK.
         java: ['21', '25']
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # The snapshots swing depends on are published nowhere: check out the
       # upstream repositories at pinned commits and install them in the local
       # repository, in dependency order, each from its own directory. Their
       # builds need JDK 25: the parent requires it, and gaia and toml run Error
-      # Prone, which the parent configures for it. Drop these steps, up to the
-      # matrix JDK, at the first releases of the parent, gaia, toml and inject.
-      - uses: actions/checkout@v5
+      # Prone, which the parent configures for it. A checkout fetches a commit by
+      # its full SHA only. Drop these steps, up to the matrix JDK, at the first
+      # releases of the parent, gaia, toml and inject.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: imgn-dev/imgn-parent
-          ref: 750718e
-          path: upstream/imgn-parent
-      - uses: actions/checkout@v5
+          repository: imgn-dev/parent
+          ref: ec1bf2cad8810b34cf6343a8a049abd486236892
+          path: upstream/parent
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: imgn-dev/gaia
-          ref: 6256bea
+          ref: da992f6d02e31b0699b3d4c760cbc9366c6a63d4
           path: upstream/gaia
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: imgn-dev/toml
-          ref: 60678e0
+          ref: 60678e0c4b688f187091f89c0534f05ed37fc8a3
           path: upstream/toml
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: imgn-dev/inject
-          ref: 14b7cb9
+          ref: 42f2489a609cad8797741b44275162634d4dda7b
           path: upstream/inject
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: '25'
           cache: maven
       - run: ./mvnw -B -q install -DskipTests
-        working-directory: upstream/imgn-parent
+        working-directory: upstream/parent
       - run: ./mvnw -B -q install -DskipTests
         working-directory: upstream/gaia
       - run: ./mvnw -B -q install -DskipTests
@@ -60,7 +61,7 @@ jobs:
       - run: ./mvnw -B -q install -DskipTests
         working-directory: upstream/inject
       # The matrix JDK, for swing itself.
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
