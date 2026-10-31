@@ -45,7 +45,7 @@ Proposal:
 
 With these, both examples lose their generation, their enabled properties and their counters.
 
-**Roadmap:** milestone 2. `running()` is an observable, and the milestone is about state; the tasks of milestone 1 are otherwise complete.
+**Roadmap:** milestone 2. `running()` is an observable, and the milestone is about state; the tasks of milestone 1 are otherwise complete. **Integrated** into [milestone 2](milestone-2.md#tasks-and-commands), with `restart` and the serial option as one `concurrency` attribute.
 
 ### 2. Partial results from a task
 
@@ -53,7 +53,7 @@ With these, both examples lose their generation, their enabled properties and th
 
 Proposal: `TaskContext.publish(T)` and `Task.onPublish(Consumer<List<T>>)`, delivered on the EDT in batches, and dropped once the task is cancelled. Delivering into an observable list would follow.
 
-**Roadmap:** milestone 2, beside observable lists.
+**Roadmap:** milestone 2, beside observable lists. **Integrated** into [milestone 2](milestone-2.md#partial-results).
 
 ### 3. Chained, serial and periodic tasks
 
@@ -62,7 +62,7 @@ Proposal: `TaskContext.publish(T)` and `Task.onPublish(Consumer<List<T>>)`, deli
 
 Proposal: `Task.then(Function<T, Task<R>>)`, which blocks once for the whole chain; a serial option that queues a command's runs instead of running them together; and `ui.every(Duration, Runnable)`, a periodic action owned by the view's scope.
 
-**Roadmap:** milestone 2, with the other task additions. The periodic action could wait for milestone 3, as a desktop concern, if milestone 2 grows too large.
+**Roadmap:** milestone 2, with the other task additions. The periodic action could wait for milestone 3, as a desktop concern, if milestone 2 grows too large. **Integrated** into [milestone 2](milestone-2.md#hooks-and-chains), the periodic action included, and the serial option as `Concurrency.SERIAL`.
 
 ### 4. File choosers
 
@@ -81,7 +81,7 @@ Proposal: `Dialogs.openFile(...)` and `Dialogs.saveFile(...)`, with filters whos
 
 Proposal: inject resources into the `@Exposed` fields of a component that is itself an `@Exposed` field of a view, under nested keys such as `home.street`, with the processor checking them like the view's own.
 
-**Roadmap:** milestone 2. Forms are where reusable panels appear, and the processor's checks extend naturally.
+**Roadmap:** milestone 2. Forms are where reusable panels appear, and the processor's checks extend naturally. **Integrated** into [milestone 2](milestone-2.md#resources-of-components-in-components).
 
 ### 6. The application's icon
 
@@ -111,7 +111,7 @@ What the examples show about the shape of features already planned.
 
 What the binding needs: an `Observable<List<T>>` as the rows; columns given as a header message and a function of the row; a key function so that the selection survives changes of the list; and the selection as a `Property<Optional<T>>`, or a list of them.
 
-**Roadmap:** milestone 2, "observable lists, binding to editable components".
+**Roadmap:** milestone 2, "observable lists, binding to editable components". **Integrated:** [milestone 2](milestone-2.md#binding-lists-and-tables) already had the binding; the key function is added.
 
 ### 9. Form binding, validation and layout
 
@@ -123,12 +123,16 @@ What the binding needs: two-way binding of a field to a property, converters suc
 
 The roadmap doesn't plan a layout helper. A small form builder (a row of a label and a field, a full-width row, a section with a title) would sit well beside the binding, in milestone 2, **new**.
 
+**Integrated:** [milestone 2](milestone-2.md#forms) already had the binding, validation and converters; the builder is [`FormPanel`](milestone-2.md#form-panels).
+
 ### 10. Text changes and documents
 
 `saf/DocumentExample` implements `DocumentListener`, all three methods setting `modified`; binds the window's title to the file and the application's name by hand; and its exit veto asks only while modified.
 
 - An observable of a text component's changes belongs to milestone 2, "binding to editable components", and removes the listener.
 - Dirty tracking, save prompts and the title that follows the document are milestone 3, "documents".
+
+**Integrated:** [milestone 2](milestone-2.md#the-other-ports-of-milestone-1) binds the text area with `Form`, whose dirty state replaces the listener; the rest stays in milestone 3.
 
 ### 11. Wizard
 
@@ -140,14 +144,14 @@ The roadmap doesn't plan a layout helper. A small form builder (a row of a label
 
 `saf/LocalStorageExample1` writes and reads a TOML table in the data directory: `createDirectories`, `Toml.writeAtomically`, and a loop over the entries that keeps the strings.
 
-**Roadmap:** milestone 2, "settings records": a service that saves and loads a record, in a task, would replace it.
+**Roadmap:** milestone 2, "settings records": a service that saves and loads a record, in a task, would replace it. **Integrated:** [milestone 2](milestone-2.md#the-other-ports-of-milestone-1) makes its entries a settings record.
 
 ## Smaller polish
 
 ### 13. Toolbars and button rows
 
 - Every toolbar calls `setFloatable(false)`: `saf/SingleFrameExample4`, `saf/SingleFrameExample5`, `saf/BlockingExample1`. Not floating could be the default of `Ui.toolBar`. **Roadmap:** milestone 4, **new**, or at once, as it is a one-line change.
-- `saf/ActionExample2`, `saf/ActionExample4`, `saf/BlockingExample1` and `saf/LocalStorageExample1` add `commands.x().createButton()` to a `FlowLayout` panel, button by button. `Ui.buttonBar(BoundCommand...)` would build the row. **Roadmap:** milestone 2, **new**, with the form builder.
+- `saf/ActionExample2`, `saf/ActionExample4`, `saf/BlockingExample1` and `saf/LocalStorageExample1` add `commands.x().createButton()` to a `FlowLayout` panel, button by button. `Ui.buttonBar(BoundCommand...)` would build the row. **Roadmap:** milestone 2, **new**, with the form builder. **Integrated** into [milestone 2](milestone-2.md#button-rows).
 - `saf/SingleFrameExample5`, `saf/BlockingExample1` and `saf/DocumentExample` list the same commands in a menu and a toolbar. Whether a toolbar should derive from a menu is open; the examples alone don't settle it.
 
 ### 14. Tab titles

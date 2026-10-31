@@ -1,6 +1,6 @@
 # Milestone 2: requirements
 
-This is the requirement document of state and binding, described in the [vision](vision.md#milestone-2-state-and-binding): observable lists, binding to editable components, validation, dirty tracking, the event bus and settings records. It also delivers what [milestone 1](milestone-1.md#scope) left for it: OK/Cancel/Apply forms with validation, and the About dialog with the rest of the application's metadata. The release is accepted when the [acceptance](#acceptance) examples and their tests pass.
+This is the requirement document of state and binding, described in the [vision](vision.md#milestone-2-state-and-binding): observable lists, binding to editable components, validation, dirty tracking, the event bus and settings records. It also delivers what [milestone 1](milestone-1.md#scope) left for it: OK/Cancel/Apply forms with validation, and the About dialog with the rest of the application's metadata. And it takes up the [ideas](ideas.md) that milestone 1's ports suggested for it: a command's running state, stop, restarting and serial commands, partial results, chained and periodic tasks, the resources of reusable panels, selection by key, form layout and button rows. The release is accepted when the [acceptance](#acceptance) examples and their tests pass.
 
 Every part of every sentence in this document is a requirement, and must be followed exactly: names, packages, signatures, behaviors, orders and error cases. Any deviation, whether a part that can't be implemented as written, a part that contradicts another, or a gap, is reported at once, before working around it or going further. The document is then updated, and only then does the implementation follow the new text.
 
@@ -20,9 +20,12 @@ Milestone 2 builds on milestone 1 as implemented. Everything milestone 1 specifi
 | Settings records, in the config directory | Watching settings files for changes made outside the application |
 | The About dialog with description, copyright, website and icon; the application icon on the main frame | Opening the website from the About dialog (M3, with OS hooks) |
 | Window state written and read through toml's generated code, ignoring unknown keys | — |
+| A command's running state, stop commands, restarting and serial commands, partial results, chained tasks and periodic actions | Groups of tasks, which the vision leaves out |
+| Resources of the component fields of a view's component fields | — |
+| A form layout builder and button rows | Toolbars that don't float by default (M4) |
 | The test harness for all of the above | — |
 
-Milestone 2 adds no module. Each module gains the types of its layer: core gets observable lists, `Validator`, the event bus and settings; `swing-ui` gets `@OnEdt`, the bindings, forms, `Converter`, `Column` and `ValidationFeedback`; `swing-flatlaf` gets FlatLaf's validation feedback; `swing-processor` gets two steps; `swing-testing` gets the harness additions. Core still doesn't read `java.desktop`, which `ModuleTest.doesNotReadJavaDesktop` keeps checking.
+Milestone 2 adds no module. Each module gains the types of its layer: core gets observable lists, `Validator`, the event bus, settings and the task additions; `swing-ui` gets `@OnEdt`, the bindings, forms, `Converter`, `Column`, `ValidationFeedback`, `FormPanel`, `Concurrency` and the command additions; `swing-flatlaf` gets FlatLaf's validation feedback; `swing-processor` gets two steps and the checks of the command and resource additions; `swing-testing` gets the harness additions. Core still doesn't read `java.desktop`, which `ModuleTest.doesNotReadJavaDesktop` keeps checking.
 
 The imgn libraries are those of milestone 1, plus `be.imgn.gaia:gaia-processor` at `gaia.version` (0.1.2-SNAPSHOT) on the annotation processor path, and the [upstream changes](#upstream-changes) that milestone 2 requires: toml's, from toml 0.2.0-SNAPSHOT, and gaia's. The event bus is in `gaia-core`, which core already depends on. The root POM's `toml.version` becomes `0.2.0-SNAPSHOT`.
 
@@ -188,6 +191,92 @@ Settings are observable like any property. A view follows them with `ui.bind(edi
 
 ---
 
+## Tasks and commands
+
+Milestone 1's ports write by hand what a command does with its task: a generation counter so that an older run ignores its results, a `stopEnabled` property and a count of the loads in flight, the same call at the end of every hook, a `Semaphore` for a serial executor, and a sleeping loop for a periodic update ([ideas](ideas.md)). Milestone 2 provides them.
+
+### Running state
+
+`BoundCommand` gains:
+
+| Method | Returns |
+|---|---|
+| `Observable<Boolean> running()` | `true` from the moment the command starts a task until every task it started has ended, waiting ones included (see [Concurrency](#concurrency)); `false` otherwise. A command whose handler returns `void` is never running |
+| `void cancel()` | Cancels every task the command started that hasn't ended, waiting ones included. Does nothing when there is none |
+
+- A task has ended once its last hook has run: `onSuccess`, `onFailure` or `onCancel`, then `onEnd`. `running()` changes on the EDT, after those hooks.
+- A handler that returns `Task.none()` starts nothing, so the command doesn't become running.
+
+### Stop commands
+
+```java
+@Command(concurrency = Concurrency.RESTART)
+Task<Integer> go() { ... }
+
+@Command(cancels = "go")
+void stop() {}
+```
+
+- `cancels` names a command of the same class, declared or inherited, whose handler returns a `Task`. The stop command is enabled while that command is `running()`; its activation cancels that command's tasks, then calls its own handler, which may do nothing.
+- A stop command's handler returns `void`, and it has neither `enabled`, `selected`, `block` nor `concurrency`. `cancels` on a `@Command` field is a compile error, as are the other cases (see [Build-time checks](#build-time-checks)).
+
+### Concurrency
+
+`@Command` gains `concurrency`, which says what an activation does while a task the command started still runs:
+
+| `Concurrency` (UI) | The new activation |
+|---|---|
+| `PARALLEL` (default) | Starts its task at once, as in milestone 1 |
+| `RESTART` | Cancels the command's tasks that haven't ended, then starts its own. The cancelled ones run `onCancel` and `onEnd`, never `onSuccess` or `onFailure`, even when their work had already returned, so their results never arrive |
+| `SERIAL` | Starts its task once every task the command started before it has ended, in activation order. A waiting task holds no thread and blocks no input; cancelled while it waits, it never starts, and runs `onCancel` and `onEnd` |
+
+- The handler is called at every activation, whatever the concurrency: with `SERIAL`, it returns the task that waits.
+- A concurrency other than `PARALLEL` requires a handler that returns a `Task`, and excludes `block = COMMAND` and `COMPONENT`, which disable the command while its task runs, so that there would be no second activation. Both are compile errors.
+
+### Hooks and chains
+
+`Task` gains:
+
+```java
+Task<T> onEnd(Runnable handler);
+<R> Task<R> then(Function<? super T, ? extends Task<R>> next);
+```
+
+- `onEnd`'s handler runs on the EDT after `onSuccess`, `onFailure` or `onCancel`, however the task ended, so code that must run in every case is written once.
+- `then` returns a task, the chain, that runs this task and, when it succeeds, calls `next` with its result on the EDT, after this task's own `onSuccess`, then runs the task `next` returns, in the same scope.
+  - The chain succeeds with the second task's result. It fails or is cancelled when either task fails or is cancelled; once the first task has failed or been cancelled, `next` isn't called. A chain whose `next` returns `Task.none()` succeeds with `null` after the first task.
+  - Cancelling the chain cancels whichever task runs.
+  - Run by a command or by `Ui.run`, the chain blocks input once, from the start of the first task to the end of the second, rather than once per task.
+  - This task's own hooks still run, for it alone; the chain's hooks run once, for the chain. The first task belongs to the chain: running it on its own throws `IllegalStateException`, as does calling `then` on a task that has started.
+  - Chains chain: `a.then(f).then(g)` runs three tasks.
+
+### Partial results
+
+```java
+@FunctionalInterface
+public interface PublishingWork<T, P> {                                // core
+    T run(TaskContext context, Consumer<? super P> publish) throws Exception;
+}
+```
+
+`Task` gains `static <T, P> Task<T> of(PublishingWork<T, P> work, Consumer<? super List<P>> onPublish)`:
+
+- The work calls `publish` any number of times while it runs, from any thread. `onPublish` receives the published values on the EDT, in order, in batches: each call holds the values published since the previous one, so values published faster than the EDT takes them reach it in one call, as `SwingWorker.process` does.
+- Every value published before the work returns reaches `onPublish` before `onSuccess` runs.
+- Once the task is cancelled, the values not yet delivered are dropped, and `onPublish` isn't called again.
+- `publish(null)` throws `NullPointerException`; calling `publish` after the work has returned throws `IllegalStateException`.
+
+### Periodic actions
+
+`Ui` gains `Subscription every(Duration period, Runnable action)`:
+
+- It runs `action` on the EDT every `period`, the first time one period after the call, until the returned subscription or the view's scope is closed.
+- The period is measured with the `Ticker` bean, as the blocking glass pane's delay is ([milestone 1](milestone-1.md#input-blocking)), so tests drive it with the tester's `FakeTicker`. A late run doesn't make up for the runs it missed: the next one comes one period after it.
+- An exception thrown by `action` goes to the `FailureHandler`, and the action keeps its schedule.
+- A `period` that isn't positive throws `IllegalArgumentException`.
+
+---
+
 ## Binding lists and tables
 
 `Ui` (UI, `@ViewScoped`) gains methods that show an observable list in a `JList` or a `JTable`, optionally with a single selection bound to a property:
@@ -198,6 +287,8 @@ Settings are observable like any property. A view follows them with `ui.bind(edi
 | `<E> void bind(JList<E> list, ObservableList<E> items, Function<? super E, String> text, Property<Optional<E>> selection)` | The same, with the selected element |
 | `<E> void bind(JTable table, ObservableList<E> rows, List<Column<E, ?>> columns)` | The table's model to `rows`, with one column per `Column`, in order |
 | `<E> void bind(JTable table, ObservableList<E> rows, List<Column<E, ?>> columns, Property<Optional<E>> selection)` | The same, with the selected row |
+| `<E> void bind(JList<E> list, ObservableList<E> items, Function<? super E, String> text, Property<Optional<E>> selection, Function<? super E, ?> key)` | The same as with a selection, matching the selected element by key |
+| `<E> void bind(JTable table, ObservableList<E> rows, List<Column<E, ?>> columns, Property<Optional<E>> selection, Function<? super E, ?> key)` | The same as with a selection, matching the selected row by key |
 
 - Each method sets a new model on the component, which follows the list as described in [Delivery of list changes to the EDT](#delivery-of-list-changes-to-the-edt). The subscription belongs to the `Ui`'s view scope. Binding a component a second time throws `IllegalStateException`.
 - The list's cell renderer is a `DefaultListCellRenderer` showing `text` of the element.
@@ -223,6 +314,8 @@ The selection binding sets the component's selection mode to `ListSelectionModel
 - When the user selects an element, the binding sets the property to it, once the selection is no longer adjusting; when the selection becomes empty, to `Optional.empty()`.
 - When the property changes, its update, on the EDT, selects the first element of the copy equal to the value, and scrolls to it. An empty value clears the selection. A value that isn't in the list clears the selection and sets the property to `Optional.empty()`.
 - After applying the queued changes of the list, the update keeps the selection on the selected element: a `Replaced` change of one element at the selected index selects the new element and sets the property to it, which keeps a contact selected after it is modified; for any other change, the selection moves to the first element equal to the property's value, or is cleared, with the property set to `Optional.empty()`, when no element is equal to it.
+
+- **Keys.** With a `key`, elements are matched by their key rather than by equality, keys being compared with `Objects.equals`: in each rule above, an element equal to the value reads an element with the value's key. After a change of the list, the element with the selected element's key keeps the selection, wherever it moved, and the property is set to that element when it differs from the value, so a contact modified, moved or reloaded stays selected. Without a `key`, an element's key is the element itself.
 
 ---
 
@@ -367,6 +460,56 @@ text = "&Save"
 
 ---
 
+## Form layout and button rows
+
+### Form panels
+
+```java
+public final class FormPanel {                                         // UI
+    public static FormPanel create();
+    public FormPanel row(JLabel label, JComponent field);
+    public FormPanel wide(JComponent component);
+    public FormPanel section(JLabel title);
+    public JPanel build();
+}
+```
+
+A `FormPanel` lays out a form in two columns, with `GridBagLayout`, in the order its methods are called:
+
+- `row` adds a label and its field: the label at the line end of the first column, the field filling the width of the second. It calls `label.setLabelFor(field)`, so the label's mnemonic focuses the field.
+- `wide` adds a component across both columns, filling the row's width and sharing the extra height with the other wide components, as a nested panel or a text area needs.
+- `section` adds a title across both columns: the label, followed by a `JSeparator` that fills the rest of the row.
+- Every cell has an inset of 4 pixels on each side, and the panel an empty border of 4 pixels.
+- `build` returns the panel. It may be called once: any call on the `FormPanel` afterwards throws `IllegalStateException`. Every method is called on the EDT.
+
+The labels are `@Exposed` fields of the view, so their texts and mnemonics come from its resources, as for any component.
+
+### Button rows
+
+`Ui` gains `JPanel buttonBar(BoundCommand... commands)`: a panel with a centered `FlowLayout`, holding one button per command, in order, made with `createToggleButton()` for a command with a selected state and with `createButton()` for any other. Unlike the buttons of a toolbar, they show their text.
+
+---
+
+## Resources of components in components
+
+In milestone 1, resources reach the `@Exposed` component fields of a view, and no further. A panel that several views hold, such as the address panel of three dialogs, sets the texts inside it from typed messages, while the views set its title. Milestone 2 reaches the component fields of those components, through nested tables:
+
+```toml
+# ContactDialog.toml
+[home]
+title = "Home Address"
+
+[home.streetLabel]
+text = "&Street"
+```
+
+- In a table that names a component field, a key whose value is a table names an `@Exposed` component field of that field's declared type, declared or inherited; its keys are properties of that component, checked and applied as for the view's own fields. Tables nest to any depth: `[home.phone.label]`.
+- The generated injector reads the nested component through the enclosing fields, `view.home.streetLabel`, after the view's constructor, as for the view's own fields. A nested field must therefore be reachable from the view's package, so `public` when its class is in another package, and set by the enclosing component's constructor. A `null` nested field throws `IllegalStateException` naming its key path.
+- The nested field's class needs no resources of its own, and a TOML file of its own isn't read for it: each view sets the texts of the components it holds, so two views may name one panel's labels differently. A view whose superclass names the same nested key overrides it key by key, as resources merge.
+- Window state stays that of the view's own fields, as in milestone 1.
+
+---
+
 ## About dialog and application icon
 
 The application class's resources take four more plain values, which the processor checks as it checks `name` and `theme`:
@@ -405,6 +548,8 @@ These change what milestone 1 specifies, from milestone 2 on:
 - **`apply()`** joins the standard commands, and `commit()` joins `DialogView` (see [OK, Cancel and Apply](#ok-cancel-and-apply)).
 - **`Window.setIconImage`** joins `Window` (see [About dialog and application icon](#about-dialog-and-application-icon)).
 - **Window state** is written and read through toml's generated code (see [Window state](#window-state)).
+- **Commands** gain `running()` and `cancel()` on `BoundCommand`, and `cancels` and `concurrency` on `@Command`; **tasks** gain `onEnd`, `then` and `Task.of(PublishingWork, Consumer)`; **`Ui`** gains `every` and `buttonBar` (see [Tasks and commands](#tasks-and-commands) and [Form layout and button rows](#form-layout-and-button-rows)).
+- **Nested resources.** A table inside a component field's table names a component field of that component, where milestone 1 rejected it as an unknown property (see [Resources of components in components](#resources-of-components-in-components)).
 - **Generated names.** The names of generated types, `$Outer$Inner$$Kind` for a type and `$$Kind` for a package, come from gaia's `ClassName.generatedName` rather than from the processor's own helper (see [Processor](#processor)). The names of milestone 1 don't change, except that a `$` within a simple name is now written `$0`, as gaia's scheme requires so that no two types get one name.
 
 ---
@@ -417,6 +562,9 @@ Milestone 2 adds these checks to [milestone 1's](milestone-1.md#build-time-check
 |---|---|
 | Subscribers | A class with a method annotated `@Subscribe`, or with an annotation meta-annotated `@SubscribingAnnotation`, has no scope among `@Singleton`, `@WindowScoped` and `@ViewScoped`, declared or inherited. The rules of the methods themselves are gaia-processor's |
 | Settings | A `@Settings` type is not a record, is not annotated `@TomlConfig`, has no public constructor without parameter, or has an invalid id; or two settings records of the compilation have the same id |
+| Stop commands | A `cancels` names no command of the class, declared or inherited, or one whose handler returns `void`; the command with `cancels` has a handler that doesn't return `void`, or also has `enabled`, `selected`, `block` or `concurrency`; or `cancels` is on a `@Command` field |
+| Concurrency | A `concurrency` other than `PARALLEL` is on a command whose handler returns `void`, on a `@Command` field, or with `block = COMMAND` or `COMPONENT` |
+| Nested resources | A nested table names no `@Exposed` component field of the enclosing field's declared type, or a field the view's package can't reach; or one of its keys is not a supported property of that field's type |
 | Class properties | A `description`, `copyright`, `website` or `icon` value is not a string; a `website` is not an absolute `http` or `https` URI; an `icon` names no resource. These values are allowed on the application class only |
 
 The commands' check of `[commands.<id>]` tables also accepts `apply`, as a standard command.
@@ -431,6 +579,8 @@ The commands' check of `[commands.<id>]` tables also accepts `apply`, as a stand
 |---|---|---|
 | Subscribers | Every root element, as the views step | Nothing: it checks the scope of classes with subscribers |
 | Settings | `@Settings` | `$X$$Settings`, service entry |
+
+The commands step also checks `cancels` and `concurrency`, which `<Class>Commands` passes to the commands it builds; the resources step checks nested tables, and `$X$$Injector` sets their properties through the enclosing fields.
 
 The subscribers' code is generated by gaia-processor, which runs next to swing's, inject's and toml's processors. The settings descriptors are services that core finds with `ServiceLoader`, not beans. On the module path, gaia's `register-services` adds the `provides` clauses of both, `SubscriberIndex` and `SettingsDescriptor`, as for the other services.
 
@@ -471,6 +621,8 @@ void applyChangesTheFontSize() {
 | `<E> List<E> published(Class<E> type)` | The events published on the application's bus since startup that are instances of `type`, in order. The tester records them with a subscription to `Object` |
 
 - **Settling.** Before returning, every call already runs the posted updates and waits for the tasks commands start. It now also waits for the tasks of the application scope, which `@OnVirtualThread` deliveries are, and the pending settings saves, wherever they come from. `@OnEdt` deliveries go through the tester's `UiExecutor`, so they run with the posted updates.
+- **Periodic actions.** Once a test advances the tester's `FakeTicker`, each periodic action whose period has elapsed runs at the next call, once.
+- **Partial results.** The values a task published reach `onPublish` before the call that waits for the task returns.
 - **Dialogs.** In an answer given with `FakeDialogs.answerDialog`, which runs on the EDT, a test changes the dialog's components directly. `OpenDialog` gains `boolean isOpen()`, `false` once `ok()` or `cancel()` closed the dialog, and `<B> B bean(Class<B> type)`, which resolves through the dialog's view injector, the dialog's `Form` included. A dialog left open when the answer returns is cancelled, as in milestone 1.
 - **Feedback.** `AppTester` keeps the `ValidationFeedback` of the modules on its path, so tests check the errors as the user sees them: through the tool tip text and accessible description.
 - **Directories.** The fake config directory is `app.bean(ApplicationDirectories.class).config()`, the default directories that follow the tester's `FakePlatform`, on the memory file system, so tests read what a save wrote with `Files.readString`.
@@ -520,6 +672,9 @@ These depart from the [vision](vision.md), and are to be applied to it:
 - **Reifiable event types.** The vision's registrars have "exact generic event types". Events are matched by their runtime class, which has no type arguments, so a subscriber's parameter can't be a parameterized type, as gaia's bus requires. An event that carries a typed value wraps it in a record.
 - **`@Settings`.** Settings records are `@TomlConfig` records, as in the vision, also annotated `@Settings`, which gives the file's id; each record has its own file in the config directory.
 - **Roadmap.** Milestone 2 also holds OK/Cancel/Apply forms with validation, and the About dialog with the rest of the application's metadata, which milestone 1 moved there.
+- **Commands and tasks.** The vision has no running state, stop commands, concurrency, partial results, chains or periodic actions; milestone 2 adds them, from the ports of milestone 1. Groups of tasks stay out of scope: `then` runs one task after another, it doesn't group them.
+- **Layout.** The vision has no layout helper. `FormPanel` and `Ui.buttonBar` cover rows of labelled fields and rows of buttons only; they are not a layout manager.
+- **Nested resources.** The vision's resources name the components of a view; they also reach the component fields of those components.
 - **Upstream changes.** The toml writer and the lenient binding mode, listed in the vision, are T1 and T3; binding a table in memory (T2) and gaia's G1 and G2 are added.
 
 ---
@@ -532,11 +687,25 @@ These depart from the [vision](vision.md), and are to be applied to it:
 
 The Address Book port of milestone 1 is reworked to use what milestone 2 provides, which brings it closer to Guts:
 
-- **Contacts.** `AddressBookService.contacts()` returns an `ObservableList<Contact>`. The contacts table is bound with `Ui.bind(JTable, ...)`, with the columns first name, last name and home city, and the hand-written `ContactsTableModel` is removed.
+- **Contacts.** `AddressBookService.contacts()` returns an `ObservableList<Contact>`. The contacts table is bound with `Ui.bind(JTable, ...)`, with the columns first name, last name and home city, its selection matched by the key `Contact::id`. The hand-written `ContactsTableModel`, and the code that found the selected contact's new row by its id, are removed.
 - **Selection as events.** As in Guts, where the contacts list publishes the selected contact through a `Channel` and the detail view, the picture view and `ContactActions` consume it: the table's selection is published as a `ContactSelected(Optional<Contact> contact)` event, and the detail panel, the picture and `ContactActions` update from `@Subscribe` methods. `ContactSelection` is removed.
-- **Forms.** The form, tabs and wizard dialogs bind their fields with `Form`. First and last names are required. The birth date is empty or an ISO date, through `Converter.optional`. Their OK button reads `&Save`, as in Guts, through `[commands.ok]` in their resources. The tabs dialog adds Apply, whose `commit()` modifies the contact in the service without closing the dialog.
+- **Forms.** The form, tabs and wizard dialogs bind their fields with `Form`. First and last names are required. The birth date is empty or an ISO date, through `Converter.optional`. Their OK button reads `&Save`, as in Guts, through `[commands.ok]` in their resources. The tabs dialog adds Apply, whose `commit()` modifies the contact in the service without closing the dialog. The three dialogs lay out their fields with `FormPanel`, and `Forms` is removed. `AddressPanel` holds its labels in `@Exposed` fields, whose texts come from nested tables of each dialog's resources, such as `[home.streetLabel]`; `AddressBookMessages` loses `street`, `zip`, `city` and `phone`.
+- **Tasks.** `TaskTestActions`' serial command has `concurrency = Concurrency.SERIAL`, and its `Semaphore` is removed; the command that started a second task from the first one's `onSuccess` chains them with `then`.
 
-Its tests check, at least: modifying a contact keeps it selected; the table follows a contact created, modified and removed; `ContactSelected` is published on each selection change and the detail panel shows the contact; an empty first name shows its error and keeps the dialog open on OK; an invalid birth date does too; Apply is enabled only while a value differs from the last applied one, so editing a field and back disables it again.
+Its tests check, at least: modifying a contact keeps it selected; the table follows a contact created, modified and removed; `ContactSelected` is published on each selection change and the detail panel shows the contact; an empty first name shows its error and keeps the dialog open on OK; an invalid birth date does too; Apply is enabled only while a value differs from the last applied one, so editing a field and back disables it again; the address panels show the labels of their dialog's resources; two activations of the serial command run one after the other; the chained command blocks the application once, for both tasks.
+
+### The other ports of milestone 1
+
+The ports that the [ideas](ideas.md) come from lose the code they write by hand:
+
+- **`saf/ActionExample4`.** `go` lists the files with `concurrency = Concurrency.RESTART` and `Task.of(PublishingWork, onPublish)`, adding each batch to the list; `stop` is `@Command(cancels = "go")`. Its generation counter, its `stopEnabled` property, its buffer and its `EventQueue.invokeLater` are removed.
+- **`saf/SingleFrameExample5`.** The previous, next and refresh commands choose the image and execute one `load` command, with `concurrency = Concurrency.RESTART`, whose task reads it; `stopLoading` is `@Command(cancels = "load")`. The image reader's listener aborts the read once the task is cancelled. Its generation, its count of the loads in flight and `stopLoadingEnabled` are removed.
+- **`saf/PeriodicTaskExample`.** The label is updated by `ui.every(Duration.ofMillis(500), ...)`; the task's sleeping loop is removed.
+- **`saf/DocumentExample`.** The text area is bound with `Form`; `modified` is `form.dirty()`, made clean with `markClean()` after a load and after a save. Its `DocumentListener` is removed.
+- **`saf/LocalStorageExample1`.** Its entries are a settings record, `@Settings("entries") Entries(Map<String, String> entries)`, saved at each change and loaded at startup; its save and load commands, and their tasks, are removed.
+- **Button rows.** `saf/ActionExample2`, `saf/ActionExample4`, `saf/BlockingExample1` and `saf/LocalStorageExample1` build their rows of buttons with `ui.buttonBar`.
+
+Their tests check, at least: activating `go` twice shows only the second listing, and `stop` is enabled only while `go` runs; files reach the list while the listing runs, and none after `stop`; `load` shows the last image asked for, and `stopLoading` shows the cancelled message; the periodic label changes when the ticker advances by half a second, and no longer once its view is closed; editing the document enables save, and saving disables it; the entries are loaded back by the next start.
 
 ### Notes
 
@@ -560,10 +729,12 @@ A test in `swing-core`, which has no `java.desktop`, builds an inject root with 
 
 1. toml 0.2.0-SNAPSHOT with T1 to T3, and gaia 0.1.2-SNAPSHOT with G1 and G2; until they are released, local snapshots.
 2. Core: observable lists and `Validator`.
-3. Core, UI and processor: the application's bus, `@OnEdt`, the registration of beans, and the subscribers step.
-4. Core and processor: settings, the settings step and its checks; window state on toml's generated code.
-5. UI: binding lists and tables, with the delivery of list changes.
-6. UI: forms, converters and validation feedback, in `swing-ui` and `swing-flatlaf`.
-7. UI: dialogs with forms, renaming standard commands, the changes to milestone 1.
-8. UI: the About dialog and the application icon.
-9. Test harness, then the acceptance examples.
+3. Core, UI and processor: the task additions, the running state, stop commands and concurrency, with their checks.
+4. Core, UI and processor: the application's bus, `@OnEdt`, the registration of beans, and the subscribers step.
+5. Core and processor: settings, the settings step and its checks; window state on toml's generated code.
+6. UI: binding lists and tables, with the delivery of list changes and selection by key.
+7. UI: forms, converters and validation feedback, in `swing-ui` and `swing-flatlaf`.
+8. UI: dialogs with forms, renaming standard commands, the changes to milestone 1.
+9. UI and processor: form panels, button rows and the resources of nested components.
+10. UI: the About dialog and the application icon.
+11. Test harness, then the acceptance examples.
