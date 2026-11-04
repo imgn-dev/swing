@@ -11,6 +11,7 @@ import be.imgn.swing.ui.spi.ComponentState;
  */
 @SuppressWarnings("module")
 module be.imgn.swing.ui {
+    requires transitive be.imgn.gaia.core;
     requires transitive be.imgn.inject;
     requires transitive be.imgn.swing;
     requires transitive java.desktop;

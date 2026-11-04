@@ -12,8 +12,35 @@ text = "&Birth Date"
 [home]
 accessible-name = "Home Address"
 
+[home.streetLabel]
+text = "S&treet"
+
+[home.zipLabel]
+text = "&Zip code"
+
+[home.cityLabel]
+text = "&City"
+
+[home.phoneLabel]
+text = "&Phone"
+
 [office]
 accessible-name = "Office Address"
+
+[office.streetLabel]
+text = "Street"
+
+[office.zipLabel]
+text = "Zip code"
+
+[office.cityLabel]
+text = "City"
+
+[office.phoneLabel]
+text = "Phone"
+
+[commands.ok]
+text = "&Save"
 
 [commands.previous]
 text = "< P&revious"

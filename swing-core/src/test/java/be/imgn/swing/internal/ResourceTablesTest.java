@@ -71,6 +71,34 @@ class ResourceTablesTest {
     }
 
     @Test
+    void mergesTheNestedTablesOfASuperclassKeyByKey() {
+        ResourceOpener opener = opener(Map.of("Base.toml", """
+                [home.streetLabel]
+                text = "Street"
+                tool-tip-text = "The street"
+
+                [home.phone.label]
+                text = "Phone"
+                """, "NotesView.toml", """
+                [home.streetLabel]
+                text = "S&treet"
+                foreground = "#ff0000"
+
+                [home.phone.label]
+                tool-tip-text = "The phone"
+                """));
+        ResourceTables tables = new ResourceTables(Map.of(opener.packageName(), opener), Optional.empty());
+
+        TomlTable merged = tables.merged(NotesView.class, Locale.ROOT);
+
+        assertThat(merged.getString("home.streetLabel.text")).isEqualTo("S&treet");
+        assertThat(merged.getString("home.streetLabel.tool-tip-text")).isEqualTo("The street");
+        assertThat(merged.getString("home.streetLabel.foreground")).isEqualTo("#ff0000");
+        assertThat(merged.getString("home.phone.label.text")).isEqualTo("Phone");
+        assertThat(merged.getString("home.phone.label.tool-tip-text")).isEqualTo("The phone");
+    }
+
+    @Test
     void resolvesReferences() {
         TomlTable table = Toml.parse("""
                 name = "Notes"

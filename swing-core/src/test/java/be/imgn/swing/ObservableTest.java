@@ -99,6 +99,25 @@ class ObservableTest {
     }
 
     @Test
+    void combinesTheChangeOfASourceMadeWhileItSubscribes() {
+        Property<String> a = Property.of("a1");
+        Property<String> b = Property.of("b1");
+        // Its mapping runs when the combined observable subscribes to it, and changes b as another thread may then.
+        Observable<String> first = a.map(value -> {
+            b.set("b2");
+            return value;
+        });
+        Observable<String> both = Observable.combine(first, b, (x, y) -> x + y);
+        List<String> seen = new ArrayList<>();
+        both.subscribe(scope, seen::add);
+
+        a.set("a2");
+
+        assertThat(seen).containsExactly("a2b2");
+        assertThat(both.get()).isEqualTo("a2b2");
+    }
+
+    @Test
     void unsubscribesFromTheSourcesWithItsLastSubscriber() {
         Property<Integer> count = Property.of(1);
         AtomicInteger calls = new AtomicInteger();

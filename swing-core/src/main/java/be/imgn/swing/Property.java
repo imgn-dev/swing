@@ -9,9 +9,11 @@ import be.imgn.swing.internal.AtomicProperty;
  * When two threads set the same property at once, listeners may see the values out of order; code for which the order
  * matters sets the property from one thread.
  *
+ * <p>Only core implements properties: the interface is sealed, and {@link #of(Object)} makes them.
+ *
  * @param <T> the type of the value
  */
-public interface Property<T> extends Observable<T> {
+public sealed interface Property<T> extends Observable<T> permits AtomicProperty {
 
     /**
      * Sets the value, and tells the listeners if it changed.

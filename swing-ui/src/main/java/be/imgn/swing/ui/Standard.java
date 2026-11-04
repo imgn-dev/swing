@@ -14,7 +14,8 @@ enum Standard {
     SELECT_ALL("selectAll"),
     CLOSE_WINDOW("closeWindow"),
     OK("ok"),
-    CANCEL("cancel");
+    CANCEL("cancel"),
+    APPLY("apply");
 
     private final String id;
 
@@ -28,6 +29,11 @@ enum Standard {
 
     boolean isSystemAction() {
         return this == EXIT || this == ABOUT || this == PREFERENCES;
+    }
+
+    /** Whether the command exists only in dialog views. */
+    boolean isDialogCommand() {
+        return this == OK || this == CANCEL || this == APPLY;
     }
 
     static Optional<Standard> of(String id) {

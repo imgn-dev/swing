@@ -5,6 +5,7 @@ import be.imgn.gaia.processing.ProcessingContext;
 import be.imgn.gaia.processing.ProcessingException;
 import be.imgn.gaia.processing.SourceScope;
 import be.imgn.gaia.processing.Step;
+import be.imgn.gaia.processing.source.ClassName;
 import be.imgn.toml.TomlDocument;
 import be.imgn.toml.TomlParseException;
 import be.imgn.toml.TomlString;
@@ -198,9 +199,9 @@ final class MessagesStep implements Step {
     }
 
     private void generate(TypeElement type, Map<String, ExecutableElement> methods) {
-        String simpleName = Java.dollarName(type, "Messages");
-        context.sources()
-                .write(Java.qualified(type, simpleName), scope -> body(scope, type, simpleName, methods), type);
+        ClassName name = ClassName.of(type).generatedName("Messages");
+        String simpleName = name.simpleName();
+        context.sources().write(name.canonicalName(), scope -> body(scope, type, simpleName, methods), type);
     }
 
     private String body(

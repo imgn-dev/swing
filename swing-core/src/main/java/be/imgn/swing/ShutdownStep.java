@@ -6,7 +6,7 @@ package be.imgn.swing;
  * closed.
  *
  * <p>The UI contributes two steps: saving window state (order 100), then disposing the windows and closing their child
- * injectors (order 200).
+ * injectors (order 200). Core contributes a step that waits for the pending saves of settings (order 300).
  */
 public interface ShutdownStep {
 

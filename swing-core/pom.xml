@@ -66,6 +66,81 @@
             </path>
           </annotationProcessorPaths>
         </configuration>
+        <executions>
+          <!-- The module has no subscriber; its tests have. The tests of the
+               bus read the framework's logs through java.util.logging, the
+               backend of System.Logger, which the module doesn't require. -->
+          <execution>
+            <id>default-testCompile</id>
+            <configuration>
+              <compilerArgs combine.children="append">
+                <arg>--add-modules</arg>
+                <arg>java.logging</arg>
+                <arg>--add-reads</arg>
+                <arg>be.imgn.swing=java.logging</arg>
+              </compilerArgs>
+              <annotationProcessorPaths combine.children="append">
+                <path>
+                  <groupId>be.imgn.gaia</groupId>
+                  <artifactId>gaia-processor</artifactId>
+                  <version>${gaia.version}</version>
+                </path>
+              </annotationProcessorPaths>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <executions>
+          <!-- On the module path, the tests are patched into the module, whose
+               descriptor provides none of their beans, subscriber indexes or
+               toml binders: the tests of the event bus and of the settings
+               store run on the class path, where the service loader reads
+               META-INF/services. -->
+          <execution>
+            <id>default-test</id>
+            <configuration>
+              <excludes>
+                <exclude>**/CoreWithoutSwingTest.java</exclude>
+                <exclude>**/SubscriberRegistrarTest.java</exclude>
+                <exclude>**/DefaultSettingsStoreTest.java</exclude>
+                <exclude>**/SaveSettingsStepTest.java</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>settings-tests</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <useModulePath>false</useModulePath>
+              <includes>
+                <include>**/DefaultSettingsStoreTest.java</include>
+                <include>**/SaveSettingsStepTest.java</include>
+              </includes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>bus-tests</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <useModulePath>false</useModulePath>
+              <!-- On the class path, every system module is resolvable: the
+                   tests run without java.desktop, as core does. Surefire's
+                   booter needs java.management. -->
+              <argLine>--limit-modules java.base,java.logging,java.management</argLine>
+              <includes>
+                <include>**/CoreWithoutSwingTest.java</include>
+                <include>**/SubscriberRegistrarTest.java</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>be.imgn.inject</groupId>

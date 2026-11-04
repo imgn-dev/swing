@@ -18,6 +18,9 @@ icon = "resources/refresh.png"
 shortcut = "shortcut R"
 tool-tip-text = "show the image again"
 
+[commands.load]
+text = "Load"
+
 [commands.stopLoading]
 text = "&Stop"
 icon = "resources/stop.png"

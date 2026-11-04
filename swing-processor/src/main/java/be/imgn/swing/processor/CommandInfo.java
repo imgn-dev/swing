@@ -15,6 +15,8 @@ import javax.lang.model.element.TypeElement;
  * @param enabled the name of the {@code enabled} target, empty for none
  * @param selected the name of the {@code selected} target, empty for none
  * @param block the {@code Block} constant
+ * @param concurrency the {@code Concurrency} constant
+ * @param cancels the id of the command this one stops, empty for none
  * @param returnsTask whether the handler returns a {@code Task}
  * @param takesContext whether the handler takes a {@code CommandContext}
  */
@@ -25,6 +27,8 @@ record CommandInfo(
         String enabled,
         String selected,
         String block,
+        String concurrency,
+        String cancels,
         boolean returnsTask,
         boolean takesContext) {
 

@@ -12,7 +12,6 @@ import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.time.Duration;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -33,7 +32,6 @@ public final class BlockingExample1 implements SingleFrame {
     static final int STEPS = 50;
 
     private static final Duration STEP = Duration.ofMillis(150);
-    private static final int GAP = 10;
 
     private final Property<String> status = Property.of(" ");
     private final BlockingExample1Commands commands;
@@ -61,11 +59,8 @@ public final class BlockingExample1 implements SingleFrame {
 
     @Override
     public JComponent content() {
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, GAP, GAP));
-        buttons.add(commands.blockAction().createButton());
-        buttons.add(commands.blockComponent().createButton());
-        buttons.add(commands.blockWindow().createButton());
-        buttons.add(commands.blockApplication().createButton());
+        JPanel buttons = ui.buttonBar(
+                commands.blockAction(), commands.blockComponent(), commands.blockWindow(), commands.blockApplication());
         JLabel label = new JLabel();
         ui.bind(label::setText, status);
         JPanel panel = new JPanel(new BorderLayout());

@@ -1,6 +1,7 @@
 package be.imgn.swing;
 
 import be.imgn.swing.internal.Combined;
+import be.imgn.swing.internal.Derived;
 import be.imgn.swing.internal.Mapped;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -18,9 +19,12 @@ import java.util.function.Function;
  * {@link #get()} computes from the sources' current values. Mapping functions may therefore run more than once, on any
  * thread: they must be cheap and free of side effects.
  *
+ * <p>Only core implements observables, so that each delivers its changes as the UI layer expects: the interface is
+ * sealed.
+ *
  * @param <T> the type of the value
  */
-public interface Observable<T> {
+public sealed interface Observable<T> permits Property, ObservableList, Derived {
 
     /**
      * Returns the current value.

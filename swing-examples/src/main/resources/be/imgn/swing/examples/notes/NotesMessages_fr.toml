@@ -1,0 +1,3 @@
+saved = "Enregistré dans {file}"
+wholeNumber = "Un nombre entier"
+fontSizeRange = "De {min} à {max}"

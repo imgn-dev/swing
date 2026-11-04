@@ -1,5 +1,7 @@
 package be.imgn.swing.testing;
 
+import be.imgn.gaia.core.event.EventBus;
+import be.imgn.gaia.core.platform.ApplicationDirectories;
 import be.imgn.gaia.core.platform.Platform;
 import be.imgn.gaia.core.testing.FakePlatform;
 import be.imgn.gaia.core.testing.FakeTicker;
@@ -10,27 +12,44 @@ import be.imgn.inject.Injector;
 import be.imgn.swing.ApplicationInfo;
 import be.imgn.swing.Exit;
 import be.imgn.swing.FailureHandler;
+import be.imgn.swing.Scope;
 import be.imgn.swing.UiExecutor;
 import be.imgn.swing.internal.DefaultLifecycle;
+import be.imgn.swing.internal.DefaultSettingsStore;
 import be.imgn.swing.internal.TaskRunner;
+import be.imgn.swing.spi.SettingsDescriptor;
+import be.imgn.swing.ui.BoundCommand;
 import be.imgn.swing.ui.Dialogs;
 import be.imgn.swing.ui.Windows;
 import be.imgn.swing.ui.internal.Edt;
 import be.imgn.swing.ui.internal.Launch;
 import be.imgn.swing.ui.internal.LaunchOptions;
+import be.imgn.swing.ui.internal.PeriodicActions;
 import be.imgn.swing.ui.internal.UiMode;
 import be.imgn.swing.ui.internal.ViewHost;
 import be.imgn.swing.ui.internal.WindowHost;
 import be.imgn.swing.ui.internal.WindowRegistry;
+import java.awt.Component;
+import java.awt.Image;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.InstantSource;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.swing.JRootPane;
 import javax.swing.RepaintManager;
@@ -50,33 +69,47 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>Frames and dialogs are never realized: each window is a bare root pane, where the content, menu bar and toolbar
  * are built and laid out. Every call on the tester, and on the commands it returns, runs on the EDT and waits; before
- * returning, the tester runs the updates posted by observables and waits for the tasks commands start, so assertions
- * see the components as the user will. A component repainted or invalidated off the EDT, a failure no handler handles,
- * and duplicate mnemonics or shortcuts, in a dialog or in a menu the framework rebuilt after a dynamic section changed,
- * fail the test at the tester's next call.
+ * returning, the tester runs the updates posted by observables and the periodic actions whose period has elapsed on the
+ * {@link FakeTicker}, once each, and waits for the tasks commands start and for the {@code @OnVirtualThread} deliveries
+ * of the application's bus, but not for the other tasks an application starts, so assertions see the components as the
+ * user will. A component repainted or invalidated off the EDT, a failure no handler handles, and duplicate mnemonics or
+ * shortcuts, in a dialog or in a menu the framework rebuilt after a dynamic section changed, fail the test at the
+ * tester's next call.
  *
  * <p>The platform is gaia's {@link FakePlatform} for Linux, with its directories on a {@code gaia-memfs} file system,
- * so window state is saved in memory. Time is a {@link FakeTicker} and an {@link InstantSource} fixed at the epoch.
+ * so window state and settings are saved in memory. Every call also waits for the pending settings saves, and
+ * {@link #close()} waits up to 2 seconds for them. Time is a {@link FakeTicker} and an {@link InstantSource} fixed at
+ * the epoch.
+ *
+ * <p>The tester keeps the {@code ValidationFeedback} of the modules on its path, so tests check a form's errors as the
+ * user sees them: through the tool tip text and accessible description of the component.
  *
  * @param <T> the application class
  */
 public final class AppTester<T> implements AutoCloseable {
+
+    private static final Duration SAVE_TIMEOUT = Duration.ofSeconds(2);
 
     private final Class<T> type;
     private final Failures failures = new Failures();
     private final TestExecutor executor = new TestExecutor();
     private final FakeDialogs dialogs = new FakeDialogs();
     private final FakeTicker ticker = new FakeTicker();
-    private final FileSystem fileSystem = MemoryFileSystems.newFileSystem();
+    private final FileSystem fileSystem;
+    private final boolean ownsFileSystem;
     private final HeadlessWindows windows = new HeadlessWindows(this::showDialog);
+    private volatile @Nullable DefaultSettingsStore settings;
     private final AtomicReference<@Nullable Injector> root = new AtomicReference<>();
+    private final List<Object> published = new CopyOnWriteArrayList<>();
     private volatile boolean running = true;
     private volatile int exitStatus = -1;
     private @Nullable RepaintManager previousRepaintManager;
     private Thread.@Nullable UncaughtExceptionHandler previousHandler;
 
-    private AppTester(Class<T> type) {
+    private AppTester(Class<T> type, @Nullable FileSystem fileSystem) {
         this.type = type;
+        this.fileSystem = fileSystem == null ? MemoryFileSystems.newFileSystem() : fileSystem;
+        this.ownsFileSystem = fileSystem == null;
     }
 
     /**
@@ -116,7 +149,7 @@ public final class AppTester<T> implements AutoCloseable {
         return new Builder<>(Objects.requireNonNull(type, "type"));
     }
 
-    private void launch(Locale locale, List<String> arguments) {
+    private void launch(Locale locale, List<String> arguments, Consumer<ApplicationDirectories> files) {
         Edt.invokeAndWait(() -> {
             previousRepaintManager = RepaintManager.currentManager(null);
             RepaintManager.setCurrentManager(new EdtChecker(failures));
@@ -140,6 +173,13 @@ public final class AppTester<T> implements AutoCloseable {
                 injector -> {
                     root.set(injector);
                     executor.attach(injector.getInstance(TaskRunner.class));
+                    DefaultSettingsStore store = injector.getInstance(DefaultSettingsStore.class);
+                    settings = store;
+                    executor.attachSettings(store);
+                    executor.poll(injector.getInstance(PeriodicActions.class));
+                    injector.getInstance(Scope.class)
+                            .onClose(injector.getInstance(EventBus.class).subscribe(Object.class, published::add));
+                    files.accept(injector.getInstance(ApplicationDirectories.class));
                 },
                 false,
                 (failure, injector, lookAndFeel) -> startupFailure.set(failure));
@@ -173,9 +213,33 @@ public final class AppTester<T> implements AutoCloseable {
         return main.views().getFirst();
     }
 
-    private <R> R call(Supplier<R> code) {
+    /**
+     * Runs an action on the EDT and waits, then settles as every other call does. Tests change components this way,
+     * since the EDT checker fails a test that changes them on its own thread.
+     *
+     * @param action the action
+     * @throws NullPointerException if {@code action} is {@code null}
+     */
+    public void run(Runnable action) {
+        Objects.requireNonNull(action, "action");
+        call(() -> {
+            action.run();
+            return true;
+        });
+    }
+
+    /**
+     * Runs an action on the EDT and waits, then settles as every other call does, and returns the action's result.
+     *
+     * @param action the action, which returns a non-null result
+     * @param <R> the type of the result
+     * @return the result
+     * @throws NullPointerException if {@code action} is {@code null}, or returns {@code null}
+     */
+    public <R> R call(Supplier<R> action) {
+        Objects.requireNonNull(action, "action");
         failures.throwIfAny();
-        R result = Edt.call(executor, code);
+        R result = Edt.call(executor, action);
         executor.settle();
         failures.throwIfAny();
         return result;
@@ -190,6 +254,37 @@ public final class AppTester<T> implements AutoCloseable {
      */
     public <C> C commands(Class<C> type) {
         return call(() -> mainView().injector().getInstance(type));
+    }
+
+    /**
+     * Resolves a bean through the main view's injector, so that beans of every scope of the main window are reachable,
+     * such as the {@code SettingsStore}, or the {@code ApplicationDirectories} whose {@code config()} is the fake
+     * config directory, on the memory file system.
+     *
+     * @param type the bean's class
+     * @param <B> the bean's class
+     * @return the bean
+     * @throws NullPointerException if {@code type} is {@code null}
+     */
+    public <B> B bean(Class<B> type) {
+        Objects.requireNonNull(type, "type");
+        return call(() -> mainView().injector().getInstance(type));
+    }
+
+    /**
+     * Activates a command on the EDT, as a click would, and runs the posted updates, but doesn't wait for the task it
+     * starts, so that a test can act while the task runs, such as activating it again or checking a stop command. Tests
+     * hold such tasks with latches: the tester's other calls wait for them. It waits for the {@code @OnVirtualThread}
+     * deliveries and the pending settings saves, as every other call does.
+     *
+     * @param command the command
+     */
+    public void activate(BoundCommand command) {
+        Objects.requireNonNull(command, "command");
+        failures.throwIfAny();
+        Edt.invokeAndWait(command::execute);
+        executor.settleExceptCommands();
+        failures.throwIfAny();
     }
 
     /**
@@ -247,6 +342,28 @@ public final class AppTester<T> implements AutoCloseable {
         return call(() -> ((HeadlessWindows.HeadlessWindow) mainView().window().window()).title());
     }
 
+    /**
+     * Returns the icon image set on the main window.
+     *
+     * @return the image, empty if none was set
+     */
+    public Optional<Image> iconImage() {
+        return call(() -> mainWindow().iconImage());
+    }
+
+    /**
+     * Returns the last component focused through the main window's {@code Window.focus}.
+     *
+     * @return the component, empty if none was
+     */
+    public Optional<Component> focused() {
+        return call(() -> mainWindow().focused());
+    }
+
+    private HeadlessWindows.HeadlessWindow mainWindow() {
+        return (HeadlessWindows.HeadlessWindow) mainView().window().window();
+    }
+
     private JRootPane mainRootPane() {
         return mainView().window().window().rootPane();
     }
@@ -276,6 +393,36 @@ public final class AppTester<T> implements AutoCloseable {
      */
     public ApplicationInfo info() {
         return call(() -> root().getInstance(ApplicationInfo.class));
+    }
+
+    /**
+     * Publishes an event on the application's bus, on the EDT, then settles: its {@code @Subscribe}, {@code @OnEdt} and
+     * {@code @OnVirtualThread} methods have run when it returns.
+     *
+     * @param event the event
+     * @throws NullPointerException if {@code event} is {@code null}
+     */
+    public void publish(Object event) {
+        Objects.requireNonNull(event, "event");
+        call(() -> {
+            root().getInstance(EventBus.class).publish(event);
+            return event;
+        });
+    }
+
+    /**
+     * Returns the events published on the application's bus since startup that are instances of a type, in the order
+     * they were delivered, whoever published them.
+     *
+     * @param type the type
+     * @param <E> the type
+     * @return the events
+     * @throws NullPointerException if {@code type} is {@code null}
+     */
+    public <E> List<E> published(Class<E> type) {
+        Objects.requireNonNull(type, "type");
+        return call(() ->
+                published.stream().filter(type::isInstance).map(type::cast).toList());
     }
 
     /**
@@ -316,7 +463,7 @@ public final class AppTester<T> implements AutoCloseable {
             } catch (AssertionError e) {
                 failures.add(e);
             }
-            dialogs.answer(new OpenDialog<>(instance, view.injector(), window.rootPane()));
+            dialogs.answer(new OpenDialog<>(instance, view.injector(), window.rootPane(), window, executor));
         });
     }
 
@@ -341,6 +488,7 @@ public final class AppTester<T> implements AutoCloseable {
                     injector.getInstance(DefaultLifecycle.class).close();
                 });
                 running = false;
+                awaitSaves();
             }
         } finally {
             restore();
@@ -348,10 +496,26 @@ public final class AppTester<T> implements AutoCloseable {
         failures.throwIfAny();
     }
 
+    // The saves the @PreDestroy methods started, before the file system they write to closes.
+    private void awaitSaves() {
+        DefaultSettingsStore store = settings;
+        if (store == null) {
+            return;
+        }
+        try {
+            store.awaitSaves(SAVE_TIMEOUT);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     private void restore() {
         RepaintManager previous = previousRepaintManager;
         Edt.invokeAndWait(() -> RepaintManager.setCurrentManager(previous));
         Thread.setDefaultUncaughtExceptionHandler(previousHandler);
+        if (!ownsFileSystem) {
+            return;
+        }
         try {
             fileSystem.close();
         } catch (IOException | UnsupportedOperationException e) {
@@ -369,9 +533,90 @@ public final class AppTester<T> implements AutoCloseable {
         private final Class<T> type;
         private Locale locale = Locale.ROOT;
         private List<String> arguments = List.of();
+        private final Map<Class<?>, SettingsFile> settings = new LinkedHashMap<>();
+        private final List<Consumer<ApplicationDirectories>> files = new ArrayList<>();
+        private @Nullable FileSystem fileSystem;
 
         private Builder(Class<T> type) {
             this.type = type;
+        }
+
+        /**
+         * Writes a settings record to the fake config directory before startup, with the settings store's own writer,
+         * so that the application starts on it. A later value of the same record replaces an earlier one.
+         *
+         * @param value the record, annotated {@code @Settings}
+         * @return this builder
+         * @throws NullPointerException if {@code value} is {@code null}
+         * @throws IllegalArgumentException if the record's class has no settings descriptor
+         */
+        public Builder<T> settings(Record value) {
+            Objects.requireNonNull(value, "value");
+            String id = DefaultSettingsStore.descriptors().stream()
+                    .filter(descriptor -> descriptor.type() == value.getClass())
+                    .map(SettingsDescriptor::id)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("No settings descriptor for "
+                            + value.getClass().getName() + ": annotate it with @Settings"));
+            settings.put(value.getClass(), new SettingsFile(id, value));
+            return this;
+        }
+
+        /**
+         * Writes a file before startup, at a path in the application's fake directories, creating its directories, so
+         * that the application starts on a settings file, a data file or a window state of the test's choice.
+         *
+         * <pre>{@code
+         * AppTester.builder(NotesApp.class)
+         *         .file(directories -> directories.data().resolve("notes.txt"), "Hello")
+         *         .start()
+         * }</pre>
+         *
+         * @param path gives the file's path from the application's directories
+         * @param content the file's content, written in UTF-8
+         * @return this builder
+         * @throws NullPointerException if {@code path} or {@code content} is {@code null}
+         */
+        public Builder<T> file(Function<ApplicationDirectories, Path> path, String content) {
+            Objects.requireNonNull(path, "path");
+            Objects.requireNonNull(content, "content");
+            files.add(directories -> {
+                Path file = path.apply(directories);
+                try {
+                    Path parent = file.getParent();
+                    if (parent != null) {
+                        Files.createDirectories(parent);
+                    }
+                    Files.writeString(file, content);
+                } catch (IOException e) {
+                    throw new UncheckedIOException("Could not write " + file, e);
+                }
+            });
+            return this;
+        }
+
+        /**
+         * Uses a memory file system rather than a new one, and doesn't close it, so that a test starts the application
+         * a second time on what the first run saved.
+         *
+         * @param fileSystem the file system, which the test closes
+         * @return this builder
+         * @throws NullPointerException if {@code fileSystem} is {@code null}
+         */
+        public Builder<T> fileSystem(FileSystem fileSystem) {
+            this.fileSystem = Objects.requireNonNull(fileSystem, "fileSystem");
+            return this;
+        }
+
+        private void writeFiles(ApplicationDirectories directories) {
+            for (SettingsFile file : settings.values()) {
+                try {
+                    DefaultSettingsStore.write(directories.config(), file.id(), file.value());
+                } catch (IOException e) {
+                    throw new UncheckedIOException("Could not write the settings " + file.value(), e);
+                }
+            }
+            files.forEach(file -> file.accept(directories));
         }
 
         /**
@@ -405,9 +650,11 @@ public final class AppTester<T> implements AutoCloseable {
          * @throws AssertionError if the startup fails
          */
         public AppTester<T> start() {
-            AppTester<T> tester = new AppTester<>(type);
-            tester.launch(locale, arguments);
+            AppTester<T> tester = new AppTester<>(type, fileSystem);
+            tester.launch(locale, arguments, this::writeFiles);
             return tester;
         }
+
+        private record SettingsFile(String id, Record value) {}
     }
 }

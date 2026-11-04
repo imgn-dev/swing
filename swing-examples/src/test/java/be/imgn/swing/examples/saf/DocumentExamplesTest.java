@@ -3,13 +3,17 @@ package be.imgn.swing.examples.saf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import be.imgn.swing.testing.AppTester;
+import be.imgn.swing.ui.Block;
 import be.imgn.swing.ui.StandardCommands;
+import be.imgn.swing.ui.Ui;
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javax.swing.JMenuItem;
 import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
@@ -42,6 +46,65 @@ class DocumentExamplesTest {
             onEdt(() -> {});
             assertThat(app.title()).isEqualTo("notes.txt - DocumentExample");
             assertThat(commands.save().execute()).isFalse();
+        }
+    }
+
+    @Test
+    void documentExampleEnablesSaveWhileTheFormIsDirty() throws Exception {
+        try (AppTester<DocumentExample> app = AppTester.start(DocumentExample.class)) {
+            DocumentExample example = app.application();
+            DocumentExampleCommands commands = app.commands(DocumentExampleCommands.class);
+            JTextArea textArea = app.component(JTextArea.class);
+            Path file = directory.resolve("notes.txt");
+            app.run(() -> example.file(file));
+
+            app.run(() -> textArea.setText("Hello"));
+
+            assertThat(example.modified.get()).isTrue();
+            assertThat(commands.save().asAction().isEnabled()).isTrue();
+
+            assertThat(commands.save().execute()).isTrue();
+
+            assertThat(Files.readString(file)).isEqualTo("Hello");
+            assertThat(example.modified.get()).isFalse();
+            assertThat(commands.save().asAction().isEnabled()).isFalse();
+
+            app.run(() -> textArea.append(", world"));
+            assertThat(commands.save().asAction().isEnabled()).isTrue();
+
+            app.run(() -> textArea.setText("Hello"));
+            assertThat(example.modified.get()).isFalse();
+            assertThat(commands.save().asAction().isEnabled()).isFalse();
+        }
+    }
+
+    @Test
+    void documentExampleIsCleanAfterALoad() throws Exception {
+        try (AppTester<DocumentExample> app = AppTester.start(DocumentExample.class)) {
+            DocumentExample example = app.application();
+            DocumentExampleCommands commands = app.commands(DocumentExampleCommands.class);
+            Ui ui = app.bean(Ui.class);
+            JTextArea textArea = app.component(JTextArea.class);
+            Path file = directory.resolve("letter.txt");
+            Files.writeString(file, "Dear reader");
+            app.run(() -> textArea.setText("Draft"));
+
+            // The tester waits for the tasks of commands only, not for those Ui.run starts.
+            CountDownLatch ended = new CountDownLatch(1);
+            app.run(() -> ui.run(example.load(file).onEnd(ended::countDown), Block.WINDOW));
+            assertThat(ended.await(30, TimeUnit.SECONDS)).isTrue();
+
+            String loaded = app.call(textArea::getText);
+            assertThat(loaded).isEqualTo("Dear reader");
+            assertThat(app.title()).isEqualTo("letter.txt - DocumentExample");
+            assertThat(example.modified.get()).isFalse();
+            assertThat(commands.save().asAction().isEnabled()).isFalse();
+
+            app.run(() -> textArea.append("!"));
+            assertThat(commands.save().asAction().isEnabled()).isTrue();
+
+            app.run(() -> textArea.setText("Dear reader"));
+            assertThat(example.modified.get()).isFalse();
         }
     }
 

@@ -10,7 +10,8 @@ import java.util.Set;
 
 /**
  * The annotation processor of swing. Its steps generate the application descriptor, the commands, the messages, the
- * injectors and state accessors of views, the menus and the resource openers, and check the TOML resources.
+ * injectors and state accessors of views, the menus, the resource openers and the settings descriptors, and check the
+ * TOML resources and the scopes of the classes with subscribers.
  *
  * <p>The option {@code -Abe.imgn.swing.resources=<dir>} adds a directory to look for resources in, for IDEs that
  * compile without copying them to the class output.
@@ -27,14 +28,17 @@ public final class SwingProcessor extends StepProcessor {
                 Names.APPLICATION_DESCRIPTOR, Names.RESOURCE_OPENER, Names.COMPONENT_INJECTOR, Names.COMPONENT_STATE)) {
             context.services().skipModuleCheck(ClassName.bestGuess(service));
         }
+        context.services().skipModuleCheck(ClassName.bestGuess(Names.SETTINGS_DESCRIPTOR));
         Shared shared = new Shared(context);
         return List.of(
                 new ApplicationStep(shared),
                 new CommandsStep(shared),
                 new MessagesStep(shared),
                 new ViewsStep(shared),
+                new SubscribersStep(shared),
                 new MenusStep(shared),
-                new ResourcesStep(shared));
+                new ResourcesStep(shared),
+                new SettingsStep(shared));
     }
 
     @Override

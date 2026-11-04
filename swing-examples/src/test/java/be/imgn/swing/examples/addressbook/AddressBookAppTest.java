@@ -9,10 +9,11 @@ import be.imgn.swing.ui.StandardCommands;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -48,12 +49,10 @@ class AddressBookAppTest {
     }
 
     @Test
-    void showsTheSelectedContact() throws Exception {
+    void showsTheSelectedContact() {
         try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
-            AddressBookApp book = app.application();
-
             JLabel picture = app.component(JLabel.class, "Contact picture");
-            select(book, 0);
+            select(app, 0);
 
             assertThat(app.component(JTextField.class, "First Name").getText()).isEqualTo("John");
             assertThat(app.component(JTextField.class, "Last Name").getText()).isEqualTo("Smith");
@@ -66,11 +65,86 @@ class AddressBookAppTest {
                             .isEnabled())
                     .isTrue();
 
-            select(book, 4);
+            select(app, 4);
 
             assertThat(app.component(JTextField.class, "First Name").getText()).isEqualTo("Mary");
             assertThat(picture.getIcon()).isNull();
             assertThat(picture.getText()).isEqualTo("No picture for this contact");
+        }
+    }
+
+    @Test
+    void publishesContactSelectedOnEachSelectionChangeAndTheDetailShowsTheContact() {
+        try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
+            AddressBookService service = app.bean(AddressBookService.class);
+            Contact john = service.contacts().get(0);
+            Contact mary = service.contacts().get(4);
+            JTextField firstName = app.component(JTextField.class, "First Name");
+            JTextField birth = app.component(JTextField.class, "Birth Date");
+            JLabel picture = app.component(JLabel.class, "Contact picture");
+            JTable table = app.application().table;
+
+            select(app, 0);
+            assertThat(firstName.getText()).isEqualTo("John");
+            select(app, 4);
+            assertThat(firstName.getText()).isEqualTo("Mary");
+            assertThat(birth.getText()).isEqualTo("1964-05-04");
+            app.run(table::clearSelection);
+
+            assertThat(app.published(ContactSelected.class))
+                    .containsExactly(
+                            new ContactSelected(Optional.of(john)),
+                            new ContactSelected(Optional.of(mary)),
+                            new ContactSelected(Optional.empty()));
+            assertThat(firstName.getText()).isEmpty();
+            assertThat(picture.getText()).isEqualTo("No contact selected");
+            assertThat(app.commands(ContactActionsCommands.class)
+                            .modifyContact()
+                            .asAction()
+                            .isEnabled())
+                    .isFalse();
+        }
+    }
+
+    @Test
+    void theTableFollowsAContactCreatedModifiedAndRemoved() {
+        try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
+            AddressBookService service = app.bean(AddressBookService.class);
+
+            Contact ada = service.createContact(new Contact(
+                    0, "Ada", "Lovelace", LocalDate.parse("1815-12-10"), Address.ofCity("London"), Address.EMPTY));
+            app.run(() -> {});
+            assertThat(names(app)).endsWith("Ada Lovelace").hasSize(6);
+            assertThat(app.application().table.getValueAt(5, 2)).isEqualTo("London");
+
+            service.modifyContact(ada.withIdentity("Augusta Ada", "King", ada.birth()));
+            app.run(() -> {});
+            assertThat(names(app)).endsWith("Augusta Ada King").doesNotContain("Ada Lovelace");
+
+            service.removeContact(ada);
+            app.run(() -> {});
+            assertThat(names(app)).containsExactly("John Smith", "Phoebe Smith", "Luke Smith", "Linda Doe", "Mary Doe");
+        }
+    }
+
+    @Test
+    void modifyingAContactKeepsItSelected() {
+        try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
+            AddressBookService service = app.bean(AddressBookService.class);
+            Contact phoebe = service.contacts().get(1);
+            JTable table = app.application().table;
+            JTextField lastName = app.component(JTextField.class, "Last Name");
+            select(app, 1);
+
+            Contact modified = phoebe.withIdentity("Phoebe", "Jones", phoebe.birth());
+            service.modifyContact(modified);
+            app.run(() -> {});
+
+            assertThat(table.getSelectedRow()).isEqualTo(1);
+            assertThat(app.published(ContactSelected.class))
+                    .last()
+                    .isEqualTo(new ContactSelected(Optional.of(modified)));
+            assertThat(lastName.getText()).isEqualTo("Jones");
         }
     }
 
@@ -100,10 +174,9 @@ class AddressBookAppTest {
     }
 
     @Test
-    void modifiesAContactWithTheTabsDialog() throws Exception {
+    void modifiesAContactWithTheTabsDialog() {
         try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
-            AddressBookApp book = app.application();
-            select(book, 3);
+            select(app, 3);
             app.dialogs().answerDialog(ContactTabsDialog.class, dialog -> {
                 JTabbedPane tabs = dialog.component(JTabbedPane.class);
                 assertThat(IntStream.range(0, tabs.getTabCount()).mapToObj(tabs::getTitleAt))
@@ -118,6 +191,7 @@ class AddressBookAppTest {
 
             assertThat(names(app)).contains("Belinda Doe").doesNotContain("Linda Doe");
             assertThat(app.component(JTextField.class, "First Name").getText()).isEqualTo("Belinda");
+            assertThat(app.application().table.getSelectedRow()).isEqualTo(3);
         }
     }
 
@@ -162,11 +236,10 @@ class AddressBookAppTest {
     }
 
     @Test
-    void deletesTheSelectedContactOnceConfirmed() throws Exception {
+    void deletesTheSelectedContactOnceConfirmed() {
         try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
-            AddressBookApp book = app.application();
             ContactActionsCommands contacts = app.commands(ContactActionsCommands.class);
-            select(book, 1);
+            select(app, 1);
             app.dialogs().answerConfirm(false);
 
             contacts.deleteContact().execute();
@@ -190,11 +263,17 @@ class AddressBookAppTest {
     }
 
     @Test
-    void throwsItsException() {
+    void throwsItsExceptionToTheFailureHandler() {
         try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
-            assertThatThrownBy(() -> app.commands(GeneralActionsCommands.class)
+            assertThat(app.commands(GeneralActionsCommands.class)
                             .throwException()
                             .execute())
+                    .isTrue();
+
+            // The tester's FailureHandler records the exception, and fails its next call with it.
+            assertThatThrownBy(app::isRunning)
+                    .isInstanceOf(AssertionError.class)
+                    .cause()
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Some message here");
         }
@@ -308,9 +387,9 @@ class AddressBookAppTest {
                 .toList();
     }
 
-    private static void select(AddressBookApp book, int row) throws InterruptedException, InvocationTargetException {
-        EventQueue.invokeAndWait(() -> book.table.setRowSelectionInterval(row, row));
-        EventQueue.invokeAndWait(() -> {});
+    private static void select(AppTester<AddressBookApp> app, int row) {
+        JTable table = app.application().table;
+        app.run(() -> table.setRowSelectionInterval(row, row));
     }
 
     private static void ok(OpenDialog<?> dialog) {

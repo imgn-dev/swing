@@ -37,7 +37,8 @@ public class StandardCommands {
     }
 
     /**
-     * Returns the command that shows the About dialog: displayed name, version and vendor.
+     * Returns the command that shows the {@link AboutDialog}: from top to bottom, each one that is present of the icon,
+     * the displayed name, version, vendor, description, copyright and website.
      *
      * @return the command
      */
@@ -46,8 +47,8 @@ public class StandardCommands {
     }
 
     /**
-     * Returns the command that calls {@link PreferencesHandler#showPreferences()}; disabled unless a
-     * {@link PreferencesHandler} bean exists.
+     * Returns the command that calls {@link PreferencesHandler#showPreferences(Ui)} with the {@link Ui} of this view;
+     * disabled unless a {@link PreferencesHandler} bean exists.
      *
      * @return the command
      */
@@ -102,7 +103,10 @@ public class StandardCommands {
     }
 
     /**
-     * Returns the command that closes the dialog with a result.
+     * Returns the command that closes the dialog with a result, always enabled: if the dialog's form doesn't validate,
+     * the dialog stays open, showing the errors; otherwise, if the form is dirty, it calls {@link DialogView#commit()},
+     * then closes the dialog with {@link DialogView#result()}. The dialog's form is the {@link Form} bean of the dialog
+     * view's scope.
      *
      * @return the command
      * @throws IllegalStateException outside a dialog view's scope
@@ -112,13 +116,25 @@ public class StandardCommands {
     }
 
     /**
-     * Returns the command that closes the dialog without a result.
+     * Returns the command that closes the dialog without a result, always enabled, whatever the state of its form.
      *
      * @return the command
      * @throws IllegalStateException outside a dialog view's scope
      */
     public BoundCommand cancel() {
         return dialogCommand(Standard.CANCEL);
+    }
+
+    /**
+     * Returns the command that applies the dialog's form, enabled while the form is dirty: if the form validates, it
+     * calls {@link DialogView#commit()}, then {@link Form#markClean()}; the dialog stays open. The dialog's form is the
+     * {@link Form} bean of the dialog view's scope.
+     *
+     * @return the command
+     * @throws IllegalStateException outside a dialog view's scope
+     */
+    public BoundCommand apply() {
+        return dialogCommand(Standard.APPLY);
     }
 
     private BoundCommand dialogCommand(Standard standard) {

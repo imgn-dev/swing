@@ -15,5 +15,32 @@ tab-title = "Général"
 [home]
 tab-title = "Adresse maison"
 
+[home.streetLabel]
+text = "&Rue"
+
+[home.zipLabel]
+text = "C&ode postal"
+
+[home.cityLabel]
+text = "&Ville"
+
+[home.phoneLabel]
+text = "&Téléphone"
+
 [office]
 tab-title = "Adresse bureau"
+
+[office.streetLabel]
+text = "Rue"
+
+[office.zipLabel]
+text = "Code postal"
+
+[office.cityLabel]
+text = "Ville"
+
+[office.phoneLabel]
+text = "Téléphone"
+
+[commands.ok]
+text = "&Enregistrer"

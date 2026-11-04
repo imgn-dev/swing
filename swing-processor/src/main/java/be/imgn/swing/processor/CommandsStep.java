@@ -133,6 +133,8 @@ final class CommandsStep implements Step {
         boolean own = command.declaring().equals(type);
         Element where = own ? command.element() : type;
         List<String> problems = new ArrayList<>(handlerProblems(type, command));
+        problems.addAll(stopProblems(type, command));
+        problems.addAll(concurrencyProblems(command));
         if (!command.enabled().isEmpty()) {
             targetProblem(type, command, command.enabled(), Names.OBSERVABLE, "enabled")
                     .ifPresent(problems::add);
@@ -214,6 +216,67 @@ final class CommandsStep implements Step {
             problems.add("The handler " + name + " is named like the standard command " + name + " but its id is "
                     + command.id() + ": its generated method would override the standard method with an unrelated"
                     + " command");
+        }
+        return problems;
+    }
+
+    // A stop command cancels the tasks of another command of its class, and is enabled while that command runs.
+    private List<String> stopProblems(TypeElement type, CommandInfo command) {
+        if (command.cancels().isEmpty()) {
+            return List.of();
+        }
+        String described = "cancels = \"" + command.cancels() + "\"";
+        if (command.isField()) {
+            return List.of(described + " is on a field: a stop command is declared on a handler that returns void");
+        }
+        List<String> problems = new ArrayList<>();
+        CommandInfo target = Commands.all(context, type).get(command.cancels());
+        if (target == null) {
+            problems.add(described + " names no command of " + type.getQualifiedName() + ", declared or inherited");
+        } else if (!target.returnsTask()) {
+            problems.add(described + " names the command " + target.id()
+                    + ", whose handler returns void: it has no task to cancel");
+        }
+        if (command.handler().getReturnType().getKind() != TypeKind.VOID) {
+            problems.add("The handler of a stop command returns void, not "
+                    + command.handler().getReturnType());
+        }
+        List<String> attributes = new ArrayList<>();
+        if (!command.enabled().isEmpty()) {
+            attributes.add("enabled");
+        }
+        if (!command.selected().isEmpty()) {
+            attributes.add("selected");
+        }
+        if (!"NONE".equals(command.block())) {
+            attributes.add("block");
+        }
+        if (!"PARALLEL".equals(command.concurrency())) {
+            attributes.add("concurrency");
+        }
+        if (!attributes.isEmpty()) {
+            problems.add("A stop command takes no " + String.join(", ", attributes)
+                    + " attribute: it is enabled while the command it cancels runs");
+        }
+        return problems;
+    }
+
+    // RESTART and SERIAL act on the tasks the command started, which a command that blocks itself never runs twice.
+    private static List<String> concurrencyProblems(CommandInfo command) {
+        if ("PARALLEL".equals(command.concurrency())) {
+            return List.of();
+        }
+        String described = "concurrency = Concurrency." + command.concurrency();
+        if (command.isField()) {
+            return List.of(described + " is on a field: a command on a field runs no task");
+        }
+        List<String> problems = new ArrayList<>();
+        if (!command.returnsTask()) {
+            problems.add(described + " applies only to a handler that returns a Task");
+        }
+        if ("COMMAND".equals(command.block()) || "COMPONENT".equals(command.block())) {
+            problems.add(described + " excludes block = Block." + command.block()
+                    + ", which disables the command while its task runs, so that there is no second activation");
         }
         return problems;
     }
@@ -453,6 +516,18 @@ final class CommandsStep implements Step {
                     .append(scope.name(Names.BLOCK))
                     .append(".")
                     .append(command.block())
+                    .append(")");
+        }
+        if (!"PARALLEL".equals(command.concurrency())) {
+            binding.append("\n                .concurrency(")
+                    .append(scope.name(Names.CONCURRENCY))
+                    .append(".")
+                    .append(command.concurrency())
+                    .append(")");
+        }
+        if (!command.cancels().isEmpty()) {
+            binding.append("\n                .cancels(")
+                    .append(Java.literal(command.cancels()))
                     .append(")");
         }
         return binding.append("\n                .bind();").toString();

@@ -15,12 +15,14 @@ public final class ViewHost {
     private final DisposalScope scope;
     private final WindowHost window;
     private final @Nullable DialogControl dialog;
+    private final Thread builder = Thread.currentThread();
+    // Guarded by this: another thread may attach while the view is built.
     private final List<Runnable> pendingAttachments = new ArrayList<>();
     private boolean building = true;
     private @Nullable Object view;
 
     /**
-     * Creates the host of a view.
+     * Creates the host of a view, on the thread that builds it.
      *
      * @param type the view class
      * @param injector the child injector hosting the view scope
@@ -111,23 +113,29 @@ public final class ViewHost {
     }
 
     /**
-     * Runs an attachment: at once if the view is built, else when its build ends.
+     * Runs an attachment: when the view's build ends if it is made on the thread that builds the view, during that
+     * build, else at once, since what another thread builds meanwhile doesn't belong to the build.
      *
      * @param attachment the attachment
      */
     public void attach(Runnable attachment) {
-        if (building) {
-            pendingAttachments.add(attachment);
-        } else {
-            attachment.run();
+        synchronized (this) {
+            if (building && Thread.currentThread() == builder) {
+                pendingAttachments.add(attachment);
+                return;
+            }
         }
+        attachment.run();
     }
 
     /** Ends the build of the view: runs the attachments made meanwhile. */
     public void built() {
-        building = false;
-        List<Runnable> pending = List.copyOf(pendingAttachments);
-        pendingAttachments.clear();
+        List<Runnable> pending;
+        synchronized (this) {
+            building = false;
+            pending = List.copyOf(pendingAttachments);
+            pendingAttachments.clear();
+        }
         pending.forEach(Runnable::run);
     }
 

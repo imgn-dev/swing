@@ -14,10 +14,16 @@ import be.imgn.swing.ui.internal.WindowStateSupport;
 import be.imgn.toml.TomlString;
 import java.awt.BorderLayout;
 import java.awt.Desktop;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.lang.System.Logger.Level;
 import java.util.Optional;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -31,6 +37,8 @@ import org.jspecify.annotations.Nullable;
 @Singleton
 @ExposeAs(MainWindowStarter.class)
 final class MainWindowFlow implements MainWindowStarter {
+
+    private static final System.Logger LOGGER = System.getLogger(MainWindowFlow.class.getName());
 
     private final ViewBuilder builder;
     private final UiServices services;
@@ -57,11 +65,22 @@ final class MainWindowFlow implements MainWindowStarter {
                 }
             });
         }
-        // Before the view is built, so that a title the view binds in content() wins.
+        // Before the view is built, so that a title or icon the view sets in content() wins.
         window.setTitle(
                 services.resources().table(type).entries().get("title") instanceof TomlString title
                         ? title.value()
                         : services.application().displayedName());
+        if (services.resources().table(type).entries().get("icon") instanceof TomlString icon) {
+            @Nullable Image image = image(services.icons().load(type, icon.value()));
+            if (image != null) {
+                window.setIconImage(image);
+            } else {
+                LOGGER.log(
+                        Level.WARNING,
+                        "The icon " + icon.value() + " of " + type.getName()
+                                + " has no width or height: the main window gets no icon image");
+            }
+        }
         WindowHost host = builder.openWindow(window, root, application, null, "main", "main window");
         ViewHost view = builder.buildView(
                 host, Optional.of(type), Optional.empty(), injector -> injector.getInstance(type), null, built -> {
@@ -69,6 +88,7 @@ final class MainWindowFlow implements MainWindowStarter {
                     place(window.rootPane(), single.content(), single.menuBar(), single.toolBar());
                 });
         SingleFrame single = (SingleFrame) view.view().orElseThrow();
+        WindowStateSupport state = host.injector().getInstance(WindowStateSupport.class);
         if (frame != null) {
             // A fresh frame sits at (0, 0), so a sentinel location tells a configureFrame that moves it there apart
             // from one that leaves it alone; one that asks the platform for the location has moved it as well.
@@ -77,15 +97,37 @@ final class MainWindowFlow implements MainWindowStarter {
             single.configureFrame(frame);
             boolean moved = frame.isLocationByPlatform() || !before.equals(frame.getLocation());
             frame.pack();
-            boolean restored =
-                    host.injector().getInstance(WindowStateSupport.class).restore(single.restoreBounds());
+            boolean restored = state.restore(single.restoreBounds());
             if (!moved && !restored) {
                 frame.setLocationRelativeTo(null);
             }
+        } else {
+            // A headless window has no bounds, but its components' state is restored all the same.
+            state.restore(single.restoreBounds());
         }
         wireDesktop(view);
         services.windows().show(window);
         return single;
+    }
+
+    // A window takes an image, not an icon: an icon that holds no image, such as an SVG one, is painted into one,
+    // unless
+    // it has no size, since an image can't be empty.
+    static @Nullable Image image(Icon icon) {
+        if (icon instanceof ImageIcon imageIcon) {
+            return imageIcon.getImage();
+        }
+        if (icon.getIconWidth() <= 0 || icon.getIconHeight() <= 0) {
+            return null;
+        }
+        BufferedImage image = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        try {
+            icon.paintIcon(null, graphics, 0, 0);
+        } finally {
+            graphics.dispose();
+        }
+        return image;
     }
 
     static void place(JRootPane rootPane, JComponent content, @Nullable JMenuBar menuBar, @Nullable JToolBar toolBar) {

@@ -57,11 +57,6 @@ final class Java {
         return packageName.isEmpty() ? simpleName : packageName + "." + simpleName;
     }
 
-    /** Returns the name {@code $Outer$Inner$$Suffix} of a type generated for another. */
-    static String dollarName(TypeElement type, String suffix) {
-        return "$" + String.join("$", simpleNames(type)) + "$$" + suffix;
-    }
-
     /** Returns whether a name is a Java identifier that is not a keyword. */
     static boolean isIdentifier(String name) {
         return SourceVersion.isIdentifier(name) && !SourceVersion.isKeyword(name);

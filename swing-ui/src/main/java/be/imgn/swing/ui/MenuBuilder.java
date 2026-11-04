@@ -1,6 +1,8 @@
 package be.imgn.swing.ui;
 
+import be.imgn.swing.FailureHandler;
 import be.imgn.swing.internal.DisposalScope;
+import be.imgn.swing.internal.Guarded;
 import be.imgn.swing.ui.internal.Mnemonics;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
@@ -141,8 +143,17 @@ final class MenuBuilder {
             menuItem.setMnemonic(text.keyCode());
             menuItem.setDisplayedMnemonicIndex(text.index());
         }
-        menuItem.addActionListener(event -> item.action().run());
+        menuItem.addActionListener(event -> run(item));
         return menuItem;
+    }
+
+    // An exception an item's action throws goes to the FailureHandler, as a command handler's does; an Error
+    // propagates.
+    private void run(DynamicEntry.Item item) {
+        Throwable thrown = Guarded.runCatchingExceptions(item.action());
+        if (thrown != null) {
+            view.injector().getInstance(FailureHandler.class).failed(thrown);
+        }
     }
 
     /**

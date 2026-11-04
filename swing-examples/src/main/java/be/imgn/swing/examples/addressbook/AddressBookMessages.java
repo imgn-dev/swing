@@ -58,32 +58,25 @@ public interface AddressBookMessages {
     String homeCityHeader();
 
     /**
-     * Returns the label of the street of an address.
+     * Returns the requirement of a contact's first name.
      *
-     * @return the label
+     * @return the requirement
      */
-    String street();
+    String firstNameRequired();
 
     /**
-     * Returns the label of the zip code of an address.
+     * Returns the requirement of a contact's last name.
      *
-     * @return the label
+     * @return the requirement
      */
-    String zip();
+    String lastNameRequired();
 
     /**
-     * Returns the label of the city of an address.
+     * Returns the requirement of the text of a date.
      *
-     * @return the label
+     * @return the requirement
      */
-    String city();
-
-    /**
-     * Returns the label of the phone number of an address.
-     *
-     * @return the label
-     */
-    String phone();
+    String isoDate();
 
     /**
      * Returns the heading of a step of the wizard.

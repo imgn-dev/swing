@@ -1,21 +1,15 @@
 package be.imgn.swing.examples.saf;
 
-import be.imgn.gaia.core.platform.ApplicationDirectories;
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
-import be.imgn.swing.Task;
+import be.imgn.swing.Property;
+import be.imgn.swing.SettingsStore;
 import be.imgn.swing.ui.Command;
-import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
-import be.imgn.toml.Toml;
-import be.imgn.toml.TomlString;
-import be.imgn.toml.TomlTable;
-import be.imgn.toml.TomlValue;
+import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.random.RandomGenerator;
@@ -28,38 +22,32 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 /**
- * A map of keys and values that the application saves to, and loads from, a file of its data directory. In
- * SwingAppFramework, the file is written by {@code LocalStorage} with {@code XMLEncoder}; in swing, it is a TOML table
- * in the application's {@link ApplicationDirectories}, written atomically.
+ * A map of keys and values that the application keeps between runs. In SwingAppFramework, the map is saved and loaded
+ * by {@code LocalStorage} with {@code XMLEncoder}, from commands; in swing, it is the {@link Entries} settings record,
+ * loaded at startup and saved at each change, in the config directory.
  */
 @Application(name = "LocalStorageExample1", vendor = "Sun")
 public final class LocalStorageExample1 implements SingleFrame {
 
-    private static final String FILE = "map.toml";
     private static final int COLUMNS = 16;
     private static final int ROWS = 12;
     private static final int BOUND = 10_000;
     private static final int BORDER = 4;
 
-    @Exposed
-    final JTextField message = new JTextField();
-
     private final JTextField key = new JTextField(" Key ", COLUMNS);
     private final JTextField value = new JTextField(" Value ", COLUMNS);
     private final JList<String> mapList = new JList<>();
-    private final Map<String, String> map = new LinkedHashMap<>();
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
     private final RandomGenerator random = RandomGenerator.getDefault();
+    private final Property<Entries> entries;
     private final LocalStorageExample1Commands commands;
-    private final ApplicationDirectories directories;
-    private final ExampleMessages messages;
+    private final Ui ui;
 
     @Inject
-    LocalStorageExample1(
-            LocalStorageExample1Commands commands, ApplicationDirectories directories, ExampleMessages messages) {
+    LocalStorageExample1(LocalStorageExample1Commands commands, Ui ui, SettingsStore settings) {
         this.commands = commands;
-        this.directories = directories;
-        this.messages = messages;
+        this.ui = ui;
+        this.entries = settings.get(Entries.class);
     }
 
     /**
@@ -73,7 +61,6 @@ public final class LocalStorageExample1 implements SingleFrame {
 
     @Override
     public JComponent content() {
-        message.setEditable(false);
         mapList.setModel(listModel);
         mapList.setPrototypeCellValue("Hello = World");
         mapList.setVisibleRowCount(ROWS);
@@ -83,19 +70,16 @@ public final class LocalStorageExample1 implements SingleFrame {
         fields.add(key);
         fields.add(value);
         fields.add(commands.addRandomEntry().createButton());
-        JPanel buttons = new JPanel(new FlowLayout());
-        buttons.add(commands.saveMap().createButton());
-        buttons.add(commands.loadMap().createButton());
-        buttons.add(commands.clearMap().createButton());
+        JPanel buttons = ui.buttonBar(commands.clearMap());
         JScrollPane scroll = new JScrollPane(mapList);
         scroll.setBorder(BorderFactory.createEmptyBorder(BORDER / 2, BORDER, BORDER / 2, BORDER));
+        ui.bind(this::showMap, entries);
         JPanel center = new JPanel(new BorderLayout());
         center.add(scroll, BorderLayout.CENTER);
         center.add(buttons, BorderLayout.PAGE_END);
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(fields, BorderLayout.PAGE_START);
         panel.add(center, BorderLayout.CENTER);
-        panel.add(message, BorderLayout.PAGE_END);
         return panel;
     }
 
@@ -106,62 +90,23 @@ public final class LocalStorageExample1 implements SingleFrame {
 
     @Command
     void clearMap() {
-        map.clear();
-        showMap();
-    }
-
-    @Command
-    Task<Path> saveMap() {
-        Path file = file();
-        TomlTable.Builder table = TomlTable.builder();
-        map.forEach(table::put);
-        TomlTable saved = table.build();
-        return Task.of(() -> {
-                    Files.createDirectories(file.getParent());
-                    Toml.writeAtomically(saved, file);
-                    return file;
-                })
-                .onSuccess(path -> message.setText(messages.savedFile(path.toString())));
-    }
-
-    @Command
-    Task<Map<String, String>> loadMap() {
-        Path file = file();
-        return Task.of(() -> {
-                    Map<String, String> loaded = new LinkedHashMap<>();
-                    for (Map.Entry<String, TomlValue> entry :
-                            Toml.parse(file).root().entries().entrySet()) {
-                        if (entry.getValue() instanceof TomlString text) {
-                            loaded.put(entry.getKey(), text.value());
-                        }
-                    }
-                    return loaded;
-                })
-                .onSuccess(loaded -> {
-                    map.clear();
-                    map.putAll(loaded);
-                    showMap();
-                    message.setText(messages.loadedFile(file.toString()));
-                });
+        entries.set(new Entries());
     }
 
     /**
-     * Puts an entry in the map, and shows it.
+     * Puts an entry in the map, which saves it and shows it.
      *
      * @param entryKey the key
      * @param entryValue the value
      */
     void put(String entryKey, String entryValue) {
+        Map<String, String> map = new LinkedHashMap<>(entries.get().entries());
         map.put(entryKey, entryValue);
-        showMap();
+        entries.set(new Entries(map));
     }
 
-    private void showMap() {
+    private void showMap(Entries shown) {
         listModel.clear();
-        map.forEach((entryKey, entryValue) -> listModel.addElement(entryKey + " = " + entryValue));
-    }
-
-    private Path file() {
-        return directories.data().resolve(FILE);
+        shown.entries().forEach((entryKey, entryValue) -> listModel.addElement(entryKey + " = " + entryValue));
     }
 }

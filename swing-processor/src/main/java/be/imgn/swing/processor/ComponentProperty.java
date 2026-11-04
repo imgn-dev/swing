@@ -67,10 +67,13 @@ enum ComponentProperty {
         };
     }
 
-    /** Returns the statement that writes the property to a field of the view, read with {@code resources}. */
-    String statement(ProcessingContext context, TypeMirror type, String field, String componentResources) {
-        String read = "resources.%s(%s, %s)".formatted(kind.reader, Java.literal(field), Java.literal(key));
-        String target = "view." + field;
+    /**
+     * Returns the statement that writes the property to a component, read with {@code resources} at a field path, such
+     * as {@code editor} or {@code home.streetLabel}, and reached through an expression, such as {@code view.editor}.
+     */
+    String statement(
+            ProcessingContext context, TypeMirror type, String path, String target, String componentResources) {
+        String read = "resources.%s(%s, %s)".formatted(kind.reader, Java.literal(path), Java.literal(key));
         boolean mnemonics = this == TEXT
                 && (context.isSubtype(type, Names.ABSTRACT_BUTTON) || context.isSubtype(type, Names.JLABEL));
         String apply = mnemonics

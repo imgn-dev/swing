@@ -7,6 +7,7 @@ import be.imgn.swing.Scope;
 import be.imgn.swing.internal.DisposalScope;
 import be.imgn.swing.internal.Hosts;
 import be.imgn.swing.internal.ResourceTables;
+import be.imgn.swing.internal.SubscriberRegistrar;
 import be.imgn.swing.ui.internal.DialogControl;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
@@ -26,11 +27,13 @@ final class ViewBuilder {
 
     private final UiServices services;
     private final Hosts hosts;
+    private final SubscriberRegistrar subscribers;
 
     @Inject
-    ViewBuilder(UiServices services, Hosts hosts) {
+    ViewBuilder(UiServices services, Hosts hosts, SubscriberRegistrar subscribers) {
         this.services = services;
         this.hosts = hosts;
+        this.subscribers = subscribers;
     }
 
     /**
@@ -59,7 +62,7 @@ final class ViewBuilder {
     /**
      * Builds a view in a window: creates its scope and the child injector hosting the view scope, registers the view
      * class's overrides, resolves the view, applies its component resources, places it, applies its tab titles, and
-     * ends its build, which attaches its commands.
+     * ends its build, which attaches its commands and registers the instances built meanwhile on the bus.
      */
     ViewHost buildView(
             WindowHost window,
@@ -76,21 +79,27 @@ final class ViewBuilder {
         hosts.register(injector, scope);
         ViewHost view = new ViewHost(type.isPresent() ? type.get() : Object.class, injector, scope, window, dialog);
         services.registry().addView(view);
-        type.ifPresent(known -> overrides(known, injector));
-        Object instance = resolve.apply(injector);
-        view.view(instance);
-        if (type.isEmpty()) {
-            // The class of a view created by a factory is known only now: register its overrides, among the
-            // commands it already bound as well, before its resources and components are built.
-            view.type(instance.getClass());
-            overrides(view.type(), injector);
-            injector.getInstance(CommandRegistry.class).viewTypeKnown();
+        // The instances built meanwhile join the bus when the build ends, as their commands are attached.
+        Runnable subscribe = subscribers.hold();
+        try {
+            type.ifPresent(known -> overrides(known, injector));
+            Object instance = resolve.apply(injector);
+            view.view(instance);
+            if (type.isEmpty()) {
+                // The class of a view created by a factory is known only now: register its overrides, among the
+                // commands it already bound as well, before its resources and components are built.
+                view.type(instance.getClass());
+                overrides(view.type(), injector);
+                injector.getInstance(CommandRegistry.class).viewTypeKnown();
+            }
+            ComponentResources resources = resources(view.type(), variant);
+            inject(view.type(), instance, resources, false);
+            place.accept(view);
+            inject(view.type(), instance, resources, true);
+            view.built();
+        } finally {
+            subscribe.run();
         }
-        ComponentResources resources = resources(view.type(), variant);
-        inject(view.type(), instance, resources, false);
-        place.accept(view);
-        inject(view.type(), instance, resources, true);
-        view.built();
         return view;
     }
 

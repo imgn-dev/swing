@@ -27,3 +27,6 @@ text = "OK"
 
 [commands.cancel]
 text = "Annuler"
+
+[commands.apply]
+text = "&Appliquer"

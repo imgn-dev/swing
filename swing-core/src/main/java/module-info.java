@@ -1,5 +1,6 @@
 import be.imgn.swing.ResourceOpener;
 import be.imgn.swing.spi.ApplicationDescriptor;
+import be.imgn.swing.spi.SettingsDescriptor;
 
 /**
  * Lifecycle, scopes, observables, tasks, resources and messages, without Swing.
@@ -22,4 +23,5 @@ module be.imgn.swing {
 
     uses ApplicationDescriptor;
     uses ResourceOpener;
+    uses SettingsDescriptor;
 }

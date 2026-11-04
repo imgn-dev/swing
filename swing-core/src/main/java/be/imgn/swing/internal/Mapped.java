@@ -13,7 +13,7 @@ import java.util.function.Function;
  */
 public final class Mapped<T, R> extends Derived<R> {
 
-    private final Observable<T> source;
+    private final Source<T> source;
     private final Function<? super T, ? extends R> mapper;
 
     /**
@@ -23,17 +23,17 @@ public final class Mapped<T, R> extends Derived<R> {
      * @param mapper the function
      */
     public Mapped(Observable<T> source, Function<? super T, ? extends R> mapper) {
-        this.source = Objects.requireNonNull(source, "source");
+        this.source = new Source<>(Objects.requireNonNull(source, "source"));
         this.mapper = Objects.requireNonNull(mapper, "mapper");
     }
 
     @Override
-    List<Observable<?>> sources() {
+    List<Source<?>> sources() {
         return List.of(source);
     }
 
     @Override
-    R compute() {
-        return mapper.apply(source.get());
+    R compute(boolean kept) {
+        return mapper.apply(source.value(kept));
     }
 }

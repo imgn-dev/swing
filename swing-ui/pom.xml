@@ -73,6 +73,11 @@
               <artifactId>inject-processor</artifactId>
               <version>${inject.version}</version>
             </path>
+            <path>
+              <groupId>be.imgn.toml</groupId>
+              <artifactId>toml-processor</artifactId>
+              <version>${toml.version}</version>
+            </path>
           </annotationProcessorPaths>
         </configuration>
       </plugin>

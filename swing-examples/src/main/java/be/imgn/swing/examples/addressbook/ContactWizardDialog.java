@@ -8,6 +8,8 @@ import be.imgn.swing.ui.BoundCommand;
 import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.DialogView;
 import be.imgn.swing.ui.Exposed;
+import be.imgn.swing.ui.Form;
+import be.imgn.swing.ui.FormPanel;
 import be.imgn.swing.ui.StandardCommands;
 import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
@@ -50,7 +52,8 @@ public final class ContactWizardDialog implements DialogView<Contact> {
     final Observable<Boolean> hasNext;
 
     private final JLabel stepLabel = new JLabel();
-    private final ContactForm form;
+    private final ContactForm fields;
+    private final Form form;
     private final Ui ui;
     private final AddressBookMessages messages;
     private final ContactWizardDialogCommands commands;
@@ -61,13 +64,18 @@ public final class ContactWizardDialog implements DialogView<Contact> {
 
     @Inject
     ContactWizardDialog(
-            @Assisted Contact contact, Ui ui, AddressBookMessages messages, ContactWizardDialogCommands commands) {
-        this.form = new ContactForm(contact, messages);
+            @Assisted Contact contact,
+            Form form,
+            Ui ui,
+            AddressBookMessages messages,
+            ContactWizardDialogCommands commands) {
+        this.fields = new ContactForm(contact);
+        this.form = form;
         this.ui = ui;
         this.messages = messages;
         this.commands = commands;
-        this.home = form.home();
-        this.office = form.office();
+        this.home = fields.home();
+        this.office = fields.office();
         this.names = List.of(messages.contactStep(), messages.homeAddressStep(), messages.officeAddressStep());
         this.hasPrevious = step.map(index -> index > 0);
         this.hasNext = step.map(index -> index < names.size() - 1);
@@ -75,8 +83,9 @@ public final class ContactWizardDialog implements DialogView<Contact> {
 
     @Override
     public JComponent content() {
-        JPanel contactStep = Forms.panel();
-        form.identity(contactStep, firstNameLabel, lastNameLabel, birthLabel);
+        fields.bind(form, messages);
+        var contactStep = fields.identity(FormPanel.create(), firstNameLabel, lastNameLabel, birthLabel)
+                .build();
         steps.add(contactStep, names.get(0));
         steps.add(home, names.get(1));
         steps.add(office, names.get(2));
@@ -110,6 +119,6 @@ public final class ContactWizardDialog implements DialogView<Contact> {
 
     @Override
     public Optional<Contact> result() {
-        return Optional.of(form.contact());
+        return Optional.of(fields.contact());
     }
 }

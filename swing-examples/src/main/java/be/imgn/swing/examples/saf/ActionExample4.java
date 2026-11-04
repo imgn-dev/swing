@@ -6,16 +6,15 @@ import be.imgn.swing.Property;
 import be.imgn.swing.Task;
 import be.imgn.swing.TaskContext;
 import be.imgn.swing.ui.Command;
-import be.imgn.swing.ui.Exposed;
+import be.imgn.swing.ui.Concurrency;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
@@ -24,22 +23,20 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A command that lists the files of a directory in a task, which adds them to the list as it finds them and tells which
- * directory it lists, and a command that stops it, enabled only while it runs.
+ * directory it lists, and a command that stops it, enabled only while it runs. A new listing replaces the one that
+ * runs.
  */
 @Application(name = "ActionExample4", vendor = "Sun", version = "1.0")
 public final class ActionExample4 implements SingleFrame {
 
     private static final int COLUMNS = 32;
     private static final int ROWS = 12;
-    private static final int BUFFER = 10;
     private static final int MARGIN = 2;
     private static final int PADDING = 4;
-
-    @Exposed
-    final Property<Boolean> stopEnabled = Property.of(false);
 
     private final JTextField root = new JTextField(System.getProperty("java.home"), COLUMNS);
     private final DefaultListModel<File> files = new DefaultListModel<>();
@@ -47,7 +44,7 @@ public final class ActionExample4 implements SingleFrame {
     private final ActionExample4Commands commands;
     private final Ui ui;
     private final ExampleMessages messages;
-    private int generation;
+    private volatile @Nullable CountDownLatch hold;
 
     @Inject
     ActionExample4(ActionExample4Commands commands, Ui ui, ExampleMessages messages) {
@@ -86,50 +83,38 @@ public final class ActionExample4 implements SingleFrame {
         return panel;
     }
 
-    @Command
+    @Command(concurrency = Concurrency.RESTART)
     Task<Integer> go() {
-        stop();
         files.clear();
-        int listing = ++generation;
         File directory = new File(root.getText());
-        stopEnabled.set(true);
-        return Task.of((TaskContext context) -> list(directory, listing, context))
-                .onSuccess(count -> {
-                    message.set(messages.listed(count));
-                    done(listing);
-                })
-                .onCancel(() -> done(listing))
-                .onFailure(failure -> done(listing));
+        return Task.<Integer, File>of(
+                        (context, publish) -> expand(directory, context, publish),
+                        found -> found.forEach(files::addElement))
+                .onSuccess(count -> message.set(messages.listed(count)));
     }
 
-    @Command(enabled = "stopEnabled")
-    void stop() {
-        generation++;
-        stopEnabled.set(false);
+    @Command(cancels = "go")
+    void stop() {}
+
+    /**
+     * Makes the listing wait for a latch after each file it publishes, so that tests act while it runs.
+     *
+     * @param latch the latch
+     */
+    void hold(CountDownLatch latch) {
+        this.hold = latch;
     }
 
-    private void done(int listing) {
-        if (listing == generation) {
-            stopEnabled.set(false);
-        }
-    }
-
-    // Lists the files under a directory, ten at a time; a newer listing or stop ends it.
-    private int list(File directory, int listing, TaskContext context) {
-        List<File> buffer = new ArrayList<>();
-        int count = expand(directory, listing, context, buffer);
-        publish(buffer, listing);
-        return count;
-    }
-
-    private int expand(File file, int listing, TaskContext context, List<File> buffer) {
-        if (context.isCancelled() || listing != generation) {
+    // Lists the files under a directory, publishing each one; the cancellation of the task ends it.
+    private int expand(File file, TaskContext context, Consumer<? super File> publish) throws InterruptedException {
+        if (context.isCancelled()) {
             return 0;
         }
         if (!file.isDirectory()) {
-            buffer.add(file);
-            if (buffer.size() >= BUFFER) {
-                publish(buffer, listing);
+            publish.accept(file);
+            CountDownLatch latch = hold;
+            if (latch != null) {
+                latch.await();
             }
             return 1;
         }
@@ -138,19 +123,9 @@ public final class ActionExample4 implements SingleFrame {
         int count = 0;
         if (children != null) {
             for (File child : children) {
-                count += expand(child, listing, context, buffer);
+                count += expand(child, context, publish);
             }
         }
         return count;
-    }
-
-    private void publish(List<File> buffer, int listing) {
-        List<File> found = List.copyOf(buffer);
-        buffer.clear();
-        EventQueue.invokeLater(() -> {
-            if (listing == generation) {
-                found.forEach(files::addElement);
-            }
-        });
     }
 }

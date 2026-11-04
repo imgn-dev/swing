@@ -9,7 +9,8 @@ import java.util.List;
 
 /**
  * Attaches the commands of each {@link StandardCommands} instance, generated {@code <Class>Commands} included: an
- * instance constructed while the framework builds a view is attached when that build ends, any other at once.
+ * instance constructed while the framework builds a view, on the thread that builds it, is attached when that build
+ * ends, any other at once.
  */
 @Singleton
 @IntoSet(ConstructionListener.class)
@@ -31,7 +32,7 @@ final class CommandAttacher implements ConstructionListener {
         own.forEach(BoundCommand::attach);
         boolean dialog = registry.view().dialog().isPresent();
         for (Standard standard : Standard.values()) {
-            if (dialog || (standard != Standard.OK && standard != Standard.CANCEL)) {
+            if (dialog || !standard.isDialogCommand()) {
                 registry.standard(standard).attach();
             }
         }

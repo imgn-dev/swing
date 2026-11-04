@@ -16,11 +16,17 @@ final class Names {
     static final String OBSERVABLE = "be.imgn.swing.Observable";
     static final String PROPERTY = "be.imgn.swing.Property";
     static final String TASK = "be.imgn.swing.Task";
+    static final String SETTINGS = "be.imgn.swing.Settings";
+    static final String SETTINGS_DESCRIPTOR = "be.imgn.swing.spi.SettingsDescriptor";
+
+    static final String TOML_CONFIG = "be.imgn.toml.TomlConfig";
+    static final String TOML_KEY = "be.imgn.toml.TomlKey";
 
     static final String COMMAND = "be.imgn.swing.ui.Command";
     static final String EXPOSED = "be.imgn.swing.ui.Exposed";
     static final String VARIANTS = "be.imgn.swing.ui.Variants";
     static final String BLOCK = "be.imgn.swing.ui.Block";
+    static final String CONCURRENCY = "be.imgn.swing.ui.Concurrency";
     static final String BOUND_COMMAND = "be.imgn.swing.ui.BoundCommand";
     static final String BOUND_MENU = "be.imgn.swing.ui.BoundMenu";
     static final String COMMAND_CONTEXT = "be.imgn.swing.ui.CommandContext";
@@ -43,6 +49,10 @@ final class Names {
     static final String SINGLETON = "be.imgn.inject.Singleton";
     static final String PROVIDER = "be.imgn.inject.Provider";
     static final String EXPOSE_AS = "be.imgn.inject.ExposeAs";
+    static final String EAGER = "be.imgn.inject.Eager";
+
+    static final String SUBSCRIBE = "be.imgn.gaia.core.event.Subscribe";
+    static final String SUBSCRIBING_ANNOTATION = "be.imgn.gaia.core.event.SubscribingAnnotation";
 
     static final String COMPONENT = "java.awt.Component";
     static final String JCOMPONENT = "javax.swing.JComponent";
@@ -54,8 +64,18 @@ final class Names {
     static final String TABLE = "javax.swing.JTable";
 
     /** The ids of the standard commands, which are also the names of their methods in {@code StandardCommands}. */
-    static final List<String> STANDARD_COMMANDS_IDS =
-            List.of("exit", "about", "preferences", "cut", "copy", "paste", "selectAll", "closeWindow", "ok", "cancel");
+    static final List<String> STANDARD_COMMANDS_IDS = List.of(
+            "exit",
+            "about",
+            "preferences",
+            "cut",
+            "copy",
+            "paste",
+            "selectAll",
+            "closeWindow",
+            "ok",
+            "cancel",
+            "apply");
 
     /** The ids of the standard menus. */
     static final Set<String> STANDARD_MENU_IDS = Set.of("file", "edit", "view", "window", "help");

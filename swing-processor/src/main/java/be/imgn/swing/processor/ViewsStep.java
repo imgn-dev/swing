@@ -171,14 +171,11 @@ final class ViewsStep implements Step {
     }
 
     private void generateInjector(TypeElement type) {
-        String simpleName = Java.dollarName(type, "Injector");
-        String qualifiedName = Java.qualified(type, simpleName);
+        ClassName name = ClassName.of(type).generatedName("Injector");
+        String simpleName = name.simpleName();
+        String qualifiedName = name.canonicalName();
         if (context.sources().write(qualifiedName, scope -> injector(scope, type, simpleName), type)) {
-            context.services()
-                    .add(
-                            ClassName.bestGuess(Names.COMPONENT_INJECTOR),
-                            ClassName.of(Java.packageOf(type).getQualifiedName().toString(), simpleName),
-                            type);
+            context.services().add(ClassName.bestGuess(Names.COMPONENT_INJECTOR), name, type);
         }
     }
 
@@ -187,14 +184,12 @@ final class ViewsStep implements Step {
         String componentResources = scope.name(Names.COMPONENT_RESOURCES);
         List<String> properties = new ArrayList<>();
         List<String> tabTitles = new ArrayList<>();
-        ViewModel.componentFields(context, type).forEach((name, field) -> {
-            for (ComponentProperty property : ComponentProperty.values()) {
-                if (property.appliesTo(context, field.asType())) {
-                    String statement = property.statement(context, field.asType(), name, componentResources);
-                    (property == ComponentProperty.TAB_TITLE ? tabTitles : properties).add(statement);
-                }
-            }
-        });
+        ViewModel.componentFields(context, type)
+                .forEach((name, field) ->
+                        statements(field, name, "view." + name, componentResources, properties, tabTitles));
+        Map<String, VariableElement> nested = ViewModel.nestedFields(context, shared.files(), type);
+        nested.forEach((path, field) ->
+                statements(field, path, nestedTarget(path), componentResources, properties, tabTitles));
         List<String> overrides = overrides(scope, type);
         return """
                 /** Writes the resources of {@link %1$s} to the components of its fields. */
@@ -223,7 +218,7 @@ final class ViewsStep implements Step {
                     public void registerOverrides(%8$s registry) {
                 %9$s
                     }
-                }
+                %10$s}
                 """.formatted(
                         view,
                         scope.generated(),
@@ -233,7 +228,51 @@ final class ViewsStep implements Step {
                         String.join("\n", properties),
                         String.join("\n", tabTitles),
                         scope.name(Names.COMMAND_REGISTRY),
-                        String.join("\n", overrides));
+                        String.join("\n", overrides),
+                        nested.isEmpty() ? "" : nestedMethod(type));
+    }
+
+    // The statements that write every property that applies to a component field, read at its field path and reached
+    // through an expression; tab-title goes apart, since it is applied once tabs exist.
+    private void statements(
+            VariableElement field,
+            String path,
+            String target,
+            String componentResources,
+            List<String> properties,
+            List<String> tabTitles) {
+        for (ComponentProperty property : ComponentProperty.values()) {
+            if (property.appliesTo(context, field.asType())) {
+                String statement = property.statement(context, field.asType(), path, target, componentResources);
+                (property == ComponentProperty.TAB_TITLE ? tabTitles : properties).add(statement);
+            }
+        }
+    }
+
+    // The expression that reads a nested component through its enclosing fields, each checked on the way, so that a
+    // null field throws with its key path rather than a NullPointerException: home.phone.label reads
+    // nested(nested(nested(view.home, "home").phone, "home.phone").label, "home.phone.label").
+    private static String nestedTarget(String path) {
+        String target = "view";
+        String prefix = "";
+        for (String name : path.split("\\.", -1)) {
+            prefix = prefix.isEmpty() ? name : prefix + "." + name;
+            target = "nested(" + target + "." + name + ", " + Java.literal(prefix) + ")";
+        }
+        return target;
+    }
+
+    private static String nestedMethod(TypeElement type) {
+        return """
+
+                    private static <C> C nested(C component, String path) {
+                        if (component == null) {
+                            throw new IllegalStateException("The field " + path + " of " + %s
+                                    + " is null, but its resources [" + path + "] set its properties");
+                        }
+                        return component;
+                    }
+                """.formatted(Java.literal(type.getQualifiedName().toString()));
     }
 
     // The standard commands that the view class or its superclasses override, with the view class's generated class,
@@ -273,14 +312,11 @@ final class ViewsStep implements Step {
                 fields.put(name, field);
             }
         });
-        String simpleName = Java.dollarName(type, "State");
-        String qualifiedName = Java.qualified(type, simpleName);
+        ClassName name = ClassName.of(type).generatedName("State");
+        String simpleName = name.simpleName();
+        String qualifiedName = name.canonicalName();
         if (context.sources().write(qualifiedName, scope -> state(scope, type, simpleName, fields), type)) {
-            context.services()
-                    .add(
-                            ClassName.bestGuess(Names.COMPONENT_STATE),
-                            ClassName.of(Java.packageOf(type).getQualifiedName().toString(), simpleName),
-                            type);
+            context.services().add(ClassName.bestGuess(Names.COMPONENT_STATE), name, type);
         }
     }
 

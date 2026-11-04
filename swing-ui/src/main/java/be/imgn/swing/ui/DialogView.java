@@ -22,9 +22,17 @@ public interface DialogView<R> extends View {
      * Returns the commands of the dialog's buttons.
      *
      * @param commands the dialog view's own standard commands
-     * @return the commands, {@code ok()} and {@code cancel()} by default
+     * @return the commands, {@code ok()} and {@code cancel()} by default; a dialog with an Apply button lists
+     *     {@code commands.apply()} too
      */
     default List<BoundCommand> buttons(StandardCommands commands) {
         return List.of(commands.ok(), commands.cancel());
     }
+
+    /**
+     * Applies the values of the dialog's form, the {@link Form} of its view: {@code ok()} calls it when the form is
+     * valid and dirty, before it closes the dialog, and {@code apply()} when the form is valid, before it makes the
+     * form clean. Does nothing by default.
+     */
+    default void commit() {}
 }

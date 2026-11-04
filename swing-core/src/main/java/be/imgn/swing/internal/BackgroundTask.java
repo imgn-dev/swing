@@ -1,26 +1,23 @@
 package be.imgn.swing.internal;
 
-import be.imgn.swing.Task;
+import be.imgn.swing.PublishingWork;
 import be.imgn.swing.TaskWork;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A task: its work and its hooks.
+ * A task whose work runs on a thread, with its hooks.
  *
  * @param <T> the type of the result
  */
-public final class BackgroundTask<T extends @Nullable Object> implements Task<T> {
+public final class BackgroundTask<T extends @Nullable Object> extends AbstractTask<T> {
 
-    private final TaskWork<T> work;
-    private final List<Consumer<? super T>> onSuccess = new ArrayList<>();
-    private final List<Consumer<? super Throwable>> onFailure = new ArrayList<>();
-    private final List<Runnable> onCancel = new ArrayList<>();
-    private final AtomicBoolean started = new AtomicBoolean();
+    private final @Nullable TaskWork<T> work;
+    private final @Nullable Publishing<T, ?> publishing;
+    private final boolean delivery;
+    private volatile @Nullable Publisher<?> publisher;
 
     /**
      * Creates a task.
@@ -28,47 +25,90 @@ public final class BackgroundTask<T extends @Nullable Object> implements Task<T>
      * @param work the work
      */
     public BackgroundTask(TaskWork<T> work) {
+        this(work, false);
+    }
+
+    private BackgroundTask(TaskWork<T> work, boolean delivery) {
         this.work = Objects.requireNonNull(work, "work");
+        this.publishing = null;
+        this.delivery = delivery;
     }
 
-    @Override
-    public synchronized Task<T> onSuccess(Consumer<? super T> handler) {
-        onSuccess.add(Objects.requireNonNull(handler, "handler"));
-        return this;
+    private BackgroundTask(Publishing<T, ?> publishing) {
+        this.work = null;
+        this.publishing = publishing;
+        this.delivery = false;
     }
 
-    @Override
-    public synchronized Task<T> onFailure(Consumer<? super Throwable> handler) {
-        onFailure.add(Objects.requireNonNull(handler, "handler"));
-        return this;
+    /**
+     * Creates the task of an {@code @OnVirtualThread} delivery of the application's bus, which the runner tags as such.
+     *
+     * @param delivery the delivery, as the bus hands it to the executor
+     * @return the task
+     */
+    static BackgroundTask<@Nullable Void> delivery(Runnable delivery) {
+        return new BackgroundTask<>(new RunnableWork(delivery), true);
     }
 
-    @Override
-    public synchronized Task<T> onCancel(Runnable handler) {
-        onCancel.add(Objects.requireNonNull(handler, "handler"));
-        return this;
+    /**
+     * Creates a task whose work publishes partial results.
+     *
+     * @param work the work
+     * @param onPublish receives the published values, in batches
+     * @param <T> the type of the result
+     * @param <P> the type of the published values
+     * @return the task
+     */
+    public static <T extends @Nullable Object, P> BackgroundTask<T> publishing(
+            PublishingWork<T, P> work, Consumer<? super List<P>> onPublish) {
+        return new BackgroundTask<>(
+                new Publishing<>(Objects.requireNonNull(work, "work"), Objects.requireNonNull(onPublish, "onPublish")));
     }
 
-    TaskWork<T> work() {
-        return work;
+    /**
+     * Runs the work, on the task's thread.
+     *
+     * @param task the running task, the work's context
+     * @param hooks runs a hook, giving its failure to the failure handler
+     * @return the result
+     * @throws Exception if the work fails
+     */
+    T run(RunningTask task, Consumer<Runnable> hooks) throws Exception {
+        TaskWork<T> plain = work;
+        if (plain != null) {
+            return plain.run(task);
+        }
+        return Objects.requireNonNull(publishing, "publishing").run(this, task, hooks);
     }
 
-    /** Marks the task started; throws if it already was. */
-    void start() {
-        if (!started.compareAndSet(false, true)) {
-            throw new IllegalStateException("The task has already run");
+    /**
+     * Returns whether the task is an {@code @OnVirtualThread} delivery of the application's bus.
+     *
+     * @return {@code true} for a delivery
+     */
+    boolean isDelivery() {
+        return delivery;
+    }
+
+    /** Delivers the values published and not yet delivered, before the hooks of a task that wasn't cancelled. */
+    void flushPublished() {
+        Publisher<?> current = publisher;
+        if (current != null) {
+            current.deliver();
         }
     }
 
-    synchronized List<Consumer<? super T>> successHooks() {
-        return List.copyOf(onSuccess);
-    }
+    private record Publishing<T extends @Nullable Object, P>(
+            PublishingWork<T, P> work, Consumer<? super List<P>> onPublish) {
 
-    synchronized List<Consumer<? super Throwable>> failureHooks() {
-        return List.copyOf(onFailure);
-    }
-
-    synchronized List<Runnable> cancelHooks() {
-        return List.copyOf(onCancel);
+        T run(BackgroundTask<T> owner, RunningTask task, Consumer<Runnable> hooks) throws Exception {
+            Publisher<P> created = new Publisher<>(task, onPublish, hooks);
+            owner.publisher = created;
+            try {
+                return work.run(task, created);
+            } finally {
+                created.close();
+            }
+        }
     }
 }

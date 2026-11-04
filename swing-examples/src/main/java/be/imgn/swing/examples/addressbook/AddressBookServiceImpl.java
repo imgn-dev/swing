@@ -2,12 +2,9 @@ package be.imgn.swing.examples.addressbook;
 
 import be.imgn.inject.Inject;
 import be.imgn.inject.Singleton;
-import be.imgn.swing.Observable;
-import be.imgn.swing.Property;
+import be.imgn.swing.ObservableList;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -16,7 +13,7 @@ import javax.swing.ImageIcon;
 @Singleton
 public final class AddressBookServiceImpl implements AddressBookService {
 
-    private final Property<List<Contact>> contacts = Property.of(List.of());
+    private final ObservableList<Contact> contacts = ObservableList.of();
     private int next;
 
     @Inject
@@ -33,36 +30,46 @@ public final class AddressBookServiceImpl implements AddressBookService {
     }
 
     @Override
-    public Observable<List<Contact>> contacts() {
+    public ObservableList<Contact> contacts() {
         return contacts;
     }
 
     @Override
     public synchronized Contact createContact(Contact contact) {
         Contact created = contact.withId(++next);
-        List<Contact> all = new ArrayList<>(contacts.get());
-        all.add(created);
-        contacts.set(List.copyOf(all));
+        contacts.add(created);
         return created;
     }
 
+    // Synchronized, as every modification is, so that none moves the contact between finding and changing it.
     @Override
     public synchronized void modifyContact(Contact contact) {
-        contacts.set(contacts.get().stream()
-                .map(existing -> existing.id() == contact.id() ? contact : existing)
-                .toList());
+        int index = indexOf(contact.id());
+        if (index >= 0) {
+            contacts.set(index, contact);
+        }
     }
 
     @Override
     public synchronized void removeContact(Contact contact) {
-        contacts.set(contacts.get().stream()
-                .filter(existing -> existing.id() != contact.id())
-                .toList());
+        int index = indexOf(contact.id());
+        if (index >= 0) {
+            contacts.remove(index);
+        }
     }
 
     @Override
     public Optional<Icon> contactPicture(int id) {
         URL url = AddressBookServiceImpl.class.getResource("contacts/" + id + ".jpg");
         return url == null ? Optional.empty() : Optional.of(new ImageIcon(url));
+    }
+
+    private int indexOf(int id) {
+        for (int index = 0; index < contacts.size(); index++) {
+            if (contacts.get(index).id() == id) {
+                return index;
+            }
+        }
+        return -1;
     }
 }

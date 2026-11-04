@@ -72,6 +72,7 @@ final class DialogFlow {
                     builder.table(view.type(), variant).entries().get("title") instanceof TomlString title
                             ? title.value()
                             : services.application().displayedName());
+            WindowStateSupport state = host.injector().getInstance(WindowStateSupport.class);
             if (window instanceof AwtWindow real && real.awt() instanceof JDialog jdialog) {
                 jdialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
                 jdialog.addWindowListener(new WindowAdapter() {
@@ -81,10 +82,13 @@ final class DialogFlow {
                     }
                 });
                 jdialog.pack();
-                if (!host.injector().getInstance(WindowStateSupport.class).restore(true)) {
+                if (!state.restore(true)) {
                     jdialog.setLocationRelativeTo(
                             opener.window().window() instanceof AwtWindow owner ? owner.awt() : null);
                 }
+            } else {
+                // A headless window has no bounds, but its components' state is restored all the same.
+                state.restore(true);
             }
             services.windows().show(window);
             if (!control.isClosed()) {

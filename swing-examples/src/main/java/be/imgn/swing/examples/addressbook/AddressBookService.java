@@ -1,7 +1,6 @@
 package be.imgn.swing.examples.addressbook;
 
-import be.imgn.swing.Observable;
-import java.util.List;
+import be.imgn.swing.ObservableList;
 import java.util.Optional;
 import javax.swing.Icon;
 
@@ -9,11 +8,11 @@ import javax.swing.Icon;
 public interface AddressBookService {
 
     /**
-     * Returns the contacts, in order of creation.
+     * Returns the contacts, in order of creation, which the service's other methods modify.
      *
-     * @return the observable contacts
+     * @return the observable list of contacts
      */
-    Observable<List<Contact>> contacts();
+    ObservableList<Contact> contacts();
 
     /**
      * Creates a contact.

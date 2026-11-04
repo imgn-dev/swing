@@ -15,5 +15,32 @@ tab-title = "General"
 [home]
 tab-title = "Home Address"
 
+[home.streetLabel]
+text = "S&treet"
+
+[home.zipLabel]
+text = "&Zip code"
+
+[home.cityLabel]
+text = "&City"
+
+[home.phoneLabel]
+text = "&Phone"
+
 [office]
 tab-title = "Office Address"
+
+[office.streetLabel]
+text = "Street"
+
+[office.zipLabel]
+text = "Zip code"
+
+[office.cityLabel]
+text = "City"
+
+[office.phoneLabel]
+text = "Phone"
+
+[commands.ok]
+text = "&Save"

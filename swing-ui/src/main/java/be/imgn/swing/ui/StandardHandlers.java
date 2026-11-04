@@ -42,10 +42,18 @@ final class StandardHandlers {
                         view.dialog().ifPresent(DialogControl::cancel);
                     }
                 });
-            case OK -> builder.handler(context -> view.dialog().ifPresent(DialogControl::ok));
-            case CANCEL -> builder.handler(context -> view.dialog().ifPresent(DialogControl::cancel));
+            case OK, CANCEL, APPLY -> dialogCommand(builder, standard, view);
         };
         return configured.bind();
+    }
+
+    private static CommandBuilder dialogCommand(CommandBuilder builder, Standard standard, ViewHost view) {
+        return switch (standard) {
+            case OK -> builder.handler(context -> view.dialog().ifPresent(control -> ok(view, control)));
+            case APPLY -> builder.enabled(() -> form(view).dirty()).handler(context -> apply(view));
+            case CANCEL -> builder.handler(context -> view.dialog().ifPresent(DialogControl::cancel));
+            default -> throw new IllegalArgumentException(standard + " is not a command of dialog views");
+        };
     }
 
     // Disabled unless a PreferencesHandler bean exists, which the injector's definitions tell.
@@ -56,6 +64,36 @@ final class StandardHandlers {
         return builder.enabled(() -> Property.of(available))
                 .handler(context -> registry.injector()
                         .getInstance(PreferencesHandler.class)
-                        .showPreferences());
+                        .showPreferences(registry.injector().getInstance(Ui.class)));
+    }
+
+    // OK stays enabled while the form is invalid, so that activating it shows the user what is wrong.
+    private static void ok(ViewHost view, DialogControl control) {
+        Form form = form(view);
+        if (!form.validate()) {
+            return;
+        }
+        if (form.dirty().get()) {
+            dialog(view).commit();
+        }
+        control.ok();
+    }
+
+    private static void apply(ViewHost view) {
+        Form form = form(view);
+        if (!form.validate()) {
+            return;
+        }
+        dialog(view).commit();
+        form.markClean();
+    }
+
+    // The dialog's form is the Form bean of the dialog view's scope: a dialog that binds nothing has an empty one.
+    private static Form form(ViewHost view) {
+        return view.injector().getInstance(Form.class);
+    }
+
+    private static DialogView<?> dialog(ViewHost view) {
+        return (DialogView<?>) view.view().orElseThrow();
     }
 }

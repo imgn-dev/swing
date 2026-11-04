@@ -3,6 +3,7 @@ package be.imgn.swing.examples.counter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import be.imgn.gaia.core.event.EventBus;
 import be.imgn.gaia.core.platform.ApplicationDirectories;
 import be.imgn.gaia.core.platform.Platform;
 import be.imgn.swing.ApplicationInfo;
@@ -110,6 +111,35 @@ class AppTesterTest {
     }
 
     @Test
+    void recordsTheEventsPublishedOnTheApplicationsBusSinceStartup() {
+        try (AppTester<CounterApp> app = AppTester.start(CounterApp.class)) {
+            EventBus bus = app.commands(EventBus.class);
+
+            app.publish("first");
+            app.publish(2);
+            bus.publish("third");
+
+            assertThat(app.published(String.class)).containsExactly("first", "third");
+            assertThat(app.published(Integer.class)).containsExactly(2);
+            assertThat(app.published(Object.class)).containsExactly("first", 2, "third");
+        }
+    }
+
+    @Test
+    void publishesOnTheEdt() {
+        List<Boolean> onEdt = new ArrayList<>();
+        try (AppTester<CounterApp> app = AppTester.start(CounterApp.class)) {
+            Scope scope = app.commands(Scope.class);
+            scope.onClose(app.commands(EventBus.class)
+                    .subscribe(String.class, event -> onEdt.add(EventQueue.isDispatchThread())));
+
+            app.publish("event");
+
+            assertThat(onEdt).containsExactly(true);
+        }
+    }
+
+    @Test
     void closingCancelsTheTasksOfTheApplicationScope() throws Exception {
         CountDownLatch cancelled = new CountDownLatch(1);
         try (AppTester<CounterApp> app = AppTester.start(CounterApp.class)) {
@@ -117,7 +147,7 @@ class AppTesterTest {
             while (application.parent().isPresent()) {
                 application = application.parent().orElseThrow();
             }
-            // Work that returns once cancelled succeeds; ending by CancellationException runs onCancel.
+            // A task cancelled before its hooks run runs onCancel, however its work ends.
             Task<?> task = Task.of((TaskContext context) -> {
                         while (!context.isCancelled()) {
                             Thread.sleep(Duration.ofMillis(10));

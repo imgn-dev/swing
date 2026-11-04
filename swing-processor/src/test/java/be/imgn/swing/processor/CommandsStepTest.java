@@ -240,6 +240,19 @@ class CommandsStepTest {
     }
 
     @Test
+    void warnsAboutAnOverrideOfApply() {
+        var compilation = view("""
+                    @Command
+                    void apply() {}
+                """).compile();
+
+        assertThat(compilation)
+                .succeeded()
+                .hadWarningContaining("Command `apply` of `p.NotesView` overrides the standard command `apply`.");
+        assertThat(compilation).generatedSourceFile("p.NotesViewCommands").contains("public BoundCommand apply()");
+    }
+
+    @Test
     void warnsThatAnOverrideOutsideAViewAppliesNowhere() {
         var compilation = Sources.create().source("p.Helper", """
                         package p;
@@ -343,6 +356,193 @@ class CommandsStepTest {
         assertThat(compilation)
                 .hadErrorContaining("enabled = \"plain\" names a field that is not @Exposed: generated code reads only"
                         + " @Exposed fields");
+    }
+
+    @Test
+    void passesTheConcurrencyAndTheStoppedCommandToTheBuilder() {
+        var compilation = view("""
+                    @Command(cancels = "go")
+                    void stop() {}
+
+                    @Command(concurrency = be.imgn.swing.ui.Concurrency.RESTART, block = Block.WINDOW)
+                    Task<String> go() {
+                        return Task.of(() -> "done");
+                    }
+
+                    @Command(concurrency = be.imgn.swing.ui.Concurrency.SERIAL)
+                    Task<String> queue() {
+                        return Task.of(() -> "done");
+                    }
+                """).resource("p/NotesView.toml", """
+                        [commands.stop]
+                        text = "&Stop"
+                        [commands.go]
+                        text = "&Go"
+                        [commands.queue]
+                        text = "&Queue"
+                        """).compile();
+
+        assertThat(compilation).succeeded().hadNoWarnings();
+        assertThat(compilation)
+                .generatedSourceFile("p.NotesViewCommands")
+                .contains("""
+                        this.stop = registry.command(NotesView.class, "stop")
+                                        .handler(context -> owner.get().stop())
+                                        .cancels("go")
+                                        .bind();""")
+                .contains(".block(Block.WINDOW)\n                .concurrency(Concurrency.RESTART)")
+                .contains(".concurrency(Concurrency.SERIAL)");
+    }
+
+    @Test
+    void acceptsAStopCommandOfAnInheritedCommand() {
+        var compilation = Sources.create()
+                .source("p.Base", """
+                        package p;
+
+                        import be.imgn.swing.Task;
+                        import be.imgn.swing.ui.Command;
+                        import be.imgn.swing.ui.ViewScoped;
+
+                        @ViewScoped
+                        public class Base {
+                            @Command
+                            Task<String> go() {
+                                return Task.of(() -> "done");
+                            }
+                        }
+                        """)
+                .source("p.Derived", """
+                        package p;
+
+                        import be.imgn.swing.ui.Command;
+
+                        public final class Derived extends Base {
+                            @Command(cancels = "go")
+                            void stop() {}
+                        }
+                        """)
+                .resource("p/Base.toml", "[commands.go]\ntext = \"&Go\"\n")
+                .resource("p/Derived.toml", "[commands.stop]\ntext = \"&Stop\"\n")
+                .compile();
+
+        assertThat(compilation).succeeded();
+        assertThat(compilation).generatedSourceFile("p.DerivedCommands").contains(".cancels(\"go\")");
+    }
+
+    @Test
+    void rejectsInvalidStopCommands() {
+        var compilation = view("""
+                    @Command
+                    Task<String> go() {
+                        return Task.of(() -> "done");
+                    }
+
+                    @Command
+                    void plain() {}
+
+                    @Command(cancels = "missing")
+                    void first() {}
+
+                    @Command(cancels = "plain")
+                    void second() {}
+
+                    @Command(cancels = "go")
+                    Task<String> third() {
+                        return Task.of(() -> "done");
+                    }
+
+                    @Command(cancels = "go", enabled = "dirty", selected = "wordWrap")
+                    void fourth() {}
+
+                    @Command(cancels = "go", block = Block.WINDOW)
+                    void fifth() {}
+
+                    @Command(cancels = "go", concurrency = be.imgn.swing.ui.Concurrency.SERIAL)
+                    void sixth() {}
+
+                    @Command(cancels = "go")
+                    final Property<Boolean> seventh = Property.of(false);
+                """).resource("p/NotesView.toml", """
+                        [commands.go]
+                        text = "Go"
+                        [commands.plain]
+                        text = "Plain"
+                        [commands.first]
+                        text = "First"
+                        [commands.second]
+                        text = "Second"
+                        [commands.third]
+                        text = "Third"
+                        [commands.fourth]
+                        text = "Fourth"
+                        [commands.fifth]
+                        text = "Fifth"
+                        [commands.sixth]
+                        text = "Sixth"
+                        [commands.seventh]
+                        text = "Seventh"
+                        """).compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("cancels = \"missing\" names no command of p.NotesView, declared or inherited");
+        assertThat(compilation)
+                .hadErrorContaining(
+                        "cancels = \"plain\" names the command plain, whose handler returns void: it has no task to"
+                                + " cancel");
+        assertThat(compilation)
+                .hadErrorContaining(
+                        "The handler of a stop command returns void, not be.imgn.swing.Task<java.lang.String>");
+        assertThat(compilation)
+                .hadErrorContaining("A stop command takes no enabled, selected attribute: it is enabled while the"
+                        + " command it cancels runs");
+        assertThat(compilation).hadErrorContaining("A stop command takes no block attribute");
+        assertThat(compilation).hadErrorContaining("A stop command takes no concurrency attribute");
+        assertThat(compilation)
+                .hadErrorContaining(
+                        "cancels = \"go\" is on a field: a stop command is declared on a handler that returns void");
+    }
+
+    @Test
+    void rejectsAConcurrencyWithoutATaskOrWithACommandThatBlocksItself() {
+        var compilation = view("""
+                    @Command(concurrency = be.imgn.swing.ui.Concurrency.SERIAL)
+                    void first() {}
+
+                    @Command(concurrency = be.imgn.swing.ui.Concurrency.RESTART)
+                    final Property<Boolean> second = Property.of(false);
+
+                    @Command(concurrency = be.imgn.swing.ui.Concurrency.RESTART, block = Block.COMMAND)
+                    Task<String> third() {
+                        return Task.of(() -> "done");
+                    }
+
+                    @Command(concurrency = be.imgn.swing.ui.Concurrency.SERIAL, block = Block.COMPONENT)
+                    Task<String> fourth() {
+                        return Task.of(() -> "done");
+                    }
+                """).resource("p/NotesView.toml", """
+                        [commands.first]
+                        text = "First"
+                        [commands.second]
+                        text = "Second"
+                        [commands.third]
+                        text = "Third"
+                        [commands.fourth]
+                        text = "Fourth"
+                        """).compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("concurrency = Concurrency.SERIAL applies only to a handler that returns a Task");
+        assertThat(compilation)
+                .hadErrorContaining(
+                        "concurrency = Concurrency.RESTART is on a field: a command on a field runs no task");
+        assertThat(compilation)
+                .hadErrorContaining("concurrency = Concurrency.RESTART excludes block = Block.COMMAND, which disables"
+                        + " the command while its task runs, so that there is no second activation");
+        assertThat(compilation).hadErrorContaining("concurrency = Concurrency.SERIAL excludes block = Block.COMPONENT");
     }
 
     @Test

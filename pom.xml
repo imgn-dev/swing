@@ -11,7 +11,7 @@
   <parent>
     <groupId>be.imgn.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>2026-11-SNAPSHOT</version>
+    <version>2026-11-01</version>
     <relativePath/>
   </parent>
 
@@ -45,9 +45,9 @@
   <properties>
     <java.release>21</java.release>
 
-    <gaia.version>0.1.2-SNAPSHOT</gaia.version>
-    <inject.version>0.1.1-SNAPSHOT</inject.version>
-    <toml.version>0.1.0-SNAPSHOT</toml.version>
+    <gaia.version>0.1.2</gaia.version>
+    <inject.version>0.1.1</inject.version>
+    <toml.version>0.1.0</toml.version>
     <flatlaf.version>3.7.2</flatlaf.version>
 
     <!-- Generated code reads @Exposed fields and @Command toggle fields, so they can't be private. -->
@@ -57,26 +57,6 @@
   <build>
     <pluginManagement>
       <plugins>
-        <!-- The parent's requirePluginVersions bans snapshot plugins, and inject's
-             and gaia's plugins are snapshots until they are released. The
-             parent's enforce-no-snapshots execution still rejects them in a
-             release. -->
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>enforce-build-rules</id>
-              <configuration>
-                <rules>
-                  <requirePluginVersions>
-                    <banSnapshots>false</banSnapshots>
-                  </requirePluginVersions>
-                </rules>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>

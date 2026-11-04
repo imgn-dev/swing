@@ -8,7 +8,6 @@ import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -40,9 +39,7 @@ public class ActionExample2 implements SingleFrame {
 
     @Override
     public JComponent content() {
-        JPanel buttons = new JPanel(new FlowLayout());
-        buttons.add(commands.clearTitle().createButton());
-        buttons.add(commands.updateTitle().createButton());
+        JPanel buttons = ui.buttonBar(commands.clearTitle(), commands.updateTitle());
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(field, BorderLayout.CENTER);
         panel.add(buttons, BorderLayout.PAGE_END);

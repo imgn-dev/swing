@@ -4,11 +4,13 @@ import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
 import be.imgn.swing.ApplicationInfo;
 import be.imgn.swing.ExitVeto;
+import be.imgn.swing.Observable;
 import be.imgn.swing.Property;
 import be.imgn.swing.Task;
 import be.imgn.swing.ui.Block;
 import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Exposed;
+import be.imgn.swing.ui.Form;
 import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
@@ -27,8 +29,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
@@ -42,21 +42,30 @@ public final class DocumentExample implements SingleFrame, ExitVeto {
     private static final int HEIGHT = 480;
 
     @Exposed
-    final Property<Boolean> modified = Property.of(false);
+    final Observable<Boolean> modified;
 
     private final JTextArea textArea = new JTextArea();
+    private final Property<String> text = Property.of("");
     private final Property<Path> file = Property.of(Path.of("untitled.txt"));
     private final DocumentExampleCommands commands;
     private final Ui ui;
+    private final Form form;
     private final DocumentMessages messages;
     private final ApplicationInfo application;
 
     @Inject
-    DocumentExample(DocumentExampleCommands commands, Ui ui, DocumentMessages messages, ApplicationInfo application) {
+    DocumentExample(
+            DocumentExampleCommands commands,
+            Ui ui,
+            Form form,
+            DocumentMessages messages,
+            ApplicationInfo application) {
         this.commands = commands;
         this.ui = ui;
+        this.form = form;
         this.messages = messages;
         this.application = application;
+        this.modified = form.dirty();
     }
 
     /**
@@ -72,22 +81,7 @@ public final class DocumentExample implements SingleFrame, ExitVeto {
     public JComponent content() {
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
-        textArea.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent event) {
-                modified.set(true);
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent event) {
-                modified.set(true);
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent event) {
-                modified.set(true);
-            }
-        });
+        form.bind(textArea, text);
         ui.bind(path -> ui.window().setTitle(messages.title(path.getFileName().toString(), application.name())), file);
         JScrollPane scroll = new JScrollPane(textArea);
         scroll.setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -151,21 +145,21 @@ public final class DocumentExample implements SingleFrame, ExitVeto {
      */
     Task<String> load(Path path) {
         return Task.of(() -> Files.readString(path, StandardCharsets.UTF_8))
-                .onSuccess(text -> {
-                    textArea.setText(text);
+                .onSuccess(loaded -> {
+                    text.set(loaded);
                     file.set(path);
-                    modified.set(false);
+                    form.markClean();
                 })
                 .onFailure(failure -> ui.dialogs()
                         .error(messages.loadFailed(path.toString(), String.valueOf(failure.getMessage())), failure));
     }
 
     private Task<Path> saveTo(Path path) {
-        String text = textArea.getText();
-        return Task.of(() -> Files.writeString(path, text, StandardCharsets.UTF_8))
+        String content = text.get();
+        return Task.of(() -> Files.writeString(path, content, StandardCharsets.UTF_8))
                 .onSuccess(saved -> {
                     file.set(saved);
-                    modified.set(false);
+                    form.markClean();
                 })
                 .onFailure(failure -> ui.dialogs()
                         .error(messages.saveFailed(path.toString(), String.valueOf(failure.getMessage())), failure));

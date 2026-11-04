@@ -1,10 +1,16 @@
 package be.imgn.swing.testing;
 
+import static java.util.Objects.requireNonNull;
+
 import be.imgn.swing.ui.Window;
 import be.imgn.swing.ui.Windows;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Image;
+import java.util.Optional;
 import java.util.function.Consumer;
 import javax.swing.JRootPane;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The tester's {@link Windows}: each window wraps a bare root pane, which is lightweight, so frames and dialogs are
@@ -52,6 +58,8 @@ final class HeadlessWindows implements Windows {
         private final boolean dialog;
         private String title = "";
         private boolean shown;
+        private @Nullable Image iconImage;
+        private @Nullable Component focused;
 
         HeadlessWindow(boolean dialog) {
             this.dialog = dialog;
@@ -67,8 +75,27 @@ final class HeadlessWindows implements Windows {
             this.title = newTitle;
         }
 
+        @Override
+        public void setIconImage(Image image) {
+            this.iconImage = requireNonNull(image, "image");
+        }
+
+        // A window that is never realized has no focus to move: the last component asked for is recorded instead.
+        @Override
+        public void focus(Component component) {
+            this.focused = requireNonNull(component, "component");
+        }
+
         String title() {
             return title;
+        }
+
+        Optional<Image> iconImage() {
+            return Optional.ofNullable(iconImage);
+        }
+
+        Optional<Component> focused() {
+            return Optional.ofNullable(focused);
         }
 
         boolean isShown() {

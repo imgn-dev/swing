@@ -30,6 +30,30 @@ class ApplicationStepTest {
     }
 
     @Test
+    void escapesTheDollarSignsOfTheClassName() {
+        var compilation = Sources.create().source("p.Counter$App", """
+                        package p;
+
+                        @be.imgn.swing.Application(name = "Counter")
+                        public final class Counter$App implements be.imgn.swing.ui.SingleFrame {
+                            public javax.swing.JComponent content() {
+                                return new javax.swing.JPanel();
+                            }
+                        }
+                        """).compile();
+
+        assertThat(compilation).succeeded();
+        assertThat(compilation)
+                .generatedSourceFile("p.$Counter$0App$$Application")
+                .contains("public final class $Counter$0App$$Application implements ApplicationDescriptor")
+                .contains("return Counter$App.class;");
+        assertThat(compilation)
+                .generatedFile(
+                        StandardLocation.CLASS_OUTPUT, "META-INF/services/be.imgn.swing.spi.ApplicationDescriptor")
+                .contains("p.$Counter$0App$$Application");
+    }
+
+    @Test
     void checksTheNamesWithGaiasRules() {
         var compilation = Sources.create().source("p.App", """
                         package p;

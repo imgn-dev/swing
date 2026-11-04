@@ -19,7 +19,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalInt;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -30,6 +29,11 @@ import org.jspecify.annotations.Nullable;
 /** Saves and restores the state of its window: its bounds, and the state of its views' components. */
 @WindowScoped
 public final class WindowStateSupport {
+
+    private static final int X = 0;
+    private static final int Y = 1;
+    private static final int WIDTH = 2;
+    private static final int HEIGHT = 3;
 
     private final Window window;
     private final WindowStateStore store;
@@ -78,13 +82,16 @@ public final class WindowStateSupport {
         if (saved.isEmpty()) {
             return false;
         }
-        restoreComponents(host, saved.get().components());
+        Map<String, SavedComponent> components = saved.get().components();
+        restoreComponents(host, components == null ? Map.of() : components);
         if (awt == null || !restoreBounds) {
             return false;
         }
-        Optional<Rectangle> bounds = saved.get().bounds().filter(WindowStateSupport::isOnOneScreen);
+        Optional<Rectangle> bounds = Optional.ofNullable(saved.get().bounds())
+                .map(WindowStateSupport::rectangle)
+                .filter(WindowStateSupport::isOnOneScreen);
         bounds.ifPresent(awt::setBounds);
-        if (bounds.isPresent() && saved.get().maximized() && awt instanceof Frame frame) {
+        if (bounds.isPresent() && Boolean.TRUE.equals(saved.get().maximized()) && awt instanceof Frame frame) {
             frame.setExtendedState(frame.getExtendedState() | Frame.MAXIMIZED_BOTH);
         }
         return bounds.isPresent();
@@ -96,20 +103,28 @@ public final class WindowStateSupport {
         }
     }
 
+    private static Rectangle rectangle(List<Integer> bounds) {
+        return new Rectangle(bounds.get(X), bounds.get(Y), bounds.get(WIDTH), bounds.get(HEIGHT));
+    }
+
     /** Saves the state of the window. */
     public void save() {
         WindowHost host = host();
-        Optional<Rectangle> bounds = Optional.empty();
+        @Nullable List<Integer> bounds = null;
         boolean maximized = false;
         if (window instanceof AwtWindow real) {
             java.awt.Window awt = real.awt();
             followBounds(awt);
-            bounds = Optional.ofNullable(normalBounds);
-            maximized = host.isMain()
-                    && awt instanceof Frame frame
-                    && (frame.getExtendedState() & Frame.MAXIMIZED_BOTH) != 0;
+            Rectangle normal = normalBounds;
+            if (normal != null) {
+                bounds = List.of(normal.x, normal.y, normal.width, normal.height);
+            }
+            maximized = awt instanceof Frame frame && (frame.getExtendedState() & Frame.MAXIMIZED_BOTH) != 0;
         }
-        store.save(host.stateKey(), new SavedWindow(bounds, maximized, captureComponents(host)));
+        Map<String, SavedComponent> components = captureComponents(host);
+        store.save(
+                host.stateKey(),
+                new SavedWindow(bounds, host.isMain() ? maximized : null, components.isEmpty() ? null : components));
     }
 
     private Map<String, Component> components(WindowHost host) {
@@ -134,20 +149,16 @@ public final class WindowStateSupport {
 
     private static Optional<SavedComponent> capture(Component component) {
         return switch (component) {
-            case JSplitPane split ->
-                Optional.of(new SavedComponent(
-                        OptionalInt.of(split.getDividerLocation()), OptionalInt.empty(), Optional.empty()));
-            case JTabbedPane tabs ->
-                Optional.of(new SavedComponent(
-                        OptionalInt.empty(), OptionalInt.of(tabs.getSelectedIndex()), Optional.empty()));
+            case JSplitPane split -> Optional.of(new SavedComponent(split.getDividerLocation(), null, null));
+            case JTabbedPane tabs -> Optional.of(new SavedComponent(null, tabs.getSelectedIndex(), null));
             case JTable table -> {
-                List<SavedComponent.Column> columns = new ArrayList<>();
+                List<SavedColumn> columns = new ArrayList<>();
                 TableColumnModel model = table.getColumnModel();
                 for (int index = 0; index < model.getColumnCount(); index++) {
                     TableColumn column = model.getColumn(index);
-                    columns.add(new SavedComponent.Column(column.getModelIndex(), column.getWidth()));
+                    columns.add(new SavedColumn(column.getModelIndex(), column.getWidth()));
                 }
-                yield Optional.of(new SavedComponent(OptionalInt.empty(), OptionalInt.empty(), Optional.of(columns)));
+                yield Optional.of(new SavedComponent(null, null, columns));
             }
             default -> Optional.empty();
         };
@@ -164,27 +175,37 @@ public final class WindowStateSupport {
 
     private static void apply(Component component, SavedComponent state) {
         switch (component) {
-            case JSplitPane split -> state.dividerLocation().ifPresent(split::setDividerLocation);
-            case JTabbedPane tabs ->
-                state.selectedIndex().ifPresent(index -> {
-                    if (index >= 0 && index < tabs.getTabCount()) {
-                        tabs.setSelectedIndex(index);
-                    }
-                });
-            case JTable table -> state.columns().ifPresent(columns -> restoreColumns(table, columns));
+            case JSplitPane split -> {
+                Integer location = state.dividerLocation();
+                if (location != null) {
+                    split.setDividerLocation(location);
+                }
+            }
+            case JTabbedPane tabs -> {
+                Integer index = state.selectedIndex();
+                if (index != null && index >= 0 && index < tabs.getTabCount()) {
+                    tabs.setSelectedIndex(index);
+                }
+            }
+            case JTable table -> {
+                List<SavedColumn> columns = state.columns();
+                if (columns != null) {
+                    restoreColumns(table, columns);
+                }
+            }
             default -> {
                 // Other components have no saved state.
             }
         }
     }
 
-    private static void restoreColumns(JTable table, List<SavedComponent.Column> columns) {
+    private static void restoreColumns(JTable table, List<SavedColumn> columns) {
         TableColumnModel model = table.getColumnModel();
         if (model.getColumnCount() != columns.size()) {
             return;
         }
         for (int target = 0; target < columns.size(); target++) {
-            SavedComponent.Column saved = columns.get(target);
+            SavedColumn saved = columns.get(target);
             int current = indexOfModel(model, saved.modelIndex());
             if (current < 0) {
                 return;

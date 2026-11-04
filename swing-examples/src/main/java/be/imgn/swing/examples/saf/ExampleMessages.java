@@ -125,22 +125,6 @@ public interface ExampleMessages {
     String elapsed(long millis);
 
     /**
-     * Returns the message of a saved file.
-     *
-     * @param file the file
-     * @return the message
-     */
-    String savedFile(String file);
-
-    /**
-     * Returns the message of a loaded file.
-     *
-     * @param file the file
-     * @return the message
-     */
-    String loadedFile(String file);
-
-    /**
      * Returns the tooltip of the button that closes a tab of {@link Tabbed}.
      *
      * @return the text

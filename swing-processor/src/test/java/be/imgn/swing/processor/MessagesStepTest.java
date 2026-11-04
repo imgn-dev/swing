@@ -66,6 +66,28 @@ class MessagesStepTest {
     }
 
     @Test
+    void escapesTheDollarSignsOfANestedInterfacesName() {
+        var compilation = Sources.create()
+                .source("p.App", """
+                        package p;
+
+                        public final class App {
+                            @be.imgn.swing.Messages
+                            interface Counter$Messages {
+                                String confirmExit();
+                            }
+                        }
+                        """)
+                .resource("p/Counter$Messages.toml", "confirmExit = \"Exit?\"\n")
+                .compile();
+
+        assertThat(compilation).succeeded();
+        assertThat(compilation)
+                .generatedSourceFile("p.$App$Counter$0Messages$$Messages")
+                .contains("public final class $App$Counter$0Messages$$Messages implements App.Counter$Messages");
+    }
+
+    @Test
     void rejectsAPlaceholderThatNamesNoParameter() {
         var compilation = Sources.create()
                 .source("p.CounterMessages", MESSAGES)

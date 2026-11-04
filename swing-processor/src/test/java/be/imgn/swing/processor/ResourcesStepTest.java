@@ -162,6 +162,46 @@ class ResourcesStepTest {
     }
 
     @Test
+    void acceptsTheTablesOfTheStandardCommandsOfADialog() {
+        var compilation = Sources.create()
+                .source("p.Panel", """
+                        package p;
+
+                        import be.imgn.inject.Inject;
+                        import be.imgn.swing.ui.DialogView;
+                        import java.util.Optional;
+                        import javax.swing.JComponent;
+                        import javax.swing.JPanel;
+
+                        public final class Panel implements DialogView<Void> {
+                            @Inject
+                            Panel() {}
+
+                            public JComponent content() {
+                                return new JPanel();
+                            }
+
+                            public Optional<Void> result() {
+                                return Optional.empty();
+                            }
+                        }
+                        """)
+                .resource("p/Panel.toml", """
+                        [commands.ok]
+                        text = "&Save"
+
+                        [commands.cancel]
+                        text = "&Close"
+
+                        [commands.apply]
+                        tool-tip-text = "Saves and keeps the dialog open"
+                        """)
+                .compile();
+
+        assertThat(compilation).succeeded().hadNoWarnings();
+    }
+
+    @Test
     void checksTheCommandProperties() {
         var compilation = counter("""
                         [commands.increment]
@@ -239,6 +279,149 @@ class ResourcesStepTest {
         assertThat(compilation)
                 .hadErrorContaining(
                         "CounterApp.toml:11:2: [missing] names no @Exposed component field of p.CounterApp");
+    }
+
+    @Test
+    void acceptsTheAboutPropertiesOfTheApplicationClassAndListsItsIcon() {
+        var compilation = counter("""
+                        description = "Counts."
+                        copyright = "Copyright 2026 imgn"
+                        website = "https://imgn.be/counter"
+                        icon = "icons/counter.png"
+
+                        [commands.increment]
+                        text = "&Increment"
+                        """)
+                .resource("p/CounterApp.macos.toml", """
+                        website = "HTTP://imgn.be/counter/macos"
+                        icon = "icons/counter-macos.png"
+                        """)
+                .resource("p/CounterApp_fr.toml", """
+                        description = "Compte."
+                        copyright = "Copyright 2026 imgn"
+                        website = "https://imgn.be/fr/counter"
+                        icon = "icons/counter.png"
+
+                        [commands.increment]
+                        text = "&Incrémenter"
+                        """)
+                .resource("p/icons/counter.png", new byte[] {1, 2, 3})
+                .resource("p/icons/counter-macos.png", new byte[] {1, 2, 3})
+                .compile();
+
+        assertThat(compilation).succeeded().hadNoWarnings();
+        assertThat(compilation)
+                .generatedSourceFile("p.$$Resources")
+                .contains("return Set.of(\"icons/counter-macos.png\", \"icons/counter.png\");");
+    }
+
+    @Test
+    void checksTheAboutProperties() {
+        var compilation = counter("""
+                        description = 1
+                        copyright = true
+                        website = "imgn.be/counter"
+                        icon = "icons/missing.png"
+
+                        [commands.increment]
+                        text = "&Increment"
+                        """)
+                .resource("p/CounterApp.windows.toml", """
+                        website = "ftp://imgn.be/counter"
+                        icon = ["icons/missing.png"]
+                        """)
+                .resource("p/CounterApp.linux.toml", """
+                        website = "https://imgn.be/a counter"
+                        """)
+                .compile();
+
+        assertThat(compilation).failed().hadErrorContaining("CounterApp.toml:1:15: description must be a string");
+        assertThat(compilation).hadErrorContaining("CounterApp.toml:2:13: copyright must be a string");
+        assertThat(compilation)
+                .hadErrorContaining(
+                        "CounterApp.toml:3:11: The website \"imgn.be/counter\" is not an absolute http or https URI");
+        assertThat(compilation)
+                .hadErrorContaining(
+                        "CounterApp.toml:4:8: The icon icons/missing.png names no resource of the package p");
+        assertThat(compilation)
+                .hadErrorContaining("CounterApp.windows.toml:1:11: The website \"ftp://imgn.be/counter\" is not an"
+                        + " absolute http or https URI");
+        assertThat(compilation).hadErrorContaining("CounterApp.windows.toml:2:8: icon must be a string");
+        assertThat(compilation)
+                .hadErrorContaining("CounterApp.linux.toml:1:11: The website \"https://imgn.be/a counter\" is not an"
+                        + " absolute http or https URI");
+    }
+
+    @Test
+    void resolvesTheReferencesOfAWebsiteInItsFile() {
+        var compilation = counter("""
+                        description = "ftp"
+                        website = "${description}://imgn.be/counter"
+
+                        [commands.increment]
+                        text = "&Increment"
+                        """)
+                .resource("p/CounterApp.macos.toml", """
+                        description = "https"
+                        website = "${description}://imgn.be/counter"
+                        """)
+                .resource("p/CounterApp.windows.toml", """
+                        website = "${missing}"
+                        """)
+                .compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("CounterApp.toml:2:11: The website \"ftp://imgn.be/counter\""
+                        + " (${description}://imgn.be/counter) is not an absolute http or https URI");
+        assertThat(compilation)
+                .hadWarningContaining("CounterApp.windows.toml:1:11: The reference ${missing} names no key of this"
+                        + " file: the website is not checked");
+        assertThat(compilation).hadErrorCount(1);
+    }
+
+    @Test
+    void allowsTheAboutPropertiesOnTheApplicationClassOnly() {
+        var compilation = Sources.create()
+                .source("p.Panel", """
+                        package p;
+
+                        import be.imgn.inject.Inject;
+                        import be.imgn.swing.ui.DialogView;
+                        import java.util.Optional;
+                        import javax.swing.JComponent;
+                        import javax.swing.JPanel;
+
+                        public final class Panel implements DialogView<Void> {
+                            @Inject
+                            Panel() {}
+
+                            public JComponent content() {
+                                return new JPanel();
+                            }
+
+                            public Optional<Void> result() {
+                                return Optional.empty();
+                            }
+                        }
+                        """)
+                .resource("p/Panel.toml", """
+                        title = "Panel"
+                        description = "A panel."
+                        copyright = "Copyright 2026 imgn"
+                        website = "https://imgn.be"
+                        icon = "icons/panel.png"
+                        """)
+                .resource("p/icons/panel.png", new byte[] {1, 2, 3})
+                .compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("Panel.toml:2:1: description is not a property of p.Panel: name, theme,"
+                        + " description, copyright, website and icon apply to the application class");
+        assertThat(compilation).hadErrorContaining("Panel.toml:3:1: copyright is not a property of p.Panel");
+        assertThat(compilation).hadErrorContaining("Panel.toml:4:1: website is not a property of p.Panel");
+        assertThat(compilation).hadErrorContaining("Panel.toml:5:1: icon is not a property of p.Panel");
     }
 
     @Test

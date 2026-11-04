@@ -1,11 +1,15 @@
 package be.imgn.swing.ui.internal;
 
+import static java.util.Objects.requireNonNull;
+
 import be.imgn.inject.ExposeAs;
 import be.imgn.inject.Inject;
 import be.imgn.inject.Singleton;
 import be.imgn.swing.ui.Window;
 import be.imgn.swing.ui.Windows;
+import java.awt.Component;
 import java.awt.Dialog;
+import java.awt.Image;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JRootPane;
@@ -72,6 +76,16 @@ public final class SwingWindows implements Windows {
         public void setTitle(String title) {
             frame.setTitle(title);
         }
+
+        @Override
+        public void setIconImage(Image image) {
+            frame.setIconImage(requireNonNull(image, "image"));
+        }
+
+        @Override
+        public void focus(Component component) {
+            requireNonNull(component, "component").requestFocusInWindow();
+        }
     }
 
     /** A modal dialog. */
@@ -95,6 +109,16 @@ public final class SwingWindows implements Windows {
         @Override
         public void setTitle(String title) {
             dialog.setTitle(title);
+        }
+
+        @Override
+        public void setIconImage(Image image) {
+            dialog.setIconImage(requireNonNull(image, "image"));
+        }
+
+        @Override
+        public void focus(Component component) {
+            requireNonNull(component, "component").requestFocusInWindow();
         }
     }
 }

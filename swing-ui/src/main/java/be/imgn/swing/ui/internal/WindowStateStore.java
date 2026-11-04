@@ -4,21 +4,29 @@ import be.imgn.gaia.core.platform.ApplicationDirectories;
 import be.imgn.inject.Inject;
 import be.imgn.inject.Singleton;
 import be.imgn.toml.Toml;
+import be.imgn.toml.TomlMappingException;
 import be.imgn.toml.TomlParseException;
+import be.imgn.toml.UnknownKeys;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 
-/** The saved state of every window, in {@code window-state.toml} of the application's state directory. */
+/**
+ * The saved state of every window, in {@code window-state.toml} of the application's state directory, written and read
+ * through toml's generated code. Unknown keys are ignored.
+ */
 @Singleton
 public final class WindowStateStore {
 
     /** The name of the file. */
     public static final String FILE_NAME = "window-state.toml";
 
+    private static final int BOUNDS_SIZE = 4;
     private static final System.Logger LOGGER = System.getLogger(WindowStateStore.class.getName());
 
     private final Path file;
@@ -45,10 +53,18 @@ public final class WindowStateStore {
             return;
         }
         try {
-            windows.putAll(WindowStateFile.read(Toml.parse(file).root()));
-        } catch (IOException | TomlParseException | IllegalArgumentException | ArithmeticException e) {
+            WindowStates states = Toml.bind(Toml.parse(file).root(), WindowStates.class, UnknownKeys.IGNORE);
+            states.windows().forEach((key, window) -> checkBounds(key, window.bounds()));
+            windows.putAll(states.windows());
+        } catch (IOException | TomlParseException | TomlMappingException | IllegalArgumentException e) {
             windows.clear();
             LOGGER.log(System.Logger.Level.WARNING, "Discarded the window state " + file + ": " + e.getMessage());
+        }
+    }
+
+    private static void checkBounds(String key, @Nullable List<Integer> bounds) {
+        if (bounds != null && bounds.size() != BOUNDS_SIZE) {
+            throw new IllegalArgumentException("The bounds of " + key + " are not 4 integers");
         }
     }
 
@@ -58,7 +74,7 @@ public final class WindowStateStore {
      * @param key the window's key
      * @return its state, if saved
      */
-    public synchronized Optional<SavedWindow> get(String key) {
+    synchronized Optional<SavedWindow> get(String key) {
         return Optional.ofNullable(windows.get(key));
     }
 
@@ -68,11 +84,11 @@ public final class WindowStateStore {
      * @param key the window's key
      * @param window its state
      */
-    public synchronized void save(String key, SavedWindow window) {
+    synchronized void save(String key, SavedWindow window) {
         windows.put(key, window);
         try {
             Files.createDirectories(file.getParent());
-            Toml.writeAtomically(WindowStateFile.write(windows), file);
+            Toml.writeAtomically(Toml.toTable(new WindowStates(windows)), file);
         } catch (IOException e) {
             LOGGER.log(System.Logger.Level.ERROR, "Could not save the window state to " + file, e);
         }

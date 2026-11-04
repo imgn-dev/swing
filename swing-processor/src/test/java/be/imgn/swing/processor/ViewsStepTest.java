@@ -2,6 +2,7 @@ package be.imgn.swing.processor;
 
 import static be.imgn.gaia.processing.testing.CompilationAssert.assertThat;
 
+import javax.tools.StandardLocation;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -54,6 +55,41 @@ class ViewsStepTest {
                 .contains("components.put(\"split\", view.split);")
                 .doesNotContain("plain")
                 .doesNotContain("hidden");
+    }
+
+    @Test
+    void escapesTheDollarSignsInTheNamesOfANestedView() {
+        var compilation = Sources.create().source("p.Notes", """
+                        package p;
+
+                        import javax.swing.*;
+
+                        public final class Notes {
+                            public static final class Main$View implements be.imgn.swing.ui.View {
+                                @be.imgn.swing.ui.Exposed final JSplitPane split = new JSplitPane();
+
+                                public JComponent content() {
+                                    return split;
+                                }
+                            }
+                        }
+                        """).compile();
+
+        assertThat(compilation).succeeded().hadNoWarnings();
+        assertThat(compilation)
+                .generatedSourceFile("p.$Notes$Main$0View$$Injector")
+                .contains(
+                        "public final class $Notes$Main$0View$$Injector implements ComponentInjector<Notes.Main$View>");
+        assertThat(compilation)
+                .generatedSourceFile("p.$Notes$Main$0View$$State")
+                .contains("public final class $Notes$Main$0View$$State");
+        assertThat(compilation)
+                .generatedFile(
+                        StandardLocation.CLASS_OUTPUT, "META-INF/services/be.imgn.swing.ui.spi.ComponentInjector")
+                .contains("p.$Notes$Main$0View$$Injector");
+        assertThat(compilation)
+                .generatedFile(StandardLocation.CLASS_OUTPUT, "META-INF/services/be.imgn.swing.ui.spi.ComponentState")
+                .contains("p.$Notes$Main$0View$$State");
     }
 
     @Test

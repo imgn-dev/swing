@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Every command of a view, keyed by the class the generated class is for ({@code StandardCommands} for standard
@@ -83,6 +84,7 @@ public final class CommandRegistry {
         if (builder.builtBlock() != Block.NONE && builder.builtTaskHandler() == null) {
             throw new IllegalStateException("The command " + key + " blocks input but returns no task");
         }
+        checkConcurrency(key, builder);
         BoundCommand command = new BoundCommand(this, builder, resourcesOf(builder.owner(), builder.id()));
         commands.put(key, command);
         StandardCommands instance = constructing.peek();
@@ -91,6 +93,38 @@ public final class CommandRegistry {
         }
         recordOverride(key, command);
         return command;
+    }
+
+    private static void checkConcurrency(Key key, CommandBuilder builder) {
+        boolean parallel = builder.builtConcurrency() == Concurrency.PARALLEL;
+        if (!parallel && builder.builtTaskHandler() == null) {
+            throw new IllegalStateException("The command " + key + " has the concurrency " + builder.builtConcurrency()
+                    + " but returns no task");
+        }
+        if (!parallel && (builder.builtBlock() == Block.COMMAND || builder.builtBlock() == Block.COMPONENT)) {
+            throw new IllegalStateException("The command " + key + " has the concurrency " + builder.builtConcurrency()
+                    + " with the block " + builder.builtBlock());
+        }
+        if (builder.builtCancels() != null
+                && (builder.builtTaskHandler() != null
+                        || builder.builtEnabled() != null
+                        || builder.builtSelected() != null
+                        || builder.builtBlock() != Block.NONE
+                        || !parallel)) {
+            throw new IllegalStateException("The stop command " + key
+                    + " has a task handler, an enabled or selected state, a block or a concurrency");
+        }
+    }
+
+    /**
+     * Returns a command bound in this registry, if any.
+     *
+     * @param owner the class the generated class is for
+     * @param id the id
+     * @return the command
+     */
+    Optional<BoundCommand> find(Class<?> owner, String id) {
+        return Optional.ofNullable(commands.get(new Key(owner, id)));
     }
 
     /**

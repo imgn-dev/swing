@@ -6,6 +6,7 @@ import be.imgn.swing.Property;
 import be.imgn.swing.Task;
 import be.imgn.swing.TaskContext;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Concurrency;
 import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
@@ -17,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -34,18 +36,33 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 
 /**
- * An image viewer whose next, previous and refresh commands load their image in a task, with progress, and whose stop
- * command cancels it. Next and previous are enabled only where there is an image to go to. The original loads huge Mars
- * Rover images from JPL; the port loads images of its own resources, so that it works offline.
+ * An image viewer whose next, previous and refresh commands choose an image that one load command reads in a task, with
+ * progress, and whose stop command cancels it. A new load replaces the one that runs. Next and previous are enabled
+ * only where there is an image to go to. The images are the original's huge Mars Rover images, in its order: the
+ * original loads them from JPL's Photojournal; the port bundles them in its resources, so that it works offline. As
+ * reading them locally is much faster than downloading them, each step of a read's progress pauses a little, so that
+ * the progress, the restart and the stop stay visible.
  */
 @Application(name = "SingleFrameExample5", vendor = "Sun", version = "1.0")
 public final class SingleFrameExample5 implements SingleFrame {
 
-    private static final List<String> IMAGES =
-            List.of("resources/mars-1.png", "resources/mars-2.png", "resources/mars-3.png");
+    private static final List<String> IMAGES = List.of(
+            "resources/PIA03171.jpg",
+            "resources/PIA02652.jpg",
+            "resources/PIA05108.jpg",
+            "resources/PIA02696.jpg",
+            "resources/PIA05049.jpg",
+            "resources/PIA05460.jpg",
+            "resources/PIA07327.jpg",
+            "resources/PIA05117.jpg",
+            "resources/PIA05199.jpg",
+            "resources/PIA05990.jpg",
+            "resources/PIA03623.jpg");
     private static final int WIDTH = 640;
     private static final int HEIGHT = 480;
     private static final double PERCENT = 100;
+    // The reader reports about 20 steps per image, so a read lasts about a second.
+    private static final Duration STEP_PAUSE = Duration.ofMillis(50);
 
     @Exposed
     final JLabel image = new JLabel();
@@ -56,15 +73,11 @@ public final class SingleFrameExample5 implements SingleFrame {
     @Exposed
     final Property<Boolean> previousImageEnabled = Property.of(false);
 
-    @Exposed
-    final Property<Boolean> stopLoadingEnabled = Property.of(false);
-    // Each load gets a generation; stopping moves to the next one, which the running load sees.
-    private final Property<Integer> current = Property.of(0);
     private final SingleFrameExample5Commands commands;
     private final Ui ui;
     private final ExampleMessages messages;
     private int imageIndex;
-    private int loading;
+    private volatile Hold hold = percentageDone -> Thread.sleep(STEP_PAUSE);
 
     @Inject
     SingleFrameExample5(SingleFrameExample5Commands commands, Ui ui, ExampleMessages messages) {
@@ -125,59 +138,56 @@ public final class SingleFrameExample5 implements SingleFrame {
     }
 
     @Command(enabled = "nextImageEnabled")
-    Task<BufferedImage> nextImage() {
-        imageIndex = Math.min(imageIndex + 1, IMAGES.size() - 1);
-        return show(IMAGES.get(imageIndex));
+    void nextImage() {
+        show(Math.min(imageIndex + 1, IMAGES.size() - 1));
     }
 
     @Command(enabled = "previousImageEnabled")
-    Task<BufferedImage> previousImage() {
-        imageIndex = Math.max(imageIndex - 1, 0);
-        return show(IMAGES.get(imageIndex));
+    void previousImage() {
+        show(Math.max(imageIndex - 1, 0));
     }
 
     @Command
-    Task<BufferedImage> refreshImage() {
-        return show(IMAGES.get(imageIndex));
+    void refreshImage() {
+        show(imageIndex);
     }
 
-    @Command(enabled = "stopLoadingEnabled")
+    @Command(concurrency = Concurrency.RESTART)
+    Task<BufferedImage> load() {
+        String location = IMAGES.get(imageIndex);
+        URL url = Objects.requireNonNull(SingleFrameExample5.class.getResource(location), location);
+        showMessage(messages.loadingWait());
+        return Task.of((TaskContext context) -> read(url, context))
+                .onSuccess(loaded -> {
+                    image.setToolTipText(messages.imageTooltip(location, loaded.getWidth(), loaded.getHeight()));
+                    image.setText(null);
+                    image.setIcon(new ImageIcon(loaded));
+                })
+                .onFailure(failure -> showMessage(messages.loadingFailed(location)));
+    }
+
+    // Shows the cancelled message here, once the load is cancelled, rather than in its onCancel: a load that a new one
+    // replaces is cancelled too, after the new one showed its message, which must stay.
+    @Command(cancels = "load")
     void stopLoading() {
-        current.set(current.get() + 1);
+        showMessage(messages.loadingCancelled());
     }
 
-    private Task<BufferedImage> show(String location) {
+    /**
+     * Makes each load wait for a hold at each step of its read's progress, from the first, in the middle of the read,
+     * rather than pause, so that tests act while it runs.
+     *
+     * @param hold the hold
+     */
+    void hold(Hold hold) {
+        this.hold = hold;
+    }
+
+    private void show(int index) {
+        imageIndex = index;
         nextImageEnabled.set(imageIndex < IMAGES.size() - 1);
         previousImageEnabled.set(imageIndex > 0);
-        URL url = Objects.requireNonNull(SingleFrameExample5.class.getResource(location), location);
-        int generation = current.get();
-        loading++;
-        stopLoadingEnabled.set(true);
-        showMessage(messages.loadingWait());
-        return Task.of((TaskContext context) -> load(url, generation, context))
-                .onSuccess(loaded -> {
-                    if (current.get() == generation) {
-                        image.setToolTipText(messages.imageTooltip(location, loaded.getWidth(), loaded.getHeight()));
-                        image.setText(null);
-                        image.setIcon(new ImageIcon(loaded));
-                    } else {
-                        showMessage(messages.loadingCancelled());
-                    }
-                    loaded();
-                })
-                .onFailure(failure -> {
-                    showMessage(messages.loadingFailed(location));
-                    loaded();
-                })
-                .onCancel(() -> {
-                    showMessage(messages.loadingCancelled());
-                    loaded();
-                });
-    }
-
-    private void loaded() {
-        loading--;
-        stopLoadingEnabled.set(loading > 0);
+        commands.load().execute();
     }
 
     private void showMessage(String text) {
@@ -186,7 +196,7 @@ public final class SingleFrameExample5 implements SingleFrame {
         image.setIcon(null);
     }
 
-    private BufferedImage load(URL url, int generation, TaskContext context) throws IOException {
+    private BufferedImage read(URL url, TaskContext context) throws IOException {
         try (InputStream in = url.openStream();
                 ImageInputStream input = ImageIO.createImageInputStream(in)) {
             Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
@@ -196,7 +206,7 @@ public final class SingleFrameExample5 implements SingleFrame {
             ImageReader reader = readers.next();
             try {
                 reader.setInput(input);
-                reader.addIIOReadProgressListener(new Progress(context, generation, reader));
+                reader.addIIOReadProgressListener(new Progress(context, reader, hold));
                 return reader.read(0);
             } finally {
                 reader.dispose();
@@ -204,22 +214,41 @@ public final class SingleFrameExample5 implements SingleFrame {
         }
     }
 
-    /** Reports the progress of a read, and aborts it once stopped. */
-    private final class Progress implements IIOReadProgressListener {
-        private final TaskContext context;
-        private final int generation;
-        private final ImageReader reader;
+    /** What a load waits for at each step of its read's progress, for tests. */
+    @FunctionalInterface
+    interface Hold {
 
-        Progress(TaskContext context, int generation, ImageReader reader) {
+        /**
+         * Waits until the read may go on.
+         *
+         * @param percentageDone how much of the image the read has decoded, from 0 to 100
+         * @throws InterruptedException if the load is cancelled while it waits
+         */
+        void await(float percentageDone) throws InterruptedException;
+    }
+
+    /** Reports the progress of a read, and aborts it once the task is cancelled. */
+    private static final class Progress implements IIOReadProgressListener {
+        private final TaskContext context;
+        private final ImageReader reader;
+        private final Hold hold;
+
+        Progress(TaskContext context, ImageReader reader, Hold hold) {
             this.context = context;
-            this.generation = generation;
             this.reader = reader;
+            this.hold = hold;
         }
 
         @Override
         public void imageProgress(ImageReader source, float percentageDone) {
             context.progress(Math.min(1, percentageDone / PERCENT));
-            if (context.isCancelled() || current.get() != generation) {
+            try {
+                hold.await(percentageDone);
+            } catch (InterruptedException e) {
+                // Cancelling the task interrupts its thread, which the reader ignores: the abort below stops it.
+                Thread.currentThread().interrupt();
+            }
+            if (context.isCancelled()) {
                 reader.abort();
             }
         }

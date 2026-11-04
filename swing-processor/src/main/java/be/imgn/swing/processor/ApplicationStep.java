@@ -95,8 +95,9 @@ final class ApplicationStep implements Step {
             Optional<String> vendor,
             Optional<String> qualifier,
             Optional<String> version) {
-        String simpleName = Java.dollarName(type, "Application");
-        String qualifiedName = Java.qualified(type, simpleName);
+        ClassName generated = ClassName.of(type).generatedName("Application");
+        String simpleName = generated.simpleName();
+        String qualifiedName = generated.canonicalName();
         context.sources()
                 .write(
                         qualifiedName,
@@ -144,11 +145,7 @@ final class ApplicationStep implements Step {
                                         optionalLiteral(scope.name(Optional.class), qualifier),
                                         optionalLiteral(scope.name(Optional.class), version)),
                         type);
-        context.services()
-                .add(
-                        ClassName.bestGuess(Names.APPLICATION_DESCRIPTOR),
-                        ClassName.of(Java.packageOf(type).getQualifiedName().toString(), simpleName),
-                        type);
+        context.services().add(ClassName.bestGuess(Names.APPLICATION_DESCRIPTOR), generated, type);
     }
 
     private static String optionalLiteral(String optional, Optional<String> value) {

@@ -70,6 +70,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>be.imgn.gaia</groupId>
+      <artifactId>gaia-memfs</artifactId>
+      <version>${gaia.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
@@ -106,8 +112,52 @@
               <artifactId>swing-processor</artifactId>
               <version>${project.version}</version>
             </path>
+            <path>
+              <groupId>be.imgn.toml</groupId>
+              <artifactId>toml-processor</artifactId>
+              <version>${toml.version}</version>
+            </path>
+            <path>
+              <groupId>be.imgn.gaia</groupId>
+              <artifactId>gaia-processor</artifactId>
+              <version>${gaia.version}</version>
+            </path>
           </annotationProcessorPaths>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <executions>
+          <!-- On the module path, the tests are patched into the module, whose
+               descriptor provides none of their beans or subscriber indexes:
+               the tests that use beans written for them run on the class path,
+               where the service loader reads META-INF/services. -->
+          <execution>
+            <id>default-test</id>
+            <configuration>
+              <excludes>
+                <exclude>**/AppTesterSettingsTest.java</exclude>
+                <exclude>**/CommandTasksTest.java</exclude>
+                <exclude>**/EventBusTest.java</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>fixture-tests</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <useModulePath>false</useModulePath>
+              <includes>
+                <include>**/AppTesterSettingsTest.java</include>
+                <include>**/CommandTasksTest.java</include>
+                <include>**/EventBusTest.java</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>be.imgn.inject</groupId>

@@ -36,3 +36,6 @@ text = "OK"
 
 [commands.cancel]
 text = "Cancel"
+
+[commands.apply]
+text = "&Apply"

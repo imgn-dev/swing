@@ -12,8 +12,35 @@ text = "&Date de naissance"
 [home]
 accessible-name = "Adresse maison"
 
+[home.streetLabel]
+text = "&Rue"
+
+[home.zipLabel]
+text = "C&ode postal"
+
+[home.cityLabel]
+text = "&Ville"
+
+[home.phoneLabel]
+text = "&Téléphone"
+
 [office]
 accessible-name = "Adresse bureau"
+
+[office.streetLabel]
+text = "Rue"
+
+[office.zipLabel]
+text = "Code postal"
+
+[office.cityLabel]
+text = "Ville"
+
+[office.phoneLabel]
+text = "Téléphone"
+
+[commands.ok]
+text = "&Enregistrer"
 
 [commands.previous]
 text = "< Pré&cédent"

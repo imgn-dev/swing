@@ -14,8 +14,8 @@ import java.util.function.BiFunction;
  */
 public final class Combined<A, B, R> extends Derived<R> {
 
-    private final Observable<A> a;
-    private final Observable<B> b;
+    private final Source<A> a;
+    private final Source<B> b;
     private final BiFunction<? super A, ? super B, ? extends R> combiner;
 
     /**
@@ -26,18 +26,18 @@ public final class Combined<A, B, R> extends Derived<R> {
      * @param combiner the function
      */
     public Combined(Observable<A> a, Observable<B> b, BiFunction<? super A, ? super B, ? extends R> combiner) {
-        this.a = Objects.requireNonNull(a, "a");
-        this.b = Objects.requireNonNull(b, "b");
+        this.a = new Source<>(Objects.requireNonNull(a, "a"));
+        this.b = new Source<>(Objects.requireNonNull(b, "b"));
         this.combiner = Objects.requireNonNull(combiner, "combiner");
     }
 
     @Override
-    List<Observable<?>> sources() {
+    List<Source<?>> sources() {
         return List.of(a, b);
     }
 
     @Override
-    R compute() {
-        return combiner.apply(a.get(), b.get());
+    R compute(boolean kept) {
+        return combiner.apply(a.value(kept), b.value(kept));
     }
 }

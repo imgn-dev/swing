@@ -21,7 +21,7 @@ public final class TaskService {
      *
      * @param task the task, which must not have run yet; {@link Task#none()} does nothing
      * @param scope the scope the task belongs to
-     * @throws IllegalStateException if the task has already run, or the scope is closed
+     * @throws IllegalStateException if the task has already run or belongs to a chain, or the scope is closed
      */
     public void run(Task<?> task, Scope scope) {
         if (!(task instanceof NoTask)) {

@@ -1,8 +1,10 @@
 package be.imgn.swing.ui;
 
+import be.imgn.swing.FailureHandler;
 import be.imgn.swing.Observable;
 import be.imgn.swing.Property;
 import be.imgn.swing.Task;
+import be.imgn.swing.internal.Guarded;
 import be.imgn.swing.internal.NoTask;
 import be.imgn.swing.internal.RunningTask;
 import be.imgn.swing.ui.internal.Edt;
@@ -12,8 +14,11 @@ import be.imgn.swing.ui.internal.Mnemonics;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
 import be.imgn.swing.ui.spi.ComponentResources;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -41,14 +46,20 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
     private final @Nullable Supplier<Observable<Boolean>> enabledSupplier;
     private final @Nullable Supplier<Property<Boolean>> selectedSupplier;
     private final Block block;
+    private final Concurrency concurrency;
+    private final @Nullable String cancels;
     private final CommandResources resources;
     private final CommandAction action;
     private final Property<Boolean> blocked = Property.of(false);
+    private final Property<Boolean> running = Property.of(false);
+    // The tasks the command started that haven't ended, in activation order, those that wait included. On the EDT.
+    private final List<Started> tasks = new ArrayList<>();
     private final @Nullable KeyStroke keyStroke;
     private final Mnemonics text;
     private int blockCount;
     private @Nullable Observable<Boolean> enabled;
     private @Nullable Property<Boolean> selected;
+    private @Nullable BoundCommand stopped;
     private boolean attached;
 
     BoundCommand(CommandRegistry registry, CommandBuilder builder, CommandResources resources) {
@@ -60,6 +71,8 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
         this.enabledSupplier = builder.builtEnabled();
         this.selectedSupplier = builder.builtSelected();
         this.block = builder.builtBlock();
+        this.concurrency = builder.builtConcurrency();
+        this.cancels = builder.builtCancels();
         this.resources = resources;
         UiServices services = registry.services();
         boolean macOS = services.isMacOS();
@@ -168,6 +181,29 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
         return Edt.call(registry.services().executor(), () -> run(context));
     }
 
+    /**
+     * Returns whether the command is running: {@code true} from the moment it starts a task until every task it started
+     * has ended, waiting ones included; {@code false} otherwise. A task has ended once its last hook has run, and the
+     * value changes on the EDT, after those hooks. A command whose handler returns {@code void}, or returns
+     * {@code Task.none()}, starts nothing, so it isn't running.
+     *
+     * @return whether the command is running
+     */
+    public Observable<Boolean> running() {
+        return running;
+    }
+
+    /**
+     * Cancels every task the command started that hasn't ended, waiting ones included; does nothing when there is none.
+     * It may be called from any thread, and runs on the EDT, as {@link #execute()} does.
+     */
+    public void cancel() {
+        Edt.call(registry.services().executor(), () -> {
+            cancelTasks();
+            return Boolean.TRUE;
+        });
+    }
+
     private void requireSelected() {
         if (selectedSupplier == null) {
             throw new IllegalStateException("The command " + identity() + " has no selected state");
@@ -190,22 +226,70 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
             Property<Boolean> property = selected();
             property.set(!property.get());
         }
-        if (handler != null) {
-            handler.accept(context);
-        } else if (taskHandler != null) {
-            Task<?> task = Objects.requireNonNull(taskHandler.apply(context), "The handler returned no task");
-            if (!(task instanceof NoTask)) {
+        BoundCommand target = stopped;
+        if (target != null) {
+            target.cancelTasks();
+        }
+        Consumer<CommandContext> plain = handler;
+        Function<CommandContext, Task<?>> tasking = taskHandler;
+        if (plain != null) {
+            failed(Guarded.runCatchingExceptions(() -> plain.accept(context)));
+        } else if (tasking != null) {
+            AtomicReference<@Nullable Task<?>> returned = new AtomicReference<>();
+            failed(Guarded.runCatchingExceptions(() ->
+                    returned.set(Objects.requireNonNull(tasking.apply(context), "The handler returned no task"))));
+            Task<?> task = returned.get();
+            if (task != null && !(task instanceof NoTask)) {
                 start(task, context);
             }
         }
+        // The command ran, even when its handler threw.
         return true;
     }
 
+    // An exception a handler throws goes to the FailureHandler, as a task's failure does; an Error propagates.
+    private void failed(@Nullable Throwable thrown) {
+        if (thrown != null) {
+            registry.injector().getInstance(FailureHandler.class).failed(thrown);
+        }
+    }
+
+    // A task that waits for the tasks before it, with RESTART or SERIAL, begins once they have ended, and blocks input
+    // only from then on.
     private void start(Task<?> task, CommandContext context) {
-        UiServices services = registry.services();
-        RunningTask running = services.tasks().start(task, view().scope(), id, true);
-        Runnable unblock = TaskBlocking.block(services, view(), running, block, this, context);
-        running.whenEnded(() -> services.executor().execute(unblock));
+        RunningTask handle = registry.services().tasks().prepare(task, view().scope(), id, true);
+        if (concurrency == Concurrency.RESTART) {
+            cancelTasks();
+        }
+        Started started = new Started(handle, context);
+        tasks.add(started);
+        running.set(true);
+        handle.whenEnded(() -> ended(started));
+        if (concurrency == Concurrency.PARALLEL || tasks.getFirst() == started) {
+            begin(started);
+        }
+    }
+
+    private void begin(Started started) {
+        if (started.handle.isBegun()) {
+            return;
+        }
+        started.unblock = TaskBlocking.block(registry.services(), view(), started.handle, block, this, started.context);
+        started.handle.begin();
+    }
+
+    private void ended(Started started) {
+        started.unblock.run();
+        tasks.remove(started);
+        if (tasks.isEmpty()) {
+            running.set(false);
+        } else if (concurrency != Concurrency.PARALLEL) {
+            begin(tasks.getFirst());
+        }
+    }
+
+    private void cancelTasks() {
+        List.copyOf(tasks).forEach(started -> started.handle.cancel());
     }
 
     Runnable blockItself() {
@@ -219,7 +303,8 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
     }
 
     boolean isEnabledNow() {
-        return enabled().get() && !blocked.get();
+        BoundCommand target = stopped;
+        return enabled().get() && !blocked.get() && (cancels == null || (target != null && target.running.get()));
     }
 
     private Observable<Boolean> enabled() {
@@ -248,6 +333,17 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
         attached = true;
         ViewHost view = view();
         Observable<Boolean> effective = Observable.combine(enabled(), blocked, (on, isBlocked) -> on && !isBlocked);
+        String stoppedId = cancels;
+        if (stoppedId != null) {
+            // Resolved now, since the generated code builds commands in declaration order: a stop command may come
+            // before the command it cancels.
+            BoundCommand target = registry.find(owner, stoppedId)
+                    .filter(command -> command.taskHandler != null)
+                    .orElseThrow(() -> new IllegalStateException("The command " + identity() + " cancels " + stoppedId
+                            + ", which is no command of its class whose handler returns a task"));
+            stopped = target;
+            effective = Observable.combine(effective, target.running, (on, isRunning) -> on && isRunning);
+        }
         action.setEnabled(effective.get());
         EdtDelivery.subscribe(view.scope(), effective, action::setEnabled, EdtDelivery.Order.FRAMEWORK);
         if (selectedSupplier != null) {
@@ -306,5 +402,17 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
     @Override
     public String toString() {
         return "BoundCommand[" + identity() + "]";
+    }
+
+    // A task the command started, with how the command was activated and what unblocks its input once it began.
+    private static final class Started {
+        private final RunningTask handle;
+        private final CommandContext context;
+        private Runnable unblock = () -> {};
+
+        Started(RunningTask handle, CommandContext context) {
+            this.handle = handle;
+            this.context = context;
+        }
     }
 }

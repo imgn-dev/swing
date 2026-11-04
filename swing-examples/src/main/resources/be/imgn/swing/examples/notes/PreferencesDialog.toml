@@ -1,0 +1,10 @@
+title = "Preferences"
+
+[fontSizeLabel]
+text = "&Font size"
+
+[wordWrapBox]
+text = "&Wrap lines"
+
+[commands.apply]
+tool-tip-text = "Applies the preferences without closing the dialog"

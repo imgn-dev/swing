@@ -10,6 +10,8 @@ import be.imgn.toml.TomlPositions;
 import be.imgn.toml.TomlString;
 import be.imgn.toml.TomlTable;
 import be.imgn.toml.TomlValue;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -30,6 +33,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.swing.KeyStroke;
 import org.jspecify.annotations.Nullable;
@@ -75,38 +79,98 @@ final class ResourceChecks {
             if (file.error() != null) {
                 reporter.error(type, file, file.error().position(), MessagesStep.message(file.error()));
             } else {
-                checkFile(model, file, file.parsed().orElseThrow(), icons);
+                checkFile(new Source(model, file, file.parsed().orElseThrow().positions(), icons));
             }
         }
         checkShortcuts(model, files);
         checkTexts(model, files);
         checkTranslations(model, files);
+        checkInheritedNested(model);
         if (!files.isEmpty() || !icons.isEmpty()) {
             shared.resources(Java.packageOf(type), icons, type);
         }
     }
 
-    private void checkFile(Model model, ResourceFile file, TomlDocument document, Set<String> icons) {
-        TomlTable root = document.root();
-        TomlPositions positions = document.positions();
+    // The generated injector of the class also reads the nested paths that the files of its superclasses name, which
+    // their own checks judge from their own package: a field the class's package can't reach is an error of the class.
+    // A superclass of the class's package reaches the same fields, so its own checks suffice.
+    private void checkInheritedNested(Model model) {
+        Optional<TypeElement> current = Commands.superclass(model.type());
+        while (current.isPresent()) {
+            TypeElement superclass = current.get();
+            String owner = Java.packageOf(superclass).getQualifiedName().toString();
+            if (!owner.equals(model.packageName())) {
+                for (ResourceFile file :
+                        shared.files().of(owner, superclass.getSimpleName().toString())) {
+                    file.parsed().ifPresent(document -> {
+                        TomlTable root = document.root();
+                        checkInheritedNested(model, file, document.positions(), root);
+                        if (root.entries().get("variants") instanceof TomlTable variants) {
+                            for (TomlValue variant : variants.entries().values()) {
+                                if (variant instanceof TomlTable table) {
+                                    checkInheritedNested(model, file, document.positions(), table);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            current = Commands.superclass(superclass);
+        }
+    }
+
+    // The tables of a base or variant table that name the class's component fields, other than its commands, menus and
+    // variants.
+    private void checkInheritedNested(Model model, ResourceFile file, TomlPositions positions, TomlTable table) {
+        table.entries().forEach((key, value) -> {
+            VariableElement component = model.components().get(key);
+            if (!Set.of("commands", "menus", "variants").contains(key)
+                    && component != null
+                    && value instanceof TomlTable properties) {
+                checkInheritedNested(model, file, positions, new FieldTable(key, component, properties));
+            }
+        });
+    }
+
+    // The fields that a nested table names and that the superclass's checks don't reject, to any depth.
+    private void checkInheritedNested(Model model, ResourceFile file, TomlPositions positions, FieldTable enclosing) {
+        enclosing.properties().entries().forEach((key, value) -> {
+            if (value instanceof TomlTable table) {
+                ViewModel.componentField(context, enclosing.element().asType(), key)
+                        .ifPresent(nested -> {
+                            if (ViewModel.reachable(nested, model.packageName())) {
+                                checkInheritedNested(model, file, positions, enclosing.nested(key, nested, table));
+                            } else {
+                                unreachable(model, file, positions, enclosing, key, nested);
+                            }
+                        });
+            }
+        });
+    }
+
+    private void checkFile(Source source) {
+        Model model = source.model();
+        ResourceFile file = source.file();
+        TomlPositions positions = source.positions();
+        TomlTable root = file.parsed().orElseThrow().root();
         for (Map.Entry<String, TomlValue> entry : root.entries().entrySet()) {
             String key = entry.getKey();
             TomlValue value = entry.getValue();
             switch (key) {
                 case "commands" ->
                     table(model.type(), file, positions, root, key)
-                            .ifPresent(commands -> checkCommands(model, file, positions, commands, icons));
+                            .ifPresent(commands -> checkCommands(source, commands));
                 case "menus" ->
                     table(model.type(), file, positions, root, key)
                             .ifPresent(menus -> checkMenus(model, file, positions, menus));
                 case "variants" ->
                     table(model.type(), file, positions, root, key)
-                            .ifPresent(variants -> checkVariants(model, file, positions, root, variants, icons));
+                            .ifPresent(variants -> checkVariants(source, root, variants));
                 default -> {
                     if (value instanceof TomlTable component) {
-                        checkComponent(model, file, positions, root, key, component, icons);
+                        checkComponent(source, root, key, component);
                     } else {
-                        checkClassProperty(model, file, positions, root, key, value);
+                        checkClassProperty(source, root, key, value);
                     }
                 }
             }
@@ -134,13 +198,10 @@ final class ResourceChecks {
 
     // Each table of [variants] names a variant, and is laid out like the base table, without commands and menus. The
     // base file has a table for every variant.
-    private void checkVariants(
-            Model model,
-            ResourceFile file,
-            TomlPositions positions,
-            TomlTable root,
-            TomlTable variants,
-            Set<String> icons) {
+    private void checkVariants(Source source, TomlTable root, TomlTable variants) {
+        Model model = source.model();
+        ResourceFile file = source.file();
+        TomlPositions positions = source.positions();
         if (model.variants().isEmpty()) {
             reporter.error(
                     model.type(),
@@ -160,7 +221,7 @@ final class ResourceChecks {
                         "[variants." + name + "] names no constant of the @Variants enum of "
                                 + model.type().getQualifiedName() + ": " + model.variants());
             } else if (entry.getValue() instanceof TomlTable variant) {
-                checkVariant(model, file, positions, variant, icons);
+                checkVariant(source, variant);
             } else {
                 reporter.error(
                         model.type(), file, positions.value(variants, name), "variants." + name + " must be a table");
@@ -180,8 +241,10 @@ final class ResourceChecks {
         }
     }
 
-    private void checkVariant(
-            Model model, ResourceFile file, TomlPositions positions, TomlTable variant, Set<String> icons) {
+    private void checkVariant(Source source, TomlTable variant) {
+        Model model = source.model();
+        ResourceFile file = source.file();
+        TomlPositions positions = source.positions();
         for (Map.Entry<String, TomlValue> entry : variant.entries().entrySet()) {
             String key = entry.getKey();
             if (Set.of("commands", "menus", "variants").contains(key)) {
@@ -191,9 +254,9 @@ final class ResourceChecks {
                         positions.key(variant, key),
                         "A variant holds no " + key + ": they are in the base table, for every variant");
             } else if (entry.getValue() instanceof TomlTable component) {
-                checkComponent(model, file, positions, variant, key, component, icons);
+                checkComponent(source, variant, key, component);
             } else {
-                checkClassProperty(model, file, positions, variant, key, entry.getValue());
+                checkClassProperty(source, variant, key, entry.getValue());
             }
         }
     }
@@ -212,8 +275,10 @@ final class ResourceChecks {
         return command != null && command.declaring().equals(model.type()) ? command.element() : model.type();
     }
 
-    private void checkCommands(
-            Model model, ResourceFile file, TomlPositions positions, TomlTable commands, Set<String> icons) {
+    private void checkCommands(Source source, TomlTable commands) {
+        Model model = source.model();
+        ResourceFile file = source.file();
+        TomlPositions positions = source.positions();
         for (String id : commands.entries().keySet()) {
             if (!model.commands().containsKey(id) && !Names.STANDARD_COMMANDS_IDS.contains(id)) {
                 reporter.error(
@@ -244,24 +309,17 @@ final class ResourceChecks {
                     reporter.error(element, file, positions.value(table.get(), key), key + " must be a string");
                     continue;
                 }
-                checkCommandValue(model, file, positions, table.get(), key, string.value(), element, icons);
+                checkCommandValue(source, table.get(), key, string.value(), element);
             }
         }
     }
 
-    @SuppressWarnings("checkstyle:ParameterNumber")
-    private void checkCommandValue(
-            Model model,
-            ResourceFile file,
-            TomlPositions positions,
-            TomlTable table,
-            String key,
-            String value,
-            Element element,
-            Set<String> icons) {
+    private void checkCommandValue(Source source, TomlTable table, String key, String value, Element element) {
+        ResourceFile file = source.file();
+        TomlPositions positions = source.positions();
         switch (key) {
             case "text" -> checkMnemonics(element, file, positions, table, key, value);
-            case "icon" -> checkIcon(model, element, file, positions, table, key, value, icons);
+            case "icon" -> checkIcon(source, element, table, key, value);
             case "shortcut" -> {
                 if (!value.contains("${") && Shortcut.parse(value) == null) {
                     reporter.error(
@@ -375,16 +433,10 @@ final class ResourceChecks {
         }
     }
 
-    @SuppressWarnings("checkstyle:ParameterNumber")
-    private void checkIcon(
-            Model model,
-            Element element,
-            ResourceFile file,
-            TomlPositions positions,
-            TomlTable table,
-            String key,
-            String value,
-            Set<String> icons) {
+    private void checkIcon(Source source, Element element, TomlTable table, String key, String value) {
+        Model model = source.model();
+        ResourceFile file = source.file();
+        TomlPositions positions = source.positions();
         String path;
         try {
             path = resolve(value, file.parsed().orElseThrow().root(), new HashSet<>());
@@ -393,7 +445,7 @@ final class ResourceChecks {
             return;
         }
         if (shared.files().exists(model.packageName(), path)) {
-            icons.add(path);
+            source.icons().add(path);
         } else {
             reporter.error(
                     element,
@@ -459,52 +511,90 @@ final class ResourceChecks {
         }
     }
 
-    @SuppressWarnings("checkstyle:ParameterNumber")
-    private void checkComponent(
-            Model model,
-            ResourceFile file,
-            TomlPositions positions,
-            TomlTable root,
-            String field,
-            TomlTable properties,
-            Set<String> icons) {
+    private void checkComponent(Source source, TomlTable root, String field, TomlTable properties) {
+        Model model = source.model();
         VariableElement component = model.components().get(field);
         if (component == null) {
             reporter.error(
                     model.type(),
-                    file,
-                    positions.key(root, field),
+                    source.file(),
+                    source.positions().key(root, field),
                     "[" + field + "] names no @Exposed component field of "
                             + model.type().getQualifiedName());
             return;
         }
+        checkProperties(source, new FieldTable(field, component, properties));
+    }
+
+    // The keys of a component field's table: its properties, and the tables of the component fields of its type, each
+    // checked the same way, to any depth.
+    private void checkProperties(Source source, FieldTable field) {
+        ResourceFile file = source.file();
+        TomlPositions positions = source.positions();
+        VariableElement component = field.element();
+        TomlTable properties = field.properties();
         for (Map.Entry<String, TomlValue> entry : properties.entries().entrySet()) {
             String key = entry.getKey();
+            if (entry.getValue() instanceof TomlTable table) {
+                nestedField(source.model(), file, positions, field, key)
+                        .ifPresent(nested -> checkProperties(source, field.nested(key, nested, table)));
+                continue;
+            }
             Optional<ComponentProperty> property = ComponentProperty.of(key);
             if (property.isEmpty() || !property.get().appliesTo(context, component.asType())) {
                 reporter.error(
-                        component,
+                        field.owner(),
                         file,
                         positions.key(properties, key),
                         key + " is not a supported property" + " of " + component.asType());
                 continue;
             }
-            checkComponentValue(
-                    model, file, positions, properties, key, property.get(), entry.getValue(), component, icons);
+            checkComponentValue(source, field, key, property.get(), entry.getValue());
         }
     }
 
-    @SuppressWarnings("checkstyle:ParameterNumber")
-    private void checkComponentValue(
+    // A nested table names an @Exposed component field of the enclosing field's declared type, which the generated
+    // injector, in the view's package, reads through the enclosing fields.
+    private Optional<VariableElement> nestedField(
+            Model model, ResourceFile file, TomlPositions positions, FieldTable enclosing, String key) {
+        String path = enclosing.path() + "." + key;
+        TypeMirror type = enclosing.element().asType();
+        Optional<VariableElement> nested = ViewModel.componentField(context, type, key);
+        if (nested.isEmpty()) {
+            reporter.error(
+                    enclosing.owner(),
+                    file,
+                    positions.key(enclosing.properties(), key),
+                    "[" + path + "] names no @Exposed component field of " + type);
+            return Optional.empty();
+        }
+        if (!ViewModel.reachable(nested.get(), model.packageName())) {
+            unreachable(model, file, positions, enclosing, key, nested.get());
+            return Optional.empty();
+        }
+        return nested;
+    }
+
+    private void unreachable(
             Model model,
             ResourceFile file,
             TomlPositions positions,
-            TomlTable properties,
+            FieldTable enclosing,
             String key,
-            ComponentProperty property,
-            TomlValue value,
-            VariableElement component,
-            Set<String> icons) {
+            VariableElement nested) {
+        reporter.error(
+                enclosing.owner(),
+                file,
+                positions.key(enclosing.properties(), key),
+                "[" + enclosing.path() + "." + key + "] names the field " + key + " of "
+                        + Objects.requireNonNull(nested.getEnclosingElement())
+                        + ", which the generated code of " + model.type().getQualifiedName()
+                        + " can't reach: make it public, or move it to the package " + model.packageName());
+    }
+
+    private void checkComponentValue(
+            Source source, FieldTable field, String key, ComponentProperty property, TomlValue value) {
+        TomlTable properties = field.properties();
         boolean typed = switch (property.kind()) {
             case BOOLEAN -> value instanceof TomlBoolean;
             case INTEGER -> value instanceof TomlInteger;
@@ -512,37 +602,32 @@ final class ResourceChecks {
         };
         if (!typed) {
             reporter.error(
-                    component,
-                    file,
-                    positions.value(properties, key),
+                    field.owner(),
+                    source.file(),
+                    source.positions().value(properties, key),
                     key + " must be a " + property.kind().name().toLowerCase(Locale.ROOT));
             return;
         }
         if (value instanceof TomlString string) {
-            checkComponentString(model, file, positions, properties, key, property, string.value(), component, icons);
+            checkComponentString(source, field, key, property, string.value());
         }
     }
 
     // An icon resolves its references itself; any other value with one is checked after merging, at runtime.
-    @SuppressWarnings("checkstyle:ParameterNumber")
     private void checkComponentString(
-            Model model,
-            ResourceFile file,
-            TomlPositions positions,
-            TomlTable properties,
-            String key,
-            ComponentProperty property,
-            String value,
-            VariableElement component,
-            Set<String> icons) {
+            Source source, FieldTable field, String key, ComponentProperty property, String value) {
+        ResourceFile file = source.file();
+        TomlPositions positions = source.positions();
+        TomlTable properties = field.properties();
+        VariableElement component = field.element();
         if (property.kind() == ComponentProperty.Kind.ICON) {
-            checkIcon(model, component, file, positions, properties, key, value, icons);
+            checkIcon(source, field.owner(), properties, key, value);
         } else if (value.contains("${")) {
             return;
         } else if (property.kind() == ComponentProperty.Kind.COLOR) {
             if (!COLOR.matcher(value).matches()) {
                 reporter.error(
-                        component,
+                        field.owner(),
                         file,
                         positions.value(properties, key),
                         "The color \"" + value + "\" is not \"#rrggbb\" or \"#rrggbbaa\"");
@@ -550,15 +635,16 @@ final class ResourceChecks {
         } else if (property == ComponentProperty.TEXT
                 && (context.isSubtype(component.asType(), Names.ABSTRACT_BUTTON)
                         || context.isSubtype(component.asType(), Names.JLABEL))) {
-            checkMnemonics(component, file, positions, properties, key, value);
+            checkMnemonics(field.owner(), file, positions, properties, key, value);
         }
     }
 
-    @SuppressWarnings("checkstyle:ParameterNumber")
-    private void checkClassProperty(
-            Model model, ResourceFile file, TomlPositions positions, TomlTable root, String key, TomlValue value) {
+    private void checkClassProperty(Source source, TomlTable root, String key, TomlValue value) {
+        Model model = source.model();
+        ResourceFile file = source.file();
+        TomlPositions positions = source.positions();
         boolean applies = switch (key) {
-            case "name", "theme" -> model.application();
+            case "name", "theme", "description", "copyright", "website", "icon" -> model.application();
             case "title" -> model.dialogView() || (model.application() && model.singleFrame());
             default -> false;
         };
@@ -569,8 +655,8 @@ final class ResourceChecks {
                     positions.key(root, key),
                     key + " is not a property of "
                             + model.type().getQualifiedName()
-                            + ": name and theme apply to the application class, title to a"
-                            + " single-frame application class and to dialog views");
+                            + ": name, theme, description, copyright, website and icon apply to the application"
+                            + " class, title to a single-frame application class and to dialog views");
             return;
         }
         if (!(value instanceof TomlString string)) {
@@ -583,6 +669,43 @@ final class ResourceChecks {
                     file,
                     positions.value(root, key),
                     "The theme \"" + string.value() + "\" is none of system, light or dark");
+        } else if ("website".equals(key)) {
+            checkWebsite(model, file, positions, root, string.value());
+        } else if ("icon".equals(key)) {
+            checkIcon(source, model.type(), root, key, string.value());
+        }
+    }
+
+    // Resolves the website's references as an icon's are: one to a key of another file leaves it unchecked.
+    private void checkWebsite(Model model, ResourceFile file, TomlPositions positions, TomlTable root, String value) {
+        String website;
+        try {
+            website = resolve(value, file.parsed().orElseThrow().root(), new HashSet<>());
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            reporter.warning(
+                    model.type(),
+                    file,
+                    positions.value(root, "website"),
+                    e.getMessage() + ": the website is not checked");
+            return;
+        }
+        if (!isWebAddress(website)) {
+            reporter.error(
+                    model.type(),
+                    file,
+                    positions.value(root, "website"),
+                    "The website \"" + website + "\"" + (website.equals(value) ? "" : " (" + value + ")")
+                            + " is not an absolute http or https URI");
+        }
+    }
+
+    private static boolean isWebAddress(String value) {
+        try {
+            URI uri = new URI(value);
+            return uri.isAbsolute()
+                    && ("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()));
+        } catch (URISyntaxException e) {
+            return false;
         }
     }
 
@@ -724,6 +847,38 @@ final class ResourceChecks {
             boolean singleFrame,
             boolean dialogView,
             List<String> variants) {}
+
+    /**
+     * A file being checked, with what its checks share.
+     *
+     * @param model what the checks know about the class
+     * @param file the file
+     * @param positions the positions of the file's keys and values
+     * @param icons the icons the checks found, which the package's resources record
+     */
+    private record Source(Model model, ResourceFile file, TomlPositions positions, Set<String> icons) {}
+
+    /**
+     * A component field that a table of the resources names.
+     *
+     * @param path the field's path from the class's own fields, such as {@code home.streetLabel}
+     * @param element the field
+     * @param properties the field's table
+     * @param owner the class's own field that the path starts from, which the diagnostics of the table are attached to,
+     *     since a nested field may be declared in another file or another compilation
+     */
+    private record FieldTable(String path, VariableElement element, TomlTable properties, VariableElement owner) {
+
+        /** A table that names one of the class's own fields. */
+        FieldTable(String path, VariableElement element, TomlTable properties) {
+            this(path, element, properties, element);
+        }
+
+        /** The table of a component field of this table's field. */
+        FieldTable nested(String key, VariableElement nested, TomlTable table) {
+            return new FieldTable(path + "." + key, nested, table, owner);
+        }
+    }
 
     /**
      * A leaf of a table: a key whose value is not a table.

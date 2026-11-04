@@ -26,46 +26,11 @@ jobs:
           path: source
           persist-credentials: false
 
-      # The snapshots swing depends on are published nowhere: install them at
-      # the commits CI pins, as CI does. A checkout fetches a commit by its full
-      # SHA only. Drop these steps at the first releases of the parent, gaia,
-      # toml and inject.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: imgn-dev/parent
-          ref: ec1bf2cad8810b34cf6343a8a049abd486236892
-          path: upstream/parent
-          persist-credentials: false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: imgn-dev/gaia
-          ref: da992f6d02e31b0699b3d4c760cbc9366c6a63d4
-          path: upstream/gaia
-          persist-credentials: false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: imgn-dev/toml
-          ref: 60678e0c4b688f187091f89c0534f05ed37fc8a3
-          path: upstream/toml
-          persist-credentials: false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: imgn-dev/inject
-          ref: 42f2489a609cad8797741b44275162634d4dda7b
-          path: upstream/inject
-          persist-credentials: false
-
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: '25'
           cache: maven
-
-      - name: Install the upstream snapshots
-        run: |
-          for project in parent gaia toml inject; do
-            (cd "upstream/$project" && ./mvnw -B -q install -DskipTests)
-          done
 
       - name: Build the documentation
         run: source/scripts/javadoc.sh source "$RUNNER_TEMP/site-input/javadoc"

@@ -21,7 +21,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
-/** The resources of a view class, read by field and property, as the generated injectors write them. */
+/**
+ * The resources of a view class, read by field path and property, as the generated injectors write them. A field path
+ * is the name of a field of the view, or names joined by {@code .}, such as {@code home.streetLabel}, which reaches the
+ * nested table of a component field of the component that the view's field {@code home} holds.
+ */
 public final class ComponentResources {
 
     private static final int RGB = 7;
@@ -47,16 +51,22 @@ public final class ComponentResources {
         this.mnemonics = mnemonics;
     }
 
+    // Field names are Java identifiers, so a '.' always separates two of them.
     private Optional<TomlValue> value(String field, String key) {
-        return table.entries().get(field) instanceof TomlTable properties
-                ? Optional.ofNullable(properties.entries().get(key))
-                : Optional.empty();
+        TomlTable properties = table;
+        for (String name : field.split("\\.", -1)) {
+            if (!(properties.entries().get(name) instanceof TomlTable nested)) {
+                return Optional.empty();
+            }
+            properties = nested;
+        }
+        return Optional.ofNullable(properties.entries().get(key));
     }
 
     /**
      * Returns a string property.
      *
-     * @param field the field
+     * @param field the field path: a field name, or names joined by {@code .}, such as {@code home.streetLabel}
      * @param key the property
      * @return the value, if given
      */
@@ -67,7 +77,7 @@ public final class ComponentResources {
     /**
      * Returns an integer property.
      *
-     * @param field the field
+     * @param field the field path: a field name, or names joined by {@code .}, such as {@code home.streetLabel}
      * @param key the property
      * @return the value, if given
      */
@@ -78,7 +88,7 @@ public final class ComponentResources {
     /**
      * Returns a boolean property.
      *
-     * @param field the field
+     * @param field the field path: a field name, or names joined by {@code .}, such as {@code home.streetLabel}
      * @param key the property
      * @return the value, if given
      */
@@ -89,7 +99,7 @@ public final class ComponentResources {
     /**
      * Returns a color property: {@code "#rrggbb"} or {@code "#rrggbbaa"}.
      *
-     * @param field the field
+     * @param field the field path: a field name, or names joined by {@code .}, such as {@code home.streetLabel}
      * @param key the property
      * @return the value, if given
      */
@@ -100,7 +110,7 @@ public final class ComponentResources {
     /**
      * Returns a font property, in {@link Font#decode(String)}'s syntax.
      *
-     * @param field the field
+     * @param field the field path: a field name, or names joined by {@code .}, such as {@code home.streetLabel}
      * @param key the property
      * @return the value, if given
      */
@@ -112,7 +122,7 @@ public final class ComponentResources {
      * Returns an icon property: a path relative to the package of the class whose file names it, resolved against the
      * class's package first, then its superclasses'.
      *
-     * @param field the field
+     * @param field the field path: a field name, or names joined by {@code .}, such as {@code home.streetLabel}
      * @param key the property
      * @return the icon, if given
      */

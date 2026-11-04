@@ -2,9 +2,11 @@ package be.imgn.swing.internal;
 
 import be.imgn.swing.Scope;
 import be.imgn.swing.Subscription;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The listeners of an observable, each subscribed in a scope.
@@ -66,8 +68,38 @@ final class Listeners<T> {
     }
 
     void fire(T value) {
-        for (Consumer<? super T> listener : listeners) {
-            listener.accept(value);
-        }
+        Notifications.notifying(() -> {
+            for (Consumer<? super T> listener : listeners) {
+                listener.accept(value);
+            }
+        });
+    }
+
+    // Calls every listener, even after one threw, so that a listener subscribed after a failing one, such as the UI's
+    // copy of an observable list, still sees the change; then throws the first failure, with the later ones suppressed.
+    void fireAll(T value) {
+        Notifications.notifying(() -> {
+            @Nullable Throwable first = null;
+            for (Consumer<? super T> listener : listeners) {
+                @Nullable Throwable thrown = Guarded.run(() -> listener.accept(value));
+                if (thrown == null) {
+                    continue;
+                }
+                if (first == null) {
+                    first = thrown;
+                } else if (!thrown.equals(first)) {
+                    first.addSuppressed(thrown);
+                }
+            }
+            if (first instanceof Error error) {
+                throw error;
+            }
+            if (first instanceof RuntimeException runtime) {
+                throw runtime;
+            }
+            if (first != null) {
+                throw new UndeclaredThrowableException(first);
+            }
+        });
     }
 }

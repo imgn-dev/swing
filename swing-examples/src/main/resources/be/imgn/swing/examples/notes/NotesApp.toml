@@ -1,0 +1,8 @@
+description = "Takes notes, and keeps them between runs."
+copyright = "Copyright 2026 imgn"
+website = "https://github.com/imgn-dev/swing"
+icon = "icons/notes.png"
+
+[commands.save]
+text = "&Save"
+shortcut = "shortcut S"

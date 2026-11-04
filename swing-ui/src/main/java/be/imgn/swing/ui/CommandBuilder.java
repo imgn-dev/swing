@@ -20,6 +20,8 @@ public final class CommandBuilder {
     private @Nullable Supplier<Observable<Boolean>> enabled;
     private @Nullable Supplier<Property<Boolean>> selected;
     private Block block = Block.NONE;
+    private Concurrency concurrency = Concurrency.PARALLEL;
+    private @Nullable String cancels;
 
     CommandBuilder(CommandRegistry registry, Class<?> owner, String id) {
         this.registry = registry;
@@ -85,11 +87,39 @@ public final class CommandBuilder {
     }
 
     /**
+     * Sets what an activation of a {@link #taskHandler(Function)} does while a task the command started still runs.
+     *
+     * @param concurrency the concurrency; {@link Concurrency#PARALLEL} by default
+     * @return this builder
+     * @throws NullPointerException if {@code concurrency} is {@code null}
+     */
+    public CommandBuilder concurrency(Concurrency concurrency) {
+        this.concurrency = Objects.requireNonNull(concurrency, "concurrency");
+        return this;
+    }
+
+    /**
+     * Makes the command a stop command of another command of the same class, which is resolved when the command is
+     * attached: the command is enabled while that one is running, and its activation cancels that one's tasks, then
+     * calls its own handler.
+     *
+     * @param id the id of the command to stop
+     * @return this builder
+     * @throws NullPointerException if {@code id} is {@code null}
+     */
+    public CommandBuilder cancels(String id) {
+        this.cancels = Objects.requireNonNull(id, "id");
+        return this;
+    }
+
+    /**
      * Returns the command, created on the first call for its class and id; later calls return the same one.
      *
      * @return the command
-     * @throws IllegalStateException if no handler is set, or a block other than {@code NONE} is set without a task
-     *     handler
+     * @throws IllegalStateException if no handler is set; if a block other than {@code NONE} or a concurrency other
+     *     than {@code PARALLEL} is set without a task handler; if a concurrency other than {@code PARALLEL} is set with
+     *     the block {@code COMMAND} or {@code COMPONENT}; or if a stop command has a task handler, an enabled or
+     *     selected state, a block other than {@code NONE} or a concurrency other than {@code PARALLEL}
      */
     public BoundCommand bind() {
         return registry.bind(this);
@@ -125,5 +155,14 @@ public final class CommandBuilder {
 
     Block builtBlock() {
         return block;
+    }
+
+    Concurrency builtConcurrency() {
+        return concurrency;
+    }
+
+    @Nullable
+    String builtCancels() {
+        return cancels;
     }
 }

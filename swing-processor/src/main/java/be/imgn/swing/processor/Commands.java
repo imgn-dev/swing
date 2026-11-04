@@ -78,6 +78,8 @@ final class Commands {
                 annotation.string("enabled"),
                 annotation.string("selected"),
                 annotation.enumConstant("block"),
+                annotation.enumConstant("concurrency"),
+                annotation.string("cancels"),
                 task,
                 takesContext);
     }

@@ -27,9 +27,6 @@ import javax.lang.model.util.ElementFilter;
  */
 final class ResourcesStep implements Step {
 
-    /** The simple name of the generated openers. */
-    static final String OPENER = "$$Resources";
-
     private final Shared shared;
     private final ProcessingContext context;
     private final ResourceChecks checks;
@@ -106,15 +103,14 @@ final class ResourcesStep implements Step {
     }
 
     private void generate(Shared.PackageEntry entry) {
-        String qualifiedName = entry.name().isEmpty() ? OPENER : entry.name() + "." + OPENER;
+        ClassName name = ClassName.generatedName(entry.name(), "Resources");
         Element[] origins = entry.origins().toArray(TypeElement[]::new);
-        if (context.sources().write(qualifiedName, scope -> body(scope, entry), origins)) {
-            context.services()
-                    .add(ClassName.bestGuess(Names.RESOURCE_OPENER), ClassName.of(entry.name(), OPENER), origins);
+        if (context.sources().write(name.canonicalName(), scope -> body(scope, entry, name.simpleName()), origins)) {
+            context.services().add(ClassName.bestGuess(Names.RESOURCE_OPENER), name, origins);
         }
     }
 
-    private static String body(SourceScope scope, Shared.PackageEntry entry) {
+    private static String body(SourceScope scope, Shared.PackageEntry entry, String simpleName) {
         String icons = entry.icons().stream().map(Java::literal).collect(Collectors.joining(", "));
         return """
                 /** Opens the resources of the package {@code %1$s}, from its own module. */
@@ -142,7 +138,7 @@ final class ResourcesStep implements Step {
                 """.formatted(
                         entry.name(),
                         scope.generated(),
-                        OPENER,
+                        simpleName,
                         scope.name(Names.RESOURCE_OPENER),
                         Java.literal(entry.name()),
                         scope.name(Optional.class),

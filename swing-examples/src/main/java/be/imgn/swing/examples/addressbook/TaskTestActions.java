@@ -5,19 +5,19 @@ import be.imgn.swing.Task;
 import be.imgn.swing.TaskWork;
 import be.imgn.swing.ui.Block;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Concurrency;
 import be.imgn.swing.ui.Ui;
 import be.imgn.swing.ui.ViewScoped;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Semaphore;
 import java.util.random.RandomGenerator;
 
 /**
  * Long tasks that show each kind of input blocking. Guts' dialog blocker, a modal dialog over the application, is the
  * {@link Block#APPLICATION} glass pane here, with its progress indicator and Cancel button. Guts' task groups are
- * several tasks, each blocking the application; its serial executor is a permit that the serial tasks take in turn,
- * since tasks run on virtual threads.
+ * several tasks, each blocking the application, and its serial groups are chains, which block it once for both tasks;
+ * its serial executor is a {@link Concurrency#SERIAL} command, whose activations run one after the other.
  */
 @ViewScoped
 public class TaskTestActions {
@@ -31,9 +31,9 @@ public class TaskTestActions {
     private final Ui ui;
     private final AddressBookMessages messages;
     private final RandomGenerator random = RandomGenerator.getDefault();
-    private final Semaphore serial = new Semaphore(1);
     private final List<String> log = new CopyOnWriteArrayList<>();
     private Duration chunk = CHUNK;
+    private volatile Hold hold = name -> {};
 
     @Inject
     TaskTestActions(Ui ui, AddressBookMessages messages) {
@@ -71,16 +71,9 @@ public class TaskTestActions {
         return longProgressTask("oneTaskProgressDialogBlocker");
     }
 
-    @Command
+    @Command(concurrency = Concurrency.SERIAL)
     Task<String> oneTaskSerialExecutor() {
-        return task("oneTaskSerialExecutor", context -> {
-            serial.acquire();
-            try {
-                return sleep("oneTaskSerialExecutor", chunks());
-            } finally {
-                serial.release();
-            }
-        });
+        return longTask("oneTaskSerialExecutor");
     }
 
     @Command
@@ -90,20 +83,15 @@ public class TaskTestActions {
         }
     }
 
-    @Command
-    void twoSerialTaskDialogBlocker() {
-        Task<String> second = longProgressTask("twoSerialTaskDialogBlocker #2");
-        ui.run(
-                longProgressTask("twoSerialTaskDialogBlocker #1").onSuccess(name -> ui.run(second, Block.APPLICATION)),
-                Block.APPLICATION);
+    @Command(block = Block.APPLICATION)
+    Task<String> twoSerialTaskDialogBlocker() {
+        return longProgressTask("twoSerialTaskDialogBlocker #1")
+                .then(name -> longProgressTask("twoSerialTaskDialogBlocker #2"));
     }
 
-    @Command
-    void twoSerialGroupsDialogBlocker() {
-        Task<String> second = longTask("twoSerialGroupsDialogBlocker #2");
-        ui.run(
-                longTask("twoSerialGroupsDialogBlocker #1").onSuccess(name -> ui.run(second, Block.APPLICATION)),
-                Block.APPLICATION);
+    @Command(block = Block.APPLICATION)
+    Task<String> twoSerialGroupsDialogBlocker() {
+        return longTask("twoSerialGroupsDialogBlocker #1").then(name -> longTask("twoSerialGroupsDialogBlocker #2"));
     }
 
     /**
@@ -113,6 +101,15 @@ public class TaskTestActions {
      */
     void chunk(Duration duration) {
         this.chunk = duration;
+    }
+
+    /**
+     * Makes each task, once started, wait for a hold, so that tests act while it runs.
+     *
+     * @param hold the hold
+     */
+    void hold(Hold hold) {
+        this.hold = hold;
     }
 
     /**
@@ -146,6 +143,7 @@ public class TaskTestActions {
     private Task<String> task(String name, TaskWork<String> work) {
         return Task.of(context -> {
                     record(name, "just started");
+                    hold.await(name);
                     return work.run(context);
                 })
                 .onSuccess(result -> record(name, "finished"))
@@ -168,5 +166,18 @@ public class TaskTestActions {
         String line = "Task `" + name + "` " + event;
         log.add(line);
         LOGGER.log(System.Logger.Level.INFO, line);
+    }
+
+    /** What a task waits for once started, for tests. */
+    @FunctionalInterface
+    interface Hold {
+
+        /**
+         * Waits until the task may go on.
+         *
+         * @param name the task's name
+         * @throws InterruptedException if the task is cancelled while it waits
+         */
+        void await(String name) throws InterruptedException;
     }
 }

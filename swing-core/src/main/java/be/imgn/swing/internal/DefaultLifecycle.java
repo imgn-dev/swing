@@ -67,6 +67,16 @@ public final class DefaultLifecycle implements Lifecycle {
     }
 
     /**
+     * Returns whether the shutdown has started: no exit veto stopped it, and it cancels the running tasks, runs the
+     * shutdown steps or has run them.
+     *
+     * @return {@code true} once the shutdown is past its exit vetoes
+     */
+    public boolean hasShutdownStarted() {
+        return state.get() == State.SHUTTING_DOWN;
+    }
+
+    /**
      * Adds a listener told when an exit veto cancels a shutdown.
      *
      * @param listener the listener, called on the {@link UiExecutor}'s thread

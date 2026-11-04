@@ -1,0 +1,10 @@
+title = "Préférences"
+
+[fontSizeLabel]
+text = "&Taille de police"
+
+[wordWrapBox]
+text = "&Renvoi à la ligne"
+
+[commands.apply]
+tool-tip-text = "Applique les préférences sans fermer la fenêtre"

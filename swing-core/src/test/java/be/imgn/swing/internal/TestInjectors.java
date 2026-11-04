@@ -5,6 +5,7 @@ import be.imgn.swing.spi.ApplicationDescriptor;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /** Root injectors for tests, with the bindings the launch gives. */
 final class TestInjectors {
@@ -12,6 +13,10 @@ final class TestInjectors {
     private TestInjectors() {}
 
     static Injector root(DisposalScope scope) {
+        return root(scope, builder -> {});
+    }
+
+    static Injector root(DisposalScope scope, Consumer<Injector.Builder> bindings) {
         ApplicationDescriptor descriptor = new ApplicationDescriptor() {
             @Override
             public Class<?> type() {
@@ -39,6 +44,8 @@ final class TestInjectors {
             }
         };
         DefaultApplicationInfo info = new DefaultApplicationInfo(descriptor);
-        return Launcher.build(Launcher.rootBuilder(info, List.of(), Locale.ROOT, scope), info);
+        Injector.Builder builder = Launcher.rootBuilder(info, List.of(), Locale.ROOT, scope);
+        bindings.accept(builder);
+        return Launcher.build(builder, info);
     }
 }

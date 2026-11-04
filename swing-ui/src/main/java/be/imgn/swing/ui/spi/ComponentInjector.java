@@ -3,8 +3,9 @@ package be.imgn.swing.ui.spi;
 import be.imgn.swing.ui.CommandRegistry;
 
 /**
- * Writes a view class's resources to the components its fields hold, with plain setter calls. The processor generates
- * one, {@code $X$$Injector}, for each view class, and registers it as a service.
+ * Writes a view class's resources to the components its fields hold, and to the component fields of those components
+ * that its nested tables name, read through the enclosing fields, with plain setter calls. The processor generates one,
+ * {@code $X$$Injector}, for each view class, and registers it as a service.
  *
  * @param <V> the view class
  */

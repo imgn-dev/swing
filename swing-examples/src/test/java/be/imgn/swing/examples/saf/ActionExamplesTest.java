@@ -25,6 +25,15 @@ class ActionExamplesTest {
     }
 
     @Test
+    void actionExample2BuildsItsButtonRowWithTheButtonBar() {
+        try (AppTester<ActionExample2> app = AppTester.start(ActionExample2.class)) {
+            ActionExample2Commands commands = app.commands(ActionExample2Commands.class);
+
+            ButtonRows.assertButtonBar(app, commands.clearTitle(), commands.updateTitle());
+        }
+    }
+
+    @Test
     void actionExample3EnablesClearingOnceATitleIsSet() {
         try (AppTester<ActionExample3> app = AppTester.start(ActionExample3.class)) {
             ActionExample3Commands commands = app.commands(ActionExample3Commands.class);
