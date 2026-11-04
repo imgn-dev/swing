@@ -103,7 +103,7 @@ loadScripts(document, 'script');</script>
 </li>
 <li>
 <div id="class-summary">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab1" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab1', 2)" class="table-tab">Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab4" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab4', 2)" class="table-tab">Record Classes</button><button id="class-summary-tab6" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab6', 2)" class="table-tab">Annotation Interfaces</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab1" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab1', 2)" class="table-tab">Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab3" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab3', 2)" class="table-tab">Enum Classes</button><button id="class-summary-tab4" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab4', 2)" class="table-tab">Record Classes</button><button id="class-summary-tab6" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab6', 2)" class="table-tab">Annotation Interfaces</button></div>
 <div id="class-summary.tabpanel" role="tabpanel" aria-labelledby="class-summary-tab0">
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
@@ -120,54 +120,104 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab4">
 <div class="block">The arguments given to the launch of the application, bound in the root injector.</div>
 </div>
+<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="Check.html" title="class in be.imgn.swing">Check</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab4">
+<div class="block">The status of one requirement of a value.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab3"><a href="Check.Status.html" title="enum class in be.imgn.swing">Check.Status</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab3">
+<div class="block">Whether a value meets a requirement.</div>
+</div>
 <div class="col-first odd-row-color class-summary class-summary-tab4"><a href="DisplayLocale.html" title="class in be.imgn.swing">DisplayLocale</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab4">
 <div class="block">The locale of user-interface text, chosen once at startup and bound in the root injector.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Exit.html" title="interface in be.imgn.swing">Exit</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="EventExecutor.html" title="interface in be.imgn.swing">EventExecutor</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="block">The executor of a subscribing annotation on the application's event bus, contributed with
+<code>@IntoSet(EventExecutor.class)</code>.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Exit.html" title="interface in be.imgn.swing">Exit</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">Ends the JVM at the end of the shutdown.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ExitVeto.html" title="interface in be.imgn.swing">ExitVeto</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="ExitVeto.html" title="interface in be.imgn.swing">ExitVeto</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Asked before the application exits, on the <a href="UiExecutor.html" title="interface in be.imgn.swing"><code>UiExecutor</code></a>'s thread.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="FailureHandler.html" title="interface in be.imgn.swing">FailureHandler</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="FailureHandler.html" title="interface in be.imgn.swing">FailureHandler</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">Handles a failure nothing else handles, such as a task's with no <code>onFailure</code> handler.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Lifecycle.html" title="interface in be.imgn.swing">Lifecycle</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Lifecycle.html" title="interface in be.imgn.swing">Lifecycle</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Requests the shutdown of the application.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab6"><a href="Messages.html" title="annotation interface in be.imgn.swing">Messages</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab6">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ListChange.html" title="interface in be.imgn.swing">ListChange</a>&lt;E&gt;</div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="block">A change of an <a href="ObservableList.html" title="interface in be.imgn.swing"><code>ObservableList</code></a>, with indices valid for the list just before it.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab4"><a href="ListChange.Added.html" title="class in be.imgn.swing">ListChange.Added</a>&lt;E&gt;</div>
+<div class="col-last even-row-color class-summary class-summary-tab4">
+<div class="block">Elements added at an index.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="ListChange.Removed.html" title="class in be.imgn.swing">ListChange.Removed</a>&lt;E&gt;</div>
+<div class="col-last odd-row-color class-summary class-summary-tab4">
+<div class="block">Elements removed from an index.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab4"><a href="ListChange.Replaced.html" title="class in be.imgn.swing">ListChange.Replaced</a>&lt;E&gt;</div>
+<div class="col-last even-row-color class-summary class-summary-tab4">
+<div class="block">Elements replaced from an index by others, not necessarily as many.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab6"><a href="Messages.html" title="annotation interface in be.imgn.swing">Messages</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab6">
 <div class="block">Declares an interface of typed messages.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Observable.html" title="interface in be.imgn.swing">Observable</a>&lt;T&gt;</div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="Observable.html" title="interface in be.imgn.swing">Observable</a>&lt;T&gt;</div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">A value that tells its listeners when it changes.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;</div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="block">A list that tells its listeners each change, so that a component showing it updates one row rather than all of them.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab1"><a href="Property.html" title="interface in be.imgn.swing">Property</a>&lt;T&gt;</div>
 <div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">An observable value that can be set, from any thread.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ReadyListener.html" title="interface in be.imgn.swing">ReadyListener</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="PublishingWork.html" title="interface in be.imgn.swing">PublishingWork</a>&lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>, P&gt;</div>
 <div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="block">The work of a <a href="Task.html" title="interface in be.imgn.swing"><code>Task</code></a> that publishes partial results while it runs: <a href="Task.html#of(be.imgn.swing.PublishingWork,java.util.function.Consumer)"><code>Task.of(PublishingWork, Consumer)</code></a>.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="ReadyListener.html" title="interface in be.imgn.swing">ReadyListener</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Told when the application is ready: once the main window is shown, and the events posted while showing it have run.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="ResourceOpener.html" title="interface in be.imgn.swing">ResourceOpener</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ResourceOpener.html" title="interface in be.imgn.swing">ResourceOpener</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
 <div class="block">Opens the resources of one package, from the package's own module, so that reading them needs no open package.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Resources.html" title="class in be.imgn.swing">Resources</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="Resources.html" title="class in be.imgn.swing">Resources</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">The resources of classes: their TOML files, merged along the class hierarchy and across the locale and platform
 variants, and cached per class and locale.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Rule.html" title="interface in be.imgn.swing">Rule</a>&lt;T&gt;</div>
+<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="block">A requirement of a value, and the test of whether a value meets it.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab1"><a href="Scope.html" title="interface in be.imgn.swing">Scope</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">The disposal list of an application, window or view scope, for what is not a bean.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab6"><a href="Settings.html" title="annotation interface in be.imgn.swing">Settings</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab6">
+<div class="block">Declares a settings record: what the user chooses and keeps between runs, saved in <code>&lt;id&gt;.toml</code> in the
+application's config directory.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="SettingsStore.html" title="interface in be.imgn.swing">SettingsStore</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="block">Holds the value of every <a href="Settings.html" title="annotation interface in be.imgn.swing"><code>Settings</code></a> record, loaded at startup from the config directory.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ShutdownStep.html" title="interface in be.imgn.swing">ShutdownStep</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab1">
@@ -200,6 +250,15 @@ variants, and cached per class and locale.</div>
 <div class="col-first even-row-color class-summary class-summary-tab1"><a href="UiExecutor.html" title="interface in be.imgn.swing">UiExecutor</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Runs work on the user-interface thread.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="Validation.html" title="class in be.imgn.swing">Validation</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab4">
+<div class="block">The status of every requirement of a value, met or not, so that a view can show each one and not only the first
+error.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab4"><a href="Validator.html" title="class in be.imgn.swing">Validator</a>&lt;T&gt;</div>
+<div class="col-last even-row-color class-summary class-summary-tab4">
+<div class="block">The rules of a value, declared once and tested in a form, a command-line tool or a service.</div>
 </div>
 </div>
 </div>

@@ -77,11 +77,12 @@ loadScripts(document, 'script');</script>
 </dl>
 <dl class="notes">
 <dt>All Known Subinterfaces:</dt>
-<dd><code><a href="Property.html" title="interface in be.imgn.swing">Property</a>&lt;T&gt;</code></dd>
+<dd><code><a href="ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;, <a href="Property.html" title="interface in be.imgn.swing">Property</a>&lt;T&gt;</code></dd>
 </dl>
 <hr>
 <div class="horizontal-scroll">
-<div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">Observable&lt;T&gt;</span></div>
+<div class="type-signature"><span class="modifiers">public sealed interface </span><span class="element-name type-name-label">Observable&lt;T&gt;</span>
+<span class="permits">permits <a href="Property.html" title="interface in be.imgn.swing">Property</a>&lt;T&gt;, <a href="ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt; <span class="permits-note">(not exhaustive)</span></span></div>
 <div class="block">A value that tells its listeners when it changes.
 
 <p>Listeners are called synchronously, on the thread that changed the value, only when the value changes
@@ -91,7 +92,10 @@ loadScripts(document, 'script');</script>
 subscribes to its sources only while it has subscribers. While it has some, it keeps its last value and notifies them
 only when a source change gives a new value; its <a href="#get()"><code>get()</code></a> returns that value. Without subscribers,
 <a href="#get()"><code>get()</code></a> computes from the sources' current values. Mapping functions may therefore run more than once, on any
-thread: they must be cheap and free of side effects.</div>
+thread: they must be cheap and free of side effects.
+
+<p>Only core implements observables, so that each delivers its changes as the UI layer expects: the interface is
+sealed.</div>
 </div>
 </section>
 <section class="summary">

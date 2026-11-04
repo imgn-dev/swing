@@ -62,6 +62,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#enabled(java.util.function.Supplier)" tabindex="0">enabled(Supplier)</a></li>
 <li><a href="#selected(java.util.function.Supplier)" tabindex="0">selected(Supplier)</a></li>
 <li><a href="#block(be.imgn.swing.ui.Block)" tabindex="0">block(Block)</a></li>
+<li><a href="#concurrency(be.imgn.swing.ui.Concurrency)" tabindex="0">concurrency(Concurrency)</a></li>
+<li><a href="#cancels(java.lang.String)" tabindex="0">cancels(String)</a></li>
 <li><a href="#bind()" tabindex="0">bind()</a></li>
 </ol>
 </li>
@@ -105,6 +107,18 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#block(be.imgn.swing.ui.Block)" class="member-name-link">block</a><wbr>(<a href="Block.html" title="enum class in be.imgn.swing.ui">Block</a>&nbsp;block)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets the input blocking of a <a href="#taskHandler(java.util.function.Function)"><code>taskHandler(Function)</code></a>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CommandBuilder.html" title="class in be.imgn.swing.ui">CommandBuilder</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cancels(java.lang.String)" class="member-name-link">cancels</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Makes the command a stop command of another command of the same class, which is resolved when the command is
+attached: the command is enabled while that one is running, and its activation cancels that one's tasks, then
+calls its own handler.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CommandBuilder.html" title="class in be.imgn.swing.ui">CommandBuilder</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#concurrency(be.imgn.swing.ui.Concurrency)" class="member-name-link">concurrency</a><wbr>(<a href="Concurrency.html" title="enum class in be.imgn.swing.ui">Concurrency</a>&nbsp;concurrency)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Sets what an activation of a <a href="#taskHandler(java.util.function.Function)"><code>taskHandler(Function)</code></a> does while a task the command started still runs.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CommandBuilder.html" title="class in be.imgn.swing.ui">CommandBuilder</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#enabled(java.util.function.Supplier)" class="member-name-link">enabled</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="../../../../../be.imgn.swing/be/imgn/swing/Observable.html" title="interface in be.imgn.swing">Observable</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link">Boolean</a>&gt;&gt;&nbsp;enabled)</code></div>
@@ -219,6 +233,42 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="concurrency(be.imgn.swing.ui.Concurrency)">
+<h3>concurrency</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="CommandBuilder.html" title="class in be.imgn.swing.ui">CommandBuilder</a></span>&nbsp;<span class="element-name">concurrency</span><wbr><span class="parameters">(<a href="Concurrency.html" title="enum class in be.imgn.swing.ui">Concurrency</a>&nbsp;concurrency)</span></div>
+<div class="block">Sets what an activation of a <a href="#taskHandler(java.util.function.Function)"><code>taskHandler(Function)</code></a> does while a task the command started still runs.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>concurrency</code> - the concurrency; <a href="Concurrency.html#PARALLEL"><code>Concurrency.PARALLEL</code></a> by default</dd>
+<dt>Returns:</dt>
+<dd>this builder</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>concurrency</code> is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="cancels(java.lang.String)">
+<h3>cancels</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="CommandBuilder.html" title="class in be.imgn.swing.ui">CommandBuilder</a></span>&nbsp;<span class="element-name">cancels</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</span></div>
+<div class="block">Makes the command a stop command of another command of the same class, which is resolved when the command is
+attached: the command is enabled while that one is running, and its activation cancels that one's tasks, then
+calls its own handler.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>id</code> - the id of the command to stop</dd>
+<dt>Returns:</dt>
+<dd>this builder</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>id</code> is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
 <section class="detail" id="bind()">
 <h3>bind</h3>
 <div class="horizontal-scroll">
@@ -228,8 +278,10 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>the command</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if no handler is set, or a block other than <code>NONE</code> is set without a task
-    handler</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if no handler is set; if a block other than <code>NONE</code> or a concurrency other
+    than <code>PARALLEL</code> is set without a task handler; if a concurrency other than <code>PARALLEL</code> is set with
+    the block <code>COMMAND</code> or <code>COMPONENT</code>; or if a stop command has a task handler, an enabled or
+    selected state, a block other than <code>NONE</code> or a concurrency other than <code>PARALLEL</code></dd>
 </dl>
 </div>
 </section>

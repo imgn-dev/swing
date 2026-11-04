@@ -54,11 +54,16 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html#about()" class="member-name-link">about()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a></dt>
 <dd>
-<div class="block">Returns the command that shows the About dialog: displayed name, version and vendor.</div>
+<div class="block">Returns the command that shows the <a href="be.imgn.swing.ui/be/imgn/swing/ui/AboutDialog.html" title="class in be.imgn.swing.ui"><code>AboutDialog</code></a>: from top to bottom, each one that is present of the icon,
+the displayed name, version, vendor, description, copyright and website.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/SystemAction.html#ABOUT" class="member-name-link">ABOUT</a> - Enum constant in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/SystemAction.html" title="enum class in be.imgn.swing.ui">SystemAction</a></dt>
 <dd>
 <div class="block">About.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/AboutDialog.html" class="type-name-link" title="class in be.imgn.swing.ui">AboutDialog</a> - Class in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
+<dd>
+<div class="block">The About dialog of the standard <code>about()</code> command.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/DynamicEntry.Item.html#action()" class="member-name-link">action()</a> - Method in record class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/DynamicEntry.Item.html" title="class in be.imgn.swing.ui">DynamicEntry.Item</a></dt>
 <dd>
@@ -68,9 +73,38 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the value of the <a href="./be.imgn.swing.ui/be/imgn/swing/ui/Trigger.OperatingSystem.html#param-action"><code>action</code></a> record component.</div>
 </dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#activate(be.imgn.swing.ui.BoundCommand)" class="member-name-link">activate(BoundCommand)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
+<dd>
+<div class="block">Activates a command on the EDT, as a click would, and runs the posted updates, but doesn't wait for the task it
+starts, so that a test can act while the task runs, such as activating it again or checking a stop command.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#add(int,E)" class="member-name-link">add(int, E)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Inserts an element at an index.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#add(E)" class="member-name-link">add(E)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Adds an element at the end.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#addAll(java.util.Collection)" class="member-name-link">addAll(Collection)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Adds elements at the end, in the collection's iteration order.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html#added()" class="member-name-link">added()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html" title="class in be.imgn.swing">ListChange.Replaced</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/ListChange.Replaced.html#param-added"><code>added</code></a> record component.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html#%3Cinit%3E(int,java.util.List)" class="member-name-link">Added(int, List)</a> - Constructor for record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html" title="class in be.imgn.swing">ListChange.Added</a></dt>
+<dd>
+<div class="block">Creates the change.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Modifier.html#ALT" class="member-name-link">ALT</a> - Enum constant in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Modifier.html" title="enum class in be.imgn.swing.ui">Modifier</a></dt>
 <dd>
 <div class="block">Alt, or Option on macOS.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/EventExecutor.html#annotation()" class="member-name-link">annotation()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/EventExecutor.html" title="interface in be.imgn.swing">EventExecutor</a></dt>
+<dd>
+<div class="block">Returns the subscribing annotation whose deliveries this executor runs.</div>
 </dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/FakeDialogs.html#answerConfirm(boolean)" class="member-name-link">answerConfirm(boolean)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/FakeDialogs.html" title="class in be.imgn.swing.testing">FakeDialogs</a></dt>
 <dd>
@@ -100,6 +134,11 @@ loadScripts(document, 'script');</script>
 <dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" class="type-name-link" title="interface in be.imgn.swing">ApplicationInfo</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
 <dd>
 <div class="block">What the application is and where it runs, bound in the root injector.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html#apply()" class="member-name-link">apply()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a></dt>
+<dd>
+<div class="block">Returns the command that applies the dialog's form, enabled while the form is dirty: if the form validates, it
+calls <a href="be.imgn.swing.ui/be/imgn/swing/ui/DialogView.html#commit()"><code>DialogView.commit()</code></a>, then <a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#markClean()"><code>Form.markClean()</code></a>; the dialog stays open.</div>
 </dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" class="type-name-link" title="class in be.imgn.swing.testing">AppTester&lt;T&gt;</a> - Class in <a href="be.imgn.swing.testing/be/imgn/swing/testing/package-summary.html">be.imgn.swing.testing</a></dt>
 <dd>
@@ -174,6 +213,17 @@ and the dialogs.</div>
 <dd>
 <div class="block">What the code that swing's processor generates for views implements and calls; not for applications.</div>
 </dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#bean(java.lang.Class)" class="member-name-link">bean(Class)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
+<dd>
+<div class="block">Resolves a bean through the main view's injector, so that beans of every scope of the main window are reachable,
+such as the <code>SettingsStore</code>, or the <code>ApplicationDirectories</code> whose <code>config()</code> is the fake
+config directory, on the memory file system.</div>
+</dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenDialog.html#bean(java.lang.Class)" class="member-name-link">bean(Class)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenDialog.html" title="class in be.imgn.swing.testing">OpenDialog</a></dt>
+<dd>
+<div class="block">Resolves a bean through the dialog's view injector, so that beans of every scope of the dialog are reachable,
+such as the dialog's <code>Form</code>.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandBuilder.html#bind()" class="member-name-link">bind()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandBuilder.html" title="class in be.imgn.swing.ui">CommandBuilder</a></dt>
 <dd>
 <div class="block">Returns the command, created on the first call for its class and id; later calls return the same one.</div>
@@ -182,6 +232,63 @@ and the dialogs.</div>
 <dd>
 <div class="block">Calls a target with the current value of an observable, then on every change, on the EDT, until the view's scope
 closes.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#bind(javax.swing.AbstractButton,be.imgn.swing.Property)" class="member-name-link">bind(AbstractButton, Property)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui">Form</a></dt>
+<dd>
+<div class="block">Binds a button, such as a check box, a toggle button or a radio button, to a property of its selected state.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#bind(javax.swing.JComboBox,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property)" class="member-name-link">bind(JComboBox, ObservableList, Function, Property)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui">Form</a></dt>
+<dd>
+<div class="block">Binds a combo box to an observable list and to a property of its selected item.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function)" class="member-name-link">bind(JList, ObservableList, Function)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html" title="class in be.imgn.swing.ui">Ui</a></dt>
+<dd>
+<div class="block">Shows an observable list in a list: sets a new model on the list, which follows the observable list change by
+change on the EDT, and a <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/DefaultListCellRenderer.html" title="class or interface in javax.swing" class="external-link"><code>DefaultListCellRenderer</code></a> showing the text of each element.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property)" class="member-name-link">bind(JList, ObservableList, Function, Property)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html" title="class in be.imgn.swing.ui">Ui</a></dt>
+<dd>
+<div class="block">Shows an observable list in a list, as <a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function)"><code>Ui.bind(JList, ObservableList, Function)</code></a> does, and keeps its single
+selection and a property in step: a user's selection sets the property, and a change of the property selects its
+value, or clears the selection for an empty value or one that isn't in the list, then setting the property to
+empty.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property,java.util.function.Function)" class="member-name-link">bind(JList, ObservableList, Function, Property, Function)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html" title="class in be.imgn.swing.ui">Ui</a></dt>
+<dd>
+<div class="block">Shows an observable list in a list and keeps its single selection and a property in step, as <a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property)"><code>Ui.bind(JList, ObservableList, Function, Property)</code></a> does, matching the selected element by key rather than by equality: after a
+change of the list, the element with the selected element's key keeps the selection, wherever it moved.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List)" class="member-name-link">bind(JTable, ObservableList, List)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html" title="class in be.imgn.swing.ui">Ui</a></dt>
+<dd>
+<div class="block">Shows an observable list in a table, a row per element and a column per <a href="be.imgn.swing.ui/be/imgn/swing/ui/Column.html" title="class in be.imgn.swing.ui"><code>Column</code></a>, in order: sets a new
+model on the table, which follows the observable list change by change on the EDT, and whose model index of a
+column is its position in <code>columns</code>.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property)" class="member-name-link">bind(JTable, ObservableList, List, Property)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html" title="class in be.imgn.swing.ui">Ui</a></dt>
+<dd>
+<div class="block">Shows an observable list in a table, as <a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List)"><code>Ui.bind(JTable, ObservableList, List)</code></a> does, and keeps its single
+selection and a property in step: a user's selection sets the property, and a change of the property selects its
+row, or clears the selection for an empty value or one that isn't in the list, then setting the property to
+empty.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property,java.util.function.Function)" class="member-name-link">bind(JTable, ObservableList, List, Property, Function)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html" title="class in be.imgn.swing.ui">Ui</a></dt>
+<dd>
+<div class="block">Shows an observable list in a table and keeps its single selection and a property in step, as
+<a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property)"><code>Ui.bind(JTable, ObservableList, List, Property)</code></a> does, matching the selected row by key rather than by
+equality: after a change of the list, the row with the selected row's key keeps the selection, wherever it moved,
+so that a row modified, moved or reloaded stays selected.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#bind(javax.swing.text.JTextComponent,be.imgn.swing.Property)" class="member-name-link">bind(JTextComponent, Property)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui">Form</a></dt>
+<dd>
+<div class="block">Binds a text component to a property of its text.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#bind(javax.swing.text.JTextComponent,be.imgn.swing.Property,be.imgn.swing.ui.Converter)" class="member-name-link">bind(JTextComponent, Property, Converter)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui">Form</a></dt>
+<dd>
+<div class="block">Binds a text component to a property through a converter.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html" class="type-name-link" title="class in be.imgn.swing.ui">Binding&lt;T&gt;</a> - Class in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
+<dd>
+<div class="block">The binding of a component to a property in a <a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui"><code>Form</code></a>, with the rules its value must meet.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Command.html#block()" class="member-name-link">block()</a> - Element in annotation interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Command.html" title="annotation interface in be.imgn.swing.ui">Command</a></dt>
 <dd>
@@ -207,6 +314,10 @@ closes.</div>
 <dd>
 <div class="block">A menu of a view, with its resources, that descriptions are made from.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html#build()" class="member-name-link">build()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html" title="class in be.imgn.swing.ui">FormPanel</a></dt>
+<dd>
+<div class="block">Returns the panel.</div>
+</dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#builder(java.lang.Class)" class="member-name-link">builder(Class)</a> - Static method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
 <dd>
 <div class="block">Starts the configuration of an application, which <a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.Builder.html#start()"><code>AppTester.Builder.start()</code></a> starts: in <code>Locale.ROOT</code> and with
@@ -216,9 +327,19 @@ no arguments unless the builder says otherwise.</div>
 <dd>
 <div class="block">Returns the value of the <a href="./be.imgn.swing.ui/be/imgn/swing/ui/Trigger.ButtonClick.html#param-button"><code>button</code></a> record component.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#buttonBar(be.imgn.swing.ui.BoundCommand...)" class="member-name-link">buttonBar(BoundCommand...)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html" title="class in be.imgn.swing.ui">Ui</a></dt>
+<dd>
+<div class="block">Returns a new row of buttons: a panel with a centered <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/FlowLayout.html" title="class or interface in java.awt" class="external-link"><code>FlowLayout</code></a>, holding one button per command, in
+order, made with <a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html#createToggleButton()"><code>BoundCommand.createToggleButton()</code></a> for a command with a selected state and with
+<a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html#createButton()"><code>BoundCommand.createButton()</code></a> for any other.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.ButtonClick.html#%3Cinit%3E(javax.swing.AbstractButton)" class="member-name-link">ButtonClick(AbstractButton)</a> - Constructor for record class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.ButtonClick.html" title="class in be.imgn.swing.ui">Trigger.ButtonClick</a></dt>
 <dd>
 <div class="block">Creates an instance of a <code>ButtonClick</code> record class.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/AboutDialog.html#buttons(be.imgn.swing.ui.StandardCommands)" class="member-name-link">buttons(StandardCommands)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/AboutDialog.html" title="class in be.imgn.swing.ui">AboutDialog</a></dt>
+<dd>
+<div class="block">Returns the command of the dialog's only button.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/DialogView.html#buttons(be.imgn.swing.ui.StandardCommands)" class="member-name-link">buttons(StandardCommands)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/DialogView.html" title="interface in be.imgn.swing.ui">DialogView</a></dt>
 <dd>
@@ -227,13 +348,60 @@ no arguments unless the builder says otherwise.</div>
 </dl>
 <h2 class="title" id="I:C">C</h2>
 <dl class="index">
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#call(java.util.function.Supplier)" class="member-name-link">call(Supplier)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
+<dd>
+<div class="block">Runs an action on the EDT and waits, then settles as every other call does, and returns the action's result.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html#cancel()" class="member-name-link">cancel()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></dt>
+<dd>
+<div class="block">Cancels every task the command started that hasn't ended, waiting ones included; does nothing when there is none.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html#cancel()" class="member-name-link">cancel()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a></dt>
 <dd>
-<div class="block">Returns the command that closes the dialog without a result.</div>
+<div class="block">Returns the command that closes the dialog without a result, always enabled, whatever the state of its form.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Command.html#cancels()" class="member-name-link">cancels()</a> - Element in annotation interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Command.html" title="annotation interface in be.imgn.swing.ui">Command</a></dt>
+<dd>
+<div class="block">Returns the id of the command this one stops: a command of the same class, declared or inherited, whose handler
+returns a <code>Task</code>.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandBuilder.html#cancels(java.lang.String)" class="member-name-link">cancels(String)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandBuilder.html" title="class in be.imgn.swing.ui">CommandBuilder</a></dt>
+<dd>
+<div class="block">Makes the command a stop command of another command of the same class, which is resolved when the command is
+attached: the command is enabled while that one is running, and its activation cancels that one's tasks, then
+calls its own handler.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/ExitVeto.html#canExit()" class="member-name-link">canExit()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ExitVeto.html" title="interface in be.imgn.swing">ExitVeto</a></dt>
 <dd>
 <div class="block">Returns whether the application may exit.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html#check(be.imgn.swing.Rule)" class="member-name-link">check(Rule)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html" title="class in be.imgn.swing.ui">Binding</a></dt>
+<dd>
+<div class="block">Adds a rule to this binding, whose check follows those of the rules added before.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html#check(be.imgn.swing.Validator)" class="member-name-link">check(Validator)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html" title="class in be.imgn.swing.ui">Binding</a></dt>
+<dd>
+<div class="block">Adds the rules of a validator to this binding, in their order, after the rules added before.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.html" class="type-name-link" title="class in be.imgn.swing">Check</a> - Record Class in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">The status of one requirement of a value.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.html#%3Cinit%3E(java.lang.String,be.imgn.swing.Check.Status)" class="member-name-link">Check(String, Check.Status)</a> - Constructor for record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.html" title="class in be.imgn.swing">Check</a></dt>
+<dd>
+<div class="block">Creates a check.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.Status.html" class="type-name-link" title="enum class in be.imgn.swing">Check.Status</a> - Enum Class in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">Whether a value meets a requirement.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validation.html#checks()" class="member-name-link">checks()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validation.html" title="class in be.imgn.swing">Validation</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/Validation.html#param-checks"><code>checks</code></a> record component.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#clear()" class="member-name-link">clear()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Removes all the elements.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Subscription.html#close()" class="member-name-link">close()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Subscription.html" title="interface in be.imgn.swing">Subscription</a></dt>
 <dd>
@@ -253,6 +421,10 @@ application, the same as <a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardComm
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#color(java.lang.String,java.lang.String)" class="member-name-link">color(String, String)</a> - Method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Returns a color property: <code>"#rrggbb"</code> or <code>"#rrggbbaa"</code>.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Column.html" class="type-name-link" title="class in be.imgn.swing.ui">Column&lt;E,<wbr>V&gt;</a> - Class in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
+<dd>
+<div class="block">A column of a table bound to an observable list with <a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List)"><code>Ui.bind(javax.swing.JTable, be.imgn.swing.ObservableList, java.util.List)</code></a>: its header, the type of its values and how a row gives its value.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Observable.html#combine(be.imgn.swing.Observable,be.imgn.swing.Observable,java.util.function.BiFunction)" class="member-name-link">combine(Observable, Observable, BiFunction)</a> - Static method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Observable.html" title="interface in be.imgn.swing">Observable</a></dt>
 <dd>
@@ -292,6 +464,12 @@ commands) and the id: asking twice for the same command returns the same <a href
 <dd>
 <div class="block">Returns a bean of the dialog view's scope, such as its generated commands or its <code>StandardCommands</code>.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/DialogView.html#commit()" class="member-name-link">commit()</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/DialogView.html" title="interface in be.imgn.swing.ui">DialogView</a></dt>
+<dd>
+<div class="block">Applies the values of the dialog's form, the <a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui"><code>Form</code></a> of its view: <code>ok()</code> calls it when the form is
+valid and dirty, before it closes the dialog, and <code>apply()</code> when the form is valid, before it makes the
+form clean.</div>
+</dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#component(java.lang.Class)" class="member-name-link">component(Class)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
 <dd>
 <div class="block">Returns the one component of a type in the main window.</div>
@@ -317,11 +495,12 @@ menu selection, the focus owner for a shortcut.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html" class="type-name-link" title="interface in be.imgn.swing.ui.spi">ComponentInjector&lt;V&gt;</a> - Interface in <a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/package-summary.html">be.imgn.swing.ui.spi</a></dt>
 <dd>
-<div class="block">Writes a view class's resources to the components its fields hold, with plain setter calls.</div>
+<div class="block">Writes a view class's resources to the components its fields hold, and to the component fields of those components
+that its nested tables name, read through the enclosing fields, with plain setter calls.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" class="type-name-link" title="class in be.imgn.swing.ui.spi">ComponentResources</a> - Class in <a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/package-summary.html">be.imgn.swing.ui.spi</a></dt>
 <dd>
-<div class="block">The resources of a view class, read by field and property, as the generated injectors write them.</div>
+<div class="block">The resources of a view class, read by field path and property, as the generated injectors write them.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#%3Cinit%3E(be.imgn.toml.TomlTable,java.util.function.Function,boolean)" class="member-name-link">ComponentResources(TomlTable, Function, boolean)</a> - Constructor for class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
@@ -344,6 +523,18 @@ menu selection, the focus owner for a shortcut.</div>
 <div class="block">Gives the components of a view whose state is saved with its window: its non-private <code>JSplitPane</code>,
 <code>JTabbedPane</code> and <code>JTable</code> fields.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Command.html#concurrency()" class="member-name-link">concurrency()</a> - Element in annotation interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Command.html" title="annotation interface in be.imgn.swing.ui">Command</a></dt>
+<dd>
+<div class="block">Returns what an activation does while a task the command started still runs.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandBuilder.html#concurrency(be.imgn.swing.ui.Concurrency)" class="member-name-link">concurrency(Concurrency)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandBuilder.html" title="class in be.imgn.swing.ui">CommandBuilder</a></dt>
+<dd>
+<div class="block">Sets what an activation of a <a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandBuilder.html#taskHandler(java.util.function.Function)"><code>CommandBuilder.taskHandler(Function)</code></a> does while a task the command started still runs.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Concurrency.html" class="type-name-link" title="enum class in be.imgn.swing.ui">Concurrency</a> - Enum Class in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
+<dd>
+<div class="block">What an activation of a command does while a task the command started still runs.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/SingleFrame.html#configureFrame(javax.swing.JFrame)" class="member-name-link">configureFrame(JFrame)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/SingleFrame.html" title="interface in be.imgn.swing.ui">SingleFrame</a></dt>
 <dd>
 <div class="block">Configures the main frame, before it is packed and its saved state is restored.</div>
@@ -358,6 +549,10 @@ menu selection, the focus owner for a shortcut.</div>
 <dd>
 <div class="block">Returns the messages of the confirmations asked, in order.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/AboutDialog.html#content()" class="member-name-link">content()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/AboutDialog.html" title="class in be.imgn.swing.ui">AboutDialog</a></dt>
+<dd>
+<div class="block">Returns the dialog's content: one line per value that is present, from top to bottom.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/View.html#content()" class="member-name-link">content()</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/View.html" title="interface in be.imgn.swing.ui">View</a></dt>
 <dd>
 <div class="block">Returns the component of this view.</div>
@@ -366,9 +561,21 @@ menu selection, the focus owner for a shortcut.</div>
 <dd>
 <div class="block">Control.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Converter.html" class="type-name-link" title="interface in be.imgn.swing.ui">Converter&lt;T&gt;</a> - Interface in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
+<dd>
+<div class="block">Converts the text of a field to a value and back, for <a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#bind(javax.swing.text.JTextComponent,be.imgn.swing.Property,be.imgn.swing.ui.Converter)"><code>Form.bind(javax.swing.text.JTextComponent, be.imgn.swing.Property, Converter)</code></a>.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html#copy()" class="member-name-link">copy()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a></dt>
 <dd>
 <div class="block">Returns the command that copies in the focused component; enabled only when it supports it.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#copyOf(java.util.Collection)" class="member-name-link">copyOf(Collection)</a> - Static method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Returns a new list of the elements of a collection, in its iteration order.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html#create()" class="member-name-link">create()</a> - Static method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html" title="class in be.imgn.swing.ui">FormPanel</a></dt>
+<dd>
+<div class="block">Returns a new, empty form panel.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html#createButton()" class="member-name-link">createButton()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></dt>
 <dd>
@@ -419,6 +626,10 @@ org.gnome.desktop.interface color-scheme</code>.</div>
 <dd>
 <div class="block">Creates the detection, running commands with a function, for tests.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/SettingsDescriptor.html#defaults()" class="member-name-link">defaults()</a> - Method in interface be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/SettingsDescriptor.html" title="interface in be.imgn.swing.spi">SettingsDescriptor</a></dt>
+<dd>
+<div class="block">Returns the defaults: the record built with its constructor with no parameter.</div>
+</dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#dialogs()" class="member-name-link">dialogs()</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
 <dd>
 <div class="block">Returns the dialogs, which record what was shown and answer it.</div>
@@ -440,6 +651,11 @@ scope.</div>
 <dd>
 <div class="block">Returns the application's directories: the <code>ApplicationDirectories</code> bean, which this method is a shortcut
 to.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#dirty()" class="member-name-link">dirty()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui">Form</a></dt>
+<dd>
+<div class="block">Returns whether the value of a binding's property, or of a tracked observable, differs from its baseline: its
+value when it was bound or tracked, or when <a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#markClean()"><code>Form.markClean()</code></a> was last called.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#displayedName()" class="member-name-link">displayedName()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
 <dd>
@@ -480,6 +696,26 @@ to.</div>
 <dd>
 <div class="block">Returns the Edit menu.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Column.html#editable(java.util.function.BiFunction)" class="member-name-link">editable(BiFunction)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Column.html" title="class in be.imgn.swing.ui">Column</a></dt>
+<dd>
+<div class="block">Returns a new column whose cells can be edited, with the table's default editors.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/EdtExecutor.html" class="type-name-link" title="class in be.imgn.swing.ui">EdtExecutor</a> - Class in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
+<dd>
+<div class="block">The executor of <a href="be.imgn.swing.ui/be/imgn/swing/ui/OnEdt.html" title="annotation interface in be.imgn.swing.ui"><code>OnEdt</code></a>: runs each task with <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/EventQueue.html#invokeLater(java.lang.Runnable)" title="class or interface in java.awt" class="external-link"><code>EventQueue.invokeLater(Runnable)</code></a>.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/EdtExecutor.html#%3Cinit%3E()" class="member-name-link">EdtExecutor()</a> - Constructor for class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/EdtExecutor.html" title="class in be.imgn.swing.ui">EdtExecutor</a></dt>
+<dd>
+<div class="block">Creates the executor; the code gaia-processor generates for <a href="be.imgn.swing.ui/be/imgn/swing/ui/OnEdt.html" title="annotation interface in be.imgn.swing.ui"><code>OnEdt</code></a> methods does.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html#elements()" class="member-name-link">elements()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html" title="class in be.imgn.swing">ListChange.Added</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/ListChange.Added.html#param-elements"><code>elements</code></a> record component.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html#elements()" class="member-name-link">elements()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html" title="class in be.imgn.swing">ListChange.Removed</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/ListChange.Removed.html#param-elements"><code>elements</code></a> record component.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Command.html#enabled()" class="member-name-link">enabled()</a> - Element in annotation interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Command.html" title="annotation interface in be.imgn.swing.ui">Command</a></dt>
 <dd>
 <div class="block">Returns the name of an <a href="be.imgn.swing.ui/be/imgn/swing/ui/Exposed.html" title="annotation interface in be.imgn.swing.ui"><code>Exposed</code></a> field or a non-private no-argument method of the class whose type is
@@ -497,7 +733,23 @@ to.</div>
 <dd>
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.html" title="class in be.imgn.swing">Check</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/DisplayLocale.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/DisplayLocale.html" title="class in be.imgn.swing">DisplayLocale</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html" title="class in be.imgn.swing">ListChange.Added</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html" title="class in be.imgn.swing">ListChange.Removed</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html" title="class in be.imgn.swing">ListChange.Replaced</a></dt>
 <dd>
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
 </dd>
@@ -533,6 +785,18 @@ to.</div>
 <dd>
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validation.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validation.html" title="class in be.imgn.swing">Validation</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validator.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validator.html" title="class in be.imgn.swing">Validator</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validation.html#error()" class="member-name-link">error()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validation.html" title="class in be.imgn.swing">Validation</a></dt>
+<dd>
+<div class="block">Returns the requirement of the first check that isn't <a href="be.imgn.swing/be/imgn/swing/Check.Status.html#MET"><code>Check.Status.MET</code></a>.</div>
+</dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/FakeDialogs.html#error(java.lang.String,java.lang.Throwable)" class="member-name-link">error(String, Throwable)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/FakeDialogs.html" title="class in be.imgn.swing.testing">FakeDialogs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html#error(java.lang.String,java.lang.Throwable)" class="member-name-link">error(String, Throwable)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html" title="interface in be.imgn.swing.ui">Dialogs</a></dt>
@@ -543,6 +807,16 @@ to.</div>
 <dd>
 <div class="block">Returns the messages of the errors shown, in order.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/EventExecutor.html" class="type-name-link" title="interface in be.imgn.swing">EventExecutor</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">The executor of a subscribing annotation on the application's event bus, contributed with
+<code>@IntoSet(EventExecutor.class)</code>.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#every(java.time.Duration,java.lang.Runnable)" class="member-name-link">every(Duration, Runnable)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html" title="class in be.imgn.swing.ui">Ui</a></dt>
+<dd>
+<div class="block">Runs an action on the EDT every period, the first time one period after the call, until the returned subscription
+or this view's scope is closed.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html#execute()" class="member-name-link">execute()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></dt>
 <dd>
 <div class="block">Runs the command as if activated, with a <a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Programmatic.html" title="class in be.imgn.swing.ui"><code>Trigger.Programmatic</code></a> trigger and no modifier, if it is enabled.</div>
@@ -552,9 +826,17 @@ to.</div>
 <div class="block">Runs the command as if activated, if it is enabled: whether it is enabled is the <code>enabled</code> observable's
 current value, not the state of the <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/Action.html" title="class or interface in javax.swing" class="external-link"><code>Action</code></a>, which follows it one posted update later.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/EdtExecutor.html#execute(java.lang.Runnable)" class="member-name-link">execute(Runnable)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/EdtExecutor.html" title="class in be.imgn.swing.ui">EdtExecutor</a></dt>
+<dd>
+<div class="block">Runs a task on the EDT, after the events already queued.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/UiExecutor.html#execute(java.lang.Runnable)" class="member-name-link">execute(Runnable)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/UiExecutor.html" title="interface in be.imgn.swing">UiExecutor</a></dt>
 <dd>
 <div class="block">Runs a task on the user-interface thread.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/EventExecutor.html#executor()" class="member-name-link">executor()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/EventExecutor.html" title="interface in be.imgn.swing">EventExecutor</a></dt>
+<dd>
+<div class="block">Returns the executor that runs the deliveries to the methods with the annotation.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html#exit()" class="member-name-link">exit()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a></dt>
 <dd>
@@ -600,6 +882,16 @@ window state, or a field that <a href="be.imgn.swing.ui/be/imgn/swing/ui/Command
 <dd>
 <div class="block">Returns the File menu.</div>
 </dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.Builder.html#file(java.util.function.Function,java.lang.String)" class="member-name-link">file(Function, String)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.Builder.html" title="class in be.imgn.swing.testing">AppTester.Builder</a></dt>
+<dd>
+<div class="block">Writes a file before startup, at a path in the application's fake directories, creating its directories, so
+that the application starts on a settings file, a data file or a window state of the test's choice.</div>
+</dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.Builder.html#fileSystem(java.nio.file.FileSystem)" class="member-name-link">fileSystem(FileSystem)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.Builder.html" title="class in be.imgn.swing.testing">AppTester.Builder</a></dt>
+<dd>
+<div class="block">Uses a memory file system rather than a new one, and doesn't close it, so that a test starts the application
+a second time on what the first run saved.</div>
+</dd>
 <dt><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/FlatLafInstaller.html" class="type-name-link" title="class in be.imgn.swing.flatlaf">FlatLafInstaller</a> - Class in <a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/package-summary.html">be.imgn.swing.flatlaf</a></dt>
 <dd>
 <div class="block">Installs FlatLaf, light or dark: the <code>be.imgn.swing.theme</code> system property, else the <code>theme</code> key of the
@@ -609,6 +901,18 @@ application's resources, selects <code>system</code> (the default), <code>light<
 <dd>
 <div class="block">Creates the installer.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html#focus(java.awt.Component)" class="member-name-link">focus(Component)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html" title="interface in be.imgn.swing.ui">Window</a></dt>
+<dd>
+<div class="block">Moves the focus to a component of the window, with <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Component.html#requestFocusInWindow()" title="class or interface in java.awt" class="external-link"><code>Component.requestFocusInWindow()</code></a>.</div>
+</dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#focused()" class="member-name-link">focused()</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
+<dd>
+<div class="block">Returns the last component focused through the main window's <code>Window.focus</code>.</div>
+</dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenDialog.html#focused()" class="member-name-link">focused()</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenDialog.html" title="class in be.imgn.swing.testing">OpenDialog</a></dt>
+<dd>
+<div class="block">Returns the last component focused through the dialog's <code>Window.focus</code>.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Shortcut.html#focusOwner()" class="member-name-link">focusOwner()</a> - Method in record class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Shortcut.html" title="class in be.imgn.swing.ui">Trigger.Shortcut</a></dt>
 <dd>
 <div class="block">Returns the value of the <a href="./be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Shortcut.html#param-focusOwner"><code>focusOwner</code></a> record component.</div>
@@ -617,9 +921,22 @@ application's resources, selects <code>system</code> (the default), <code>light<
 <dd>
 <div class="block">Returns a font property, in <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Font.html#decode(java.lang.String)" title="class or interface in java.awt" class="external-link"><code>Font.decode(String)</code></a>'s syntax.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" class="type-name-link" title="class in be.imgn.swing.ui">Form</a> - Class in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
+<dd>
+<div class="block">Binds the input components of a view to properties, validates their values, and tracks whether they changed.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html#format(java.lang.Object...)" class="member-name-link">format(Object...)</a> - Method in class be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html" title="class in be.imgn.swing.spi">MessagePattern</a></dt>
 <dd>
 <div class="block">Formats the message.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Converter.html#format(T)" class="member-name-link">format(T)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Converter.html" title="interface in be.imgn.swing.ui">Converter</a></dt>
+<dd>
+<div class="block">Converts a value to a text, which <a href="be.imgn.swing.ui/be/imgn/swing/ui/Converter.html#parse(java.lang.String)"><code>Converter.parse(String)</code></a> converts back to an equal value.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html" class="type-name-link" title="class in be.imgn.swing.ui">FormPanel</a> - Class in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
+<dd>
+<div class="block">Lays out a form in two columns, with <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/GridBagLayout.html" title="class or interface in java.awt" class="external-link"><code>GridBagLayout</code></a>, in the order its methods are called: rows of a label and
+its field, wide components across both columns, and section titles.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:G">G</h2>
@@ -627,6 +944,14 @@ application's resources, selects <code>system</code> (the default), <code>light<
 <dt><a href="be.imgn.swing/be/imgn/swing/Observable.html#get()" class="member-name-link">get()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Observable.html" title="interface in be.imgn.swing">Observable</a></dt>
 <dd>
 <div class="block">Returns the current value.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#get(int)" class="member-name-link">get(int)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Returns the element at an index.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/SettingsStore.html#get(java.lang.Class)" class="member-name-link">get(Class)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/SettingsStore.html" title="interface in be.imgn.swing">SettingsStore</a></dt>
+<dd>
+<div class="block">Returns the property of a settings record: the same property on every call for a type.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:H">H</h2>
@@ -639,7 +964,23 @@ application's resources, selects <code>system</code> (the default), <code>light<
 <dd>
 <div class="block">Returns a hash code value for this object.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.html" title="class in be.imgn.swing">Check</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/DisplayLocale.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/DisplayLocale.html" title="class in be.imgn.swing">DisplayLocale</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html" title="class in be.imgn.swing">ListChange.Added</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html" title="class in be.imgn.swing">ListChange.Removed</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html" title="class in be.imgn.swing">ListChange.Replaced</a></dt>
 <dd>
 <div class="block">Returns a hash code value for this object.</div>
 </dd>
@@ -675,9 +1016,21 @@ application's resources, selects <code>system</code> (the default), <code>light<
 <dd>
 <div class="block">Returns a hash code value for this object.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validation.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validation.html" title="class in be.imgn.swing">Validation</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validator.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validator.html" title="class in be.imgn.swing">Validator</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardMenus.html#help()" class="member-name-link">help()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardMenus.html" title="class in be.imgn.swing.ui">StandardMenus</a></dt>
 <dd>
 <div class="block">Returns the Help menu.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/ValidationFeedback.html#hide(javax.swing.JComponent)" class="member-name-link">hide(JComponent)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/ValidationFeedback.html" title="interface in be.imgn.swing.ui">ValidationFeedback</a></dt>
+<dd>
+<div class="block">Hides the error a component shows, restoring what showing it changed.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:I">I</h2>
@@ -687,6 +1040,10 @@ application's resources, selects <code>system</code> (the default), <code>light<
 <div class="block">Returns an icon property: a path relative to the package of the class whose file names it, resolved against the
 class's package first, then its superclasses'.</div>
 </dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#iconImage()" class="member-name-link">iconImage()</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
+<dd>
+<div class="block">Returns the icon image set on the main window.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/IconLoader.html" class="type-name-link" title="interface in be.imgn.swing.ui">IconLoader</a> - Interface in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
 <dd>
 <div class="block">Loads icons of one kind, contributed with <code>@IntoSet(IconLoader.class)</code>.</div>
@@ -694,6 +1051,10 @@ class's package first, then its superclasses'.</div>
 <dt><a href="be.imgn.swing/be/imgn/swing/ResourceOpener.html#icons()" class="member-name-link">icons()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ResourceOpener.html" title="interface in be.imgn.swing">ResourceOpener</a></dt>
 <dd>
 <div class="block">Returns the icon paths that the package's resources name, relative to the package.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/SettingsDescriptor.html#id()" class="member-name-link">id()</a> - Method in interface be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/SettingsDescriptor.html" title="interface in be.imgn.swing.spi">SettingsDescriptor</a></dt>
+<dd>
+<div class="block">Returns <a href="be.imgn.swing/be/imgn/swing/Settings.html#value()"><code>Settings.value()</code></a>, the name of the record's file.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html#id()" class="member-name-link">id()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></dt>
 <dd>
@@ -710,6 +1071,18 @@ class's package first, then its superclasses'.</div>
 <dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#identifier()" class="member-name-link">identifier()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
 <dd>
 <div class="block">Returns <code>qualifier.vendor.name</code>, with the parts that are present.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html#index()" class="member-name-link">index()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html" title="class in be.imgn.swing">ListChange.Added</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/ListChange.Added.html#param-index"><code>index</code></a> record component.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html#index()" class="member-name-link">index()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html" title="class in be.imgn.swing">ListChange.Removed</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/ListChange.Removed.html#param-index"><code>index</code></a> record component.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html#index()" class="member-name-link">index()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html" title="class in be.imgn.swing">ListChange.Replaced</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/ListChange.Replaced.html#param-index"><code>index</code></a> record component.</div>
 </dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#info()" class="member-name-link">info()</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
 <dd>
@@ -762,6 +1135,10 @@ class's package first, then its superclasses'.</div>
 <dt><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/DarkMode.html#isDark(be.imgn.gaia.core.platform.Platform)" class="member-name-link">isDark(Platform)</a> - Method in class be.imgn.swing.flatlaf.<a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/DarkMode.html" title="class in be.imgn.swing.flatlaf">DarkMode</a></dt>
 <dd>
 <div class="block">Returns whether the operating system uses a dark theme.</div>
+</dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenDialog.html#isOpen()" class="member-name-link">isOpen()</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenDialog.html" title="class in be.imgn.swing.testing">OpenDialog</a></dt>
+<dd>
+<div class="block">Returns whether the dialog is open: <code>false</code> once <code>ok()</code> or <code>cancel()</code> closed it.</div>
 </dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#isRunning()" class="member-name-link">isRunning()</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
 <dd>
@@ -819,6 +1196,22 @@ class's package first, then its superclasses'.</div>
 <dd>
 <div class="block">Light.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.html" class="type-name-link" title="interface in be.imgn.swing">ListChange&lt;E&gt;</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">A change of an <a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing"><code>ObservableList</code></a>, with indices valid for the list just before it.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html" class="type-name-link" title="class in be.imgn.swing">ListChange.Added&lt;E&gt;</a> - Record Class in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">Elements added at an index.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html" class="type-name-link" title="class in be.imgn.swing">ListChange.Removed&lt;E&gt;</a> - Record Class in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">Elements removed from an index.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html" class="type-name-link" title="class in be.imgn.swing">ListChange.Replaced&lt;E&gt;</a> - Record Class in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">Elements replaced from an index by others, not necessarily as many.</div>
+</dd>
 <dt><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/SvgIconLoader.html#load(be.imgn.swing.ResourceOpener,java.lang.String)" class="member-name-link">load(ResourceOpener, String)</a> - Method in class be.imgn.swing.flatlaf.<a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/SvgIconLoader.html" title="class in be.imgn.swing.flatlaf">SvgIconLoader</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/IconLoader.html#load(be.imgn.swing.ResourceOpener,java.lang.String)" class="member-name-link">load(ResourceOpener, String)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/IconLoader.html" title="interface in be.imgn.swing.ui">IconLoader</a></dt>
@@ -843,6 +1236,10 @@ class's package first, then its superclasses'.</div>
 <dt><a href="be.imgn.swing/be/imgn/swing/Observable.html#map(java.util.function.Function)" class="member-name-link">map(Function)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Observable.html" title="interface in be.imgn.swing">Observable</a></dt>
 <dd>
 <div class="block">Returns an observable of this one's value mapped by a function.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#markClean()" class="member-name-link">markClean()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui">Form</a></dt>
+<dd>
+<div class="block">Makes the current value of every binding's property and of every tracked observable its new baseline.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardMenus.html#menu(java.lang.Class,java.lang.String)" class="member-name-link">menu(Class, String)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardMenus.html" title="class in be.imgn.swing.ui">StandardMenus</a></dt>
 <dd>
@@ -889,6 +1286,10 @@ class's package first, then its superclasses'.</div>
 <dd>
 <div class="block">Declares an interface of typed messages.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.Status.html#MET" class="member-name-link">MET</a> - Enum constant in enum class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.Status.html" title="enum class in be.imgn.swing">Check.Status</a></dt>
+<dd>
+<div class="block">The value meets the requirement.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Modifier.html#META" class="member-name-link">META</a> - Enum constant in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Modifier.html" title="enum class in be.imgn.swing.ui">Modifier</a></dt>
 <dd>
 <div class="block">Meta, or Command on macOS.</div>
@@ -925,6 +1326,10 @@ the class's resources give a <code>name</code> key.</div>
 <dd>
 <div class="block">Nothing is blocked.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/SettingsDescriptor.html#nullable()" class="member-name-link">nullable()</a> - Method in interface be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/SettingsDescriptor.html" title="interface in be.imgn.swing.spi">SettingsDescriptor</a></dt>
+<dd>
+<div class="block">Returns the TOML keys of the record's <code>@Nullable</code> components.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/DynamicEntry.html#numbered(java.util.List)" class="member-name-link">numbered(List)</a> - Static method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/DynamicEntry.html" title="interface in be.imgn.swing.ui">DynamicEntry</a></dt>
 <dd>
 <div class="block">Returns the items with <code>&amp;1</code> to <code>&amp;9</code> prefixed to the texts of the first nine.</div>
@@ -940,6 +1345,18 @@ the class's resources give a <code>name</code> key.</div>
 <dd>
 <div class="block">A value that tells its listeners when it changes.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html" class="type-name-link" title="interface in be.imgn.swing">ObservableList&lt;E&gt;</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">A list that tells its listeners each change, so that a component showing it updates one row rather than all of them.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Task.html#of(be.imgn.swing.PublishingWork,java.util.function.Consumer)" class="member-name-link">of(PublishingWork, Consumer)</a> - Static method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing">Task</a></dt>
+<dd>
+<div class="block">Returns a task of work that publishes partial results while it runs.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validator.html#of(be.imgn.swing.Rule...)" class="member-name-link">of(Rule...)</a> - Static method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validator.html" title="class in be.imgn.swing">Validator</a></dt>
+<dd>
+<div class="block">Returns a validator of rules.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Task.html#of(be.imgn.swing.TaskWork)" class="member-name-link">of(TaskWork)</a> - Static method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing">Task</a></dt>
 <dd>
 <div class="block">Returns a task of work that reports its progress or checks whether it is cancelled.</div>
@@ -952,6 +1369,10 @@ the class's resources give a <code>name</code> key.</div>
 <dd>
 <div class="block">Reads the pattern of a message and rewrites its placeholders from names to indices, once.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#of(E...)" class="member-name-link">of(E...)</a> - Static method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Returns a new list of elements.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Task.html#of(java.lang.Runnable)" class="member-name-link">of(Runnable)</a> - Static method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing">Task</a></dt>
 <dd>
 <div class="block">Returns a task of work with no result.</div>
@@ -960,9 +1381,21 @@ the class's resources give a <code>name</code> key.</div>
 <dd>
 <div class="block">Returns the theme of a name.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Column.html#of(java.lang.String,java.lang.Class,java.util.function.Function)" class="member-name-link">of(String, Class, Function)</a> - Static method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Column.html" title="class in be.imgn.swing.ui">Column</a></dt>
+<dd>
+<div class="block">Returns a column whose cells can't be edited.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Rule.html#of(java.lang.String,java.util.function.Predicate)" class="member-name-link">of(String, Predicate)</a> - Static method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Rule.html" title="interface in be.imgn.swing">Rule</a></dt>
+<dd>
+<div class="block">Returns a rule of a requirement and its test.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Task.html#of(java.util.concurrent.Callable)" class="member-name-link">of(Callable)</a> - Static method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing">Task</a></dt>
 <dd>
 <div class="block">Returns a task of work that returns a result.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Converter.html#of(java.util.function.Function,java.util.function.Function,java.lang.String)" class="member-name-link">of(Function, Function, String)</a> - Static method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Converter.html" title="interface in be.imgn.swing.ui">Converter</a></dt>
+<dd>
+<div class="block">Returns a converter of two functions.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Property.html#of(T)" class="member-name-link">of(T)</a> - Static method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Property.html" title="interface in be.imgn.swing">Property</a></dt>
 <dd>
@@ -970,15 +1403,27 @@ the class's resources give a <code>name</code> key.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html#ok()" class="member-name-link">ok()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a></dt>
 <dd>
-<div class="block">Returns the command that closes the dialog with a result.</div>
+<div class="block">Returns the command that closes the dialog with a result, always enabled: if the dialog's form doesn't validate,
+the dialog stays open, showing the errors; otherwise, if the form is dirty, it calls <a href="be.imgn.swing.ui/be/imgn/swing/ui/DialogView.html#commit()"><code>DialogView.commit()</code></a>,
+then closes the dialog with <a href="be.imgn.swing.ui/be/imgn/swing/ui/DialogView.html#result()"><code>DialogView.result()</code></a>.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Task.html#onCancel(java.lang.Runnable)" class="member-name-link">onCancel(Runnable)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing">Task</a></dt>
 <dd>
-<div class="block">Adds a hook called when the work ends after cancellation.</div>
+<div class="block">Adds a hook called when the task is cancelled before its hooks run, even when its work had already returned or
+thrown: the <a href="be.imgn.swing/be/imgn/swing/Task.html#onSuccess(java.util.function.Consumer)"><code>Task.onSuccess(Consumer)</code></a> and <a href="be.imgn.swing/be/imgn/swing/Task.html#onFailure(java.util.function.Consumer)"><code>Task.onFailure(Consumer)</code></a> hooks then never run.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Scope.html#onClose(java.lang.AutoCloseable)" class="member-name-link">onClose(AutoCloseable)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Scope.html" title="interface in be.imgn.swing">Scope</a></dt>
 <dd>
 <div class="block">Registers a resource to close when this scope closes.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/OnEdt.html" class="type-name-link" title="annotation interface in be.imgn.swing.ui">OnEdt</a> - Annotation Interface in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
+<dd>
+<div class="block">Subscribes a method to the events of its parameter's type, delivered on the EDT, in the order they were published.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Task.html#onEnd(java.lang.Runnable)" class="member-name-link">onEnd(Runnable)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing">Task</a></dt>
+<dd>
+<div class="block">Adds a hook called through the <a href="be.imgn.swing/be/imgn/swing/UiExecutor.html" title="interface in be.imgn.swing"><code>UiExecutor</code></a> after the <a href="be.imgn.swing/be/imgn/swing/Task.html#onSuccess(java.util.function.Consumer)"><code>Task.onSuccess(Consumer)</code></a>,
+<a href="be.imgn.swing/be/imgn/swing/Task.html#onFailure(java.util.function.Consumer)"><code>Task.onFailure(Consumer)</code></a> or <a href="be.imgn.swing/be/imgn/swing/Task.html#onCancel(java.lang.Runnable)"><code>Task.onCancel(Runnable)</code></a> hooks, however the task ended.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Task.html#onFailure(java.util.function.Consumer)" class="member-name-link">onFailure(Consumer)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing">Task</a></dt>
 <dd>
@@ -1008,6 +1453,11 @@ the class's resources give a <code>name</code> key.</div>
 <dd>
 <div class="block">Creates an instance of a <code>OperatingSystem</code> record class.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Converter.html#optional(be.imgn.swing.ui.Converter)" class="member-name-link">optional(Converter)</a> - Static method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Converter.html" title="interface in be.imgn.swing.ui">Converter</a></dt>
+<dd>
+<div class="block">Returns a converter of optional values: it converts an empty or blank text to <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html#empty()" title="class or interface in java.util" class="external-link"><code>Optional.empty()</code></a>, and any
+other text with <code>converter</code>; it formats <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html#empty()" title="class or interface in java.util" class="external-link"><code>Optional.empty()</code></a> as an empty text.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/ShutdownStep.html#order()" class="member-name-link">order()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ShutdownStep.html" title="interface in be.imgn.swing">ShutdownStep</a></dt>
 <dd>
 <div class="block">Returns the rank of this step; lower runs first.</div>
@@ -1028,9 +1478,17 @@ it, before the view is resolved, for each override of the view class and its sup
 <dd>
 <div class="block">Returns the package whose resources this opener reads.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Concurrency.html#PARALLEL" class="member-name-link">PARALLEL</a> - Enum constant in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Concurrency.html" title="enum class in be.imgn.swing.ui">Concurrency</a></dt>
+<dd>
+<div class="block">The new activation starts its task at once.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Scope.html#parent()" class="member-name-link">parent()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Scope.html" title="interface in be.imgn.swing">Scope</a></dt>
 <dd>
 <div class="block">Returns the scope this one is nested in, if any.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Converter.html#parse(java.lang.String)" class="member-name-link">parse(String)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Converter.html" title="interface in be.imgn.swing.ui">Converter</a></dt>
+<dd>
+<div class="block">Converts a text to a value.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#parseColor(java.lang.String)" class="member-name-link">parseColor(String)</a> - Static method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
@@ -1055,8 +1513,8 @@ invoker's popup trigger.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html#preferences()" class="member-name-link">preferences()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a></dt>
 <dd>
-<div class="block">Returns the command that calls <a href="be.imgn.swing.ui/be/imgn/swing/ui/PreferencesHandler.html#showPreferences()"><code>PreferencesHandler.showPreferences()</code></a>; disabled unless a
-<a href="be.imgn.swing.ui/be/imgn/swing/ui/PreferencesHandler.html" title="interface in be.imgn.swing.ui"><code>PreferencesHandler</code></a> bean exists.</div>
+<div class="block">Returns the command that calls <a href="be.imgn.swing.ui/be/imgn/swing/ui/PreferencesHandler.html#showPreferences(be.imgn.swing.ui.Ui)"><code>PreferencesHandler.showPreferences(Ui)</code></a> with the <a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html" title="class in be.imgn.swing.ui"><code>Ui</code></a> of this view;
+disabled unless a <a href="be.imgn.swing.ui/be/imgn/swing/ui/PreferencesHandler.html" title="interface in be.imgn.swing.ui"><code>PreferencesHandler</code></a> bean exists.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/SystemAction.html#PREFERENCES" class="member-name-link">PREFERENCES</a> - Enum constant in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/SystemAction.html" title="enum class in be.imgn.swing.ui">SystemAction</a></dt>
 <dd>
@@ -1081,6 +1539,20 @@ invoker's popup trigger.</div>
 <dt><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/Theme.html#PROPERTY" class="member-name-link">PROPERTY</a> - Static variable in enum class be.imgn.swing.flatlaf.<a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/Theme.html" title="enum class in be.imgn.swing.flatlaf">Theme</a></dt>
 <dd>
 <div class="block">The system property that selects the theme, and wins over the application's resources.</div>
+</dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#publish(java.lang.Object)" class="member-name-link">publish(Object)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
+<dd>
+<div class="block">Publishes an event on the application's bus, on the EDT, then settles: its <code>@Subscribe</code>, <code>@OnEdt</code> and
+<code>@OnVirtualThread</code> methods have run when it returns.</div>
+</dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#published(java.lang.Class)" class="member-name-link">published(Class)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
+<dd>
+<div class="block">Returns the events published on the application's bus since startup that are instances of a type, in the order
+they were delivered, whoever published them.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/PublishingWork.html" class="type-name-link" title="interface in be.imgn.swing">PublishingWork&lt;T,<wbr>P&gt;</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">The work of a <a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing"><code>Task</code></a> that publishes partial results while it runs: <a href="be.imgn.swing/be/imgn/swing/Task.html#of(be.imgn.swing.PublishingWork,java.util.function.Consumer)"><code>Task.of(PublishingWork, Consumer)</code></a>.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:Q">Q</h2>
@@ -1122,6 +1594,26 @@ have run.</div>
 <div class="block">Registers the standard commands that the view class, or one of its superclasses, overrides, before the view is
 resolved, so that every <code>StandardCommands</code> of the view returns the user-written command.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#remove(int)" class="member-name-link">remove(int)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Removes the element at an index.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#remove(E)" class="member-name-link">remove(E)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Removes the first element equal to the one given, if any.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html#removed()" class="member-name-link">removed()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html" title="class in be.imgn.swing">ListChange.Replaced</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/ListChange.Replaced.html#param-removed"><code>removed</code></a> record component.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html#%3Cinit%3E(int,java.util.List)" class="member-name-link">Removed(int, List)</a> - Constructor for record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html" title="class in be.imgn.swing">ListChange.Removed</a></dt>
+<dd>
+<div class="block">Creates the change.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html#%3Cinit%3E(int,java.util.List,java.util.List)" class="member-name-link">Replaced(int, List, List)</a> - Constructor for record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html" title="class in be.imgn.swing">ListChange.Replaced</a></dt>
+<dd>
+<div class="block">Creates the change.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Lifecycle.html#requestExit()" class="member-name-link">requestExit()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Lifecycle.html" title="interface in be.imgn.swing">Lifecycle</a></dt>
 <dd>
 <div class="block">Requests the shutdown of the application, with the exit status 0.</div>
@@ -1129,6 +1621,23 @@ resolved, so that every <code>StandardCommands</code> of the view returns the us
 <dt><a href="be.imgn.swing/be/imgn/swing/Lifecycle.html#requestExit(int)" class="member-name-link">requestExit(int)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Lifecycle.html" title="interface in be.imgn.swing">Lifecycle</a></dt>
 <dd>
 <div class="block">Requests the shutdown of the application.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Rule.html#required(java.lang.String)" class="member-name-link">required(String)</a> - Static method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Rule.html" title="interface in be.imgn.swing">Rule</a></dt>
+<dd>
+<div class="block">Returns a rule met by a text that isn't blank.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.html#requirement()" class="member-name-link">requirement()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.html" title="class in be.imgn.swing">Check</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/Check.html#param-requirement"><code>requirement</code></a> record component.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Rule.html#requirement()" class="member-name-link">requirement()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Rule.html" title="interface in be.imgn.swing">Rule</a></dt>
+<dd>
+<div class="block">Returns the requirement, a message from typed messages, such as "At least 8 characters".</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Converter.html#requirement()" class="member-name-link">requirement()</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Converter.html" title="interface in be.imgn.swing.ui">Converter</a></dt>
+<dd>
+<div class="block">Returns the requirement of the text, a message from typed messages that names the format the text must have, such
+as "A whole number".</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/ResourceOpener.html" class="type-name-link" title="interface in be.imgn.swing">ResourceOpener</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
 <dd>
@@ -1139,13 +1648,29 @@ resolved, so that every <code>StandardCommands</code> of the view returns the us
 <div class="block">The resources of classes: their TOML files, merged along the class hierarchy and across the locale and platform
 variants, and cached per class and locale.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Concurrency.html#RESTART" class="member-name-link">RESTART</a> - Enum constant in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Concurrency.html" title="enum class in be.imgn.swing.ui">Concurrency</a></dt>
+<dd>
+<div class="block">The new activation cancels the command's tasks that haven't ended, then starts its own once their
+<code>onCancel</code> and <code>onEnd</code> hooks have run.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/SingleFrame.html#restoreBounds()" class="member-name-link">restoreBounds()</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/SingleFrame.html" title="interface in be.imgn.swing.ui">SingleFrame</a></dt>
 <dd>
 <div class="block">Returns whether the saved bounds of the main frame are restored.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/AboutDialog.html#result()" class="member-name-link">result()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/AboutDialog.html" title="class in be.imgn.swing.ui">AboutDialog</a></dt>
+<dd>
+<div class="block">Returns no result: the dialog only informs.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/DialogView.html#result()" class="member-name-link">result()</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/DialogView.html" title="interface in be.imgn.swing.ui">DialogView</a></dt>
 <dd>
 <div class="block">Returns the result, read after <code>ok()</code>.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html#revalidateOn(be.imgn.swing.Observable)" class="member-name-link">revalidateOn(Observable)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html" title="class in be.imgn.swing.ui">Binding</a></dt>
+<dd>
+<div class="block">Validates this binding again at each change of another observable, on the EDT, such as the property of another
+field that a rule compares the value with: before the change returns for a change made on the EDT, such as the
+user's change of that field, once the list has released its lock for one delivered by an observable list, and in
+a posted update for one made on another thread.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html#rewrite(java.lang.String,java.util.List)" class="member-name-link">rewrite(String, List)</a> - Static method in class be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html" title="class in be.imgn.swing.spi">MessagePattern</a></dt>
 <dd>
@@ -1155,6 +1680,19 @@ quoting rules: a single <code>'</code> starts or ends a quoted section, and <cod
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html#rootPane()" class="member-name-link">rootPane()</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html" title="interface in be.imgn.swing.ui">Window</a></dt>
 <dd>
 <div class="block">Returns the root pane of the window.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html#row(javax.swing.JLabel,javax.swing.JComponent)" class="member-name-link">row(JLabel, JComponent)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html" title="class in be.imgn.swing.ui">FormPanel</a></dt>
+<dd>
+<div class="block">Adds a label and its field: the label at the line end of the first column, the field filling the width of the
+second.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Rule.html" class="type-name-link" title="interface in be.imgn.swing">Rule&lt;T&gt;</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">A requirement of a value, and the test of whether a value meets it.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validator.html#rules()" class="member-name-link">rules()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validator.html" title="class in be.imgn.swing">Validator</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/Validator.html#param-rules"><code>rules</code></a> record component.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/ShutdownStep.html#run()" class="member-name-link">run()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ShutdownStep.html" title="interface in be.imgn.swing">ShutdownStep</a></dt>
 <dd>
@@ -1176,12 +1714,30 @@ quoting rules: a single <code>'</code> starts or ends a quoted section, and <cod
 <dd>
 <div class="block">Runs the work, on the task's virtual thread.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/PublishingWork.html#run(be.imgn.swing.TaskContext,java.util.function.Consumer)" class="member-name-link">run(TaskContext, Consumer)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/PublishingWork.html" title="interface in be.imgn.swing">PublishingWork</a></dt>
+<dd>
+<div class="block">Runs the work, on the task's virtual thread.</div>
+</dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#run(java.lang.Runnable)" class="member-name-link">run(Runnable)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
+<dd>
+<div class="block">Runs an action on the EDT and waits, then settles as every other call does.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html#running()" class="member-name-link">running()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></dt>
+<dd>
+<div class="block">Returns whether the command is running: <code>true</code> from the moment it starts a task until every task it started
+has ended, waiting ones included; <code>false</code> otherwise.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:S">S</h2>
 <dl class="index">
 <dt><a href="be.imgn.swing/be/imgn/swing/Scope.html" class="type-name-link" title="interface in be.imgn.swing">Scope</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
 <dd>
 <div class="block">The disposal list of an application, window or view scope, for what is not a bean.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html#section(javax.swing.JLabel)" class="member-name-link">section(JLabel)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html" title="class in be.imgn.swing.ui">FormPanel</a></dt>
+<dd>
+<div class="block">Adds a title across both columns: the label, followed by a <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JSeparator.html" title="class or interface in javax.swing" class="external-link"><code>JSeparator</code></a> that fills the rest of the row, 4
+pixels after it, on the label's trailing side whatever the component orientation.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html#selectAll()" class="member-name-link">selectAll()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a></dt>
 <dd>
@@ -1214,6 +1770,14 @@ handler.</div>
 <dd>
 <div class="block">The separator.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Concurrency.html#SERIAL" class="member-name-link">SERIAL</a> - Enum constant in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Concurrency.html" title="enum class in be.imgn.swing.ui">Concurrency</a></dt>
+<dd>
+<div class="block">The new activation starts its task once every task the command started before it has ended, in activation order.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#set(int,E)" class="member-name-link">set(int, E)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Replaces the element at an index.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Property.html#set(T)" class="member-name-link">set(T)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Property.html" title="interface in be.imgn.swing">Property</a></dt>
 <dd>
 <div class="block">Sets the value, and tells the listeners if it changed.</div>
@@ -1226,6 +1790,14 @@ handler.</div>
 <dd>
 <div class="block">Sets the accessible name of a component.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#setAll(java.util.Collection)" class="member-name-link">setAll(Collection)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Replaces all the elements, by those of a collection in its iteration order.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html#setIconImage(java.awt.Image)" class="member-name-link">setIconImage(Image)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html" title="interface in be.imgn.swing.ui">Window</a></dt>
+<dd>
+<div class="block">Sets the icon image of the window, which the platform shows in its title bar, task bar or window list.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#setTabTitle(java.awt.Component,java.lang.String)" class="member-name-link">setTabTitle(Component, String)</a> - Static method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Sets the title of a component's tab, in the <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JTabbedPane.html" title="class or interface in javax.swing" class="external-link"><code>JTabbedPane</code></a> that holds it.</div>
@@ -1234,6 +1806,24 @@ handler.</div>
 <dd>
 <div class="block">Sets the text of a component: for a button or a label, <code>&amp;</code> marks the mnemonic, except on macOS.</div>
 </dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.Builder.html#settings(java.lang.Record)" class="member-name-link">settings(Record)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.Builder.html" title="class in be.imgn.swing.testing">AppTester.Builder</a></dt>
+<dd>
+<div class="block">Writes a settings record to the fake config directory before startup, with the settings store's own writer,
+so that the application starts on it.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Settings.html" class="type-name-link" title="annotation interface in be.imgn.swing">Settings</a> - Annotation Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">Declares a settings record: what the user chooses and keeps between runs, saved in <code>&lt;id&gt;.toml</code> in the
+application's config directory.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/SettingsDescriptor.html" class="type-name-link" title="interface in be.imgn.swing.spi">SettingsDescriptor&lt;T&gt;</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/spi/package-summary.html">be.imgn.swing.spi</a></dt>
+<dd>
+<div class="block">The description of a <a href="be.imgn.swing/be/imgn/swing/Settings.html" title="annotation interface in be.imgn.swing"><code>Settings</code></a> record, which the processor generates and registers as a service.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/SettingsStore.html" class="type-name-link" title="interface in be.imgn.swing">SettingsStore</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">Holds the value of every <a href="be.imgn.swing/be/imgn/swing/Settings.html" title="annotation interface in be.imgn.swing"><code>Settings</code></a> record, loaded at startup from the config directory.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html#setTitle(java.lang.String)" class="member-name-link">setTitle(String)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html" title="interface in be.imgn.swing.ui">Window</a></dt>
 <dd>
 <div class="block">Sets the title of the window.</div>
@@ -1241,6 +1831,13 @@ handler.</div>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#setTitle(javax.swing.JComponent,java.lang.String)" class="member-name-link">setTitle(JComponent, String)</a> - Static method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Sets the title of a component's <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/border/TitledBorder.html" title="class or interface in javax.swing.border" class="external-link"><code>TitledBorder</code></a>, creating the border when the component has none.</div>
+</dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenDialog.html#settle()" class="member-name-link">settle()</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenDialog.html" title="class in be.imgn.swing.testing">OpenDialog</a></dt>
+<dd>
+<div class="block">Settles from within the answer, as every tester call does: runs the updates posted on the EDT so far, such as
+those of the dialog's <code>Ui.bind</code> targets, which would otherwise wait for the answer to return, and the
+periodic actions that are due, and waits for the tasks of commands, the <code>@OnVirtualThread</code> deliveries and
+the pending settings saves.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Modifier.html#SHIFT" class="member-name-link">SHIFT</a> - Enum constant in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Modifier.html" title="enum class in be.imgn.swing.ui">Modifier</a></dt>
 <dd>
@@ -1257,6 +1854,10 @@ handler.</div>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Windows.html#show(be.imgn.swing.ui.Window)" class="member-name-link">show(Window)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Windows.html" title="interface in be.imgn.swing.ui">Windows</a></dt>
 <dd>
 <div class="block">Shows a window.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/ValidationFeedback.html#show(javax.swing.JComponent,java.lang.String)" class="member-name-link">show(JComponent, String)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/ValidationFeedback.html" title="interface in be.imgn.swing.ui">ValidationFeedback</a></dt>
+<dd>
+<div class="block">Shows an error on a component.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#showDialog(java.lang.Class)" class="member-name-link">showDialog(Class)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html" title="class in be.imgn.swing.ui">Ui</a></dt>
 <dd>
@@ -1276,7 +1877,12 @@ until it closes.</div>
 <dd>
 <div class="block">Returns the classes of the dialog views shown, in order.</div>
 </dd>
-<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/PreferencesHandler.html#showPreferences()" class="member-name-link">showPreferences()</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/PreferencesHandler.html" title="interface in be.imgn.swing.ui">PreferencesHandler</a></dt>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html#shown()" class="member-name-link">shown()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html" title="class in be.imgn.swing.ui">Binding</a></dt>
+<dd>
+<div class="block">Returns whether this binding's error is shown: <code>false</code> until the user changes the component or
+<a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#validate()"><code>Form.validate()</code></a> is called, then <code>true</code> for the binding's life.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/PreferencesHandler.html#showPreferences(be.imgn.swing.ui.Ui)" class="member-name-link">showPreferences(Ui)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/PreferencesHandler.html" title="interface in be.imgn.swing.ui">PreferencesHandler</a></dt>
 <dd>
 <div class="block">Shows the preferences; called on the EDT.</div>
 </dd>
@@ -1287,6 +1893,10 @@ until it closes.</div>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/SingleFrame.html" class="type-name-link" title="interface in be.imgn.swing.ui">SingleFrame</a> - Interface in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
 <dd>
 <div class="block">An application class that is the only view of the main window.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#size()" class="member-name-link">size()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Returns the number of elements.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" class="type-name-link" title="class in be.imgn.swing.ui">StandardCommands</a> - Class in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
 <dd>
@@ -1322,6 +1932,10 @@ generated <code>&lt;Class&gt;Menus</code>.</div>
 <dd>
 <div class="block">A step of the startup, contributed with <code>@IntoSet(StartupStep.class)</code>.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.html#status()" class="member-name-link">status()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.html" title="class in be.imgn.swing">Check</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/Check.html#param-status"><code>status</code></a> record component.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#string(java.lang.String,java.lang.String)" class="member-name-link">string(String, String)</a> - Method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Returns a string property.</div>
@@ -1329,6 +1943,10 @@ generated <code>&lt;Class&gt;Menus</code>.</div>
 <dt><a href="be.imgn.swing/be/imgn/swing/Observable.html#subscribe(be.imgn.swing.Scope,java.util.function.Consumer)" class="member-name-link">subscribe(Scope, Consumer)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Observable.html" title="interface in be.imgn.swing">Observable</a></dt>
 <dd>
 <div class="block">Subscribes a listener, called with each new value, until the scope closes or the subscription is closed.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html#subscribeChanges(be.imgn.swing.Scope,java.util.function.Consumer)" class="member-name-link">subscribeChanges(Scope, Consumer)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a></dt>
+<dd>
+<div class="block">Subscribes a listener, called with each change, until the scope closes or the subscription is closed.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Subscription.html" class="type-name-link" title="interface in be.imgn.swing">Subscription</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
 <dd>
@@ -1391,6 +2009,10 @@ generated <code>&lt;Class&gt;Menus</code>.</div>
 <dd>
 <div class="block">The work of a <a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing"><code>Task</code></a> that uses its <a href="be.imgn.swing/be/imgn/swing/TaskContext.html" title="interface in be.imgn.swing"><code>TaskContext</code></a>.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Rule.html#test(T)" class="member-name-link">test(T)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Rule.html" title="interface in be.imgn.swing">Rule</a></dt>
+<dd>
+<div class="block">Returns whether a value meets the requirement.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/DynamicEntry.Item.html#text()" class="member-name-link">text()</a> - Method in record class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/DynamicEntry.Item.html" title="class in be.imgn.swing.ui">DynamicEntry.Item</a></dt>
 <dd>
 <div class="block">Returns the value of the <a href="./be.imgn.swing.ui/be/imgn/swing/ui/DynamicEntry.Item.html#param-text"><code>text</code></a> record component.</div>
@@ -1403,6 +2025,12 @@ generated <code>&lt;Class&gt;Menus</code>.</div>
 <dd>
 <div class="block">The theme of FlatLaf, which the <code>be.imgn.swing.theme</code> system property selects, else the <code>theme</code> key of
 the application's resources.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Task.html#then(java.util.function.Function)" class="member-name-link">then(Function)</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing">Task</a></dt>
+<dd>
+<div class="block">Returns a chain that runs this task and, when it succeeds, calls <code>next</code> with its result through the
+<a href="be.imgn.swing/be/imgn/swing/UiExecutor.html" title="interface in be.imgn.swing"><code>UiExecutor</code></a>, after this task's own <a href="be.imgn.swing/be/imgn/swing/Task.html#onSuccess(java.util.function.Consumer)"><code>Task.onSuccess(Consumer)</code></a> hooks, then runs the task <code>next</code>
+returns, in the same scope.</div>
 </dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#ticker()" class="member-name-link">ticker()</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
 <dd>
@@ -1428,7 +2056,23 @@ the application's resources.</div>
 <dd>
 <div class="block">Returns a string representation of this record class.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.html#toString()" class="member-name-link">toString()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.html" title="class in be.imgn.swing">Check</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/DisplayLocale.html#toString()" class="member-name-link">toString()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/DisplayLocale.html" title="class in be.imgn.swing">DisplayLocale</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html#toString()" class="member-name-link">toString()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html" title="class in be.imgn.swing">ListChange.Added</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html#toString()" class="member-name-link">toString()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Removed.html" title="class in be.imgn.swing">ListChange.Removed</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html#toString()" class="member-name-link">toString()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Replaced.html" title="class in be.imgn.swing">ListChange.Replaced</a></dt>
 <dd>
 <div class="block">Returns a string representation of this record class.</div>
 </dd>
@@ -1474,6 +2118,19 @@ the application's resources.</div>
 <dd>
 <div class="block">Returns a string representation of this record class.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validation.html#toString()" class="member-name-link">toString()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validation.html" title="class in be.imgn.swing">Validation</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validator.html#toString()" class="member-name-link">toString()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validator.html" title="class in be.imgn.swing">Validator</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#track(be.imgn.swing.Observable)" class="member-name-link">track(Observable)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui">Form</a></dt>
+<dd>
+<div class="block">Tracks an observable that has no component in the form, such as an observable list edited in a table: the form is
+dirty while its value differs from its value now, or when <a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#markClean()"><code>Form.markClean()</code></a> was last called.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandContext.html#trigger()" class="member-name-link">trigger()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandContext.html" title="class in be.imgn.swing.ui">CommandContext</a></dt>
 <dd>
 <div class="block">Returns the trigger, with the objects of the path that activated the command.</div>
@@ -1515,6 +2172,10 @@ application's.</div>
 <dd>
 <div class="block">Returns the annotated class.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/spi/SettingsDescriptor.html#type()" class="member-name-link">type()</a> - Method in interface be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/SettingsDescriptor.html" title="interface in be.imgn.swing.spi">SettingsDescriptor</a></dt>
+<dd>
+<div class="block">Returns the settings record.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html#type()" class="member-name-link">type()</a> - Method in interface be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html" title="interface in be.imgn.swing.ui.spi">ComponentInjector</a></dt>
 <dd>
 <div class="block">Returns the view class.</div>
@@ -1534,14 +2195,84 @@ application's.</div>
 <dd>
 <div class="block">Runs work on the user-interface thread.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.Status.html#UNKNOWN" class="member-name-link">UNKNOWN</a> - Enum constant in enum class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.Status.html" title="enum class in be.imgn.swing">Check.Status</a></dt>
+<dd>
+<div class="block">The requirement couldn't be tested.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.Status.html#UNMET" class="member-name-link">UNMET</a> - Enum constant in enum class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.Status.html" title="enum class in be.imgn.swing">Check.Status</a></dt>
+<dd>
+<div class="block">The value doesn't meet the requirement.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:V">V</h2>
 <dl class="index">
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#valid()" class="member-name-link">valid()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui">Form</a></dt>
+<dd>
+<div class="block">Returns whether every binding's validation is valid, whether or not its errors are shown.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validation.html#valid()" class="member-name-link">valid()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validation.html" title="class in be.imgn.swing">Validation</a></dt>
+<dd>
+<div class="block">Returns whether every check is <a href="be.imgn.swing/be/imgn/swing/Check.Status.html#MET"><code>Check.Status.MET</code></a>.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#validate()" class="member-name-link">validate()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui">Form</a></dt>
+<dd>
+<div class="block">Shows the error of every binding that has one, and moves the focus to the first component with an error, in
+binding order: it first selects the tabs of the <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JTabbedPane.html" title="class or interface in javax.swing" class="external-link"><code>JTabbedPane</code></a>s that hold it and aren't selected, from the
+outermost pane in, then focuses it through its window's <a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html#focus(java.awt.Component)"><code>Window.focus(Component)</code></a>, unless it still isn't
+showing, such as one on another card of a wizard.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validator.html#validate(T)" class="member-name-link">validate(T)</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validator.html" title="class in be.imgn.swing">Validator</a></dt>
+<dd>
+<div class="block">Tests a value against every rule, in order, whether or not an earlier one fails.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html#validated()" class="member-name-link">validated()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html" title="class in be.imgn.swing.ui">Binding</a></dt>
+<dd>
+<div class="block">Returns whether <a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#validate()"><code>Form.validate()</code></a> was called since the user last changed the component: <code>false</code> until
+it is called, then <code>true</code> until the user changes the component.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html#validation()" class="member-name-link">validation()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html" title="class in be.imgn.swing.ui">Binding</a></dt>
+<dd>
+<div class="block">Returns the last validation of this binding.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validation.html" class="type-name-link" title="class in be.imgn.swing">Validation</a> - Record Class in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">The status of every requirement of a value, met or not, so that a view can show each one and not only the first
+error.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validation.html#%3Cinit%3E(java.util.List)" class="member-name-link">Validation(List)</a> - Constructor for record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validation.html" title="class in be.imgn.swing">Validation</a></dt>
+<dd>
+<div class="block">Creates a validation of a copy of the checks.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/ValidationFeedback.html" class="type-name-link" title="interface in be.imgn.swing.ui">ValidationFeedback</a> - Interface in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
+<dd>
+<div class="block">Shows the error of a <a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui"><code>Form</code></a>'s binding on its component, on the EDT.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validator.html" class="type-name-link" title="class in be.imgn.swing">Validator&lt;T&gt;</a> - Record Class in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
+<dd>
+<div class="block">The rules of a value, declared once and tested in a form, a command-line tool or a service.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Validator.html#%3Cinit%3E(java.util.List)" class="member-name-link">Validator(List)</a> - Constructor for record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validator.html" title="class in be.imgn.swing">Validator</a></dt>
+<dd>
+<div class="block">Creates a validator of a copy of the rules.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Settings.html#value()" class="member-name-link">value()</a> - Element in annotation interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Settings.html" title="annotation interface in be.imgn.swing">Settings</a></dt>
+<dd>
+<div class="block">Returns the record's id, the name of its file: lower-case kebab case, one or more groups of <code>a</code>-<code>z</code>
+and <code>0</code>-<code>9</code> separated by single <code>-</code>.</div>
+</dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.Status.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.Status.html" title="enum class in be.imgn.swing">Check.Status</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
 <dt><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/Theme.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class be.imgn.swing.flatlaf.<a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/Theme.html" title="enum class in be.imgn.swing.flatlaf">Theme</a></dt>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Block.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Block.html" title="enum class in be.imgn.swing.ui">Block</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Concurrency.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Concurrency.html" title="enum class in be.imgn.swing.ui">Concurrency</a></dt>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
 </dd>
@@ -1557,12 +2288,22 @@ application's.</div>
 <dd>
 <div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/Arguments.html#param-values"><code>values</code></a> record component.</div>
 </dd>
+<dt><a href="be.imgn.swing/be/imgn/swing/Check.Status.html#values()" class="member-name-link">values()</a> - Static method in enum class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.Status.html" title="enum class in be.imgn.swing">Check.Status</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
+</dd>
 <dt><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/Theme.html#values()" class="member-name-link">values()</a> - Static method in enum class be.imgn.swing.flatlaf.<a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/Theme.html" title="enum class in be.imgn.swing.flatlaf">Theme</a></dt>
 <dd>
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Block.html#values()" class="member-name-link">values()</a> - Static method in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Block.html" title="enum class in be.imgn.swing.ui">Block</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Concurrency.html#values()" class="member-name-link">values()</a> - Static method in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Concurrency.html" title="enum class in be.imgn.swing.ui">Concurrency</a></dt>
 <dd>
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>
@@ -1625,6 +2366,11 @@ differ only by their resources, opened with <a href="be.imgn.swing.ui/be/imgn/sw
 </dl>
 <h2 class="title" id="I:W">W</h2>
 <dl class="index">
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html#wide(javax.swing.JComponent)" class="member-name-link">wide(JComponent)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html" title="class in be.imgn.swing.ui">FormPanel</a></dt>
+<dd>
+<div class="block">Adds a component across both columns, filling the row's width and sharing the extra height with the other wide
+components, as a nested panel or a text area needs.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardMenus.html#window()" class="member-name-link">window()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardMenus.html" title="class in be.imgn.swing.ui">StandardMenus</a></dt>
 <dd>
 <div class="block">Returns the Window menu.</div>

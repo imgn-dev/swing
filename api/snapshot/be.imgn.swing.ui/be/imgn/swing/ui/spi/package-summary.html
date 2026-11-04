@@ -93,11 +93,12 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color class-summary class-summary-tab1"><a href="ComponentInjector.html" title="interface in be.imgn.swing.ui.spi">ComponentInjector</a>&lt;V&gt;</div>
 <div class="col-last even-row-color class-summary class-summary-tab1">
-<div class="block">Writes a view class's resources to the components its fields hold, with plain setter calls.</div>
+<div class="block">Writes a view class's resources to the components its fields hold, and to the component fields of those components
+that its nested tables name, read through the enclosing fields, with plain setter calls.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">The resources of a view class, read by field and property, as the generated injectors write them.</div>
+<div class="block">The resources of a view class, read by field path and property, as the generated injectors write them.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab1"><a href="ComponentState.html" title="interface in be.imgn.swing.ui.spi">ComponentState</a>&lt;V&gt;</div>
 <div class="col-last even-row-color class-summary class-summary-tab1">

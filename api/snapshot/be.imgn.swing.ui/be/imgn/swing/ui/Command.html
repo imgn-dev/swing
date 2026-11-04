@@ -61,6 +61,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#enabled()" tabindex="0">enabled</a></li>
 <li><a href="#selected()" tabindex="0">selected</a></li>
 <li><a href="#block()" tabindex="0">block</a></li>
+<li><a href="#concurrency()" tabindex="0">concurrency</a></li>
+<li><a href="#cancels()" tabindex="0">cancels</a></li>
 </ol>
 </li>
 </ol>
@@ -83,9 +85,9 @@ loadScripts(document, 'script');</script>
 <p>On a field, it declares a toggle with no handler: the field is a non-private, non-static
 <code>Property&lt;Boolean&gt;</code>, which activating the command flips, and which the command's selected state follows. The id
 defaults to the field's name, and names the command's method in the generated class. Such a command takes no
-<a href="#selected()"><code>selected()</code></a> and no <a href="#block()"><code>block()</code></a>; annotating any other field is a compile error. Generated code reads the
-field, which needs no <a href="Exposed.html" title="annotation interface in be.imgn.swing.ui"><code>Exposed</code></a>: <code>be.imgn.swing.ui.Command</code> joins the annotations that Checkstyle's
-<code>VisibilityModifier</code> accepts, as <code>Exposed</code> does.
+<a href="#selected()"><code>selected()</code></a>, <a href="#block()"><code>block()</code></a>, <a href="#concurrency()"><code>concurrency()</code></a> nor <a href="#cancels()"><code>cancels()</code></a>; annotating any other field is a
+compile error. Generated code reads the field, which needs no <a href="Exposed.html" title="annotation interface in be.imgn.swing.ui"><code>Exposed</code></a>: <code>be.imgn.swing.ui.Command</code> joins
+the annotations that Checkstyle's <code>VisibilityModifier</code> accepts, as <code>Exposed</code> does.
 
 <p>The processor generates a <code>&lt;Class&gt;Commands</code> bean for each class that declares commands, with one method per
 command that returns its <a href="BoundCommand.html" title="class in be.imgn.swing.ui"><code>BoundCommand</code></a>. Text, icon, shortcut and tooltip come from the class's resources,
@@ -107,6 +109,17 @@ under <code>[commands.&lt;id&gt;]</code>.</div>
 <div class="col-second even-row-color"><code><a href="#block()" class="member-name-link">block</a></code></div>
 <div class="col-last even-row-color">
 <div class="block">Returns what is blocked while the task the handler returns runs.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#cancels()" class="member-name-link">cancels</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Returns the id of the command this one stops: a command of the same class, declared or inherited, whose handler
+returns a <code>Task</code>.</div>
+</div>
+<div class="col-first even-row-color"><code><a href="Concurrency.html" title="enum class in be.imgn.swing.ui">Concurrency</a></code></div>
+<div class="col-second even-row-color"><code><a href="#concurrency()" class="member-name-link">concurrency</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Returns what an activation does while a task the command started still runs.</div>
 </div>
 <div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#enabled()" class="member-name-link">enabled</a></code></div>
@@ -206,6 +219,46 @@ handler.</div>
 <dl class="notes">
 <dt>Default:</dt>
 <dd><code>NONE</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="concurrency()">
+<h3>concurrency</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="return-type"><a href="Concurrency.html" title="enum class in be.imgn.swing.ui">Concurrency</a></span>&nbsp;<span class="element-name">concurrency</span></div>
+<div class="block">Returns what an activation does while a task the command started still runs. A concurrency other than
+<a href="Concurrency.html#PARALLEL"><code>Concurrency.PARALLEL</code></a> is allowed only on a handler that returns a <code>Task</code>, and neither with
+<a href="Block.html#COMMAND"><code>Block.COMMAND</code></a> nor <a href="Block.html#COMPONENT"><code>Block.COMPONENT</code></a>.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the concurrency</dd>
+</dl>
+<dl class="notes">
+<dt>Default:</dt>
+<dd><code>PARALLEL</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="cancels()">
+<h3>cancels</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">cancels</span></div>
+<div class="block">Returns the id of the command this one stops: a command of the same class, declared or inherited, whose handler
+returns a <code>Task</code>. The stop command is enabled while that command is <a href="BoundCommand.html#running()"><code>BoundCommand.running()</code></a>; its
+activation cancels that command's tasks, then calls its own handler, which returns <code>void</code> and may do
+nothing. A stop command has neither <a href="#enabled()"><code>enabled()</code></a>, <a href="#selected()"><code>selected()</code></a>, <a href="#block()"><code>block()</code></a> nor
+<a href="#concurrency()"><code>concurrency()</code></a>, and is declared on a method.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the id of the command to stop; empty for a command that stops none</dd>
+</dl>
+<dl class="notes">
+<dt>Default:</dt>
+<dd><code>""</code></dd>
 </dl>
 </div>
 </section>

@@ -57,7 +57,7 @@ loadScripts(document, 'script');</script>
 <li><a href="#method-summary" tabindex="0">Method Summary</a></li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
-<li><a href="#showPreferences()" tabindex="0">showPreferences()</a></li>
+<li><a href="#showPreferences(be.imgn.swing.ui.Ui)" tabindex="0">showPreferences(Ui)</a></li>
 </ol>
 </li>
 </ol>
@@ -89,7 +89,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#showPreferences()" class="member-name-link">showPreferences</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#showPreferences(be.imgn.swing.ui.Ui)" class="member-name-link">showPreferences</a><wbr>(<a href="Ui.html" title="class in be.imgn.swing.ui">Ui</a>&nbsp;ui)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Shows the preferences; called on the EDT.</div>
 </div>
@@ -108,11 +108,17 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="showPreferences()">
+<section class="detail" id="showPreferences(be.imgn.swing.ui.Ui)">
 <h3>showPreferences</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">showPreferences</span>()</div>
-<div class="block">Shows the preferences; called on the EDT.</div>
+<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">showPreferences</span><wbr><span class="parameters">(<a href="Ui.html" title="class in be.imgn.swing.ui">Ui</a>&nbsp;ui)</span></div>
+<div class="block">Shows the preferences; called on the EDT. The handler uses <code>ui</code> during the call, such as to open a dialog
+view with <a href="Ui.html#showDialog(java.lang.Class)"><code>Ui.showDialog(Class)</code></a>, and must not keep it.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>ui</code> - the <a href="Ui.html" title="class in be.imgn.swing.ui"><code>Ui</code></a> of the view whose <code>preferences()</code> command runs; on macOS's application menu, the
+    main view's</dd>
+</dl>
 </div>
 </section>
 </li>

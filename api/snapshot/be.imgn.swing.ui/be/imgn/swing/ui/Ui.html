@@ -61,13 +61,21 @@ loadScripts(document, 'script');</script>
 <li><a href="#dialogs()" tabindex="0">dialogs()</a></li>
 <li><a href="#menus()" tabindex="0">menus()</a></li>
 <li><a href="#bind(java.util.function.Consumer,be.imgn.swing.Observable)" tabindex="0">bind(Consumer, Observable)</a></li>
+<li><a href="#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function)" tabindex="0">bind(JList, ObservableList, Function)</a></li>
+<li><a href="#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property)" tabindex="0">bind(JList, ObservableList, Function, Property)</a></li>
+<li><a href="#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property,java.util.function.Function)" tabindex="0">bind(JList, ObservableList, Function, Property, Function)</a></li>
+<li><a href="#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List)" tabindex="0">bind(JTable, ObservableList, List)</a></li>
+<li><a href="#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property)" tabindex="0">bind(JTable, ObservableList, List, Property)</a></li>
+<li><a href="#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property,java.util.function.Function)" tabindex="0">bind(JTable, ObservableList, List, Property, Function)</a></li>
 <li><a href="#menuBar(be.imgn.swing.ui.MenuSpec...)" tabindex="0">menuBar(MenuSpec...)</a></li>
 <li><a href="#popupMenu(javax.swing.JComponent,be.imgn.swing.ui.MenuEntry...)" tabindex="0">popupMenu(JComponent, MenuEntry...)</a></li>
 <li><a href="#toolBar(be.imgn.swing.ui.ToolBarEntry...)" tabindex="0">toolBar(ToolBarEntry...)</a></li>
 <li><a href="#run(be.imgn.swing.Task,be.imgn.swing.ui.Block)" tabindex="0">run(Task, Block)</a></li>
+<li><a href="#every(java.time.Duration,java.lang.Runnable)" tabindex="0">every(Duration, Runnable)</a></li>
 <li><a href="#showDialog(java.lang.Class)" tabindex="0">showDialog(Class)</a></li>
 <li><a href="#showDialog(java.lang.Class,E)" tabindex="0">showDialog(Class, E)</a></li>
 <li><a href="#showDialog(java.lang.Class,java.util.function.Function)" tabindex="0">showDialog(Class, Function)</a></li>
+<li><a href="#buttonBar(be.imgn.swing.ui.BoundCommand...)" tabindex="0">buttonBar(BoundCommand...)</a></li>
 </ol>
 </li>
 </ol>
@@ -110,10 +118,85 @@ to its view's scope.</div>
 <div class="block">Calls a target with the current value of an observable, then on every change, on the EDT, until the view's scope
 closes.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Dialogs.html" title="interface in be.imgn.swing.ui">Dialogs</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dialogs()" class="member-name-link">dialogs</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;E&gt;&nbsp;void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function)" class="member-name-link">bind</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JList.html" title="class or interface in javax.swing" class="external-link">JList</a>&lt;E&gt;&nbsp;list,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;&nbsp;items,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super E, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;text)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Shows an observable list in a list: sets a new model on the list, which follows the observable list change by
+change on the EDT, and a <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/DefaultListCellRenderer.html" title="class or interface in javax.swing" class="external-link"><code>DefaultListCellRenderer</code></a> showing the text of each element.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;E&gt;&nbsp;void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property)" class="member-name-link">bind</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JList.html" title="class or interface in javax.swing" class="external-link">JList</a>&lt;E&gt;&nbsp;list,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;&nbsp;items,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super E, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;text,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/Property.html" title="interface in be.imgn.swing">Property</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;E&gt;&gt;&nbsp;selection)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Shows an observable list in a list, as <a href="#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function)"><code>bind(JList, ObservableList, Function)</code></a> does, and keeps its single
+selection and a property in step: a user's selection sets the property, and a change of the property selects its
+value, or clears the selection for an empty value or one that isn't in the list, then setting the property to
+empty.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;E&gt;&nbsp;void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property,java.util.function.Function)" class="member-name-link">bind</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JList.html" title="class or interface in javax.swing" class="external-link">JList</a>&lt;E&gt;&nbsp;list,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;&nbsp;items,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super E, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;text,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/Property.html" title="interface in be.imgn.swing">Property</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;E&gt;&gt;&nbsp;selection,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super E, ?&gt;&nbsp;key)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Shows an observable list in a list and keeps its single selection and a property in step, as <a href="#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property)"><code>bind(JList, ObservableList, Function, Property)</code></a> does, matching the selected element by key rather than by equality: after a
+change of the list, the element with the selected element's key keeps the selection, wherever it moved.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;E&gt;&nbsp;void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List)" class="member-name-link">bind</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JTable.html" title="class or interface in javax.swing" class="external-link">JTable</a>&nbsp;table,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;&nbsp;rows,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Column.html" title="class in be.imgn.swing.ui">Column</a>&lt;E,<wbr>?&gt;&gt;&nbsp;columns)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Shows an observable list in a table, a row per element and a column per <a href="Column.html" title="class in be.imgn.swing.ui"><code>Column</code></a>, in order: sets a new
+model on the table, which follows the observable list change by change on the EDT, and whose model index of a
+column is its position in <code>columns</code>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;E&gt;&nbsp;void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property)" class="member-name-link">bind</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JTable.html" title="class or interface in javax.swing" class="external-link">JTable</a>&nbsp;table,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;&nbsp;rows,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Column.html" title="class in be.imgn.swing.ui">Column</a>&lt;E,<wbr>?&gt;&gt;&nbsp;columns,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/Property.html" title="interface in be.imgn.swing">Property</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;E&gt;&gt;&nbsp;selection)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Shows an observable list in a table, as <a href="#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List)"><code>bind(JTable, ObservableList, List)</code></a> does, and keeps its single
+selection and a property in step: a user's selection sets the property, and a change of the property selects its
+row, or clears the selection for an empty value or one that isn't in the list, then setting the property to
+empty.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;E&gt;&nbsp;void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property,java.util.function.Function)" class="member-name-link">bind</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JTable.html" title="class or interface in javax.swing" class="external-link">JTable</a>&nbsp;table,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;&nbsp;rows,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Column.html" title="class in be.imgn.swing.ui">Column</a>&lt;E,<wbr>?&gt;&gt;&nbsp;columns,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/Property.html" title="interface in be.imgn.swing">Property</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;E&gt;&gt;&nbsp;selection,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super E, ?&gt;&nbsp;key)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Shows an observable list in a table and keeps its single selection and a property in step, as
+<a href="#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property)"><code>bind(JTable, ObservableList, List, Property)</code></a> does, matching the selected row by key rather than by
+equality: after a change of the list, the row with the selected row's key keeps the selection, wherever it moved,
+so that a row modified, moved or reloaded stays selected.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JPanel.html" title="class or interface in javax.swing" class="external-link">JPanel</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#buttonBar(be.imgn.swing.ui.BoundCommand...)" class="member-name-link">buttonBar</a><wbr>(<a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a>...&nbsp;commands)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns a new row of buttons: a panel with a centered <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/FlowLayout.html" title="class or interface in java.awt" class="external-link"><code>FlowLayout</code></a>, holding one button per command, in
+order, made with <a href="BoundCommand.html#createToggleButton()"><code>BoundCommand.createToggleButton()</code></a> for a command with a selected state and with
+<a href="BoundCommand.html#createButton()"><code>BoundCommand.createButton()</code></a> for any other.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Dialogs.html" title="interface in be.imgn.swing.ui">Dialogs</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dialogs()" class="member-name-link">dialogs</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the dialogs of this view's window: messages, confirmations and errors.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../../../../../be.imgn.swing/be/imgn/swing/Subscription.html" title="interface in be.imgn.swing">Subscription</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#every(java.time.Duration,java.lang.Runnable)" class="member-name-link">every</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&nbsp;period,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Runs an action on the EDT every period, the first time one period after the call, until the returned subscription
+or this view's scope is closed.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JMenuBar.html" title="class or interface in javax.swing" class="external-link">JMenuBar</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#menuBar(be.imgn.swing.ui.MenuSpec...)" class="member-name-link">menuBar</a><wbr>(<a href="MenuSpec.html" title="class in be.imgn.swing.ui">MenuSpec</a>...&nbsp;specs)</code></div>
@@ -242,6 +325,166 @@ closes. Several changes before an update runs cause one call, with the final val
 </section>
 </li>
 <li>
+<section class="detail" id="bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function)">
+<h3>bind</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;E&gt;</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">bind</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JList.html" title="class or interface in javax.swing" class="external-link">JList</a>&lt;E&gt;&nbsp;list,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;&nbsp;items,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super E, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;text)</span></div>
+<div class="block">Shows an observable list in a list: sets a new model on the list, which follows the observable list change by
+change on the EDT, and a <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/DefaultListCellRenderer.html" title="class or interface in javax.swing" class="external-link"><code>DefaultListCellRenderer</code></a> showing the text of each element. The
+subscription belongs to the view's scope.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><span id="bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function)-type-param-E"><code>E</code> - the type of the elements</span></dd>
+<dt>Parameters:</dt>
+<dd><code>list</code> - the list</dd>
+<dd><code>items</code> - the elements, made by <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html#of(E...)"><code>ObservableList.of(Object[])</code></a> or <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html#copyOf(java.util.Collection)"><code>ObservableList.copyOf(Collection)</code></a></dd>
+<dd><code>text</code> - the text of an element</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if an argument is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the list is already bound</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property)">
+<h3>bind</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;E&gt;</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">bind</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JList.html" title="class or interface in javax.swing" class="external-link">JList</a>&lt;E&gt;&nbsp;list,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;&nbsp;items,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super E, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;text,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/Property.html" title="interface in be.imgn.swing">Property</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;E&gt;&gt;&nbsp;selection)</span></div>
+<div class="block">Shows an observable list in a list, as <a href="#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function)"><code>bind(JList, ObservableList, Function)</code></a> does, and keeps its single
+selection and a property in step: a user's selection sets the property, and a change of the property selects its
+value, or clears the selection for an empty value or one that isn't in the list, then setting the property to
+empty. Changes of the list keep the selection on the selected element, by tracking its index.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><span id="bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property)-type-param-E"><code>E</code> - the type of the elements</span></dd>
+<dt>Parameters:</dt>
+<dd><code>list</code> - the list</dd>
+<dd><code>items</code> - the elements, made by <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html#of(E...)"><code>ObservableList.of(Object[])</code></a> or <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html#copyOf(java.util.Collection)"><code>ObservableList.copyOf(Collection)</code></a></dd>
+<dd><code>text</code> - the text of an element</dd>
+<dd><code>selection</code> - the selected element, empty when nothing is selected</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if an argument is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the list is already bound</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property,java.util.function.Function)">
+<h3>bind</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;E&gt;</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">bind</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JList.html" title="class or interface in javax.swing" class="external-link">JList</a>&lt;E&gt;&nbsp;list,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;&nbsp;items,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super E, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;text,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/Property.html" title="interface in be.imgn.swing">Property</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;E&gt;&gt;&nbsp;selection,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super E, ?&gt;&nbsp;key)</span></div>
+<div class="block">Shows an observable list in a list and keeps its single selection and a property in step, as <a href="#bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property)"><code>bind(JList, ObservableList, Function, Property)</code></a> does, matching the selected element by key rather than by equality: after a
+change of the list, the element with the selected element's key keeps the selection, wherever it moved.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><span id="bind(javax.swing.JList,be.imgn.swing.ObservableList,java.util.function.Function,be.imgn.swing.Property,java.util.function.Function)-type-param-E"><code>E</code> - the type of the elements</span></dd>
+<dt>Parameters:</dt>
+<dd><code>list</code> - the list</dd>
+<dd><code>items</code> - the elements, made by <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html#of(E...)"><code>ObservableList.of(Object[])</code></a> or <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html#copyOf(java.util.Collection)"><code>ObservableList.copyOf(Collection)</code></a></dd>
+<dd><code>text</code> - the text of an element</dd>
+<dd><code>selection</code> - the selected element, empty when nothing is selected</dd>
+<dd><code>key</code> - the key of an element, compared with <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Objects.html#equals(java.lang.Object,java.lang.Object)" title="class or interface in java.util" class="external-link"><code>Objects.equals(Object, Object)</code></a></dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if an argument is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the list is already bound</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List)">
+<h3>bind</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;E&gt;</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">bind</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JTable.html" title="class or interface in javax.swing" class="external-link">JTable</a>&nbsp;table,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;&nbsp;rows,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Column.html" title="class in be.imgn.swing.ui">Column</a>&lt;E,<wbr>?&gt;&gt;&nbsp;columns)</span></div>
+<div class="block">Shows an observable list in a table, a row per element and a column per <a href="Column.html" title="class in be.imgn.swing.ui"><code>Column</code></a>, in order: sets a new
+model on the table, which follows the observable list change by change on the EDT, and whose model index of a
+column is its position in <code>columns</code>. The table has no row sorter, so a view index of a row is its index in
+the list. Its columns exist when this method returns, so that a table bound in <code>content()</code> has its order
+and widths restored with the window state. The subscription belongs to the view's scope.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><span id="bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List)-type-param-E"><code>E</code> - the type of the rows</span></dd>
+<dt>Parameters:</dt>
+<dd><code>table</code> - the table</dd>
+<dd><code>rows</code> - the rows, made by <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html#of(E...)"><code>ObservableList.of(Object[])</code></a> or <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html#copyOf(java.util.Collection)"><code>ObservableList.copyOf(Collection)</code></a></dd>
+<dd><code>columns</code> - the columns, in order</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if an argument or a column is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the table is already bound</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property)">
+<h3>bind</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;E&gt;</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">bind</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JTable.html" title="class or interface in javax.swing" class="external-link">JTable</a>&nbsp;table,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;&nbsp;rows,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Column.html" title="class in be.imgn.swing.ui">Column</a>&lt;E,<wbr>?&gt;&gt;&nbsp;columns,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/Property.html" title="interface in be.imgn.swing">Property</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;E&gt;&gt;&nbsp;selection)</span></div>
+<div class="block">Shows an observable list in a table, as <a href="#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List)"><code>bind(JTable, ObservableList, List)</code></a> does, and keeps its single
+selection and a property in step: a user's selection sets the property, and a change of the property selects its
+row, or clears the selection for an empty value or one that isn't in the list, then setting the property to
+empty. Changes of the list keep the selection on the selected row, by tracking its index.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><span id="bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property)-type-param-E"><code>E</code> - the type of the rows</span></dd>
+<dt>Parameters:</dt>
+<dd><code>table</code> - the table</dd>
+<dd><code>rows</code> - the rows, made by <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html#of(E...)"><code>ObservableList.of(Object[])</code></a> or <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html#copyOf(java.util.Collection)"><code>ObservableList.copyOf(Collection)</code></a></dd>
+<dd><code>columns</code> - the columns, in order</dd>
+<dd><code>selection</code> - the selected row, empty when nothing is selected</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if an argument or a column is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the table is already bound</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property,java.util.function.Function)">
+<h3>bind</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;E&gt;</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">bind</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JTable.html" title="class or interface in javax.swing" class="external-link">JTable</a>&nbsp;table,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html" title="interface in be.imgn.swing">ObservableList</a>&lt;E&gt;&nbsp;rows,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Column.html" title="class in be.imgn.swing.ui">Column</a>&lt;E,<wbr>?&gt;&gt;&nbsp;columns,
+ <a href="../../../../../be.imgn.swing/be/imgn/swing/Property.html" title="interface in be.imgn.swing">Property</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;E&gt;&gt;&nbsp;selection,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super E, ?&gt;&nbsp;key)</span></div>
+<div class="block">Shows an observable list in a table and keeps its single selection and a property in step, as
+<a href="#bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property)"><code>bind(JTable, ObservableList, List, Property)</code></a> does, matching the selected row by key rather than by
+equality: after a change of the list, the row with the selected row's key keeps the selection, wherever it moved,
+so that a row modified, moved or reloaded stays selected.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><span id="bind(javax.swing.JTable,be.imgn.swing.ObservableList,java.util.List,be.imgn.swing.Property,java.util.function.Function)-type-param-E"><code>E</code> - the type of the rows</span></dd>
+<dt>Parameters:</dt>
+<dd><code>table</code> - the table</dd>
+<dd><code>rows</code> - the rows, made by <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html#of(E...)"><code>ObservableList.of(Object[])</code></a> or <a href="../../../../../be.imgn.swing/be/imgn/swing/ObservableList.html#copyOf(java.util.Collection)"><code>ObservableList.copyOf(Collection)</code></a></dd>
+<dd><code>columns</code> - the columns, in order</dd>
+<dd><code>selection</code> - the selected row, empty when nothing is selected</dd>
+<dd><code>key</code> - the key of a row, compared with <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Objects.html#equals(java.lang.Object,java.lang.Object)" title="class or interface in java.util" class="external-link"><code>Objects.equals(Object, Object)</code></a></dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if an argument or a column is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the table is already bound</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
 <section class="detail" id="menuBar(be.imgn.swing.ui.MenuSpec...)">
 <h3>menuBar</h3>
 <div class="horizontal-scroll">
@@ -310,6 +553,30 @@ invoker's popup trigger.</div>
 </section>
 </li>
 <li>
+<section class="detail" id="every(java.time.Duration,java.lang.Runnable)">
+<h3>every</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../../../../../be.imgn.swing/be/imgn/swing/Subscription.html" title="interface in be.imgn.swing">Subscription</a></span>&nbsp;<span class="element-name">every</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&nbsp;period,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</span></div>
+<div class="block">Runs an action on the EDT every period, the first time one period after the call, until the returned subscription
+or this view's scope is closed. The period is measured with the <code>Ticker</code> bean; a late run doesn't make up
+for the runs it missed: the next one comes one period after it. An exception thrown by the action goes to the
+<code>FailureHandler</code>, and the action keeps its schedule; an <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Error.html" title="class or interface in java.lang" class="external-link"><code>Error</code></a> is not caught.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>period</code> - the period</dd>
+<dd><code>action</code> - the action</dd>
+<dt>Returns:</dt>
+<dd>the subscription, which stops the action when closed</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>period</code> or <code>action</code> is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the period is not positive</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if this view's scope is closed</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
 <section class="detail" id="showDialog(java.lang.Class)">
 <h3>showDialog</h3>
 <div class="horizontal-scroll">
@@ -366,6 +633,23 @@ until it closes.</div>
 <dd><code>create</code> - creates the dialog view with the factory</dd>
 <dt>Returns:</dt>
 <dd>the result of <code>ok()</code>, or empty for <code>cancel()</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="buttonBar(be.imgn.swing.ui.BoundCommand...)">
+<h3>buttonBar</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JPanel.html" title="class or interface in javax.swing" class="external-link">JPanel</a></span>&nbsp;<span class="element-name">buttonBar</span><wbr><span class="parameters">(<a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a>...&nbsp;commands)</span></div>
+<div class="block">Returns a new row of buttons: a panel with a centered <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/FlowLayout.html" title="class or interface in java.awt" class="external-link"><code>FlowLayout</code></a>, holding one button per command, in
+order, made with <a href="BoundCommand.html#createToggleButton()"><code>BoundCommand.createToggleButton()</code></a> for a command with a selected state and with
+<a href="BoundCommand.html#createButton()"><code>BoundCommand.createButton()</code></a> for any other. Unlike the buttons of a toolbar, they show their text.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>commands</code> - the commands</dd>
+<dt>Returns:</dt>
+<dd>the panel</dd>
 </dl>
 </div>
 </section>

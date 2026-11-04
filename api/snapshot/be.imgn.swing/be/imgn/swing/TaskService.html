@@ -126,7 +126,7 @@ loadScripts(document, 'script');</script>
 <dd><code>task</code> - the task, which must not have run yet; <a href="Task.html#none()"><code>Task.none()</code></a> does nothing</dd>
 <dd><code>scope</code> - the scope the task belongs to</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the task has already run, or the scope is closed</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the task has already run or belongs to a chain, or the scope is closed</dd>
 </dl>
 </div>
 </section>

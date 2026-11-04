@@ -78,8 +78,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="horizontal-scroll">
 <div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">ComponentInjector&lt;V&gt;</span></div>
-<div class="block">Writes a view class's resources to the components its fields hold, with plain setter calls. The processor generates
-one, <code>$X$$Injector</code>, for each view class, and registers it as a service.</div>
+<div class="block">Writes a view class's resources to the components its fields hold, and to the component fields of those components
+that its nested tables name, read through the enclosing fields, with plain setter calls. The processor generates one,
+<code>$X$$Injector</code>, for each view class, and registers it as a service.</div>
 </div>
 </section>
 <section class="summary">

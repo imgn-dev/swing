@@ -59,6 +59,7 @@ loadScripts(document, 'script');</script>
 <ol class="toc-list">
 <li><a href="#result()" tabindex="0">result()</a></li>
 <li><a href="#buttons(be.imgn.swing.ui.StandardCommands)" tabindex="0">buttons(StandardCommands)</a></li>
+<li><a href="#commit()" tabindex="0">commit()</a></li>
 </ol>
 </li>
 </ol>
@@ -76,6 +77,10 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>All Superinterfaces:</dt>
 <dd><code><a href="View.html" title="interface in be.imgn.swing.ui">View</a></code></dd>
+</dl>
+<dl class="notes">
+<dt>All Known Implementing Classes:</dt>
+<dd><code><a href="AboutDialog.html" title="class in be.imgn.swing.ui">AboutDialog</a></code></dd>
 </dl>
 <hr>
 <div class="horizontal-scroll">
@@ -103,9 +108,16 @@ scope. Enter activates <code>ok()</code>, Escape activates <code>cancel()</code>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">Returns the commands of the dialog's buttons.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;<a href="#type-param-R" title="type parameter in DialogView">R</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#result()" class="member-name-link">result</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#commit()" class="member-name-link">commit</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="block">Applies the values of the dialog's form, the <a href="Form.html" title="class in be.imgn.swing.ui"><code>Form</code></a> of its view: <code>ok()</code> calls it when the form is
+valid and dirty, before it closes the dialog, and <code>apply()</code> when the form is valid, before it makes the
+form clean.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;<a href="#type-param-R" title="type parameter in DialogView">R</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#result()" class="member-name-link">result</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Returns the result, read after <code>ok()</code>.</div>
 </div>
 </div>
@@ -148,8 +160,20 @@ scope. Enter activates <code>ok()</code>, Escape activates <code>cancel()</code>
 <dt>Parameters:</dt>
 <dd><code>commands</code> - the dialog view's own standard commands</dd>
 <dt>Returns:</dt>
-<dd>the commands, <code>ok()</code> and <code>cancel()</code> by default</dd>
+<dd>the commands, <code>ok()</code> and <code>cancel()</code> by default; a dialog with an Apply button lists
+    <code>commands.apply()</code> too</dd>
 </dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="commit()">
+<h3>commit</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">commit</span>()</div>
+<div class="block">Applies the values of the dialog's form, the <a href="Form.html" title="class in be.imgn.swing.ui"><code>Form</code></a> of its view: <code>ok()</code> calls it when the form is
+valid and dirty, before it closes the dialog, and <code>apply()</code> when the form is valid, before it makes the
+form clean. Does nothing by default.</div>
 </div>
 </section>
 </li>

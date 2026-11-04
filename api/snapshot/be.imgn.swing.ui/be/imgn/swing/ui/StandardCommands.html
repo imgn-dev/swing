@@ -73,6 +73,7 @@ loadScripts(document, 'script');</script>
 <li><a href="#closeWindow()" tabindex="0">closeWindow()</a></li>
 <li><a href="#ok()" tabindex="0">ok()</a></li>
 <li><a href="#cancel()" tabindex="0">cancel()</a></li>
+<li><a href="#apply()" tabindex="0">apply()</a></li>
 </ol>
 </li>
 </ol>
@@ -130,53 +131,62 @@ them in its own TOML (<code>[commands.exit]</code>).</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#about()" class="member-name-link">about</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the command that shows the About dialog: displayed name, version and vendor.</div>
+<div class="block">Returns the command that shows the <a href="AboutDialog.html" title="class in be.imgn.swing.ui"><code>AboutDialog</code></a>: from top to bottom, each one that is present of the icon,
+the displayed name, version, vendor, description, copyright and website.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cancel()" class="member-name-link">cancel</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#apply()" class="member-name-link">apply</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the command that closes the dialog without a result.</div>
+<div class="block">Returns the command that applies the dialog's form, enabled while the form is dirty: if the form validates, it
+calls <a href="DialogView.html#commit()"><code>DialogView.commit()</code></a>, then <a href="Form.html#markClean()"><code>Form.markClean()</code></a>; the dialog stays open.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#closeWindow()" class="member-name-link">closeWindow</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cancel()" class="member-name-link">cancel</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the command that closes the dialog without a result, always enabled, whatever the state of its form.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#closeWindow()" class="member-name-link">closeWindow</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command that closes the current window after its vetoes; on the main frame of a single-frame
 application, the same as <a href="#exit()"><code>exit()</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#copy()" class="member-name-link">copy</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#copy()" class="member-name-link">copy</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command that copies in the focused component; enabled only when it supports it.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cut()" class="member-name-link">cut</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cut()" class="member-name-link">cut</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command that cuts in the focused component; enabled only when it supports it.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#exit()" class="member-name-link">exit</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#exit()" class="member-name-link">exit</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command that asks the exit vetoes, then shuts down: <code>Lifecycle.requestExit()</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#ok()" class="member-name-link">ok</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the command that closes the dialog with a result.</div>
-</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#paste()" class="member-name-link">paste</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#ok()" class="member-name-link">ok</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the command that closes the dialog with a result, always enabled: if the dialog's form doesn't validate,
+the dialog stays open, showing the errors; otherwise, if the form is dirty, it calls <a href="DialogView.html#commit()"><code>DialogView.commit()</code></a>,
+then closes the dialog with <a href="DialogView.html#result()"><code>DialogView.result()</code></a>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#paste()" class="member-name-link">paste</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command that pastes in the focused component; enabled only when it supports it.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#preferences()" class="member-name-link">preferences</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the command that calls <a href="PreferencesHandler.html#showPreferences()"><code>PreferencesHandler.showPreferences()</code></a>; disabled unless a
-<a href="PreferencesHandler.html" title="interface in be.imgn.swing.ui"><code>PreferencesHandler</code></a> bean exists.</div>
-</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#selectAll()" class="member-name-link">selectAll</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#preferences()" class="member-name-link">preferences</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the command that calls <a href="PreferencesHandler.html#showPreferences(be.imgn.swing.ui.Ui)"><code>PreferencesHandler.showPreferences(Ui)</code></a> with the <a href="Ui.html" title="class in be.imgn.swing.ui"><code>Ui</code></a> of this view;
+disabled unless a <a href="PreferencesHandler.html" title="interface in be.imgn.swing.ui"><code>PreferencesHandler</code></a> bean exists.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#selectAll()" class="member-name-link">selectAll</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command that selects all in the focused component; enabled only when it supports it.</div>
 </div>
 </div>
@@ -235,7 +245,8 @@ application, the same as <a href="#exit()"><code>exit()</code></a>.</div>
 <h3>about</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></span>&nbsp;<span class="element-name">about</span>()</div>
-<div class="block">Returns the command that shows the About dialog: displayed name, version and vendor.</div>
+<div class="block">Returns the command that shows the <a href="AboutDialog.html" title="class in be.imgn.swing.ui"><code>AboutDialog</code></a>: from top to bottom, each one that is present of the icon,
+the displayed name, version, vendor, description, copyright and website.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the command</dd>
@@ -248,8 +259,8 @@ application, the same as <a href="#exit()"><code>exit()</code></a>.</div>
 <h3>preferences</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></span>&nbsp;<span class="element-name">preferences</span>()</div>
-<div class="block">Returns the command that calls <a href="PreferencesHandler.html#showPreferences()"><code>PreferencesHandler.showPreferences()</code></a>; disabled unless a
-<a href="PreferencesHandler.html" title="interface in be.imgn.swing.ui"><code>PreferencesHandler</code></a> bean exists.</div>
+<div class="block">Returns the command that calls <a href="PreferencesHandler.html#showPreferences(be.imgn.swing.ui.Ui)"><code>PreferencesHandler.showPreferences(Ui)</code></a> with the <a href="Ui.html" title="class in be.imgn.swing.ui"><code>Ui</code></a> of this view;
+disabled unless a <a href="PreferencesHandler.html" title="interface in be.imgn.swing.ui"><code>PreferencesHandler</code></a> bean exists.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the command</dd>
@@ -328,7 +339,10 @@ application, the same as <a href="#exit()"><code>exit()</code></a>.</div>
 <h3>ok</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></span>&nbsp;<span class="element-name">ok</span>()</div>
-<div class="block">Returns the command that closes the dialog with a result.</div>
+<div class="block">Returns the command that closes the dialog with a result, always enabled: if the dialog's form doesn't validate,
+the dialog stays open, showing the errors; otherwise, if the form is dirty, it calls <a href="DialogView.html#commit()"><code>DialogView.commit()</code></a>,
+then closes the dialog with <a href="DialogView.html#result()"><code>DialogView.result()</code></a>. The dialog's form is the <a href="Form.html" title="class in be.imgn.swing.ui"><code>Form</code></a> bean of the dialog
+view's scope.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the command</dd>
@@ -343,7 +357,24 @@ application, the same as <a href="#exit()"><code>exit()</code></a>.</div>
 <h3>cancel</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></span>&nbsp;<span class="element-name">cancel</span>()</div>
-<div class="block">Returns the command that closes the dialog without a result.</div>
+<div class="block">Returns the command that closes the dialog without a result, always enabled, whatever the state of its form.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the command</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - outside a dialog view's scope</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="apply()">
+<h3>apply</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></span>&nbsp;<span class="element-name">apply</span>()</div>
+<div class="block">Returns the command that applies the dialog's form, enabled while the form is dirty: if the form validates, it
+calls <a href="DialogView.html#commit()"><code>DialogView.commit()</code></a>, then <a href="Form.html#markClean()"><code>Form.markClean()</code></a>; the dialog stays open. The dialog's form is the
+<a href="Form.html" title="class in be.imgn.swing.ui"><code>Form</code></a> bean of the dialog view's scope.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the command</dd>

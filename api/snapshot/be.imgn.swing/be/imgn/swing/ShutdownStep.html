@@ -77,7 +77,7 @@ the shutdown and the running tasks ended, sorted by <a href="#order()"><code>ord
 closed.
 
 <p>The UI contributes two steps: saving window state (order 100), then disposing the windows and closing their child
-injectors (order 200).</div>
+injectors (order 200). Core contributes a step that waits for the pending saves of settings (order 300).</div>
 </div>
 </section>
 <section class="summary">

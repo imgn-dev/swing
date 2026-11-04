@@ -59,9 +59,13 @@ loadScripts(document, 'script');</script>
 <ol class="toc-list">
 <li><a href="#view()" tabindex="0">view()</a></li>
 <li><a href="#commands(java.lang.Class)" tabindex="0">commands(Class)</a></li>
+<li><a href="#bean(java.lang.Class)" tabindex="0">bean(Class)</a></li>
+<li><a href="#isOpen()" tabindex="0">isOpen()</a></li>
 <li><a href="#component(java.lang.Class)" tabindex="0">component(Class)</a></li>
 <li><a href="#component(java.lang.Class,java.lang.String)" tabindex="0">component(Class, String)</a></li>
 <li><a href="#components(java.lang.Class)" tabindex="0">components(Class)</a></li>
+<li><a href="#settle()" tabindex="0">settle()</a></li>
+<li><a href="#focused()" tabindex="0">focused()</a></li>
 </ol>
 </li>
 </ol>
@@ -83,8 +87,8 @@ loadScripts(document, 'script');</script>
 <div class="horizontal-scroll">
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">OpenDialog&lt;V&gt;</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">A dialog view the tester shows, as an answer registered with <a href="FakeDialogs.html#answerDialog(java.lang.Class,java.util.function.Consumer)"><code>FakeDialogs.answerDialog(Class, Consumer)</code></a> sees it. Its methods
-are called on the EDT.</div>
+<div class="block">A dialog view the tester shows, as an answer registered with <a href="FakeDialogs.html#answerDialog(java.lang.Class,java.util.function.Consumer)"><code>FakeDialogs.answerDialog(Class, Consumer)</code></a> sees it. The answer
+runs on the EDT, so it changes the dialog's components directly, and its methods are called on the EDT.</div>
 </div>
 </section>
 <section class="summary">
@@ -100,27 +104,51 @@ are called on the EDT.</div>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;C&gt;&nbsp;C</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#commands(java.lang.Class)" class="member-name-link">commands</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;C&gt;&nbsp;type)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;B&gt;&nbsp;B</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bean(java.lang.Class)" class="member-name-link">bean</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;B&gt;&nbsp;type)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Resolves a bean through the dialog's view injector, so that beans of every scope of the dialog are reachable,
+such as the dialog's <code>Form</code>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;C&gt;&nbsp;C</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#commands(java.lang.Class)" class="member-name-link">commands</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;C&gt;&nbsp;type)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a bean of the dialog view's scope, such as its generated commands or its <code>StandardCommands</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;T</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#component(java.lang.Class)" class="member-name-link">component</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;T</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#component(java.lang.Class)" class="member-name-link">component</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the one component of a type in the dialog.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;T</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#component(java.lang.Class,java.lang.String)" class="member-name-link">component</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;T</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#component(java.lang.Class,java.lang.String)" class="member-name-link">component</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type,
  <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the one component of a type in the dialog whose accessible name is <code>name</code>: the text of the label
 whose <code>labelFor</code> it is, or the <code>accessible-name</code> of its resources.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#components(java.lang.Class)" class="member-name-link">components</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;T&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#components(java.lang.Class)" class="member-name-link">components</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the components of a type in the dialog, in depth-first order.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Component.html" title="class or interface in java.awt" class="external-link">Component</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#focused()" class="member-name-link">focused</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the last component focused through the dialog's <code>Window.focus</code>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isOpen()" class="member-name-link">isOpen</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns whether the dialog is open: <code>false</code> once <code>ok()</code> or <code>cancel()</code> closed it.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#settle()" class="member-name-link">settle</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Settles from within the answer, as every tester call does: runs the updates posted on the EDT so far, such as
+those of the dialog's <code>Ui.bind</code> targets, which would otherwise wait for the answer to return, and the
+periodic actions that are due, and waits for the tasks of commands, the <code>@OnVirtualThread</code> deliveries and
+the pending settings saves.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#type-param-V" title="type parameter in OpenDialog">V</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#view()" class="member-name-link">view</a>()</code></div>
@@ -170,6 +198,39 @@ whose <code>labelFor</code> it is, or the <code>accessible-name</code> of its re
 <dd><code>type</code> - the bean's class</dd>
 <dt>Returns:</dt>
 <dd>the bean</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="bean(java.lang.Class)">
+<h3>bean</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;B&gt;</span>&nbsp;<span class="return-type">B</span>&nbsp;<span class="element-name">bean</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;B&gt;&nbsp;type)</span></div>
+<div class="block">Resolves a bean through the dialog's view injector, so that beans of every scope of the dialog are reachable,
+such as the dialog's <code>Form</code>.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><span id="bean(java.lang.Class)-type-param-B"><code>B</code> - the bean's class</span></dd>
+<dt>Parameters:</dt>
+<dd><code>type</code> - the bean's class</dd>
+<dt>Returns:</dt>
+<dd>the bean</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>type</code> is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isOpen()">
+<h3>isOpen</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isOpen</span>()</div>
+<div class="block">Returns whether the dialog is open: <code>false</code> once <code>ok()</code> or <code>cancel()</code> closed it.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd><code>true</code> until the dialog closes</dd>
 </dl>
 </div>
 </section>
@@ -228,6 +289,35 @@ whose <code>labelFor</code> it is, or the <code>accessible-name</code> of its re
 <dd><code>type</code> - the type</dd>
 <dt>Returns:</dt>
 <dd>the components</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="settle()">
+<h3>settle</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">settle</span>()</div>
+<div class="block">Settles from within the answer, as every tester call does: runs the updates posted on the EDT so far, such as
+those of the dialog's <code>Ui.bind</code> targets, which would otherwise wait for the answer to return, and the
+periodic actions that are due, and waits for the tasks of commands, the <code>@OnVirtualThread</code> deliveries and
+the pending settings saves.</div>
+<dl class="notes">
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/AssertionError.html" title="class or interface in java.lang" class="external-link">AssertionError</a></code> - if a task or a save doesn't end in time</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="focused()">
+<h3>focused</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Component.html" title="class or interface in java.awt" class="external-link">Component</a>&gt;</span>&nbsp;<span class="element-name">focused</span>()</div>
+<div class="block">Returns the last component focused through the dialog's <code>Window.focus</code>.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the component, empty if none was</dd>
 </dl>
 </div>
 </section>

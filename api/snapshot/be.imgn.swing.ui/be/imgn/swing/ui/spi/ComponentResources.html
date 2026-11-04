@@ -92,7 +92,9 @@ loadScripts(document, 'script');</script>
 <div class="horizontal-scroll">
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">ComponentResources</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">The resources of a view class, read by field and property, as the generated injectors write them.</div>
+<div class="block">The resources of a view class, read by field path and property, as the generated injectors write them. A field path
+is the name of a field of the view, or names joined by <code>.</code>, such as <code>home.streetLabel</code>, which reaches the
+nested table of a component field of the component that the view's field <code>home</code> holds.</div>
 </div>
 </section>
 <section class="summary">
@@ -249,7 +251,7 @@ class's package first, then its superclasses'.</div>
 <div class="block">Returns a string property.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>field</code> - the field</dd>
+<dd><code>field</code> - the field path: a field name, or names joined by <code>.</code>, such as <code>home.streetLabel</code></dd>
 <dd><code>key</code> - the property</dd>
 <dt>Returns:</dt>
 <dd>the value, if given</dd>
@@ -266,7 +268,7 @@ class's package first, then its superclasses'.</div>
 <div class="block">Returns an integer property.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>field</code> - the field</dd>
+<dd><code>field</code> - the field path: a field name, or names joined by <code>.</code>, such as <code>home.streetLabel</code></dd>
 <dd><code>key</code> - the property</dd>
 <dt>Returns:</dt>
 <dd>the value, if given</dd>
@@ -283,7 +285,7 @@ class's package first, then its superclasses'.</div>
 <div class="block">Returns a boolean property.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>field</code> - the field</dd>
+<dd><code>field</code> - the field path: a field name, or names joined by <code>.</code>, such as <code>home.streetLabel</code></dd>
 <dd><code>key</code> - the property</dd>
 <dt>Returns:</dt>
 <dd>the value, if given</dd>
@@ -300,7 +302,7 @@ class's package first, then its superclasses'.</div>
 <div class="block">Returns a color property: <code>"#rrggbb"</code> or <code>"#rrggbbaa"</code>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>field</code> - the field</dd>
+<dd><code>field</code> - the field path: a field name, or names joined by <code>.</code>, such as <code>home.streetLabel</code></dd>
 <dd><code>key</code> - the property</dd>
 <dt>Returns:</dt>
 <dd>the value, if given</dd>
@@ -317,7 +319,7 @@ class's package first, then its superclasses'.</div>
 <div class="block">Returns a font property, in <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Font.html#decode(java.lang.String)" title="class or interface in java.awt" class="external-link"><code>Font.decode(String)</code></a>'s syntax.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>field</code> - the field</dd>
+<dd><code>field</code> - the field path: a field name, or names joined by <code>.</code>, such as <code>home.streetLabel</code></dd>
 <dd><code>key</code> - the property</dd>
 <dt>Returns:</dt>
 <dd>the value, if given</dd>
@@ -335,7 +337,7 @@ class's package first, then its superclasses'.</div>
 class's package first, then its superclasses'.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>field</code> - the field</dd>
+<dd><code>field</code> - the field path: a field name, or names joined by <code>.</code>, such as <code>home.streetLabel</code></dd>
 <dd><code>key</code> - the property</dd>
 <dt>Returns:</dt>
 <dd>the icon, if given</dd>

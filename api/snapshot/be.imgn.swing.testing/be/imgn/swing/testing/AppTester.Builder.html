@@ -58,6 +58,9 @@ loadScripts(document, 'script');</script>
 <li><a href="#method-summary" tabindex="0">Method Summary</a></li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
+<li><a href="#settings(java.lang.Record)" tabindex="0">settings(Record)</a></li>
+<li><a href="#file(java.util.function.Function,java.lang.String)" tabindex="0">file(Function, String)</a></li>
+<li><a href="#fileSystem(java.nio.file.FileSystem)" tabindex="0">fileSystem(FileSystem)</a></li>
 <li><a href="#locale(java.util.Locale)" tabindex="0">locale(Locale)</a></li>
 <li><a href="#arguments(java.lang.String...)" tabindex="0">arguments(String...)</a></li>
 <li><a href="#start()" tabindex="0">start()</a></li>
@@ -109,13 +112,32 @@ loadScripts(document, 'script');</script>
 <code>Swing.launch(type, args)</code> binds them.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="AppTester.Builder.html" title="class in be.imgn.swing.testing">AppTester.Builder</a><wbr>&lt;<a href="#type-param-T" title="type parameter in AppTester.Builder">T</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#file(java.util.function.Function,java.lang.String)" class="member-name-link">file</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;be.imgn.gaia.core.platform.ApplicationDirectories, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&gt;&nbsp;path,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;content)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Writes a file before startup, at a path in the application's fake directories, creating its directories, so
+that the application starts on a settings file, a data file or a window state of the test's choice.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="AppTester.Builder.html" title="class in be.imgn.swing.testing">AppTester.Builder</a><wbr>&lt;<a href="#type-param-T" title="type parameter in AppTester.Builder">T</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fileSystem(java.nio.file.FileSystem)" class="member-name-link">fileSystem</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/FileSystem.html" title="class or interface in java.nio.file" class="external-link">FileSystem</a>&nbsp;fileSystem)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Uses a memory file system rather than a new one, and doesn't close it, so that a test starts the application
+a second time on what the first run saved.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="AppTester.Builder.html" title="class in be.imgn.swing.testing">AppTester.Builder</a><wbr>&lt;<a href="#type-param-T" title="type parameter in AppTester.Builder">T</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#locale(java.util.Locale)" class="member-name-link">locale</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Locale.html" title="class or interface in java.util" class="external-link">Locale</a>&nbsp;locale)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets the locale, bound as the application's <code>DisplayLocale</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="AppTester.html" title="class in be.imgn.swing.testing">AppTester</a><wbr>&lt;<a href="#type-param-T" title="type parameter in AppTester.Builder">T</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#start()" class="member-name-link">start</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="AppTester.Builder.html" title="class in be.imgn.swing.testing">AppTester.Builder</a><wbr>&lt;<a href="#type-param-T" title="type parameter in AppTester.Builder">T</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#settings(java.lang.Record)" class="member-name-link">settings</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a>&nbsp;value)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Writes a settings record to the fake config directory before startup, with the settings store's own writer,
+so that the application starts on it.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="AppTester.html" title="class in be.imgn.swing.testing">AppTester</a><wbr>&lt;<a href="#type-param-T" title="type parameter in AppTester.Builder">T</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#start()" class="member-name-link">start</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Starts the application.</div>
 </div>
 </div>
@@ -135,6 +157,68 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="settings(java.lang.Record)">
+<h3>settings</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="AppTester.Builder.html" title="class in be.imgn.swing.testing">AppTester.Builder</a>&lt;<a href="#type-param-T" title="type parameter in AppTester.Builder">T</a>&gt;</span>&nbsp;<span class="element-name">settings</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a>&nbsp;value)</span></div>
+<div class="block">Writes a settings record to the fake config directory before startup, with the settings store's own writer,
+so that the application starts on it. A later value of the same record replaces an earlier one.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>value</code> - the record, annotated <code>@Settings</code></dd>
+<dt>Returns:</dt>
+<dd>this builder</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>value</code> is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the record's class has no settings descriptor</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="file(java.util.function.Function,java.lang.String)">
+<h3>file</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="AppTester.Builder.html" title="class in be.imgn.swing.testing">AppTester.Builder</a>&lt;<a href="#type-param-T" title="type parameter in AppTester.Builder">T</a>&gt;</span>&nbsp;<span class="element-name">file</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;be.imgn.gaia.core.platform.ApplicationDirectories, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&gt;&nbsp;path,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;content)</span></div>
+<div class="block">Writes a file before startup, at a path in the application's fake directories, creating its directories, so
+that the application starts on a settings file, a data file or a window state of the test's choice.
+
+<pre><code>AppTester.builder(NotesApp.class)
+        .file(directories -&gt; directories.data().resolve("notes.txt"), "Hello")
+        .start()
+</code></pre></div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>path</code> - gives the file's path from the application's directories</dd>
+<dd><code>content</code> - the file's content, written in UTF-8</dd>
+<dt>Returns:</dt>
+<dd>this builder</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>path</code> or <code>content</code> is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="fileSystem(java.nio.file.FileSystem)">
+<h3>fileSystem</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="AppTester.Builder.html" title="class in be.imgn.swing.testing">AppTester.Builder</a>&lt;<a href="#type-param-T" title="type parameter in AppTester.Builder">T</a>&gt;</span>&nbsp;<span class="element-name">fileSystem</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/FileSystem.html" title="class or interface in java.nio.file" class="external-link">FileSystem</a>&nbsp;fileSystem)</span></div>
+<div class="block">Uses a memory file system rather than a new one, and doesn't close it, so that a test starts the application
+a second time on what the first run saved.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>fileSystem</code> - the file system, which the test closes</dd>
+<dt>Returns:</dt>
+<dd>this builder</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>fileSystem</code> is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
 <li>
 <section class="detail" id="locale(java.util.Locale)">
 <h3>locale</h3>

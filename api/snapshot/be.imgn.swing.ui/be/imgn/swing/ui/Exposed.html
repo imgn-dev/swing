@@ -72,6 +72,11 @@ loadScripts(document, 'script');</script>
 window state, or a field that <a href="Command.html#enabled()"><code>Command.enabled()</code></a> or <a href="Command.html#selected()"><code>Command.selected()</code></a> names. Generated code reads no
 other field.
 
+<p>A component field of a component that a view holds, such as a label of a panel that several views show, is
+<code>@Exposed</code> too when the resources of those views name it in nested tables, such as <code>[home.streetLabel]</code>.
+The view's generated code reads it through the enclosing fields, so it is public when its class is in another package
+than the view's.
+
 <p>An exposed field is neither private nor static, and its type is a <code>java.awt.Component</code> or an
 <code>Observable&lt;Boolean&gt;</code>. Checkstyle's <code>VisibilityModifier</code> accepts it once <code>be.imgn.swing.ui.Exposed</code>
 is among its <code>ignoreAnnotationCanonicalNames</code>: on the imgn parent, through the property

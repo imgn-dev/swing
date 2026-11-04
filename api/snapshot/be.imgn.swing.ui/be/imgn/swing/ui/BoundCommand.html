@@ -67,6 +67,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#asAction()" tabindex="0">asAction()</a></li>
 <li><a href="#execute()" tabindex="0">execute()</a></li>
 <li><a href="#execute(be.imgn.swing.ui.CommandContext)" tabindex="0">execute(CommandContext)</a></li>
+<li><a href="#running()" tabindex="0">running()</a></li>
+<li><a href="#cancel()" tabindex="0">cancel()</a></li>
 <li><a href="#toString()" tabindex="0">toString()</a></li>
 </ol>
 </li>
@@ -139,41 +141,52 @@ icon, tooltip, enabled and selected state stay in sync.</div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command's Swing action, the same on each call.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JButton.html" title="class or interface in javax.swing" class="external-link">JButton</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createButton()" class="member-name-link">createButton</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cancel()" class="member-name-link">cancel</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Cancels every task the command started that hasn't ended, waiting ones included; does nothing when there is none.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JButton.html" title="class or interface in javax.swing" class="external-link">JButton</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createButton()" class="member-name-link">createButton</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a new button for the command.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JCheckBoxMenuItem.html" title="class or interface in javax.swing" class="external-link">JCheckBoxMenuItem</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createCheckBoxMenuItem()" class="member-name-link">createCheckBoxMenuItem</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JCheckBoxMenuItem.html" title="class or interface in javax.swing" class="external-link">JCheckBoxMenuItem</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createCheckBoxMenuItem()" class="member-name-link">createCheckBoxMenuItem</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a new check box menu item for a command with a selected state.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JMenuItem.html" title="class or interface in javax.swing" class="external-link">JMenuItem</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createMenuItem()" class="member-name-link">createMenuItem</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JMenuItem.html" title="class or interface in javax.swing" class="external-link">JMenuItem</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createMenuItem()" class="member-name-link">createMenuItem</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a new menu item for the command.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JToggleButton.html" title="class or interface in javax.swing" class="external-link">JToggleButton</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createToggleButton()" class="member-name-link">createToggleButton</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JToggleButton.html" title="class or interface in javax.swing" class="external-link">JToggleButton</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createToggleButton()" class="member-name-link">createToggleButton</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a new toggle button for a command with a selected state.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute()" class="member-name-link">execute</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute()" class="member-name-link">execute</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Runs the command as if activated, with a <a href="Trigger.Programmatic.html" title="class in be.imgn.swing.ui"><code>Trigger.Programmatic</code></a> trigger and no modifier, if it is enabled.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute(be.imgn.swing.ui.CommandContext)" class="member-name-link">execute</a><wbr>(<a href="CommandContext.html" title="class in be.imgn.swing.ui">CommandContext</a>&nbsp;context)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute(be.imgn.swing.ui.CommandContext)" class="member-name-link">execute</a><wbr>(<a href="CommandContext.html" title="class in be.imgn.swing.ui">CommandContext</a>&nbsp;context)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Runs the command as if activated, if it is enabled: whether it is enabled is the <code>enabled</code> observable's
 current value, not the state of the <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/Action.html" title="class or interface in javax.swing" class="external-link"><code>Action</code></a>, which follows it one posted update later.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#id()" class="member-name-link">id</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#id()" class="member-name-link">id</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the id, also the action command of every component created for the command.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../../../../../be.imgn.swing/be/imgn/swing/Observable.html" title="interface in be.imgn.swing">Observable</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link">Boolean</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#running()" class="member-name-link">running</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns whether the command is running: <code>true</code> from the moment it starts a task until every task it started
+has ended, waiting ones included; <code>false</code> otherwise.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
@@ -303,6 +316,32 @@ current value, not the state of the <a href="https://docs.oracle.com/en/java/jav
 <dt>Returns:</dt>
 <dd><code>true</code> if the command ran, <code>false</code> if it is disabled</dd>
 </dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="running()">
+<h3>running</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../../../../../be.imgn.swing/be/imgn/swing/Observable.html" title="interface in be.imgn.swing">Observable</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link">Boolean</a>&gt;</span>&nbsp;<span class="element-name">running</span>()</div>
+<div class="block">Returns whether the command is running: <code>true</code> from the moment it starts a task until every task it started
+has ended, waiting ones included; <code>false</code> otherwise. A task has ended once its last hook has run, and the
+value changes on the EDT, after those hooks. A command whose handler returns <code>void</code>, or returns
+<code>Task.none()</code>, starts nothing, so it isn't running.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>whether the command is running</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="cancel()">
+<h3>cancel</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancel</span>()</div>
+<div class="block">Cancels every task the command started that hasn't ended, waiting ones included; does nothing when there is none.
+It may be called from any thread, and runs on the EDT, as <a href="#execute()"><code>execute()</code></a> does.</div>
 </div>
 </section>
 </li>

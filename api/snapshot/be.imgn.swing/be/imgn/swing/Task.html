@@ -60,10 +60,13 @@ loadScripts(document, 'script');</script>
 <li><a href="#of(java.util.concurrent.Callable)" tabindex="0">of(Callable)</a></li>
 <li><a href="#of(java.lang.Runnable)" tabindex="0">of(Runnable)</a></li>
 <li><a href="#of(be.imgn.swing.TaskWork)" tabindex="0">of(TaskWork)</a></li>
+<li><a href="#of(be.imgn.swing.PublishingWork,java.util.function.Consumer)" tabindex="0">of(PublishingWork, Consumer)</a></li>
 <li><a href="#none()" tabindex="0">none()</a></li>
 <li><a href="#onSuccess(java.util.function.Consumer)" tabindex="0">onSuccess(Consumer)</a></li>
 <li><a href="#onFailure(java.util.function.Consumer)" tabindex="0">onFailure(Consumer)</a></li>
 <li><a href="#onCancel(java.lang.Runnable)" tabindex="0">onCancel(Runnable)</a></li>
+<li><a href="#onEnd(java.lang.Runnable)" tabindex="0">onEnd(Runnable)</a></li>
+<li><a href="#then(java.util.function.Function)" tabindex="0">then(Function)</a></li>
 </ol>
 </li>
 </ol>
@@ -80,17 +83,20 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="horizontal-scroll">
-<div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">Task&lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</span></div>
+<div class="type-signature"><span class="modifiers">public sealed interface </span><span class="element-name type-name-label">Task&lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</span></div>
 <div class="block">Work that runs on a virtual thread, with its completion hooks.
 
 <p>The hooks, the progress and the messages are delivered through the <a href="UiExecutor.html" title="interface in be.imgn.swing"><code>UiExecutor</code></a>: on the EDT with the UI
-module. Cancelling interrupts the thread; a task that ends by <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/InterruptedException.html" title="class or interface in java.lang" class="external-link"><code>InterruptedException</code></a> or
-<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CancellationException.html" title="class or interface in java.util.concurrent" class="external-link"><code>CancellationException</code></a> after cancellation runs its <a href="#onCancel(java.lang.Runnable)"><code>onCancel(Runnable)</code></a> hooks. A
-failure with no <a href="#onFailure(java.util.function.Consumer)"><code>onFailure(Consumer)</code></a> hook goes to the <a href="FailureHandler.html" title="interface in be.imgn.swing"><code>FailureHandler</code></a>. A task belongs to the scope it
-was started in: closing the scope cancels it.
+module. Cancelling interrupts the thread; a task cancelled before its hooks run runs its <a href="#onCancel(java.lang.Runnable)"><code>onCancel(Runnable)</code></a>
+hooks, then its <a href="#onEnd(java.lang.Runnable)"><code>onEnd(Runnable)</code></a> hooks, and never its <a href="#onSuccess(java.util.function.Consumer)"><code>onSuccess(Consumer)</code></a> or
+<a href="#onFailure(java.util.function.Consumer)"><code>onFailure(Consumer)</code></a> hooks, even when its work had already returned or thrown. A failure with no
+<a href="#onFailure(java.util.function.Consumer)"><code>onFailure(Consumer)</code></a> hook goes to the <a href="FailureHandler.html" title="interface in be.imgn.swing"><code>FailureHandler</code></a>, as does a hook that throws; the remaining hooks
+still run. A task belongs to the scope it was started in: closing the scope cancels it.
 
 <p>Run a task with <a href="TaskService.html#run(be.imgn.swing.Task,be.imgn.swing.Scope)"><code>TaskService.run(Task, Scope)</code></a>, or return it from a command handler, which runs it. A
-handler that has nothing to run, such as one whose confirmation was declined, returns <a href="#none()"><code>none()</code></a>.</div>
+handler that has nothing to run, such as one whose confirmation was declined, returns <a href="#none()"><code>none()</code></a>.
+
+<p>Only core implements tasks: the interface is sealed, and its static methods and <a href="#then(java.util.function.Function)"><code>then(Function)</code></a> make them.</div>
 </div>
 </section>
 <section class="summary">
@@ -111,25 +117,38 @@ handler that has nothing to run, such as one whose confirmation was declined, re
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Returns the task with no work, which a command handler returns when it has nothing to run.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static &lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;<br><a href="Task.html" title="interface in be.imgn.swing">Task</a><wbr>&lt;T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#of(be.imgn.swing.TaskWork)" class="member-name-link">of</a><wbr>(<a href="TaskWork.html" title="interface in be.imgn.swing">TaskWork</a>&lt;T&gt;&nbsp;work)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static &lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>, P&gt;<br><a href="Task.html" title="interface in be.imgn.swing">Task</a><wbr>&lt;T&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#of(be.imgn.swing.PublishingWork,java.util.function.Consumer)" class="member-name-link">of</a><wbr>(<a href="PublishingWork.html" title="interface in be.imgn.swing">PublishingWork</a>&lt;T,<wbr>P&gt;&nbsp;work,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;? super <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;P&gt;&gt;&nbsp;onPublish)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
+<div class="block">Returns a task of work that publishes partial results while it runs.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static &lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;<br><a href="Task.html" title="interface in be.imgn.swing">Task</a><wbr>&lt;T&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#of(be.imgn.swing.TaskWork)" class="member-name-link">of</a><wbr>(<a href="TaskWork.html" title="interface in be.imgn.swing">TaskWork</a>&lt;T&gt;&nbsp;work)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Returns a task of work that reports its progress or checks whether it is cancelled.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static <a href="Task.html" title="interface in be.imgn.swing">Task</a><wbr>&lt;@Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#of(java.lang.Runnable)" class="member-name-link">of</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;work)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static <a href="Task.html" title="interface in be.imgn.swing">Task</a><wbr>&lt;@Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#of(java.lang.Runnable)" class="member-name-link">of</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;work)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Returns a task of work with no result.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static &lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;<br><a href="Task.html" title="interface in be.imgn.swing">Task</a><wbr>&lt;T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#of(java.util.concurrent.Callable)" class="member-name-link">of</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;T&gt;&nbsp;work)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static &lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;<br><a href="Task.html" title="interface in be.imgn.swing">Task</a><wbr>&lt;T&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#of(java.util.concurrent.Callable)" class="member-name-link">of</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;T&gt;&nbsp;work)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Returns a task of work that returns a result.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Task.html" title="interface in be.imgn.swing">Task</a><wbr>&lt;<a href="#type-param-T" title="type parameter in Task">T</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#onCancel(java.lang.Runnable)" class="member-name-link">onCancel</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;handler)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Adds a hook called when the task is cancelled before its hooks run, even when its work had already returned or
+thrown: the <a href="#onSuccess(java.util.function.Consumer)"><code>onSuccess(Consumer)</code></a> and <a href="#onFailure(java.util.function.Consumer)"><code>onFailure(Consumer)</code></a> hooks then never run.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Task.html" title="interface in be.imgn.swing">Task</a><wbr>&lt;<a href="#type-param-T" title="type parameter in Task">T</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#onCancel(java.lang.Runnable)" class="member-name-link">onCancel</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;handler)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#onEnd(java.lang.Runnable)" class="member-name-link">onEnd</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;handler)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Adds a hook called when the work ends after cancellation.</div>
+<div class="block">Adds a hook called through the <a href="UiExecutor.html" title="interface in be.imgn.swing"><code>UiExecutor</code></a> after the <a href="#onSuccess(java.util.function.Consumer)"><code>onSuccess(Consumer)</code></a>,
+<a href="#onFailure(java.util.function.Consumer)"><code>onFailure(Consumer)</code></a> or <a href="#onCancel(java.lang.Runnable)"><code>onCancel(Runnable)</code></a> hooks, however the task ended.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Task.html" title="interface in be.imgn.swing">Task</a><wbr>&lt;<a href="#type-param-T" title="type parameter in Task">T</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#onFailure(java.util.function.Consumer)" class="member-name-link">onFailure</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;? super <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&gt;&nbsp;handler)</code></div>
@@ -140,6 +159,13 @@ handler that has nothing to run, such as one whose confirmation was declined, re
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#onSuccess(java.util.function.Consumer)" class="member-name-link">onSuccess</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;? super <a href="#type-param-T" title="type parameter in Task">T</a>&gt;&nbsp;handler)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Adds a hook called with the result when the work succeeds.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;R extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;<br><a href="Task.html" title="interface in be.imgn.swing">Task</a><wbr>&lt;R&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#then(java.util.function.Function)" class="member-name-link">then</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super <a href="#type-param-T" title="type parameter in Task">T</a>, ? extends <a href="Task.html" title="interface in be.imgn.swing">Task</a>&lt;R&gt;&gt;&nbsp;next)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Returns a chain that runs this task and, when it succeeds, calls <code>next</code> with its result through the
+<a href="UiExecutor.html" title="interface in be.imgn.swing"><code>UiExecutor</code></a>, after this task's own <a href="#onSuccess(java.util.function.Consumer)"><code>onSuccess(Consumer)</code></a> hooks, then runs the task <code>next</code>
+returns, in the same scope.</div>
 </div>
 </div>
 </div>
@@ -205,12 +231,40 @@ handler that has nothing to run, such as one whose confirmation was declined, re
 </section>
 </li>
 <li>
+<section class="detail" id="of(be.imgn.swing.PublishingWork,java.util.function.Consumer)">
+<h3>of</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="type-parameters">&lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>, P&gt;</span>&nbsp;<span class="return-type"><a href="Task.html" title="interface in be.imgn.swing">Task</a>&lt;T&gt;</span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(<a href="PublishingWork.html" title="interface in be.imgn.swing">PublishingWork</a>&lt;T,<wbr>P&gt;&nbsp;work,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;? super <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;P&gt;&gt;&nbsp;onPublish)</span></div>
+<div class="block">Returns a task of work that publishes partial results while it runs. <code>onPublish</code> receives the published
+values through the <a href="UiExecutor.html" title="interface in be.imgn.swing"><code>UiExecutor</code></a>, in order, in batches: each call holds the values published since the
+previous one. Every value published before the work returns or throws reaches <code>onPublish</code> before the
+<a href="#onSuccess(java.util.function.Consumer)"><code>onSuccess(Consumer)</code></a> or <a href="#onFailure(java.util.function.Consumer)"><code>onFailure(Consumer)</code></a> hooks run. Once the task is cancelled, the values
+not yet delivered are dropped, and <code>onPublish</code> isn't called again.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><span id="of(be.imgn.swing.PublishingWork,java.util.function.Consumer)-type-param-T"><code>T</code> - the type of the result</span></dd>
+<dd><span id="of(be.imgn.swing.PublishingWork,java.util.function.Consumer)-type-param-P"><code>P</code> - the type of the published values</span></dd>
+<dt>Parameters:</dt>
+<dd><code>work</code> - the work, given the task's context and the function that publishes a value</dd>
+<dd><code>onPublish</code> - receives the published values, in batches</dd>
+<dt>Returns:</dt>
+<dd>the task</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>work</code> or <code>onPublish</code> is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
 <section class="detail" id="none()">
 <h3>none</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="type-parameters">&lt;T extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</span>&nbsp;<span class="return-type"><a href="Task.html" title="interface in be.imgn.swing">Task</a>&lt;T&gt;</span>&nbsp;<span class="element-name">none</span>()</div>
 <div class="block">Returns the task with no work, which a command handler returns when it has nothing to run. Running it does
-nothing: no thread starts, no input is blocked, and its hooks never run. It may be run any number of times.</div>
+nothing: no thread starts, no input is blocked, and its hooks never run. It may be run any number of times. It is
+one shared instance, which no chain owns: <code>Task.none().then(next)</code> returns it, without calling
+<code>next</code>.</div>
 <dl class="notes">
 <dt>Type Parameters:</dt>
 <dd><span id="none()-type-param-T"><code>T</code> - the type of the result</span></dd>
@@ -255,12 +309,65 @@ nothing: no thread starts, no input is blocked, and its hooks never run. It may 
 <h3>onCancel</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="return-type"><a href="Task.html" title="interface in be.imgn.swing">Task</a>&lt;<a href="#type-param-T" title="type parameter in Task">T</a>&gt;</span>&nbsp;<span class="element-name">onCancel</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;handler)</span></div>
-<div class="block">Adds a hook called when the work ends after cancellation.</div>
+<div class="block">Adds a hook called when the task is cancelled before its hooks run, even when its work had already returned or
+thrown: the <a href="#onSuccess(java.util.function.Consumer)"><code>onSuccess(Consumer)</code></a> and <a href="#onFailure(java.util.function.Consumer)"><code>onFailure(Consumer)</code></a> hooks then never run.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>handler</code> - the hook</dd>
 <dt>Returns:</dt>
 <dd>this task</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="onEnd(java.lang.Runnable)">
+<h3>onEnd</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="return-type"><a href="Task.html" title="interface in be.imgn.swing">Task</a>&lt;<a href="#type-param-T" title="type parameter in Task">T</a>&gt;</span>&nbsp;<span class="element-name">onEnd</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;handler)</span></div>
+<div class="block">Adds a hook called through the <a href="UiExecutor.html" title="interface in be.imgn.swing"><code>UiExecutor</code></a> after the <a href="#onSuccess(java.util.function.Consumer)"><code>onSuccess(Consumer)</code></a>,
+<a href="#onFailure(java.util.function.Consumer)"><code>onFailure(Consumer)</code></a> or <a href="#onCancel(java.lang.Runnable)"><code>onCancel(Runnable)</code></a> hooks, however the task ended.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>handler</code> - the hook</dd>
+<dt>Returns:</dt>
+<dd>this task</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>handler</code> is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="then(java.util.function.Function)">
+<h3>then</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="type-parameters">&lt;R extends @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</span>&nbsp;<span class="return-type"><a href="Task.html" title="interface in be.imgn.swing">Task</a>&lt;R&gt;</span>&nbsp;<span class="element-name">then</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super <a href="#type-param-T" title="type parameter in Task">T</a>, ? extends <a href="Task.html" title="interface in be.imgn.swing">Task</a>&lt;R&gt;&gt;&nbsp;next)</span></div>
+<div class="block">Returns a chain that runs this task and, when it succeeds, calls <code>next</code> with its result through the
+<a href="UiExecutor.html" title="interface in be.imgn.swing"><code>UiExecutor</code></a>, after this task's own <a href="#onSuccess(java.util.function.Consumer)"><code>onSuccess(Consumer)</code></a> hooks, then runs the task <code>next</code>
+returns, in the same scope.
+
+<p>The chain succeeds with the second task's result, or with <code>null</code> when <code>next</code> returns
+<a href="#none()"><code>none()</code></a>. It fails or is cancelled when either task fails or is cancelled; once this task has failed or
+been cancelled, <code>next</code> isn't called. Cancelling the chain cancels whichever task runs. <code>next</code>
+throwing fails the chain with that exception; <code>next</code> returning <code>null</code> fails it with a
+<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link"><code>NullPointerException</code></a>, and returning a task that has started or that belongs to a chain fails it with an
+<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a>.
+
+<p>This task's own hooks still run, for it alone; the chain's hooks run once, for the chain. A failure reaches
+the <a href="FailureHandler.html" title="interface in be.imgn.swing"><code>FailureHandler</code></a> once, and only when neither the failing task nor the chain has an
+<a href="#onFailure(java.util.function.Consumer)"><code>onFailure(Consumer)</code></a> hook. This task belongs to the chain: running it on its own throws
+<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a>.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><span id="then(java.util.function.Function)-type-param-R"><code>R</code> - the type of the chain's result</span></dd>
+<dt>Parameters:</dt>
+<dd><code>next</code> - returns the task to run with this task's result</dd>
+<dt>Returns:</dt>
+<dd>the chain</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>next</code> is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if this task has started, or already belongs to a chain</dd>
 </dl>
 </div>
 </section>
