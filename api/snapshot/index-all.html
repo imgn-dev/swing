@@ -1105,10 +1105,6 @@ window state, or a field that <a href="be.imgn.swing.ui/be/imgn/swing/ui/Command
 <div class="block">Writes a file before startup, at a path in the application's fake directories, creating its directories, so
 that the application starts on a settings file, a data file or a window state of the test's choice.</div>
 </dd>
-<dt><a href="be.imgn.swing.desktop/be/imgn/swing/desktop/RecentFiles.html#FILE_NAME" class="member-name-link">FILE_NAME</a> - Static variable in class be.imgn.swing.desktop.<a href="be.imgn.swing.desktop/be/imgn/swing/desktop/RecentFiles.html" title="class in be.imgn.swing.desktop">RecentFiles</a></dt>
-<dd>
-<div class="block">The name of the file the recent files are saved to, in the state directory.</div>
-</dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/FileChoice.html" class="type-name-link" title="class in be.imgn.swing.testing">FileChoice</a> - Record Class in <a href="be.imgn.swing.testing/be/imgn/swing/testing/package-summary.html">be.imgn.swing.testing</a></dt>
 <dd>
 <div class="block">A file chooser the application showed, as <a href="be.imgn.swing.testing/be/imgn/swing/testing/FakeDialogs.html#fileChoices()"><code>FakeDialogs.fileChoices()</code></a> records it.</div>
@@ -1862,7 +1858,8 @@ failure goes to the <code>FailureHandler</code>.</div>
 </dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#openFiles(java.nio.file.Path...)" class="member-name-link">openFiles(Path...)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
 <dd>
-<div class="block">Hands files to the application's <code>OpenFilesHandler</code> on the EDT, as an open-file event does, then settles.</div>
+<div class="block">Hands files to the application's <code>OpenFilesHandler</code> on the EDT, as absolute paths, as an open-file event
+does, then settles.</div>
 </dd>
 <dt><a href="be.imgn.swing.desktop/be/imgn/swing/desktop/OpenFilesHandler.html" class="type-name-link" title="interface in be.imgn.swing.desktop">OpenFilesHandler</a> - Interface in <a href="be.imgn.swing.desktop/be/imgn/swing/desktop/package-summary.html">be.imgn.swing.desktop</a></dt>
 <dd>
@@ -2219,7 +2216,8 @@ enabled while the document is modified or untitled.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html#SAVE" class="member-name-link">SAVE</a> - Enum constant in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html" title="enum class in be.imgn.swing.ui">SaveChoice</a></dt>
 <dd>
-<div class="block">Saves the changes, then goes on.</div>
+<div class="block">Saves the changes: the close or the exit stops while the document is written, then is requested again once the
+write succeeds.</div>
 </dd>
 <dt><a href="be.imgn.swing.desktop/be/imgn/swing/desktop/DocumentCommands.html#saveAs()" class="member-name-link">saveAs()</a> - Method in class be.imgn.swing.desktop.<a href="be.imgn.swing.desktop/be/imgn/swing/desktop/DocumentCommands.html" title="class in be.imgn.swing.desktop">DocumentCommands</a></dt>
 <dd>
