@@ -66,6 +66,15 @@ loadScripts(document, 'script');</script>
 <li><a href="#confirm(java.lang.String)" tabindex="0">confirm(String)</a></li>
 <li><a href="#inform(java.lang.String)" tabindex="0">inform(String)</a></li>
 <li><a href="#error(java.lang.String,java.lang.Throwable)" tabindex="0">error(String, Throwable)</a></li>
+<li><a href="#answerOpenFile(java.nio.file.Path)" tabindex="0">answerOpenFile(Path)</a></li>
+<li><a href="#answerSaveFile(java.nio.file.Path)" tabindex="0">answerSaveFile(Path)</a></li>
+<li><a href="#cancelFileChooser()" tabindex="0">cancelFileChooser()</a></li>
+<li><a href="#answerSave(be.imgn.swing.ui.SaveChoice)" tabindex="0">answerSave(SaveChoice)</a></li>
+<li><a href="#fileChoices()" tabindex="0">fileChoices()</a></li>
+<li><a href="#savePrompts()" tabindex="0">savePrompts()</a></li>
+<li><a href="#openFile(java.util.List)" tabindex="0">openFile(List)</a></li>
+<li><a href="#saveFile(java.util.List,java.lang.String)" tabindex="0">saveFile(List, String)</a></li>
+<li><a href="#askSave(java.lang.String)" tabindex="0">askSave(String)</a></li>
 </ol>
 </li>
 </ol>
@@ -118,26 +127,56 @@ class with <a href="#answerDialog(java.lang.Class,java.util.function.Consumer)">
 <div class="block">Registers the answer of a dialog view: an action run on the EDT once the dialog is built, which closes it with
 <code>ok()</code> or <code>cancel()</code>, through its commands.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#confirm(java.lang.String)" class="member-name-link">confirm</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerOpenFile(java.nio.file.Path)" class="member-name-link">answerOpenFile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;answer)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Asks for a confirmation.</div>
+<div class="block">Queues the answer of the next <code>openFile</code> or <code>saveFile</code>: the file chosen.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#confirmed()" class="member-name-link">confirmed</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerSave(be.imgn.swing.ui.SaveChoice)" class="member-name-link">answerSave</a><wbr>(<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html" title="enum class in be.imgn.swing.ui">SaveChoice</a>&nbsp;answer)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the messages of the confirmations asked, in order.</div>
+<div class="block">Queues the answer of the next <code>askSave</code>.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#error(java.lang.String,java.lang.Throwable)" class="member-name-link">error</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message,
- <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&nbsp;cause)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerSaveFile(java.nio.file.Path)" class="member-name-link">answerSaveFile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;answer)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Queues the answer of the next <code>saveFile</code> or <code>openFile</code>: the file chosen.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html" title="enum class in be.imgn.swing.ui">SaveChoice</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#askSave(java.lang.String)" class="member-name-link">askSave</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;documentName)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Asks whether to save the changes of a document, with Save, Don't Save and Cancel buttons.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cancelFileChooser()" class="member-name-link">cancelFileChooser</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Queues a cancel as the answer of the next file chooser, which returns an empty result.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#confirm(java.lang.String)" class="member-name-link">confirm</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Asks for a confirmation.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#confirmed()" class="member-name-link">confirmed</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the messages of the confirmations asked, in order.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#error(java.lang.String,java.lang.Throwable)" class="member-name-link">error</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&nbsp;cause)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Shows an error, with a details area holding the failure and a Copy button.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#errors()" class="member-name-link">errors</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#errors()" class="member-name-link">errors</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the messages of the errors shown, in order.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="FileChoice.html" title="class in be.imgn.swing.testing">FileChoice</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fileChoices()" class="member-name-link">fileChoices</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the file choosers shown, in order.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#inform(java.lang.String)" class="member-name-link">inform</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
@@ -149,9 +188,25 @@ class with <a href="#answerDialog(java.lang.Class,java.util.function.Consumer)">
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the messages shown, in order.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shown()" class="member-name-link">shown</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#openFile(java.util.List)" class="member-name-link">openFile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/FileType.html" title="class in be.imgn.swing.ui">FileType</a>&gt;&nbsp;types)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Asks for a file to open.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#saveFile(java.util.List,java.lang.String)" class="member-name-link">saveFile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/FileType.html" title="class in be.imgn.swing.ui">FileType</a>&gt;&nbsp;types,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;suggestedName)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Asks for a file to save to, starting with a suggested name.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#savePrompts()" class="member-name-link">savePrompts</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the document names of the save prompts asked, in order.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shown()" class="member-name-link">shown</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the classes of the dialog views shown, in order.</div>
 </div>
 </div>
@@ -302,6 +357,150 @@ class with <a href="#answerDialog(java.lang.Class,java.util.function.Consumer)">
 <dt>Parameters:</dt>
 <dd><code>message</code> - the message</dd>
 <dd><code>cause</code> - the failure</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="answerOpenFile(java.nio.file.Path)">
+<h3>answerOpenFile</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">answerOpenFile</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;answer)</span></div>
+<div class="block">Queues the answer of the next <code>openFile</code> or <code>saveFile</code>: the file chosen.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>answer</code> - the file</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>answer</code> is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="answerSaveFile(java.nio.file.Path)">
+<h3>answerSaveFile</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">answerSaveFile</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;answer)</span></div>
+<div class="block">Queues the answer of the next <code>saveFile</code> or <code>openFile</code>: the file chosen. As the real chooser does, a
+name without one of the selected type's extensions gets its first one, and a file that exists asks whether to
+replace it, which the next confirmation answers; refusing leaves the chooser open, for the next queued answer.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>answer</code> - the file</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>answer</code> is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="cancelFileChooser()">
+<h3>cancelFileChooser</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelFileChooser</span>()</div>
+<div class="block">Queues a cancel as the answer of the next file chooser, which returns an empty result.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="answerSave(be.imgn.swing.ui.SaveChoice)">
+<h3>answerSave</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">answerSave</span><wbr><span class="parameters">(<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html" title="enum class in be.imgn.swing.ui">SaveChoice</a>&nbsp;answer)</span></div>
+<div class="block">Queues the answer of the next <code>askSave</code>. A save prompt with no answer queued is answered
+<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html#DISCARD"><code>SaveChoice.DISCARD</code></a>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>answer</code> - the answer</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>answer</code> is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="fileChoices()">
+<h3>fileChoices</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="FileChoice.html" title="class in be.imgn.swing.testing">FileChoice</a>&gt;</span>&nbsp;<span class="element-name">fileChoices</span>()</div>
+<div class="block">Returns the file choosers shown, in order.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the choosers</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="savePrompts()">
+<h3>savePrompts</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">savePrompts</span>()</div>
+<div class="block">Returns the document names of the save prompts asked, in order.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the names</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="openFile(java.util.List)">
+<h3>openFile</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&gt;</span>&nbsp;<span class="element-name">openFile</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/FileType.html" title="class in be.imgn.swing.ui">FileType</a>&gt;&nbsp;types)</span></div>
+<div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html#openFile(java.util.List)">Dialogs</a></code></span></div>
+<div class="block">Asks for a file to open. Each type is a filter, in order, the first one selected, beside the chooser's "All
+files" filter; no type offers that filter only. The chooser starts in the directory last chosen in a chooser of
+this window, else in the user's home directory.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html#openFile(java.util.List)">openFile</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html" title="interface in be.imgn.swing.ui">Dialogs</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>types</code> - the types of files</dd>
+<dt>Returns:</dt>
+<dd>the chosen file, empty if the user cancelled</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="saveFile(java.util.List,java.lang.String)">
+<h3>saveFile</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&gt;</span>&nbsp;<span class="element-name">saveFile</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/FileType.html" title="class in be.imgn.swing.ui">FileType</a>&gt;&nbsp;types,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;suggestedName)</span></div>
+<div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html#saveFile(java.util.List,java.lang.String)">Dialogs</a></code></span></div>
+<div class="block">Asks for a file to save to, starting with a suggested name. A name without one of the selected type's extensions
+gets its first one; with the "All files" filter, the name stays as typed. A file that already exists asks whether
+to replace it before the chooser closes. The chooser starts as <a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html#openFile(java.util.List)"><code>Dialogs.openFile(List)</code></a> does.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html#saveFile(java.util.List,java.lang.String)">saveFile</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html" title="interface in be.imgn.swing.ui">Dialogs</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>types</code> - the types of files</dd>
+<dd><code>suggestedName</code> - the name the chooser starts with</dd>
+<dt>Returns:</dt>
+<dd>the chosen file, empty if the user cancelled</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="askSave(java.lang.String)">
+<h3>askSave</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html" title="enum class in be.imgn.swing.ui">SaveChoice</a></span>&nbsp;<span class="element-name">askSave</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;documentName)</span></div>
+<div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html#askSave(java.lang.String)">Dialogs</a></code></span></div>
+<div class="block">Asks whether to save the changes of a document, with Save, Don't Save and Cancel buttons. Enter is Save; Escape
+and closing the dialog are Cancel.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html#askSave(java.lang.String)">askSave</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html" title="interface in be.imgn.swing.ui">Dialogs</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>documentName</code> - the document's name</dd>
+<dt>Returns:</dt>
+<dd>the button chosen</dd>
 </dl>
 </div>
 </section>

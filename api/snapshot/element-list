@@ -1,6 +1,8 @@
 module:be.imgn.swing
 be.imgn.swing
 be.imgn.swing.spi
+module:be.imgn.swing.desktop
+be.imgn.swing.desktop
 module:be.imgn.swing.flatlaf
 be.imgn.swing.flatlaf
 module:be.imgn.swing.processor

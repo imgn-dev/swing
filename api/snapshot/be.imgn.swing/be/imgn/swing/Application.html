@@ -54,7 +54,6 @@ loadScripts(document, 'script');</script>
 <div class="toc-header">Contents&nbsp;<input type="text" class="filter-input" disabled placeholder="Filter contents (type .)" aria-label="Filter table of contents" autocomplete="off" spellcheck="false"><input type="reset" class="reset-filter" disabled tabindex="-1" value="Reset"></div>
 <ol class="toc-list" tabindex="-1">
 <li><a href="#" tabindex="0">Description</a></li>
-<li><a href="#annotation-interface-required-element-summary" tabindex="0">Required Element Summary</a></li>
 <li><a href="#annotation-interface-optional-element-summary" tabindex="0">Optional Element Summary</a></li>
 <li><a href="#annotation-interface-element-detail" tabindex="0">Element Details</a>
 <ol class="toc-list">
@@ -86,24 +85,6 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="summary">
 <ul class="summary-list">
-<!-- =========== ANNOTATION INTERFACE REQUIRED MEMBER SUMMARY =========== -->
-<li>
-<section class="member-summary" id="annotation-interface-required-element-summary">
-<h2>Required Element Summary</h2>
-<div class="caption"><span>Required Elements</span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Required Element</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#name()" class="member-name-link">name</a></code></div>
-<div class="col-last even-row-color">
-<div class="block">Returns the application's name, as gaia's <code>ApplicationDirectories</code> takes it, and the displayed name unless
-the class's resources give a <code>name</code> key.</div>
-</div>
-</div>
-</section>
-</li>
 <!-- =========== ANNOTATION INTERFACE OPTIONAL MEMBER SUMMARY =========== -->
 <li>
 <section class="member-summary" id="annotation-interface-optional-element-summary">
@@ -114,18 +95,24 @@ the class's resources give a <code>name</code> key.</div>
 <div class="table-header col-second">Optional Element</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#qualifier()" class="member-name-link">qualifier</a></code></div>
+<div class="col-second even-row-color"><code><a href="#name()" class="member-name-link">name</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Returns the vendor's top-level domain; only with a <a href="#vendor()"><code>vendor()</code></a>.</div>
+<div class="block">Returns the application's name, as gaia's <code>ApplicationDirectories</code> takes it, and the displayed name unless
+the class's resources give a <code>name</code> key.</div>
 </div>
 <div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#vendor()" class="member-name-link">vendor</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#qualifier()" class="member-name-link">qualifier</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">Returns the organization or person that makes the application.</div>
+<div class="block">Returns the vendor's top-level domain; only with a <a href="#vendor()"><code>vendor()</code></a>.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#version()" class="member-name-link">version</a></code></div>
+<div class="col-second even-row-color"><code><a href="#vendor()" class="member-name-link">vendor</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">Returns the organization or person that makes the application.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#version()" class="member-name-link">version</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Returns the version, shown in the About dialog.</div>
 </div>
 </div>
@@ -146,10 +133,14 @@ the class's resources give a <code>name</code> key.</div>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">name</span></div>
 <div class="block">Returns the application's name, as gaia's <code>ApplicationDirectories</code> takes it, and the displayed name unless
-the class's resources give a <code>name</code> key.</div>
+the class's resources give a <code>name</code> key. An empty name is the class's simple name.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the application's name, such as <code>Counter</code></dd>
+<dd>the application's name, such as <code>Counter</code>, or an empty string for the class's simple name</dd>
+</dl>
+<dl class="notes">
+<dt>Default:</dt>
+<dd><code>""</code></dd>
 </dl>
 </div>
 </section>

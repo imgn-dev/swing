@@ -58,6 +58,7 @@ loadScripts(document, 'script');</script>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
 <li><a href="#command(java.lang.Class,java.lang.String)" tabindex="0">command(Class, String)</a></li>
+<li><a href="#overridableCommand(java.lang.Class,java.lang.String)" tabindex="0">overridableCommand(Class, String)</a></li>
 <li><a href="#override(java.lang.String,java.lang.Class)" tabindex="0">override(String, Class)</a></li>
 </ol>
 </li>
@@ -101,10 +102,18 @@ commands through it.</div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a builder of a command.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#override(java.lang.String,java.lang.Class)" class="member-name-link">override</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id,
- <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a>&gt;&nbsp;commands)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CommandBuilder.html" title="class in be.imgn.swing.ui">CommandBuilder</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#overridableCommand(java.lang.Class,java.lang.String)" class="member-name-link">overridableCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&nbsp;owner,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Starts building a command of a framework's commands class, such as the document commands, whose text and
+shortcuts come from the owner's resources, overridden by the view class's <code>[commands.&lt;id&gt;]</code> table, as those
+of the standard commands are.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#override(java.lang.String,java.lang.Class)" class="member-name-link">override</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a>&gt;&nbsp;commands)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Registers a command that overrides a standard command in this view: the generated injectors of view classes call
 it, before the view is resolved, for each override of the view class and its superclasses.</div>
 </div>
@@ -138,6 +147,27 @@ it, before the view is resolved, for each override of the view class and its sup
 <dd><code>id</code> - the id of the command</dd>
 <dt>Returns:</dt>
 <dd>the builder</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="overridableCommand(java.lang.Class,java.lang.String)">
+<h3>overridableCommand</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="CommandBuilder.html" title="class in be.imgn.swing.ui">CommandBuilder</a></span>&nbsp;<span class="element-name">overridableCommand</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&nbsp;owner,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</span></div>
+<div class="block">Starts building a command of a framework's commands class, such as the document commands, whose text and
+shortcuts come from the owner's resources, overridden by the view class's <code>[commands.&lt;id&gt;]</code> table, as those
+of the standard commands are.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>owner</code> - the commands class, whose resources give the defaults</dd>
+<dd><code>id</code> - the command's id</dd>
+<dt>Returns:</dt>
+<dd>the builder</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if an argument is <code>null</code></dd>
 </dl>
 </div>
 </section>

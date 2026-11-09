@@ -57,10 +57,6 @@ loadScripts(document, 'script');</script>
 <li><a href="#method-summary" tabindex="0">Method Summary</a></li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
-<li><a href="#menuBar()" tabindex="0">menuBar()</a></li>
-<li><a href="#toolBar()" tabindex="0">toolBar()</a></li>
-<li><a href="#configureFrame(javax.swing.JFrame)" tabindex="0">configureFrame(JFrame)</a></li>
-<li><a href="#restoreBounds()" tabindex="0">restoreBounds()</a></li>
 <li><a href="#ready()" tabindex="0">ready()</a></li>
 </ol>
 </li>
@@ -74,19 +70,17 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Superinterfaces:</dt>
-<dd><code><a href="View.html" title="interface in be.imgn.swing.ui">View</a></code></dd>
+<dd><code><a href="FrameView.html" title="interface in be.imgn.swing.ui">FrameView</a>, <a href="View.html" title="interface in be.imgn.swing.ui">View</a></code></dd>
 </dl>
 <hr>
 <div class="horizontal-scroll">
 <div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">SingleFrame</span><span class="extends-implements">
-extends <a href="View.html" title="interface in be.imgn.swing.ui">View</a></span></div>
+extends <a href="FrameView.html" title="interface in be.imgn.swing.ui">FrameView</a></span></div>
 <div class="block">An application class that is the only view of the main window. Its commands and resources work as in any view.
 
-<p>When the application class implements it, the framework creates the main window and sets its title from the
-<code>title</code> resource, else the displayed name. It then resolves the application class through the view's child
-injector, applies its component resources, puts its content, menu bar and toolbar in the window, calls
-<a href="#configureFrame(javax.swing.JFrame)"><code>configureFrame(JFrame)</code></a>, restores the saved window state and shows the window. Once the application is ready,
-it calls <a href="#ready()"><code>ready()</code></a>.</div>
+<p>When the application class implements it, the framework creates the main window and shows the application class in
+it, as <a href="FrameView.html" title="interface in be.imgn.swing.ui"><code>FrameView</code></a> describes. Closing the main window requests exit. Once the application is ready, it calls
+<a href="#ready()"><code>ready()</code></a>.</div>
 </div>
 </section>
 <section class="summary">
@@ -103,34 +97,17 @@ it calls <a href="#ready()"><code>ready()</code></a>.</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#configureFrame(javax.swing.JFrame)" class="member-name-link">configureFrame</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JFrame.html" title="class or interface in javax.swing" class="external-link">JFrame</a>&nbsp;frame)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
-<div class="block">Configures the main frame, before it is packed and its saved state is restored.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JMenuBar.html" title="class or interface in javax.swing" class="external-link">JMenuBar</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#menuBar()" class="member-name-link">menuBar</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
-<div class="block">Returns the menu bar of the main window.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#ready()" class="member-name-link">ready</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">Called once, on the EDT, when the application is ready: the main window is shown and the events posted meanwhile
 have run.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#restoreBounds()" class="member-name-link">restoreBounds</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
-<div class="block">Returns whether the saved bounds of the main frame are restored.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default @Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JToolBar.html" title="class or interface in javax.swing" class="external-link">JToolBar</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#toolBar()" class="member-name-link">toolBar</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
-<div class="block">Returns the toolbar of the main window, placed at <code>BorderLayout.NORTH</code>.</div>
 </div>
 </div>
 </div>
-</div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-be.imgn.swing.ui.FrameView">Methods inherited from interface&nbsp;<a href="FrameView.html#method-summary" title="interface in be.imgn.swing.ui">FrameView</a></h3>
+<code><a href="FrameView.html#configureFrame(javax.swing.JFrame)" title="configureFrame(JFrame)">configureFrame</a>, <a href="FrameView.html#menuBar()" title="menuBar()">menuBar</a>, <a href="FrameView.html#restoreBounds()" title="restoreBounds()">restoreBounds</a>, <a href="FrameView.html#toolBar()" title="toolBar()">toolBar</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-be.imgn.swing.ui.View">Methods inherited from interface&nbsp;<a href="View.html#method-summary" title="interface in be.imgn.swing.ui">View</a></h3>
 <code><a href="View.html#content()" title="content()">content</a></code></div>
@@ -145,58 +122,6 @@ have run.</div>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
-<li>
-<section class="detail" id="menuBar()">
-<h3>menuBar</h3>
-<div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type">@Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JMenuBar.html" title="class or interface in javax.swing" class="external-link">JMenuBar</a></span>&nbsp;<span class="element-name">menuBar</span>()</div>
-<div class="block">Returns the menu bar of the main window.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>the menu bar, or <code>null</code> for none</dd>
-</dl>
-</div>
-</section>
-</li>
-<li>
-<section class="detail" id="toolBar()">
-<h3>toolBar</h3>
-<div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type">@Nullable <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JToolBar.html" title="class or interface in javax.swing" class="external-link">JToolBar</a></span>&nbsp;<span class="element-name">toolBar</span>()</div>
-<div class="block">Returns the toolbar of the main window, placed at <code>BorderLayout.NORTH</code>.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>the toolbar, or <code>null</code> for none</dd>
-</dl>
-</div>
-</section>
-</li>
-<li>
-<section class="detail" id="configureFrame(javax.swing.JFrame)">
-<h3>configureFrame</h3>
-<div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configureFrame</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JFrame.html" title="class or interface in javax.swing" class="external-link">JFrame</a>&nbsp;frame)</span></div>
-<div class="block">Configures the main frame, before it is packed and its saved state is restored.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>frame</code> - the frame</dd>
-</dl>
-</div>
-</section>
-</li>
-<li>
-<section class="detail" id="restoreBounds()">
-<h3>restoreBounds</h3>
-<div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">restoreBounds</span>()</div>
-<div class="block">Returns whether the saved bounds of the main frame are restored.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd><code>false</code> for a frame that must always open where <a href="#configureFrame(javax.swing.JFrame)"><code>configureFrame(JFrame)</code></a> puts it</dd>
-</dl>
-</div>
-</section>
-</li>
 <li>
 <section class="detail" id="ready()">
 <h3>ready</h3>

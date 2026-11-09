@@ -61,6 +61,11 @@ loadScripts(document, 'script');</script>
 <li><a href="#start(java.lang.Class)" tabindex="0">start(Class)</a></li>
 <li><a href="#start(java.lang.Class,java.util.Locale)" tabindex="0">start(Class, Locale)</a></li>
 <li><a href="#builder(java.lang.Class)" tabindex="0">builder(Class)</a></li>
+<li><a href="#notifications()" tabindex="0">notifications()</a></li>
+<li><a href="#launchAgain(java.lang.String...)" tabindex="0">launchAgain(String...)</a></li>
+<li><a href="#openFiles(java.nio.file.Path...)" tabindex="0">openFiles(Path...)</a></li>
+<li><a href="#frames()" tabindex="0">frames()</a></li>
+<li><a href="#frame(java.lang.Class)" tabindex="0">frame(Class)</a></li>
 <li><a href="#run(java.lang.Runnable)" tabindex="0">run(Runnable)</a></li>
 <li><a href="#call(java.util.function.Supplier)" tabindex="0">call(Supplier)</a></li>
 <li><a href="#commands(java.lang.Class)" tabindex="0">commands(Class)</a></li>
@@ -75,6 +80,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#focused()" tabindex="0">focused()</a></li>
 <li><a href="#dialogs()" tabindex="0">dialogs()</a></li>
 <li><a href="#ticker()" tabindex="0">ticker()</a></li>
+<li><a href="#shell()" tabindex="0">shell()</a></li>
+<li><a href="#taskbar()" tabindex="0">taskbar()</a></li>
 <li><a href="#info()" tabindex="0">info()</a></li>
 <li><a href="#publish(java.lang.Object)" tabindex="0">publish(Object)</a></li>
 <li><a href="#published(java.lang.Class)" tabindex="0">published(Class)</a></li>
@@ -131,6 +138,10 @@ so window state and settings are saved in memory. Every call also waits for the 
 <a href="#close()"><code>close()</code></a> waits up to 2 seconds for them. Time is a <code>FakeTicker</code> and an <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/time/InstantSource.html" title="class or interface in java.time" class="external-link"><code>InstantSource</code></a> fixed at
 the epoch.
 
+<p>In a multi-frame application, which has no main window, the methods that act on the main window act on the active
+frame, and <a href="#bean(java.lang.Class)"><code>bean(Class)</code></a> resolves through its view's injector. <a href="#frames()"><code>frames()</code></a> and <a href="#frame(java.lang.Class)"><code>frame(Class)</code></a> reach
+every open frame.
+
 <p>The tester keeps the <code>ValidationFeedback</code> of the modules on its path, so tests check a form's errors as the
 user sees them: through the tool tip text and accessible description of the component.</div>
 </div>
@@ -174,7 +185,7 @@ starts, so that a test can act while the task runs, such as activating it again 
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#type-param-T" title="type parameter in AppTester">T</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#application()" class="member-name-link">application</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the application class's instance, the main window's view.</div>
+<div class="block">Returns the application class's instance: the main window's view, or the singleton of a multi-frame application.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;B&gt;&nbsp;B</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bean(java.lang.Class)" class="member-name-link">bean</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;B&gt;&nbsp;type)</code></div>
@@ -238,6 +249,16 @@ label whose <code>labelFor</code> it is, or the <code>accessible-name</code> of 
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the last component focused through the main window's <code>Window.focus</code>.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;V extends <a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/FrameView.html" title="interface in be.imgn.swing.ui">FrameView</a>&gt;<br><a href="OpenFrame.html" title="class in be.imgn.swing.testing">OpenFrame</a><wbr>&lt;V&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#frame(java.lang.Class)" class="member-name-link">frame</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;V&gt;&nbsp;type)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the one open frame whose view is of a type.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="OpenFrame.html" title="class in be.imgn.swing.testing">OpenFrame</a>&lt;?&gt;&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#frames()" class="member-name-link">frames</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the open frames, in the order they were opened, the main frame of a single-frame application first.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Image.html" title="class or interface in java.awt" class="external-link">Image</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#iconImage()" class="member-name-link">iconImage</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -254,21 +275,42 @@ label whose <code>labelFor</code> it is, or the <code>accessible-name</code> of 
 <div class="block">Returns whether the application runs: <code>false</code> once it exited.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#publish(java.lang.Object)" class="member-name-link">publish</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;event)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#launchAgain(java.lang.String...)" class="member-name-link">launchAgain</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;arguments)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Does in the running application what a second launch with these arguments forwards: calls its
+<code>SecondInstanceHandler</code> on the EDT, then settles.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="FakeNotifications.html" title="class in be.imgn.swing.testing">FakeNotifications</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#notifications()" class="member-name-link">notifications</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the notifications, which record each notification shown.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#openFiles(java.nio.file.Path...)" class="member-name-link">openFiles</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>...&nbsp;files)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Hands files to the application's <code>OpenFilesHandler</code> on the EDT, as an open-file event does, then settles.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#publish(java.lang.Object)" class="member-name-link">publish</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;event)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Publishes an event on the application's bus, on the EDT, then settles: its <code>@Subscribe</code>, <code>@OnEdt</code> and
 <code>@OnVirtualThread</code> methods have run when it returns.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;E&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#published(java.lang.Class)" class="member-name-link">published</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;E&gt;&nbsp;type)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;E&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;E&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#published(java.lang.Class)" class="member-name-link">published</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;E&gt;&nbsp;type)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the events published on the application's bus since startup that are instances of a type, in the order
 they were delivered, whoever published them.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#run(java.lang.Runnable)" class="member-name-link">run</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#run(java.lang.Runnable)" class="member-name-link">run</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Runs an action on the EDT and waits, then settles as every other call does.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="FakeShell.html" title="class in be.imgn.swing.testing">FakeShell</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shell()" class="member-name-link">shell</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the system shell, which records the URIs browsed and the files opened.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T&gt;&nbsp;<a href="AppTester.html" title="class in be.imgn.swing.testing">AppTester</a><wbr>&lt;T&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#start(java.lang.Class)" class="member-name-link">start</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type)</code></div>
@@ -281,14 +323,19 @@ they were delivered, whoever published them.</div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Starts an application in a locale, bound as its <code>DisplayLocale</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>be.imgn.gaia.core.testing.FakeTicker</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#ticker()" class="member-name-link">ticker</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="FakeTaskbar.html" title="class in be.imgn.swing.testing">FakeTaskbar</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#taskbar()" class="member-name-link">taskbar</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the taskbar, which records its progress, badge and attention requests.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>be.imgn.gaia.core.testing.FakeTicker</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#ticker()" class="member-name-link">ticker</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the ticker the application reads time from.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#title()" class="member-name-link">title</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#title()" class="member-name-link">title</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the title of the main window.</div>
 </div>
 </div>
@@ -362,6 +409,85 @@ no arguments unless the builder says otherwise.</div>
 <dd><code>type</code> - the application class</dd>
 <dt>Returns:</dt>
 <dd>the builder</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="notifications()">
+<h3>notifications</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="FakeNotifications.html" title="class in be.imgn.swing.testing">FakeNotifications</a></span>&nbsp;<span class="element-name">notifications</span>()</div>
+<div class="block">Returns the notifications, which record each notification shown.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the notifications</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the application doesn't use swing-desktop</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="launchAgain(java.lang.String...)">
+<h3>launchAgain</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">launchAgain</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;arguments)</span></div>
+<div class="block">Does in the running application what a second launch with these arguments forwards: calls its
+<code>SecondInstanceHandler</code> on the EDT, then settles.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>arguments</code> - the arguments of the second launch</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the application doesn't use swing-desktop, or has no handler</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="openFiles(java.nio.file.Path...)">
+<h3>openFiles</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">openFiles</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>...&nbsp;files)</span></div>
+<div class="block">Hands files to the application's <code>OpenFilesHandler</code> on the EDT, as an open-file event does, then settles.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>files</code> - the files</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the application doesn't use swing-desktop, or has no handler</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="frames()">
+<h3>frames</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="OpenFrame.html" title="class in be.imgn.swing.testing">OpenFrame</a>&lt;?&gt;&gt;</span>&nbsp;<span class="element-name">frames</span>()</div>
+<div class="block">Returns the open frames, in the order they were opened, the main frame of a single-frame application first.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the frames</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="frame(java.lang.Class)">
+<h3>frame</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;V extends <a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/FrameView.html" title="interface in be.imgn.swing.ui">FrameView</a>&gt;</span>&nbsp;<span class="return-type"><a href="OpenFrame.html" title="class in be.imgn.swing.testing">OpenFrame</a>&lt;V&gt;</span>&nbsp;<span class="element-name">frame</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;V&gt;&nbsp;type)</span></div>
+<div class="block">Returns the one open frame whose view is of a type.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><span id="frame(java.lang.Class)-type-param-V"><code>V</code> - the frame view class</span></dd>
+<dt>Parameters:</dt>
+<dd><code>type</code> - the frame view class</dd>
+<dt>Returns:</dt>
+<dd>the frame</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>type</code> is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if there is none or more than one</dd>
 </dl>
 </div>
 </section>
@@ -460,7 +586,7 @@ deliveries and the pending settings saves, as every other call does.</div>
 <h3>application</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="#type-param-T" title="type parameter in AppTester">T</a></span>&nbsp;<span class="element-name">application</span>()</div>
-<div class="block">Returns the application class's instance, the main window's view.</div>
+<div class="block">Returns the application class's instance: the main window's view, or the singleton of a multi-frame application.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the instance</dd>
@@ -587,6 +713,32 @@ label whose <code>labelFor</code> it is, or the <code>accessible-name</code> of 
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the ticker, which tests advance</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="shell()">
+<h3>shell</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="FakeShell.html" title="class in be.imgn.swing.testing">FakeShell</a></span>&nbsp;<span class="element-name">shell</span>()</div>
+<div class="block">Returns the system shell, which records the URIs browsed and the files opened.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the shell</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="taskbar()">
+<h3>taskbar</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="FakeTaskbar.html" title="class in be.imgn.swing.testing">FakeTaskbar</a></span>&nbsp;<span class="element-name">taskbar</span>()</div>
+<div class="block">Returns the taskbar, which records its progress, badge and attention requests.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the taskbar</dd>
 </dl>
 </div>
 </section>

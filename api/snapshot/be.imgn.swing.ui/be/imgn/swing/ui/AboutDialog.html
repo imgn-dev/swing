@@ -84,8 +84,9 @@ loadScripts(document, 'script');</script>
 implements <a href="DialogView.html" title="interface in be.imgn.swing.ui">DialogView</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Void.html" title="class or interface in java.lang" class="external-link">Void</a>&gt;</span></div>
 <div class="block">The About dialog of the standard <code>about()</code> command. It shows, from top to bottom, each one that is present: the
 application's icon, its displayed name, its version and its vendor, then the <code>description</code>, <code>copyright</code>
-and <code>website</code> of the application class's resources. The website is a read-only, selectable text field without
-border, so the user can copy it.
+and <code>website</code> of the application class's resources. When the system can browse, the website is a link that
+opens it through <a href="SystemShell.html" title="interface in be.imgn.swing.ui"><code>SystemShell</code></a>; otherwise, it is a read-only, selectable text field without border, so the user
+can copy it.
 
 <p>Tests answer it with <code>FakeDialogs.answerDialog(AboutDialog.class, ...)</code>; only the framework creates it.</div>
 </div>

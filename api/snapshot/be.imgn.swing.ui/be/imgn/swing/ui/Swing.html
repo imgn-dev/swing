@@ -103,9 +103,11 @@ loadScripts(document, 'script');</script>
   on the main thread, builds the root injector, which binds <code>ApplicationInfo</code>, <code>Arguments</code>,
       <code>DisplayLocale</code> and the application <code>Scope</code>;
   on the main thread, runs every <code>StartupStep</code>, sorted by order then by class name;
-  on the EDT, installs the look and feel, checks the icons, creates the main window and shows it;
-  on the EDT, once the events posted while showing the window have run, calls the main view's
-      <a href="SingleFrame.html#ready()"><code>SingleFrame.ready()</code></a>, then every <code>ReadyListener</code>.</div>
+  on the EDT, installs the look and feel, checks the icons, then creates the main window of a
+      <a href="SingleFrame.html" title="interface in be.imgn.swing.ui"><code>SingleFrame</code></a> application class and shows it, or calls the <a href="MultiFrame.html#start(be.imgn.swing.ui.Frames,be.imgn.swing.Arguments)"><code>MultiFrame.start(Frames, Arguments)</code></a> of a multi-frame
+      one, which opens the first frames;
+  on the EDT, once the events posted while showing the windows have run, calls the application class's
+      <a href="SingleFrame.html#ready()"><code>SingleFrame.ready()</code></a> or <a href="MultiFrame.html#ready()"><code>MultiFrame.ready()</code></a>, then every <code>ReadyListener</code>.</div>
 </div>
 </div>
 </div>
@@ -138,9 +140,11 @@ loadScripts(document, 'script');</script>
   <li>on the main thread, builds the root injector, which binds <code>ApplicationInfo</code>, <code>Arguments</code>,
       <code>DisplayLocale</code> and the application <code>Scope</code>;
   <li>on the main thread, runs every <code>StartupStep</code>, sorted by order then by class name;
-  <li>on the EDT, installs the look and feel, checks the icons, creates the main window and shows it;
-  <li>on the EDT, once the events posted while showing the window have run, calls the main view's
-      <a href="SingleFrame.html#ready()"><code>SingleFrame.ready()</code></a>, then every <code>ReadyListener</code>.
+  <li>on the EDT, installs the look and feel, checks the icons, then creates the main window of a
+      <a href="SingleFrame.html" title="interface in be.imgn.swing.ui"><code>SingleFrame</code></a> application class and shows it, or calls the <a href="MultiFrame.html#start(be.imgn.swing.ui.Frames,be.imgn.swing.Arguments)"><code>MultiFrame.start(Frames, Arguments)</code></a> of a multi-frame
+      one, which opens the first frames;
+  <li>on the EDT, once the events posted while showing the windows have run, calls the application class's
+      <a href="SingleFrame.html#ready()"><code>SingleFrame.ready()</code></a> or <a href="MultiFrame.html#ready()"><code>MultiFrame.ready()</code></a>, then every <code>ReadyListener</code>.
 </ol>
 
 <p>A failure in steps 2 to 4 shows the error dialog if the look and feel is installed, in the application's

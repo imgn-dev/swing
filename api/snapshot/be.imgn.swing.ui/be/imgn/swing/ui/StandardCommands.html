@@ -70,6 +70,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#copy()" tabindex="0">copy()</a></li>
 <li><a href="#paste()" tabindex="0">paste()</a></li>
 <li><a href="#selectAll()" tabindex="0">selectAll()</a></li>
+<li><a href="#undo()" tabindex="0">undo()</a></li>
+<li><a href="#redo()" tabindex="0">redo()</a></li>
 <li><a href="#closeWindow()" tabindex="0">closeWindow()</a></li>
 <li><a href="#ok()" tabindex="0">ok()</a></li>
 <li><a href="#cancel()" tabindex="0">cancel()</a></li>
@@ -87,6 +89,10 @@ loadScripts(document, 'script');</script>
 <div class="inheritance">be.imgn.swing.ui.StandardCommands</div>
 </div>
 <section class="class-description" id="class-description">
+<dl class="notes">
+<dt>Direct Known Subclasses:</dt>
+<dd><code><a href="../../../../../be.imgn.swing.desktop/be/imgn/swing/desktop/DocumentCommands.html" title="class in be.imgn.swing.desktop">DocumentCommands</a></code></dd>
+</dl>
 <hr>
 <div class="horizontal-scroll">
 <div class="type-signature"><span class="annotations"><a href="ViewScoped.html" title="annotation interface in be.imgn.swing.ui">@ViewScoped</a>
@@ -185,9 +191,19 @@ then closes the dialog with <a href="DialogView.html#result()"><code>DialogView.
 disabled unless a <a href="PreferencesHandler.html" title="interface in be.imgn.swing.ui"><code>PreferencesHandler</code></a> bean exists.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#selectAll()" class="member-name-link">selectAll</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#redo()" class="member-name-link">redo</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the command that redoes the next edit of the view's <a href="UndoStack.html" title="class in be.imgn.swing.ui"><code>UndoStack</code></a>; enabled while it can redo.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#selectAll()" class="member-name-link">selectAll</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command that selects all in the focused component; enabled only when it supports it.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#undo()" class="member-name-link">undo</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the command that undoes the next edit of the view's <a href="UndoStack.html" title="class in be.imgn.swing.ui"><code>UndoStack</code></a>; enabled while it can undo.</div>
 </div>
 </div>
 </div>
@@ -313,6 +329,32 @@ disabled unless a <a href="PreferencesHandler.html" title="interface in be.imgn.
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></span>&nbsp;<span class="element-name">selectAll</span>()</div>
 <div class="block">Returns the command that selects all in the focused component; enabled only when it supports it.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the command</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="undo()">
+<h3>undo</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></span>&nbsp;<span class="element-name">undo</span>()</div>
+<div class="block">Returns the command that undoes the next edit of the view's <a href="UndoStack.html" title="class in be.imgn.swing.ui"><code>UndoStack</code></a>; enabled while it can undo.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the command</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="redo()">
+<h3>redo</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></span>&nbsp;<span class="element-name">redo</span>()</div>
+<div class="block">Returns the command that redoes the next edit of the view's <a href="UndoStack.html" title="class in be.imgn.swing.ui"><code>UndoStack</code></a>; enabled while it can redo.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the command</dd>
