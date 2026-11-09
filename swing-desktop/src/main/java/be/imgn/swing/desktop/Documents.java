@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Creates and opens documents: each in a frame of its own, or, for the application class of a single-frame application,
@@ -28,6 +29,8 @@ public final class Documents {
     private final RecentFiles recentFiles;
     // The numbers of the untitled documents open, 1 for the one named without a number.
     private final TreeSet<Integer> untitled = new TreeSet<>();
+    // The file of the frame open() is opening, which its document is named after rather than untitled.
+    private @Nullable Path opening;
 
     @Inject
     Documents(Frames frames, FrameControl control, WindowRegistry registry, RecentFiles recentFiles) {
@@ -78,20 +81,26 @@ public final class Documents {
 
     void openIn(Class<? extends FrameView> type, Path file) {
         Path normalized = file.toAbsolutePath().normalize();
+        // A frame that shows the file, or reads it, the main frame of a single-frame application included.
+        for (ViewHost view : frameViews(type)) {
+            if (view.injector().getInstance(Document.class).shows(normalized)) {
+                frames.toFront((FrameView) view.view().orElseThrow());
+                return;
+            }
+        }
         Optional<Document> main = mainDocument(type);
         if (main.isPresent()) {
             Document document = main.get();
             document.replace(() -> document.read(normalized, () -> {}));
             return;
         }
-        for (ViewHost view : frameViews(type)) {
-            Document document = view.injector().getInstance(Document.class);
-            if (document.file().get().equals(Optional.of(normalized))) {
-                frames.toFront((FrameView) view.view().orElseThrow());
-                return;
-            }
+        FrameView opened;
+        opening = normalized;
+        try {
+            opened = frames.open(type);
+        } finally {
+            opening = null;
         }
-        FrameView opened = frames.open(type);
         ViewHost view = viewOf(opened);
         WindowHost frame = view.window();
         view.injector().getInstance(Document.class).read(normalized, () -> {
@@ -126,6 +135,11 @@ public final class Documents {
 
     RecentFiles recentFiles() {
         return recentFiles;
+    }
+
+    @Nullable
+    Path opening() {
+        return opening;
     }
 
     // The smallest number no open untitled document has: 1 names "Untitled", 2 "Untitled 2", and so on.

@@ -409,4 +409,72 @@ class MemoAppTest {
             assertThat(app.notifications().notified()).isEmpty();
         }
     }
+
+    @Test
+    void titlesTheFrameAfterTheFileASaveAsOfACleanNoteWritesTo() throws IOException {
+        try (FileSystem fileSystem = MemoryFileSystems.newFileSystem()) {
+            write(fileSystem, "/notes/todo.txt", "Call Bob");
+            try (AppTester<MemoApp> app = AppTester.builder(MemoApp.class)
+                    .fileSystem(fileSystem)
+                    .arguments("/notes/todo.txt")
+                    .start()) {
+                OpenFrame<MemoView> note = app.frame(MemoView.class);
+                app.dialogs().answerSaveFile(fileSystem.getPath("/notes/copy.txt"));
+
+                note.commands(DocumentCommands.class).saveAs().execute();
+
+                assertThat(note.title()).isEqualTo("copy.txt – Memo");
+            }
+        }
+    }
+
+    @Test
+    void opensAFileOnceWhenItIsOpenedAgainBeforeItsReadEnds() throws IOException {
+        try (FileSystem fileSystem = MemoryFileSystems.newFileSystem()) {
+            Path todo = write(fileSystem, "/notes/todo.txt", "Call Bob");
+            try (AppTester<MemoApp> app =
+                    AppTester.builder(MemoApp.class).fileSystem(fileSystem).start()) {
+                app.openFiles(todo, todo);
+
+                assertThat(app.frames()).hasSize(2);
+            }
+        }
+    }
+
+    @Test
+    void addsASavedFileToTheRecentFilesAndBringsItsFrameToTheFrontWhenOpenedAgain() throws IOException {
+        try (FileSystem fileSystem = MemoryFileSystems.newFileSystem()) {
+            Files.createDirectories(fileSystem.getPath("/notes/drafts"));
+            try (AppTester<MemoApp> app =
+                    AppTester.builder(MemoApp.class).fileSystem(fileSystem).start()) {
+                OpenFrame<MemoView> note = app.frame(MemoView.class);
+                type(app, note, "Draft");
+                app.dialogs().answerSaveFile(fileSystem.getPath("/notes/drafts/../draft.txt"));
+
+                note.commands(DocumentCommands.class).save().execute();
+
+                Path saved = fileSystem.getPath("/notes/draft.txt");
+                assertThat(app.bean(RecentFiles.class).files().get()).containsExactly(saved);
+
+                app.openFiles(saved);
+
+                assertThat(app.frames()).hasSize(1);
+                assertThat(note.toFrontCount()).isEqualTo(1);
+            }
+        }
+    }
+
+    @Test
+    void givesTheSaveCommandTheVisionsTooltipAndEveryFrameTheIcon() {
+        try (AppTester<MemoApp> app = AppTester.start(MemoApp.class)) {
+            DocumentCommands commands = app.frame(MemoView.class).commands(DocumentCommands.class);
+            commands.newDocument().execute();
+
+            assertThat(app.call(() -> commands.save().asAction().getValue(Action.SHORT_DESCRIPTION)))
+                    .isEqualTo("Save the note");
+            assertThat(app.frames())
+                    .hasSize(2)
+                    .allSatisfy(frame -> assertThat(frame.iconImage()).isPresent());
+        }
+    }
 }

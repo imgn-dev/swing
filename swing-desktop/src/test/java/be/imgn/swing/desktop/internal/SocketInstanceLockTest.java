@@ -7,6 +7,7 @@ import be.imgn.toml.Toml;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,6 +16,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -103,6 +105,69 @@ class SocketInstanceLockTest {
         startFirst();
 
         assertThat(first).isNotNull();
+    }
+
+    @Test
+    void servesASecondLaunchWhileAnotherConnectionNeverEndsItsRequest() throws IOException, InterruptedException {
+        startFirst();
+        InstanceFile instance = Toml.parse(directory.resolve(SocketInstanceLock.INSTANCE_FILE), InstanceFile.class);
+        try (Socket stuck = new Socket(InetAddress.getLoopbackAddress(), instance.port())) {
+            stuck.getOutputStream().write('t');
+
+            Optional<Closeable> second = lock.acquire(directory, List.of("todo.txt"), launch -> {});
+
+            assertThat(second).isEmpty();
+            assertThat(received.poll(TIMEOUT_SECONDS, TimeUnit.SECONDS)).containsExactly("todo.txt");
+        }
+    }
+
+    @Test
+    void becomesTheFirstInstanceWhenTheLockIsReleasedWhileItRetries() throws Exception {
+        SocketInstanceLock patient = new SocketInstanceLock(Duration.ofSeconds(TIMEOUT_SECONDS), Duration.ofMillis(20));
+        startFirst();
+        Files.delete(directory.resolve(SocketInstanceLock.INSTANCE_FILE));
+        Thread release = Thread.ofVirtual().start(() -> {
+            try {
+                Thread.sleep(200);
+                Objects.requireNonNull(first).close();
+                first = null;
+            } catch (IOException | InterruptedException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+
+        Optional<Closeable> second = patient.acquire(directory, List.of(), launch -> {});
+        release.join();
+
+        assertThat(second).isPresent();
+        second.orElseThrow().close();
+    }
+
+    // A stale instance.toml names a port that accepts but never answers: each try gives up after a second, so a later
+    // try reaches the instance once its file is back.
+    @Test
+    void retriesWithinItsPatienceWhenAPortNeverAnswers() throws Exception {
+        SocketInstanceLock patient = new SocketInstanceLock(Duration.ofSeconds(3), Duration.ofMillis(20));
+        startFirst();
+        Path file = directory.resolve(SocketInstanceLock.INSTANCE_FILE);
+        String real = Files.readString(file);
+        try (ServerSocket silent = new ServerSocket(0, 50, InetAddress.getLoopbackAddress())) {
+            Files.writeString(file, "port = " + silent.getLocalPort() + "\ntoken = \"stale\"\n");
+            Thread restore = Thread.ofVirtual().start(() -> {
+                try {
+                    Thread.sleep(300);
+                    Files.writeString(file, real);
+                } catch (IOException | InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+
+            Optional<Closeable> second = patient.acquire(directory, List.of("x"), launch -> {});
+            restore.join();
+
+            assertThat(second).isEmpty();
+            assertThat(received.poll(TIMEOUT_SECONDS, TimeUnit.SECONDS)).containsExactly("x");
+        }
     }
 
     private static String send(int port, String request) throws IOException {

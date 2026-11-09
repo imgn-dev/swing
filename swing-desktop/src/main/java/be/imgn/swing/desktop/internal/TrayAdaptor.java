@@ -19,11 +19,11 @@ public interface TrayAdaptor {
     /**
      * Adds an icon to the tray.
      *
-     * @param image the icon's image, or {@code null} for an empty one
+     * @param image the icon's image, which the JDK requires
      * @param tooltip the icon's tool tip
      * @throws AWTException if the tray refuses it
      */
-    void add(@Nullable Image image, String tooltip) throws AWTException;
+    void add(Image image, String tooltip) throws AWTException;
 
     /**
      * Shows a notification from the icon added.
@@ -51,7 +51,7 @@ public interface TrayAdaptor {
             }
 
             @Override
-            public void add(@Nullable Image image, String tooltip) throws AWTException {
+            public void add(Image image, String tooltip) throws AWTException {
                 TrayIcon added = new TrayIcon(image, tooltip);
                 added.setImageAutoSize(true);
                 SystemTray.getSystemTray().add(added);

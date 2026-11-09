@@ -10,6 +10,13 @@ import be.imgn.inject.Injector;
 public interface TesterExtension {
 
     /**
+     * Returns the name of the module that provides the extension, which tells the harness which of its fakes apply.
+     *
+     * @return the module's name, such as {@code be.imgn.swing.desktop}
+     */
+    String module();
+
+    /**
      * Binds the module's replacements in the tester's root injector.
      *
      * @param builder the builder of the root injector

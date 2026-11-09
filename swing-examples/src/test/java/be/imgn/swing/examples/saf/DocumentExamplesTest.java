@@ -87,6 +87,25 @@ class DocumentExamplesTest {
     }
 
     @Test
+    void documentExampleBringsItsFrameToTheFrontWhenItsFileIsOpenedAgain() throws Exception {
+        Path file = directory.resolve("letter.txt");
+        Files.writeString(file, "Dear reader");
+        try (AppTester<DocumentExample> app = AppTester.start(DocumentExample.class)) {
+            DocumentCommands commands = app.commands(DocumentCommands.class);
+            app.dialogs().answerOpenFile(file);
+            commands.open().execute();
+            app.run(() -> app.component(JTextArea.class).append("!"));
+            app.dialogs().answerOpenFile(file);
+
+            commands.open().execute();
+
+            assertThat(app.dialogs().savePrompts()).isEmpty();
+            assertThat(app.component(JTextArea.class).getText()).isEqualTo("Dear reader!");
+            assertThat(app.frames().getFirst().toFrontCount()).isEqualTo(1);
+        }
+    }
+
+    @Test
     void actionMapExampleRunsTheCommandsOfEachSceneOnItsOwnScene() throws Exception {
         try (AppTester<ActionMapExample> app = AppTester.start(ActionMapExample.class)) {
             ActionMapExample example = app.application();

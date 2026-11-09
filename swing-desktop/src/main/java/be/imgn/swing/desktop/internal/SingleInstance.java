@@ -12,8 +12,10 @@ import be.imgn.swing.desktop.SecondInstanceHandler;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -28,10 +30,11 @@ public final class SingleInstance {
     /** The order of the startup step that takes the lock: before the resources. */
     static final int ORDER = 10;
 
-    private final Injector root;
+    private final boolean enabled;
+    private final Supplier<SecondInstanceHandler> handler;
     private final InstanceLock lock;
-    private final ApplicationDirectories directories;
-    private final Arguments arguments;
+    private final Supplier<Path> directory;
+    private final List<String> arguments;
     private final Exit exit;
     private final UiExecutor executor;
     // Guarded by this: the launches received before the application is ready.
@@ -47,9 +50,39 @@ public final class SingleInstance {
             Arguments arguments,
             Exit exit,
             UiExecutor executor) {
-        this.root = root;
+        this(
+                root.getBeanDefinition(Key.of(SecondInstanceHandler.class)).isPresent(),
+                () -> root.getInstance(SecondInstanceHandler.class),
+                lock,
+                directories::state,
+                arguments.values(),
+                exit,
+                executor);
+    }
+
+    /**
+     * Creates the single instance of an application.
+     *
+     * @param enabled whether the application has a {@code SecondInstanceHandler}
+     * @param handler supplies the handler
+     * @param lock the lock
+     * @param directory supplies the directory of the lock, the state directory
+     * @param arguments the arguments of this launch
+     * @param exit ends a second instance
+     * @param executor runs the deliveries on the EDT
+     */
+    SingleInstance(
+            boolean enabled,
+            Supplier<SecondInstanceHandler> handler,
+            InstanceLock lock,
+            Supplier<Path> directory,
+            List<String> arguments,
+            Exit exit,
+            UiExecutor executor) {
+        this.enabled = enabled;
+        this.handler = handler;
         this.lock = lock;
-        this.directories = directories;
+        this.directory = directory;
         this.arguments = arguments;
         this.exit = exit;
         this.executor = executor;
@@ -57,11 +90,12 @@ public final class SingleInstance {
 
     /** Takes the lock, or forwards the arguments then exits; the startup step of order 10 does, on the main thread. */
     void start() {
-        if (root.getBeanDefinition(Key.of(SecondInstanceHandler.class)).isEmpty()) {
+        if (!enabled) {
             return;
         }
+        Path state = directory.get();
         try {
-            var first = lock.acquire(directories.state(), arguments.values(), this::received);
+            var first = lock.acquire(state, arguments, this::received);
             if (first.isEmpty()) {
                 exit.exit(0);
                 return;
@@ -70,7 +104,7 @@ public final class SingleInstance {
                 held = first.get();
             }
         } catch (IOException e) {
-            throw new UncheckedIOException("Could not take the instance lock in " + directories.state(), e);
+            throw new UncheckedIOException("Could not take the instance lock in " + state, e);
         }
     }
 
@@ -96,7 +130,7 @@ public final class SingleInstance {
     }
 
     private void deliver(List<String> launch) {
-        root.getInstance(SecondInstanceHandler.class).launched(new Arguments(launch));
+        handler.get().launched(new Arguments(launch));
     }
 
     /**

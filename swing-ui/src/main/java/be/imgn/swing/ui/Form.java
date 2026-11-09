@@ -275,9 +275,12 @@ public final class Form {
         document.addDocumentListener(link);
         scope.onClose(() -> document.removeDocumentListener(link));
         // The user's edits go to the view's undo stack; undoing one is a change of the document, which sets the
-        // property as the user's do. The binding's own updates of the text are not the user's to undo.
+        // property as the user's do. The binding's own updates of the text are not the user's to undo, and the edits
+        // before them no longer apply to the text: they clear the stack.
         UndoableEditListener edits = event -> {
-            if (!link.own) {
+            if (link.own) {
+                undo.clear();
+            } else {
                 undo.add(event.getEdit());
             }
         };

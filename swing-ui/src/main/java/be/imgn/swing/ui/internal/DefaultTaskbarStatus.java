@@ -23,6 +23,8 @@ public final class DefaultTaskbarStatus implements TaskbarStatus {
     private final UiExecutor executor;
     private final Supplier<Optional<Window>> activeFrame;
     private final Set<Feature> lacking = EnumSet.noneOf(Feature.class);
+    // Used on the EDT: the window that shows a progress through PROGRESS_VALUE_WINDOW.
+    private @Nullable Window progressWindow;
 
     /**
      * Creates the taskbar status.
@@ -50,11 +52,16 @@ public final class DefaultTaskbarStatus implements TaskbarStatus {
         executor.execute(() -> setProgress(-1));
     }
 
+    // A window's progress stays on the window it was shown on, which the next progress or the clearing updates, even
+    // once another frame is active.
     private void setProgress(int value) {
         if (taskbar.isSupported(Feature.PROGRESS_VALUE)) {
             taskbar.setProgressValue(value);
         } else if (taskbar.isSupported(Feature.PROGRESS_VALUE_WINDOW)) {
-            activeFrame.get().ifPresent(window -> taskbar.setWindowProgressValue(window, value));
+            Window shown = progressWindow;
+            Optional<Window> target = shown != null ? Optional.of(shown) : activeFrame.get();
+            target.ifPresent(window -> taskbar.setWindowProgressValue(window, value));
+            progressWindow = value < 0 ? null : target.orElse(null);
         } else {
             lacks(Feature.PROGRESS_VALUE);
         }

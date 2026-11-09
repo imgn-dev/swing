@@ -14,6 +14,11 @@ public final class DesktopTesterExtension implements TesterExtension {
     public DesktopTesterExtension() {}
 
     @Override
+    public String module() {
+        return "be.imgn.swing.desktop";
+    }
+
+    @Override
     public void bind(Injector.Builder builder) {
         builder.bind(InstanceLock.class, (directory, arguments, receiver) -> Optional.of(() -> {}));
     }

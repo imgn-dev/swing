@@ -180,6 +180,42 @@ class FramesTest {
     }
 
     @Test
+    void leavesNoFrameBehindWhenOpeningOneFails() {
+        try (AppTester<BoardApp> app = AppTester.start(BoardApp.class)) {
+            Frames frames = app.bean(Frames.class);
+
+            assertThatThrownBy(() -> app.call(() -> frames.open(PaletteView.class, PaletteView.Other.ANY)))
+                    .isInstanceOf(IllegalStateException.class);
+            assertThatThrownBy(() -> app.call(() -> frames.open(BrokenView.class)))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("broken view");
+
+            assertThat(app.frames()).hasSize(1);
+            assertThat(app.call(frames::views)).hasSize(1);
+
+            app.frames().getFirst().close();
+
+            assertThat(app.isRunning()).isFalse();
+        }
+    }
+
+    @Test
+    void clearsTheUndoStackWhenTheApplicationChangesABoundText() {
+        try (AppTester<BoardApp> app = AppTester.start(BoardApp.class)) {
+            OpenFrame<BoardView> frame = app.frame(BoardView.class);
+            UndoStack stack = frame.bean(UndoStack.class);
+            app.run(() -> frame.view().name.setText("Typed"));
+
+            assertThat(app.call(() -> stack.canUndo().get())).isTrue();
+
+            app.run(() -> frame.view().title().set("Set by the application"));
+
+            assertThat(app.call(() -> stack.canUndo().get())).isFalse();
+            assertThat(frame.view().name.getText()).isEqualTo("Set by the application");
+        }
+    }
+
+    @Test
     void rejectsClosingOrRaisingAViewThatIsNotInAnOpenFrame() {
         try (AppTester<HostApp> app = AppTester.start(HostApp.class)) {
             Frames frames = app.call(() -> app.application().frames());
@@ -290,6 +326,53 @@ class FramesTest {
     }
 
     @Test
+    void followsTheStepsOfAChainOnTheTaskbar() throws InterruptedException {
+        try (AppTester<BoardApp> app = AppTester.start(BoardApp.class)) {
+            Ui ui = app.frame(BoardView.class).bean(Ui.class);
+            Stepper first = new Stepper();
+            Stepper second = new Stepper();
+            app.run(() -> ui.run(first.task().then(done -> second.task()), Block.APPLICATION));
+
+            first.progress(app, 0.3);
+
+            assertThat(app.taskbar().progress()).hasValue(30);
+
+            first.finishStep();
+            second.progress(app, 0.6);
+
+            assertThat(app.taskbar().progress()).hasValue(60);
+
+            // The last step's hooks run before the chain ends, which clears the progress.
+            second.finish(app);
+            awaitUntil(app, () -> app.taskbar().progress().isEmpty());
+
+            assertThat(app.taskbar().progress()).isEmpty();
+        }
+    }
+
+    @Test
+    void clearsTheTaskbarsProgressWhenTheTaskIsCancelled() throws InterruptedException {
+        try (AppTester<BoardApp> app =
+                AppTester.builder(BoardApp.class).arguments("2").start()) {
+            OpenFrame<?> frame = app.frames().getLast();
+            BoardView board = (BoardView) frame.view();
+            Ui ui = frame.bean(Ui.class);
+            Frames frames = app.bean(Frames.class);
+            Stepper stepper = new Stepper();
+            app.run(() -> ui.run(stepper.task(), Block.APPLICATION));
+            stepper.progress(app, 0.5);
+
+            assertThat(app.taskbar().progress()).hasValue(50);
+
+            // Closing the frame closes its view's scope, which cancels the task.
+            app.run(() -> frames.close(board));
+            awaitUntil(app, () -> app.taskbar().progress().isEmpty());
+
+            assertThat(app.taskbar().progress()).isEmpty();
+        }
+    }
+
+    @Test
     void clearsTheTaskbarsProgressWhenTheTaskFails() throws InterruptedException {
         try (AppTester<BoardApp> app = AppTester.start(BoardApp.class)) {
             Ui ui = app.frame(BoardView.class).bean(Ui.class);
@@ -350,6 +433,11 @@ class FramesTest {
             steps.add(fraction);
             reported.take();
             app.run(() -> {});
+        }
+
+        // Ends the step without waiting for its hooks, as the next step of a chain starts right after.
+        void finishStep() {
+            steps.add(FINISH);
         }
 
         void finish(AppTester<?> app) throws InterruptedException {

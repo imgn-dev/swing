@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The tester's {@link Dialogs}: records the dialogs shown and answers them. Confirmations are answered {@code true}
@@ -32,7 +33,7 @@ public final class FakeDialogs implements Dialogs {
     private final List<Class<?>> shown = new ArrayList<>();
     private final Map<Class<?>, Consumer<OpenDialog<?>>> answers = new LinkedHashMap<>();
     private boolean confirmation = true;
-    private final Deque<Optional<Path>> fileAnswers = new ArrayDeque<>();
+    private final Deque<FileAnswer> fileAnswers = new ArrayDeque<>();
     private final Deque<SaveChoice> saveAnswers = new ArrayDeque<>();
     private final List<FileChoice> fileChoices = new ArrayList<>();
     private final List<String> savePrompts = new ArrayList<>();
@@ -123,7 +124,7 @@ public final class FakeDialogs implements Dialogs {
      * @throws NullPointerException if {@code answer} is {@code null}
      */
     public synchronized void answerOpenFile(Path answer) {
-        fileAnswers.add(Optional.of(Objects.requireNonNull(answer, "answer")));
+        fileAnswers.add(new FileAnswer(Objects.requireNonNull(answer, "answer")));
     }
 
     /**
@@ -135,12 +136,12 @@ public final class FakeDialogs implements Dialogs {
      * @throws NullPointerException if {@code answer} is {@code null}
      */
     public synchronized void answerSaveFile(Path answer) {
-        fileAnswers.add(Optional.of(Objects.requireNonNull(answer, "answer")));
+        fileAnswers.add(new FileAnswer(Objects.requireNonNull(answer, "answer")));
     }
 
     /** Queues a cancel as the answer of the next file chooser, which returns an empty result. */
     public synchronized void cancelFileChooser() {
-        fileAnswers.add(Optional.empty());
+        fileAnswers.add(new FileAnswer(null));
     }
 
     /**
@@ -175,19 +176,20 @@ public final class FakeDialogs implements Dialogs {
     @Override
     public synchronized Optional<Path> openFile(List<FileType> types) {
         fileChoices.add(new FileChoice(FileChoice.Kind.OPEN, types, null));
-        Optional<Path> answer = fileAnswers.poll();
-        return answer == null ? Optional.empty() : answer;
+        @Nullable FileAnswer answer = fileAnswers.poll();
+        return answer == null ? Optional.empty() : Optional.ofNullable(answer.file());
     }
 
     @Override
     public synchronized Optional<Path> saveFile(List<FileType> types, String suggestedName) {
         fileChoices.add(new FileChoice(FileChoice.Kind.SAVE, types, Objects.requireNonNull(suggestedName)));
         while (true) {
-            Optional<Path> answer = fileAnswers.poll();
-            if (answer == null || answer.isEmpty()) {
+            @Nullable FileAnswer answer = fileAnswers.poll();
+            @Nullable Path chosen = answer == null ? null : answer.file();
+            if (chosen == null) {
                 return Optional.empty();
             }
-            Path file = withExtension(answer.get(), types);
+            Path file = withExtension(chosen, types);
             if (!Files.exists(file)
                     || confirm(texts.get().replace(file.getFileName().toString()))) {
                 return Optional.of(file);
@@ -231,4 +233,7 @@ public final class FakeDialogs implements Dialogs {
             answer.accept(dialog);
         }
     }
+
+    // A queued answer of a file chooser: the file chosen, or null for a cancel.
+    private record FileAnswer(@Nullable Path file) {}
 }

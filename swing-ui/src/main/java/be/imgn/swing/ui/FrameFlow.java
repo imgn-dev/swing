@@ -108,18 +108,28 @@ final class FrameFlow implements Frames, FrameControl {
                 }
             });
         }
-        type.ifPresent(known -> title(window, builder.table(known, variant)));
-        icon(window);
-        ViewHost view = build(host, type, variant, resolve, built -> {
-            if (type.isEmpty()) {
-                title(window, builder.table(built.type(), variant));
+        boolean shown = false;
+        try {
+            type.ifPresent(known -> title(window, builder.table(known, variant)));
+            icon(window);
+            ViewHost view = build(host, type, variant, resolve, built -> {
+                if (type.isEmpty()) {
+                    title(window, builder.table(built.type(), variant));
+                }
+            });
+            host.stateKey(stateKey(view.type(), variant));
+            place(host, (FrameView) view.view().orElseThrow());
+            services.windows().show(window);
+            shown = true;
+            track(host);
+            return view;
+        } finally {
+            // A frame whose opening fails leaves nothing behind: no window, no scope, no saved state.
+            if (!shown) {
+                services.windows().dispose(window);
+                builder.close(host);
             }
-        });
-        host.stateKey(stateKey(view.type(), variant));
-        place(host, (FrameView) view.view().orElseThrow());
-        services.windows().show(window);
-        track(host);
-        return view;
+        }
     }
 
     /** Builds a frame view in its window: places its content, menu bar and toolbar in the window's root pane. */
@@ -189,16 +199,16 @@ final class FrameFlow implements Frames, FrameControl {
         }
     }
 
-    // The frame of the same view class opened last, other than this one.
+    // The frame of the same view class opened last, other than this one, whatever their variants.
     private Optional<JFrame> sibling(WindowHost host) {
-        if (host.isMain()) {
+        if (host.isMain() || host.views().isEmpty()) {
             return Optional.empty();
         }
+        Class<?> type = host.views().getFirst().type();
         Optional<JFrame> sibling = Optional.empty();
-        for (WindowHost other : services.registry().windows()) {
+        for (WindowHost other : frames()) {
             if (other != host
-                    && other.isFrame()
-                    && other.stateKey().equals(host.stateKey())
+                    && other.views().getFirst().type().equals(type)
                     && other.window() instanceof SwingWindows.FrameWindow real) {
                 sibling = Optional.of(real.frame());
             }
@@ -298,22 +308,30 @@ final class FrameFlow implements Frames, FrameControl {
         if (closing.contains(host) || services.lifecycle().isShuttingDown() || !frames().contains(host)) {
             return false;
         }
-        if (host.isMain() || (frames().size() == 1 && services.registry().main().isEmpty())) {
+        if (closesTheApplication(host)) {
             services.lifecycle().requestExit();
             return false;
         }
         closing.add(host);
         try {
-            for (ExitVeto veto : vetoesOf(host)) {
-                if (!veto.canExit()) {
-                    return false;
-                }
+            boolean closes = vetoesOf(host).stream().allMatch(ExitVeto::canExit);
+            // A veto may have shown a dialog during which another frame closed: this one may now be the last.
+            if (closes && closesTheApplication(host)) {
+                services.lifecycle().requestExit();
+                closes = false;
             }
-            discard(host);
-            return true;
+            if (closes) {
+                discard(host);
+            }
+            return closes;
         } finally {
             closing.remove(host);
         }
+    }
+
+    // The main frame of a single-frame application, or the only frame of a multi-frame one.
+    private boolean closesTheApplication(WindowHost host) {
+        return host.isMain() || (isMultiFrame() && frames().size() == 1);
     }
 
     @Override

@@ -54,6 +54,8 @@ public final class Document {
     private final ApplicationInfo application;
     private @Nullable ViewHost host;
     private @Nullable Contents<?> contents;
+    // The file a read in progress reads, which counts as shown.
+    private @Nullable Path reading;
     private int untitled;
 
     @Inject
@@ -102,18 +104,34 @@ public final class Document {
         return form.dirty();
     }
 
-    // Starts following the view, once its build ends: its format, its untitled name, its title and its save prompt.
-    void start(DocumentView<?> started, ViewHost built) {
+    // Starts following the view, once its build ends: its format, its name, its title and its save prompt. A frame
+    // that Documents opens for a file is named after it while it is read, and takes no untitled number.
+    void start(DocumentView<?> started, ViewHost built, @Nullable Path opening) {
         this.contents = Contents.of(started);
         this.host = built;
-        untitled();
+        if (opening == null) {
+            untitled();
+        } else {
+            reading = opening;
+            name.set(fileName(opening));
+        }
         DisposalScope scope = built.scope();
         scope.onClose(this::release);
         vetoes.register(scope, this::canClose);
-        Observable.combine(name, form.dirty(), (document, modified) -> modified)
-                .subscribe(scope, ignored -> showTitle());
+        name.subscribe(scope, ignored -> showTitle());
+        form.dirty().subscribe(scope, ignored -> showTitle());
         file.subscribe(scope, ignored -> showTitle());
         showTitle();
+    }
+
+    /**
+     * Returns whether the document shows a file, or is reading it.
+     *
+     * @param shown the file, absolute and normalized
+     * @return {@code true} if it does
+     */
+    boolean shows(Path shown) {
+        return shown.equals(reading) || file.get().equals(Optional.of(shown));
     }
 
     DocumentView<?> view() {
@@ -137,9 +155,9 @@ public final class Document {
     }
 
     private void untitled() {
-        file.set(Optional.empty());
         untitled = documents.claimUntitled();
         name.set(untitled == 1 ? texts.untitled() : texts.untitled() + " " + untitled);
+        file.set(Optional.empty());
     }
 
     private void release() {
@@ -149,10 +167,12 @@ public final class Document {
         }
     }
 
+    // A document's file is always absolute and normalized, whether read or saved.
     private void titled(Path titled) {
         release();
-        file.set(Optional.of(titled));
-        name.set(Objects.toString(titled.getFileName(), titled.toString()));
+        Path normalized = titled.toAbsolutePath().normalize();
+        name.set(fileName(normalized));
+        file.set(Optional.of(normalized));
     }
 
     // The frame's title: "{document} – {application}"; on macOS, the root pane's properties show the modified dot and
@@ -238,6 +258,7 @@ public final class Document {
      * @param failed runs once a failed read is reported
      */
     void read(Path read, Runnable failed) {
+        reading = read;
         run(readTask(read, contents(), failed), "open");
     }
 
@@ -248,6 +269,7 @@ public final class Document {
                     }
                 })
                 .onSuccess(loaded -> {
+                    reading = null;
                     typed.view().loaded(loaded);
                     titled(read);
                     form.markClean();
@@ -255,11 +277,17 @@ public final class Document {
                     documents.recentFiles().add(read);
                 })
                 .onFailure(failure -> {
+                    reading = null;
                     dialogs().error(texts.openFailed(fileName(read), message(failure)), failure);
                     if (!Files.exists(read)) {
                         documents.recentFiles().remove(read);
                     }
                     failed.run();
+                    // A frame opened for the file that stays, as the only frame of a multi-frame application, is
+                    // untitled from now on.
+                    if (!host().scope().isClosed() && file.get().isEmpty() && untitled == 0) {
+                        untitled();
+                    }
                 });
     }
 
@@ -300,8 +328,9 @@ public final class Document {
                 .onSuccess(written -> {
                     titled(written);
                     form.markClean();
-                    documents.recentFiles().add(written);
-                    view().saved(written);
+                    Path normalized = file.get().orElse(written);
+                    documents.recentFiles().add(normalized);
+                    view().saved(normalized);
                     then.run();
                 })
                 .onFailure(failure -> dialogs().error(texts.saveFailed(fileName(target), message(failure)), failure));

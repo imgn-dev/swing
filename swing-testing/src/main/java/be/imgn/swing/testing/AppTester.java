@@ -47,6 +47,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.InstantSource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -101,6 +102,7 @@ import org.jspecify.annotations.Nullable;
 public final class AppTester<T> implements AutoCloseable {
 
     private static final Duration SAVE_TIMEOUT = Duration.ofSeconds(2);
+    private static final String DESKTOP = "be.imgn.swing.desktop";
 
     private final Class<T> type;
     private final Failures failures = new Failures();
@@ -221,7 +223,7 @@ public final class AppTester<T> implements AutoCloseable {
                 .map(ServiceLoader.Provider::get)
                 .toList();
         extensions.forEach(extension -> extension.bind(builder));
-        if (!extensions.isEmpty()) {
+        if (extensions.stream().anyMatch(extension -> DESKTOP.equals(extension.module()))) {
             DesktopFakes fakes = new DesktopFakes();
             fakes.bind(builder);
             desktop = fakes;
@@ -252,23 +254,28 @@ public final class AppTester<T> implements AutoCloseable {
      * {@code SecondInstanceHandler} on the EDT, then settles.
      *
      * @param arguments the arguments of the second launch
+     * @throws NullPointerException if the array or one of its elements is {@code null}
      * @throws IllegalStateException if the application doesn't use swing-desktop, or has no handler
      */
     public void launchAgain(String... arguments) {
         desktop();
-        List<String> launch = List.of(arguments);
+        List<String> launch = List.of(Objects.requireNonNull(arguments, "arguments"));
         run(() -> DesktopFakes.launchAgain(root(), launch));
     }
 
     /**
-     * Hands files to the application's {@code OpenFilesHandler} on the EDT, as an open-file event does, then settles.
+     * Hands files to the application's {@code OpenFilesHandler} on the EDT, as absolute paths, as an open-file event
+     * does, then settles.
      *
      * @param files the files
+     * @throws NullPointerException if the array or one of its elements is {@code null}
      * @throws IllegalStateException if the application doesn't use swing-desktop, or has no handler
      */
     public void openFiles(Path... files) {
         desktop();
-        List<Path> opened = List.of(files);
+        List<Path> opened = Arrays.stream(Objects.requireNonNull(files, "files"))
+                .map(file -> Objects.requireNonNull(file, "file").toAbsolutePath())
+                .toList();
         run(() -> DesktopFakes.openFiles(root(), opened));
     }
 

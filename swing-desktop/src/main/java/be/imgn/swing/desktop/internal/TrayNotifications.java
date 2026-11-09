@@ -6,6 +6,7 @@ import be.imgn.swing.UiExecutor;
 import be.imgn.swing.desktop.Notifications;
 import java.awt.AWTException;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.lang.System.Logger.Level;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -14,6 +15,7 @@ import java.util.function.Supplier;
 public final class TrayNotifications implements Notifications {
 
     private static final System.Logger LOGGER = System.getLogger(TrayNotifications.class.getName());
+    private static final int BLANK_SIZE = 16;
 
     private final TrayAdaptor tray;
     private final UiExecutor executor;
@@ -55,7 +57,7 @@ public final class TrayNotifications implements Notifications {
     private void show(String caption, String text) {
         if (!added) {
             try {
-                tray.add(icon.get().orElse(null), name);
+                tray.add(icon.get().orElseGet(TrayNotifications::blank), name);
                 added = true;
             } catch (AWTException e) {
                 LOGGER.log(Level.WARNING, "Could not add the application's icon to the system tray", e);
@@ -63,6 +65,11 @@ public final class TrayNotifications implements Notifications {
             }
         }
         tray.displayMessage(caption, text);
+    }
+
+    // A tray icon needs an image: an application without an icon gets a transparent one.
+    private static Image blank() {
+        return new BufferedImage(BLANK_SIZE, BLANK_SIZE, BufferedImage.TYPE_INT_ARGB);
     }
 
     /** Removes the icon from the system tray, on the EDT; a shutdown step does. */

@@ -68,9 +68,11 @@ public final class OpenFrame<V> {
      * @param type the type
      * @param <C> the type
      * @return the component
+     * @throws NullPointerException if {@code type} is {@code null}
      * @throws IllegalStateException if there is none or more than one
      */
     public <C> C component(Class<C> type) {
+        Objects.requireNonNull(type, "type");
         return tester.call(() -> Components.single(rootPane(), type, description()));
     }
 
@@ -82,9 +84,12 @@ public final class OpenFrame<V> {
      * @param name the accessible name
      * @param <C> the type
      * @return the component
+     * @throws NullPointerException if an argument is {@code null}
      * @throws IllegalStateException if there is none or more than one
      */
     public <C> C component(Class<C> type, String name) {
+        Objects.requireNonNull(type, "type");
+        Objects.requireNonNull(name, "name");
         return tester.call(() -> Components.named(rootPane(), type, name, description()));
     }
 
@@ -94,8 +99,10 @@ public final class OpenFrame<V> {
      * @param type the type
      * @param <C> the type
      * @return the components
+     * @throws NullPointerException if {@code type} is {@code null}
      */
     public <C> List<C> components(Class<C> type) {
+        Objects.requireNonNull(type, "type");
         return tester.call(() -> Components.find(rootPane(), type));
     }
 

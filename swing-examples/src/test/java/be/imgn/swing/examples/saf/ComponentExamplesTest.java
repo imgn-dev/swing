@@ -12,6 +12,7 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -141,6 +142,24 @@ class ComponentExamplesTest {
             assertThat(app.isRunning()).isTrue();
             assertThat(app.frames()).hasSize(3);
             assertThat(app.component(JLabel.class).getText()).isEqualTo("Main Label");
+        }
+    }
+
+    @Test
+    void singleFrameExample6KeepsTheWindowStateOfEachVariantApart() throws Exception {
+        try (AppTester<SingleFrameExample6> app = AppTester.start(SingleFrameExample6.class)) {
+            SingleFrameExample6Commands commands = app.commands(SingleFrameExample6Commands.class);
+            commands.showWindow1().execute();
+            commands.showWindow2().execute();
+
+            for (OpenFrame<?> frame : app.frames().subList(1, 3)) {
+                frame.close();
+            }
+
+            String saved = Files.readString(app.info().directories().state().resolve("window-state.toml"));
+            assertThat(saved)
+                    .contains("\"be.imgn.swing.examples.saf.SecondaryWindow.one\"")
+                    .contains("\"be.imgn.swing.examples.saf.SecondaryWindow.two\"");
         }
     }
 

@@ -19,6 +19,7 @@ import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * The files the user opened or saved last, most recent first, at most ten. They are saved to {@code recent-files.toml}
@@ -27,22 +28,42 @@ import java.util.List;
 @Singleton
 public final class RecentFiles {
 
-    /** The name of the file the recent files are saved to, in the state directory. */
-    public static final String FILE_NAME = "recent-files.toml";
-
+    private static final String FILE_NAME = "recent-files.toml";
     private static final int LIMIT = 10;
     private static final System.Logger LOGGER = System.getLogger(RecentFiles.class.getName());
 
     private final ObservableList<Path> files = ObservableList.of();
     private final Path file;
-    private final TaskRunner tasks;
-    private final Scope application;
+    private final Consumer<Write> writes;
+    private final Object writing = new Object();
+    // The version of the list, increased at each change, on the EDT; and the last version written, under writing.
+    private long version;
+    private long written;
 
+    // Written atomically in a task, which the test harness waits for as for a command's.
     @Inject
     RecentFiles(ApplicationDirectories directories, TaskRunner tasks, Scope application) {
-        this.file = directories.state().resolve(FILE_NAME);
-        this.tasks = tasks;
-        this.application = application;
+        this(
+                directories.state().resolve(FILE_NAME),
+                write -> tasks.start(
+                        Task.of(() -> {
+                            write.run();
+                            return write;
+                        }),
+                        application,
+                        "recent files",
+                        true));
+    }
+
+    /**
+     * Creates the recent files of a file, whose writes the given consumer runs.
+     *
+     * @param file the file the list is saved to
+     * @param writes runs each write, in a task in the application
+     */
+    RecentFiles(Path file, Consumer<Write> writes) {
+        this.file = file;
+        this.writes = writes;
     }
 
     /**
@@ -88,19 +109,41 @@ public final class RecentFiles {
         save();
     }
 
-    // Written atomically in a task, from a copy taken on the EDT. The test harness waits for it as for a command's.
+    // Written from a copy taken on the EDT. The writes are ordered: one that would replace a newer list writes nothing.
     private void save() {
-        RecentFileList list =
-                new RecentFileList(files.get().stream().map(Path::toString).toList());
-        tasks.start(
-                Task.of(() -> {
-                    Files.createDirectories(file.getParent());
-                    Toml.writeAtomically(Toml.toTable(list), file);
-                    return file;
-                }),
-                application,
-                "recent files",
-                true);
+        long saved = ++version;
+        RecentFileList list = snapshot();
+        writes.accept(() -> write(saved, list));
+    }
+
+    private RecentFileList snapshot() {
+        return new RecentFileList(files.get().stream().map(Path::toString).toList());
+    }
+
+    private void write(long saved, RecentFileList list) throws IOException {
+        synchronized (writing) {
+            if (saved <= written) {
+                return;
+            }
+            Path directory = file.getParent();
+            if (directory != null) {
+                Files.createDirectories(directory);
+            }
+            Toml.writeAtomically(Toml.toTable(list), file);
+            written = saved;
+        }
+    }
+
+    /**
+     * Writes the last list now, unless it is written already; the shutdown does, since it cancels the tasks still
+     * running. Called on the EDT.
+     */
+    void flush() {
+        try {
+            write(version, snapshot());
+        } catch (IOException e) {
+            LOGGER.log(Level.ERROR, "Could not save the recent files to " + file, e);
+        }
     }
 
     /** Loads the saved files; a file that doesn't bind is discarded with a warning, and the list starts empty. */
@@ -118,5 +161,16 @@ public final class RecentFiles {
         } catch (IOException | TomlParseException | TomlMappingException | IllegalArgumentException e) {
             LOGGER.log(Level.WARNING, "Discarded the recent files " + file + ": " + e.getMessage());
         }
+    }
+
+    /** A write of the list. */
+    @FunctionalInterface
+    interface Write {
+        /**
+         * Writes the list.
+         *
+         * @throws IOException if the write fails
+         */
+        void run() throws IOException;
     }
 }

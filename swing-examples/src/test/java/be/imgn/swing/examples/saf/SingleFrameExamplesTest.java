@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
@@ -96,9 +97,33 @@ class SingleFrameExamplesTest {
     }
 
     @Test
-    void anApplicationWithoutANameIsNamedAfterItsClass() {
-        try (AppTester<SingleFrameExample1> app = AppTester.start(SingleFrameExample1.class)) {
-            assertThat(app.info().name()).isEqualTo("SingleFrameExample1");
+    void everyExampleWithoutANameIsNamedAfterItsClass() {
+        List<Class<?>> unnamed = List.of(
+                ActionExample2.class,
+                ActionExample3.class,
+                ActionExample4.class,
+                ActionMapExample.class,
+                ApplicationExample1.class,
+                ApplicationExample2.class,
+                BlockingExample1.class,
+                DocumentExample.class,
+                ErrorExample.class,
+                ExitExample1.class,
+                LocalStorageExample1.class,
+                PeriodicTaskExample.class,
+                SelectedPropertyExample.class,
+                SessionStorageExample1.class,
+                SingleFrameExample1.class,
+                SingleFrameExample2.class,
+                SingleFrameExample3.class,
+                SingleFrameExample4.class,
+                SingleFrameExample5.class,
+                SingleFrameExample6.class,
+                Tabbed.class);
+        for (Class<?> example : unnamed) {
+            try (AppTester<?> app = AppTester.start(example)) {
+                assertThat(app.info().name()).as(example.getName()).isEqualTo(example.getSimpleName());
+            }
         }
     }
 }

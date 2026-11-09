@@ -7,7 +7,6 @@ import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 class TrayNotificationsTest {
@@ -26,7 +25,7 @@ class TrayNotificationsTest {
 
         assertThat(notifications.isSupported()).isTrue();
         assertThat(tray.calls)
-                .containsExactly("add Memo", "message Saved: notes.txt", "message Saved: todo.txt", "remove");
+                .containsExactly("add Memo 16x16", "message Saved: notes.txt", "message Saved: todo.txt", "remove");
     }
 
     @Test
@@ -47,9 +46,10 @@ class TrayNotificationsTest {
             return supported;
         }
 
+        // As the JDK's TrayIcon, which refuses no image.
         @Override
-        public void add(@Nullable Image image, String tooltip) {
-            calls.add("add " + tooltip);
+        public void add(Image image, String tooltip) {
+            calls.add("add " + tooltip + " " + image.getWidth(null) + "x" + image.getHeight(null));
         }
 
         @Override
