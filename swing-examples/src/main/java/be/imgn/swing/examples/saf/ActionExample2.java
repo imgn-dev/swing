@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 /** Two commands that set and clear the window's title, from a text field. */
-@Application(name = "ActionExample2")
+@Application
 public class ActionExample2 implements SingleFrame {
 
     @Exposed

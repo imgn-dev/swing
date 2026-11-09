@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 /** The simplest single-frame application: a label that says Hello World. Its text and font come from resources. */
-@Application(name = "SingleFrameExample1")
+@Application
 public final class SingleFrameExample1 implements SingleFrame {
 
     @Exposed

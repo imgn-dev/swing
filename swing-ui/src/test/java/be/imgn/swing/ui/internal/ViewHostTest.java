@@ -65,7 +65,8 @@ class ViewHostTest {
     // Called on the EDT, which then builds the view.
     private ViewHost newView() {
         Injector injector = new UnusedInjector();
-        WindowHost window = new WindowHost(new FakeWindow(), injector, scope, null, "test", new UiMode(true));
+        WindowHost window =
+                new WindowHost(new FakeWindow(), injector, scope, null, WindowHost.Kind.MAIN, "test", new UiMode(true));
         return new ViewHost(Object.class, injector, scope.child("view"), window, null);
     }
 
@@ -141,5 +142,8 @@ class ViewHostTest {
 
         @Override
         public void focus(Component component) {}
+
+        @Override
+        public void toFront() {}
     }
 }

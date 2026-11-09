@@ -395,4 +395,11 @@ class AddressBookAppTest {
     private static void ok(OpenDialog<?> dialog) {
         dialog.commands(StandardCommands.class).ok().execute();
     }
+
+    @Test
+    void setsTheIconOfItsResourcesOnItsFrame() {
+        try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
+            assertThat(app.iconImage()).isPresent();
+        }
+    }
 }

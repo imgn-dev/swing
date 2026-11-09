@@ -34,10 +34,11 @@ final class StandardHandlers {
             case PASTE ->
                 builder.enabled(focus::canPaste).handler(context -> focus.transfer(TransferHandler.getPasteAction()));
             case SELECT_ALL -> builder.enabled(focus::canSelectAll).handler(context -> focus.selectAll());
+            case UNDO, REDO -> undoCommand(builder, standard == Standard.UNDO);
             case CLOSE_WINDOW ->
                 builder.handler(context -> {
-                    if (view.window().isMain()) {
-                        registry.services().lifecycle().requestExit();
+                    if (view.window().isFrame()) {
+                        registry.injector().getInstance(FrameFlow.class).close(view.window());
                     } else {
                         view.dialog().ifPresent(DialogControl::cancel);
                     }
@@ -54,6 +55,14 @@ final class StandardHandlers {
             case CANCEL -> builder.handler(context -> view.dialog().ifPresent(DialogControl::cancel));
             default -> throw new IllegalArgumentException(standard + " is not a command of dialog views");
         };
+    }
+
+    // Acts on the view's undo stack, enabled while it can undo or redo.
+    private CommandBuilder undoCommand(CommandBuilder builder, boolean undo) {
+        UndoStack stack = registry.injector().getInstance(UndoStack.class);
+        return undo
+                ? builder.enabled(stack::canUndo).handler(context -> stack.undo())
+                : builder.enabled(stack::canRedo).handler(context -> stack.redo());
     }
 
     // Disabled unless a PreferencesHandler bean exists, which the injector's definitions tell.

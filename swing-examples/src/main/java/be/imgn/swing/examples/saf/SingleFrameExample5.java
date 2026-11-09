@@ -43,7 +43,7 @@ import javax.swing.SwingConstants;
  * reading them locally is much faster than downloading them, each step of a read's progress pauses a little, so that
  * the progress, the restart and the stop stay visible.
  */
-@Application(name = "SingleFrameExample5", vendor = "Sun", version = "1.0")
+@Application(vendor = "Sun", version = "1.0")
 public final class SingleFrameExample5 implements SingleFrame {
 
     private static final List<String> IMAGES = List.of(

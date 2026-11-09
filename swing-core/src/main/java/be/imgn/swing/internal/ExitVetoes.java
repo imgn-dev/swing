@@ -41,6 +41,18 @@ public final class ExitVetoes {
         }
     }
 
+    /**
+     * Returns the vetoes registered in a scope, in the order they were registered, which is the order their instances
+     * were constructed.
+     *
+     * @param scope the scope
+     * @return the vetoes, empty if none is registered there
+     */
+    public synchronized List<ExitVeto> of(DisposalScope scope) {
+        Entry entry = scopes.get(scope);
+        return entry == null ? List.of() : List.copyOf(entry.vetoes);
+    }
+
     private synchronized void withdraw(DisposalScope scope) {
         scopes.remove(scope);
     }

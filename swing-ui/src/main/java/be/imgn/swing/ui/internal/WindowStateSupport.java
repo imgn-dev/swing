@@ -14,6 +14,8 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,6 +42,8 @@ public final class WindowStateSupport {
     private final WindowRegistry registry;
     private final ViewSupports supports;
     private @Nullable Rectangle normalBounds;
+    private @Nullable Path directory;
+    private boolean directoryLoaded;
 
     @Inject
     WindowStateSupport(Window window, WindowStateStore store, WindowRegistry registry, ViewSupports supports) {
@@ -124,7 +128,37 @@ public final class WindowStateSupport {
         Map<String, SavedComponent> components = captureComponents(host);
         store.save(
                 host.stateKey(),
-                new SavedWindow(bounds, host.isMain() ? maximized : null, components.isEmpty() ? null : components));
+                new SavedWindow(
+                        bounds,
+                        host.isFrame() ? maximized : null,
+                        components.isEmpty() ? null : components,
+                        directory().map(Path::toString).orElse(null)));
+    }
+
+    /**
+     * Returns the directory last chosen in a file chooser of the window, as saved, unless it no longer exists.
+     *
+     * @return the directory, empty when none was chosen or it no longer exists
+     */
+    public Optional<Path> directory() {
+        if (!directoryLoaded) {
+            directoryLoaded = true;
+            directory = store.get(host().stateKey())
+                    .map(SavedWindow::directory)
+                    .map(saved -> store.file().getFileSystem().getPath(saved))
+                    .orElse(null);
+        }
+        return Optional.ofNullable(directory).filter(Files::isDirectory);
+    }
+
+    /**
+     * Sets the directory last chosen in a file chooser of the window, saved with its state.
+     *
+     * @param chosen the directory
+     */
+    public void directory(Path chosen) {
+        directoryLoaded = true;
+        directory = chosen.toAbsolutePath();
     }
 
     private Map<String, Component> components(WindowHost host) {

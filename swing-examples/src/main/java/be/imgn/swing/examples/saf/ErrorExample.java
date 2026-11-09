@@ -9,7 +9,7 @@ import be.imgn.swing.ui.Ui;
 import javax.swing.Action;
 
 /** The button of {@link SingleFrameExample3}, which here shows the error dialog, with its details. */
-@Application(name = "ErrorExample")
+@Application
 public final class ErrorExample extends SingleFrameExample3 {
 
     private final Ui ui;

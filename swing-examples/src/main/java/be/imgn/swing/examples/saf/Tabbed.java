@@ -29,7 +29,7 @@ import org.jspecify.annotations.Nullable;
  * a panel with a label that reads the title of its tab, and the button. Here three tabs show it, with their titles in
  * resources as {@code tab-title} properties and the button's tooltip as a message.
  */
-@Application(name = "Tabbed")
+@Application
 public final class Tabbed implements SingleFrame {
 
     @Exposed

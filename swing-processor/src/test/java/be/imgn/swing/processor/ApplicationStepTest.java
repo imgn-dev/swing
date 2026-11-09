@@ -2,10 +2,24 @@ package be.imgn.swing.processor;
 
 import static be.imgn.gaia.processing.testing.CompilationAssert.assertThat;
 
+import java.util.List;
 import javax.tools.StandardLocation;
 import org.junit.jupiter.api.Test;
 
 class ApplicationStepTest {
+
+    private static final String MULTI_FRAME = """
+            package p;
+
+            @be.imgn.swing.Application(name = "Notes")
+            public final class App implements be.imgn.swing.ui.MultiFrame {
+                @be.imgn.inject.Inject
+                App() {}
+
+                @Override
+                public void start(be.imgn.swing.ui.Frames frames, be.imgn.swing.Arguments arguments) {}
+            }
+            """;
 
     @Test
     void generatesTheDescriptor() {
@@ -86,7 +100,7 @@ class ApplicationStepTest {
     }
 
     @Test
-    void requiresSingleFrame() {
+    void requiresSingleFrameOrMultiFrame() {
         var compilation = Sources.create().source("p.App", """
                         package p;
 
@@ -94,6 +108,68 @@ class ApplicationStepTest {
                         public final class App {}
                         """).compile();
 
-        assertThat(compilation).failed().hadErrorContaining("must implement be.imgn.swing.ui.SingleFrame");
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("must implement exactly one of be.imgn.swing.ui.SingleFrame and "
+                        + "be.imgn.swing.ui.MultiFrame");
+    }
+
+    @Test
+    void rejectsAnApplicationClassThatImplementsBoth() {
+        var compilation = Sources.create().source("p.App", """
+                        package p;
+
+                        @be.imgn.swing.Application(name = "Counter")
+                        public final class App implements be.imgn.swing.ui.SingleFrame, be.imgn.swing.ui.MultiFrame {
+                            public javax.swing.JComponent content() {
+                                return new javax.swing.JPanel();
+                            }
+
+                            public void start(be.imgn.swing.ui.Frames frames, be.imgn.swing.Arguments arguments) {}
+                        }
+                        """).compile();
+
+        assertThat(compilation).failed().hadErrorContaining("must implement exactly one of");
+    }
+
+    @Test
+    void acceptsAMultiFrameApplicationClass() {
+        var compilation = Sources.create().source("p.App", MULTI_FRAME).compile();
+
+        assertThat(compilation).succeeded().hadNoWarnings();
+        assertThat(compilation).generatedSourceFile("p.$App$$Application").contains("return \"Notes\";");
+    }
+
+    @Test
+    void rejectsAMultiFrameApplicationClassScopedToAWindowOrAView() {
+        for (String scope : List.of("WindowScoped", "ViewScoped")) {
+            var compilation = Sources.create()
+                    .source(
+                            "p.App",
+                            MULTI_FRAME.replace(
+                                    "public final class", "@be.imgn.swing.ui." + scope + "\npublic final class"))
+                    .compile();
+
+            assertThat(compilation).failed().hadErrorContaining("is a singleton: remove @" + scope);
+        }
+    }
+
+    @Test
+    void namesTheApplicationAfterItsClassWithoutAName() {
+        var compilation = Sources.create().source("p.CounterApp", """
+                        package p;
+
+                        @be.imgn.swing.Application(vendor = "imgn")
+                        public final class CounterApp implements be.imgn.swing.ui.SingleFrame {
+                            public javax.swing.JComponent content() {
+                                return new javax.swing.JPanel();
+                            }
+                        }
+                        """).compile();
+
+        assertThat(compilation).succeeded().hadNoWarnings();
+        assertThat(compilation)
+                .generatedSourceFile("p.$CounterApp$$Application")
+                .contains("return \"CounterApp\";");
     }
 }

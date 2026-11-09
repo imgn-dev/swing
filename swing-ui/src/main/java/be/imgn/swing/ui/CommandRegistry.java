@@ -55,7 +55,22 @@ public final class CommandRegistry {
      * @return the builder
      */
     public CommandBuilder command(Class<?> owner, String id) {
-        return new CommandBuilder(this, Objects.requireNonNull(owner, "owner"), Objects.requireNonNull(id, "id"));
+        return new CommandBuilder(
+                this, Objects.requireNonNull(owner, "owner"), Objects.requireNonNull(id, "id"), false);
+    }
+
+    /**
+     * Starts building a command of a framework's commands class, such as the document commands, whose text and
+     * shortcuts come from the owner's resources, overridden by the view class's {@code [commands.<id>]} table, as those
+     * of the standard commands are.
+     *
+     * @param owner the commands class, whose resources give the defaults
+     * @param id the command's id
+     * @return the builder
+     * @throws NullPointerException if an argument is {@code null}
+     */
+    public CommandBuilder overridableCommand(Class<?> owner, String id) {
+        return new CommandBuilder(this, Objects.requireNonNull(owner, "owner"), Objects.requireNonNull(id, "id"), true);
     }
 
     /**
@@ -85,7 +100,8 @@ public final class CommandRegistry {
             throw new IllegalStateException("The command " + key + " blocks input but returns no task");
         }
         checkConcurrency(key, builder);
-        BoundCommand command = new BoundCommand(this, builder, resourcesOf(builder.owner(), builder.id()));
+        BoundCommand command =
+                new BoundCommand(this, builder, resourcesOf(builder.owner(), builder.id(), builder.isOverridable()));
         commands.put(key, command);
         StandardCommands instance = constructing.peek();
         if (instance != null) {
@@ -142,12 +158,15 @@ public final class CommandRegistry {
         }
     }
 
-    private CommandResources resourcesOf(Class<?> owner, String id) {
+    private CommandResources resourcesOf(Class<?> owner, String id, boolean overridable) {
         Map<Class<?>, TomlTable> tables = new LinkedHashMap<>();
         if (Standard.of(id).isPresent()) {
             tables.put(StandardCommands.class, section(StandardCommands.class, id));
         }
-        Class<?> type = owner == StandardCommands.class ? view.type() : owner;
+        if (overridable) {
+            tables.put(owner, section(owner, id));
+        }
+        Class<?> type = owner == StandardCommands.class || overridable ? view.type() : owner;
         tables.put(type, section(type, id));
         return CommandResources.of(tables);
     }

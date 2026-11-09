@@ -18,7 +18,7 @@ import javax.swing.JPanel;
  * A button that exits, and an exit veto that asks for a confirmation. The button's text and icon are the exit
  * command's, which the class's resources override; its font and colors, the panel's titled border too.
  */
-@Application(name = "SingleFrameExample3")
+@Application
 public class SingleFrameExample3 implements SingleFrame, ExitVeto {
 
     @Exposed

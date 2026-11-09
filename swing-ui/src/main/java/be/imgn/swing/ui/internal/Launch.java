@@ -9,7 +9,6 @@ import be.imgn.swing.internal.DisposalScope;
 import be.imgn.swing.internal.Launcher;
 import be.imgn.swing.spi.ApplicationDescriptor;
 import be.imgn.swing.ui.LookAndFeelInstaller;
-import be.imgn.swing.ui.SingleFrame;
 import java.awt.EventQueue;
 import java.util.List;
 import java.util.Objects;
@@ -25,9 +24,9 @@ public final class Launch {
 
     /**
      * Launches an application: reads its descriptor, builds the root injector, runs the startup steps on the calling
-     * thread, then on the EDT installs the look and feel, checks the icons, creates and shows the main window, and
-     * finally calls the main view's {@code ready()}, then the ready listeners, once the events posted meanwhile have
-     * run.
+     * thread, then on the EDT installs the look and feel, checks the icons, creates and shows the main window or the
+     * first frames, and finally calls the application class's {@code ready()}, then the ready listeners, once the
+     * events posted meanwhile have run.
      *
      * @param type the application class
      * @param arguments the arguments
@@ -44,7 +43,7 @@ public final class Launch {
         }
         @Nullable Injector injector = null;
         AtomicBoolean lookAndFeel = new AtomicBoolean();
-        AtomicReference<SingleFrame> main = new AtomicReference<>();
+        AtomicReference<Runnable> main = new AtomicReference<>();
         try {
             DefaultApplicationInfo info = new DefaultApplicationInfo(descriptor);
             DisposalScope application = DisposalScope.root("application");
@@ -61,9 +60,9 @@ public final class Launch {
                 root.getInstance(FocusTracker.class).start();
                 main.set(root.getInstance(MainWindowStarter.class).start(type, root, application));
             });
-            SingleFrame frame = Objects.requireNonNull(main.get(), "main view");
+            Runnable ready = Objects.requireNonNull(main.get(), "ready");
             EventQueue.invokeLater(() -> {
-                frame.ready();
+                ready.run();
                 Contributions.of(root, ReadyListener.class).forEach(ReadyListener::ready);
             });
             return Optional.of(root);

@@ -19,11 +19,11 @@ public @interface Application {
 
     /**
      * Returns the application's name, as gaia's {@code ApplicationDirectories} takes it, and the displayed name unless
-     * the class's resources give a {@code name} key.
+     * the class's resources give a {@code name} key. An empty name is the class's simple name.
      *
-     * @return the application's name, such as {@code Counter}
+     * @return the application's name, such as {@code Counter}, or an empty string for the class's simple name
      */
-    String name();
+    String name() default "";
 
     /**
      * Returns the organization or person that makes the application.

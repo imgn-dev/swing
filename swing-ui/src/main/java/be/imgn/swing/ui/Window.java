@@ -37,4 +37,10 @@ public interface Window {
      * @throws NullPointerException if {@code component} is {@code null}
      */
     void focus(Component component);
+
+    /**
+     * Brings the window to the front, deiconified, and asks for the focus. The test harness's window records the
+     * request instead, since it is never realized.
+     */
+    void toFront();
 }

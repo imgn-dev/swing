@@ -14,13 +14,15 @@ import be.imgn.swing.Task;
 import be.imgn.swing.TaskContext;
 import be.imgn.swing.examples.saf.SecondaryWindow;
 import be.imgn.swing.examples.saf.SingleFrameExample6;
+import be.imgn.swing.examples.saf.SingleFrameExample6Commands;
 import be.imgn.swing.testing.AppTester;
-import be.imgn.swing.testing.OpenDialog;
+import be.imgn.swing.testing.OpenFrame;
 import be.imgn.swing.ui.Block;
 import be.imgn.swing.ui.BoundCommand;
 import be.imgn.swing.ui.CommandBuilder;
 import be.imgn.swing.ui.CommandRegistry;
 import be.imgn.swing.ui.Concurrency;
+import be.imgn.swing.ui.Frames;
 import be.imgn.swing.ui.StandardCommands;
 import be.imgn.swing.ui.Ui;
 import java.awt.Component;
@@ -418,8 +420,8 @@ class CommandTasksTest {
         AtomicInteger runs = new AtomicInteger();
         AtomicReference<Ui> secondary = new AtomicReference<>();
         try (AppTester<SingleFrameExample6> app = AppTester.start(SingleFrameExample6.class)) {
-            inSecondaryWindow(app, app.bean(Ui.class), dialog -> {
-                Ui ui = dialog.commands(Ui.class);
+            inSecondaryWindow(app, injector -> {
+                Ui ui = injector.getInstance(Ui.class);
                 secondary.set(ui);
                 ui.every(Duration.ofMillis(500), () -> runs.incrementAndGet());
             });
@@ -596,10 +598,10 @@ class CommandTasksTest {
         List<CountDownLatch> releases = List.of(new CountDownLatch(1), new CountDownLatch(1));
         AtomicReference<BoundCommand> command = new AtomicReference<>();
         try (AppTester<SingleFrameExample6> app = AppTester.start(SingleFrameExample6.class)) {
-            inSecondaryWindow(app, app.bean(Ui.class), dialog -> {
+            inSecondaryWindow(app, injector -> {
                 BoundCommand go = attach(
-                                dialog.commands(CommandRegistry.class),
-                                dialog.commands(Injector.class),
+                                injector.getInstance(CommandRegistry.class),
+                                injector,
                                 registry -> List.of(numbered(registry, releases, new AtomicBoolean())
                                         .concurrency(Concurrency.SERIAL)
                                         .bind()))
@@ -740,13 +742,12 @@ class CommandTasksTest {
                         .onEnd(() -> seen.add("end")))
                 .bind());
         try (AppTester<SingleFrameExample6> app = AppTester.start(SingleFrameExample6.class)) {
-            Ui ui = app.bean(Ui.class);
+            Secondary window = openSecondaryWindow(app);
             BoundCommand main = attach(app, build).get(0);
             app.activate(main);
 
-            inSecondaryWindow(app, ui, dialog -> {
-                BoundCommand secondary = attach(
-                                dialog.commands(CommandRegistry.class), dialog.commands(Injector.class), build)
+            inOpenWindow(window, injector -> {
+                BoundCommand secondary = attach(injector.getInstance(CommandRegistry.class), injector, build)
                         .get(0);
                 states.add("secondary " + secondary.running().get());
                 secondary.execute();
@@ -814,20 +815,30 @@ class CommandTasksTest {
         return commands.bound;
     }
 
-    // Shows a secondary window, a dialog view and so a second view, runs an action in it on the EDT, then closes it,
+    // Opens a secondary window, a frame view and so a second view, runs an action in it on the EDT, then closes it,
     // which closes its view's scope.
-    private static void inSecondaryWindow(
-            AppTester<SingleFrameExample6> app, Ui ui, DialogAction<SecondaryWindow> action) throws Exception {
-        app.dialogs().answerDialog(SecondaryWindow.class, dialog -> {
+    private static void inSecondaryWindow(AppTester<SingleFrameExample6> app, FrameAction action) throws Exception {
+        inOpenWindow(openSecondaryWindow(app), action);
+    }
+
+    // Opens a secondary window through the tester, before the test starts tasks that its calls would wait for.
+    private static Secondary openSecondaryWindow(AppTester<SingleFrameExample6> app) {
+        app.commands(SingleFrameExample6Commands.class).showWindow1().execute();
+        OpenFrame<SecondaryWindow> window = app.frame(SecondaryWindow.class);
+        return new Secondary(app.bean(Frames.class), window.view(), window.bean(Injector.class));
+    }
+
+    // Runs an action in an open secondary window on the EDT, without the tester, then closes the window.
+    private static void inOpenWindow(Secondary secondary, FrameAction action) throws Exception {
+        EventQueue.invokeAndWait(() -> {
             try {
-                action.run(dialog);
+                action.run(secondary.injector());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new IllegalStateException(e);
             }
-            dialog.component(JButton.class).doClick();
+            assertThat(secondary.frames().close(secondary.view())).isTrue();
         });
-        EventQueue.invokeAndWait(() -> ui.showDialog(SecondaryWindow.class, SecondaryWindow.Name.ONE));
     }
 
     private static <R> R onEdt(Supplier<R> read) throws Exception {
@@ -890,9 +901,12 @@ class CommandTasksTest {
     }
 
     @FunctionalInterface
-    private interface DialogAction<V> {
-        void run(OpenDialog<V> dialog) throws InterruptedException;
+    private interface FrameAction {
+        void run(Injector view) throws InterruptedException;
     }
+
+    /** A secondary window, open: the frames, its view and its view's injector. */
+    private record Secondary(Frames frames, SecondaryWindow view, Injector injector) {}
 
     private static final class BuiltCommands extends StandardCommands {
         private final List<BoundCommand> bound;

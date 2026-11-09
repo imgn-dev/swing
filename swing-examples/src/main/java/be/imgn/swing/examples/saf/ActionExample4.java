@@ -12,7 +12,11 @@ import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
@@ -30,7 +34,7 @@ import org.jspecify.annotations.Nullable;
  * directory it lists, and a command that stops it, enabled only while it runs. A new listing replaces the one that
  * runs.
  */
-@Application(name = "ActionExample4", vendor = "Sun", version = "1.0")
+@Application(vendor = "Sun", version = "1.0")
 public final class ActionExample4 implements SingleFrame {
 
     private static final int COLUMNS = 32;
@@ -39,7 +43,7 @@ public final class ActionExample4 implements SingleFrame {
     private static final int PADDING = 4;
 
     private final JTextField root = new JTextField(System.getProperty("java.home"), COLUMNS);
-    private final DefaultListModel<File> files = new DefaultListModel<>();
+    private final DefaultListModel<Path> files = new DefaultListModel<>();
     private final Property<String> message = Property.of(" ");
     private final ActionExample4Commands commands;
     private final Ui ui;
@@ -69,7 +73,7 @@ public final class ActionExample4 implements SingleFrame {
         buttons.add(root);
         buttons.add(commands.go().createButton());
         buttons.add(commands.stop().createButton());
-        JList<File> list = new JList<>(files);
+        JList<Path> list = new JList<>(files);
         list.setVisibleRowCount(ROWS);
         JScrollPane scroll = new JScrollPane(list);
         scroll.setBorder(BorderFactory.createEmptyBorder(MARGIN, PADDING, MARGIN, PADDING));
@@ -86,8 +90,8 @@ public final class ActionExample4 implements SingleFrame {
     @Command(concurrency = Concurrency.RESTART)
     Task<Integer> go() {
         files.clear();
-        File directory = new File(root.getText());
-        return Task.<Integer, File>of(
+        Path directory = Path.of(root.getText());
+        return Task.<Integer, Path>of(
                         (context, publish) -> expand(directory, context, publish),
                         found -> found.forEach(files::addElement))
                 .onSuccess(count -> message.set(messages.listed(count)));
@@ -106,11 +110,11 @@ public final class ActionExample4 implements SingleFrame {
     }
 
     // Lists the files under a directory, publishing each one; the cancellation of the task ends it.
-    private int expand(File file, TaskContext context, Consumer<? super File> publish) throws InterruptedException {
+    private int expand(Path file, TaskContext context, Consumer<? super Path> publish) throws InterruptedException {
         if (context.isCancelled()) {
             return 0;
         }
-        if (!file.isDirectory()) {
+        if (!Files.isDirectory(file)) {
             publish.accept(file);
             CountDownLatch latch = hold;
             if (latch != null) {
@@ -119,12 +123,14 @@ public final class ActionExample4 implements SingleFrame {
             return 1;
         }
         message.set(messages.listing(file.toString()));
-        File[] children = file.listFiles();
         int count = 0;
-        if (children != null) {
-            for (File child : children) {
+        // A directory that can't be read lists nothing, as the original's listFiles does.
+        try (DirectoryStream<Path> children = Files.newDirectoryStream(file)) {
+            for (Path child : children) {
                 count += expand(child, context, publish);
             }
+        } catch (IOException | DirectoryIteratorException e) {
+            return count;
         }
         return count;
     }

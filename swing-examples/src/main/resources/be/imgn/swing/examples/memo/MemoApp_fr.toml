@@ -1,0 +1,4 @@
+description = "Prend des notes, une note par fenêtre."
+copyright = "Copyright 2026 imgn"
+website = "https://github.com/imgn-dev/swing"
+icon = "icons/memo.png"

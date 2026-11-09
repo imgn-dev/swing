@@ -26,7 +26,7 @@ import javax.swing.JTextField;
  * by {@code LocalStorage} with {@code XMLEncoder}, from commands; in swing, it is the {@link Entries} settings record,
  * loaded at startup and saved at each change, in the config directory.
  */
-@Application(name = "LocalStorageExample1", vendor = "Sun")
+@Application(vendor = "Sun")
 public final class LocalStorageExample1 implements SingleFrame {
 
     private static final int COLUMNS = 16;

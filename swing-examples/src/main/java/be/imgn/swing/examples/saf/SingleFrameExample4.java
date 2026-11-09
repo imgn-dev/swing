@@ -7,23 +7,21 @@ import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
-import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
 
 /**
  * A text editor whose cut, copy and paste commands, in a menu and a toolbar, follow the selection of the editor: the
  * standard commands do. Open loads a file; close restores the default text.
  */
-@Application(name = "SingleFrameExample4", vendor = "Sun", version = "1.0")
+@Application(vendor = "Sun", version = "1.0")
 public final class SingleFrameExample4 implements SingleFrame {
 
     private final JTextPane textPane = new JTextPane();
@@ -74,16 +72,13 @@ public final class SingleFrameExample4 implements SingleFrame {
 
     @Command
     void open() {
-        JFileChooser chooser = new JFileChooser();
-        if (chooser.showOpenDialog(SwingUtilities.getWindowAncestor(ui.window().rootPane()))
-                == JFileChooser.APPROVE_OPTION) {
-            File file = chooser.getSelectedFile();
+        ui.dialogs().openFile(List.of()).ifPresent(file -> {
             try {
-                textPane.setPage(file.toURI().toURL());
+                textPane.setPage(file.toUri().toURL());
             } catch (IOException e) {
                 ui.dialogs().error(messages.cannotOpen(file.toString()), e);
             }
-        }
+        });
     }
 
     @Command

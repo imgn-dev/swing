@@ -42,7 +42,8 @@ final class MenuBuilder {
                 tables.put(StandardMenus.class, section(StandardMenus.class, id));
                 // An override in the application class's resources renames the menu in every view; the view class's
                 // own resources come last.
-                services.applicationType().ifPresent(application -> tables.put(application, section(application, id)));
+                Class<?> application = services.applicationType();
+                tables.put(application, section(application, id));
             }
             Class<?> type = owner == StandardMenus.class ? view.type() : owner;
             tables.put(type, section(type, id));

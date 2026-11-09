@@ -28,6 +28,7 @@ import javax.swing.JRootPane;
 import javax.swing.JTabbedPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -67,17 +68,19 @@ public final class Form {
     private final Scope scope;
     private final ValidationFeedback feedback;
     private final FailureHandler failures;
+    private final UndoStack undo;
     private final List<Binding<?>> bindings = new ArrayList<>();
     private final List<Tracked<?>> tracked = new ArrayList<>();
     private final Property<Boolean> valid = Property.of(true);
     private final Property<Boolean> dirty = Property.of(false);
 
     @Inject
-    Form(Window window, Scope scope, ValidationFeedback feedback, FailureHandler failures) {
+    Form(Window window, Scope scope, ValidationFeedback feedback, FailureHandler failures, UndoStack undo) {
         this.window = window;
         this.scope = scope;
         this.feedback = feedback;
         this.failures = failures;
+        this.undo = undo;
     }
 
     /**
@@ -271,6 +274,15 @@ public final class Form {
         link.setText(property.get());
         document.addDocumentListener(link);
         scope.onClose(() -> document.removeDocumentListener(link));
+        // The user's edits go to the view's undo stack; undoing one is a change of the document, which sets the
+        // property as the user's do. The binding's own updates of the text are not the user's to undo.
+        UndoableEditListener edits = event -> {
+            if (!link.own) {
+                undo.add(event.getEdit());
+            }
+        };
+        document.addUndoableEditListener(edits);
+        scope.onClose(() -> document.removeUndoableEditListener(edits));
         add(binding);
         return binding;
     }

@@ -1,0 +1,4 @@
+untitled = "Sans titre"
+documentTitle = "{0} – {1}"
+openFailed = "Impossible d''ouvrir {0} : {1}"
+saveFailed = "Impossible d''enregistrer {0} : {1}"

@@ -7,6 +7,7 @@ import be.imgn.gaia.processing.ProcessingContext;
 import be.imgn.gaia.processing.ProcessingException;
 import be.imgn.gaia.processing.Step;
 import be.imgn.gaia.processing.source.ClassName;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.lang.model.element.Element;
@@ -43,7 +44,9 @@ final class ApplicationStep implements Step {
         TypeElement type = (TypeElement) element;
         AnnotationReader annotation =
                 context.annotation(type, Names.APPLICATION).orElseThrow();
-        String name = annotation.string("name");
+        String given = annotation.string("name");
+        // An empty name is the class's simple name, which always passes gaia's rules.
+        String name = given.isEmpty() ? type.getSimpleName().toString() : given;
         Optional<String> vendor = optional(annotation.string("vendor"));
         Optional<String> qualifier = optional(annotation.string("qualifier"));
         Optional<String> version = optional(annotation.string("version"));
@@ -58,12 +61,26 @@ final class ApplicationStep implements Step {
                     .error("A qualifier is only given with a vendor: add vendor, or remove qualifier");
             valid = false;
         }
-        if (!context.isSubtype(type.asType(), Names.SINGLE_FRAME)) {
+        boolean single = context.isSubtype(type.asType(), Names.SINGLE_FRAME);
+        boolean multi = context.isSubtype(type.asType(), Names.MULTI_FRAME);
+        if (single == multi) {
             context.diagnostics()
                     .on(type)
                     .annotation(Names.APPLICATION)
-                    .error("The @Application class must implement " + Names.SINGLE_FRAME + " in milestone 1");
+                    .error("The @Application class must implement exactly one of " + Names.SINGLE_FRAME + " and "
+                            + Names.MULTI_FRAME);
             valid = false;
+        } else if (multi) {
+            for (String scope : List.of(Names.WINDOW_SCOPED, Names.VIEW_SCOPED)) {
+                if (context.annotation(type, scope).isPresent()) {
+                    context.diagnostics()
+                            .on(type)
+                            .annotation(scope)
+                            .error("An application class that implements " + Names.MULTI_FRAME
+                                    + " is a singleton: remove @" + scope.substring(scope.lastIndexOf('.') + 1));
+                    valid = false;
+                }
+            }
         }
         shared.pending(type);
         if (valid) {

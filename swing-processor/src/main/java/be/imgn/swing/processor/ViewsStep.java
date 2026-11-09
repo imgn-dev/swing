@@ -79,10 +79,20 @@ final class ViewsStep implements Step {
                     .error(type, "A view class must not be private: the framework's generated code reaches it");
             return;
         }
+        if (isDocumentView(type) && !context.isSubtype(type.asType(), Names.FRAME_VIEW)) {
+            shared.reporter()
+                    .error(type, "A document view is shown in a frame of its own: implement " + Names.FRAME_VIEW);
+        }
         shared.pending(type);
         generateInjector(type);
         generateState(type);
         DialogFactories.generate(shared, type);
+    }
+
+    // swing-desktop may be absent from the class path: a class that can't implement DocumentView isn't one.
+    private boolean isDocumentView(TypeElement type) {
+        return context.elements().getTypeElement(Names.DOCUMENT_VIEW) != null
+                && context.isSubtype(type.asType(), Names.DOCUMENT_VIEW);
     }
 
     // A bean of a wider scope reaches a bean of a narrower one only through a Provider. The injection points include
@@ -105,20 +115,24 @@ final class ViewsStep implements Step {
         }
     }
 
-    // @Variants marks the one enum, nested in a dialog view, whose constants name the dialog's variants.
+    // @Variants marks the one enum, nested in a dialog view or a frame view, whose constants name the view's variants.
     private void checkVariants(TypeElement type) {
         if (context.annotation(type, Names.VARIANTS).isPresent()
                 && (type.getKind() != ElementKind.ENUM
                         || !(type.getEnclosingElement() instanceof TypeElement owner)
-                        || !context.isSubtype(owner.asType(), Names.DIALOG_VIEW))) {
+                        || !(context.isSubtype(owner.asType(), Names.DIALOG_VIEW)
+                                || context.isSubtype(owner.asType(), Names.FRAME_VIEW)))) {
             shared.reporter()
-                    .error(type, "@Variants marks an enum nested in a dialog view, whose constants name its variants");
+                    .error(
+                            type,
+                            "@Variants marks an enum nested in a dialog view or a frame view, whose constants name"
+                                    + " its variants");
         }
         long count = ElementFilter.typesIn(type.getEnclosedElements()).stream()
                 .filter(nested -> context.annotation(nested, Names.VARIANTS).isPresent())
                 .count();
         if (count > 1) {
-            shared.reporter().error(type, "A dialog view has one @Variants enum, not " + count);
+            shared.reporter().error(type, "A view has one @Variants enum, not " + count);
         }
     }
 

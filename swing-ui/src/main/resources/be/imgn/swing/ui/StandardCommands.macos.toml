@@ -4,3 +4,6 @@ text = "Quit"
 [commands.preferences]
 text = "Settings..."
 shortcut = "shortcut COMMA"
+
+[commands.redo]
+shortcut = "shortcut shift Z"

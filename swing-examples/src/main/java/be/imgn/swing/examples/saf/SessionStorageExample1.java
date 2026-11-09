@@ -24,7 +24,7 @@ import javax.swing.table.AbstractTableModel;
  * name. The tabs' titles and the labels' texts, font and foreground are in the resources; the colors they show are the
  * demo's data.
  */
-@Application(name = "SessionStorageExample1")
+@Application
 public final class SessionStorageExample1 implements SingleFrame {
 
     private static final double HALF = 0.5;

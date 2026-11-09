@@ -1,0 +1,3 @@
+saved = "Saved {file}."
+words = "{count,choice,0#no words|1#one word|1<{count,number,integer} words}"
+textFiles = "Text files"

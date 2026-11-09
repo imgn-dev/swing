@@ -1,0 +1,5 @@
+# The desktop's own texts.
+untitled = "Untitled"
+documentTitle = "{0} – {1}"
+openFailed = "Could not open {0}: {1}"
+saveFailed = "Could not save {0}: {1}"

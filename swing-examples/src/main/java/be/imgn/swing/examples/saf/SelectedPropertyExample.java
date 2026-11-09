@@ -22,7 +22,7 @@ import javax.swing.JTextArea;
  * A toggle command, with a selected state, shared by a check box and a radio button, and a button that flips the state
  * from code: every component follows it, and the text area logs each change.
  */
-@Application(name = "SelectedPropertyExample", vendor = "Sun", version = "1.0")
+@Application(vendor = "Sun", version = "1.0")
 public final class SelectedPropertyExample implements SingleFrame {
 
     // The toggle: activating it flips the property, which the check box and the radio button follow.

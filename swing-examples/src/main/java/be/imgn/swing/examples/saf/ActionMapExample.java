@@ -17,7 +17,7 @@ import javax.swing.JPanel;
  * generated commands. The panels' titles and icons are properties of this class's resources, through the fields that
  * hold them.
  */
-@Application(name = "ActionMapExample")
+@Application
 public final class ActionMapExample implements SingleFrame {
 
     private static final double HALF = 0.5;

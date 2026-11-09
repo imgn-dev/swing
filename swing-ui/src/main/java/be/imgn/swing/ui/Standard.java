@@ -12,6 +12,8 @@ enum Standard {
     COPY("copy"),
     PASTE("paste"),
     SELECT_ALL("selectAll"),
+    UNDO("undo"),
+    REDO("redo"),
     CLOSE_WINDOW("closeWindow"),
     OK("ok"),
     CANCEL("cancel"),

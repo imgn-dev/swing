@@ -37,6 +37,7 @@
     <module>swing-core</module>
     <module>swing-processor</module>
     <module>swing-ui</module>
+    <module>swing-desktop</module>
     <module>swing-flatlaf</module>
     <module>swing-testing</module>
     <module>swing-examples</module>

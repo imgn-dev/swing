@@ -17,6 +17,8 @@ public final class WindowRegistry {
 
     private final InputBlocker blocker;
     private final List<WindowHost> windows = new ArrayList<>();
+    // The frames that had the focus, the most recent first.
+    private final List<WindowHost> focusOrder = new ArrayList<>();
     private final IdentityHashMap<Injector, ViewHost> viewsByInjector = new IdentityHashMap<>();
     private final IdentityHashMap<Scope, ViewHost> viewsByScope = new IdentityHashMap<>();
 
@@ -38,6 +40,7 @@ public final class WindowRegistry {
 
     private synchronized void removeWindow(WindowHost window) {
         windows.remove(window);
+        focusOrder.remove(window);
     }
 
     /**
@@ -72,6 +75,44 @@ public final class WindowRegistry {
      */
     public synchronized Optional<WindowHost> main() {
         return windows.stream().filter(WindowHost::isMain).findFirst();
+    }
+
+    /**
+     * Records that a frame has the focus: it becomes the active frame, until another one does.
+     *
+     * @param frame the frame's host
+     */
+    public synchronized void focused(WindowHost frame) {
+        focusOrder.remove(frame);
+        focusOrder.addFirst(frame);
+    }
+
+    /**
+     * Returns the open frames, in the order they were opened, the main window first.
+     *
+     * @return the frames
+     */
+    public synchronized List<WindowHost> frames() {
+        return windows.stream()
+                .filter(WindowHost::isFrame)
+                .filter(window -> !window.views().isEmpty())
+                .toList();
+    }
+
+    /**
+     * Returns the active frame: the frame that has the focus, else the frame that had it last, else the frame opened
+     * last.
+     *
+     * @return the frame, empty when no frame is open
+     */
+    public synchronized Optional<WindowHost> activeFrame() {
+        List<WindowHost> frames = frames();
+        for (WindowHost frame : focusOrder) {
+            if (frames.contains(frame)) {
+                return Optional.of(frame);
+            }
+        }
+        return frames.isEmpty() ? Optional.empty() : Optional.of(frames.getLast());
     }
 
     /**

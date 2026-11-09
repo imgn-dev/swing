@@ -1,24 +1,17 @@
 package be.imgn.swing.examples.saf;
 
 import be.imgn.inject.Inject;
-import be.imgn.swing.ui.BoundCommand;
-import be.imgn.swing.ui.DialogView;
 import be.imgn.swing.ui.Exposed;
-import be.imgn.swing.ui.StandardCommands;
+import be.imgn.swing.ui.FrameView;
 import be.imgn.swing.ui.Variants;
 import java.awt.BorderLayout;
-import java.util.List;
-import java.util.Optional;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-/**
- * A secondary window of {@link SingleFrameExample6}: a label, and a button that hides it. Its three variants differ
- * only by their title and their label's text, in the variants of its resources.
- */
-public final class SecondaryWindow implements DialogView<Void> {
+/** A secondary window of {@link SingleFrameExample6}: a frame of its own, whose variants differ by their resources. */
+public final class SecondaryWindow implements FrameView {
 
     @Exposed
     final JLabel label = new JLabel("", SwingConstants.CENTER);
@@ -31,16 +24,6 @@ public final class SecondaryWindow implements DialogView<Void> {
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(label, BorderLayout.CENTER);
         return panel;
-    }
-
-    @Override
-    public Optional<Void> result() {
-        return Optional.empty();
-    }
-
-    @Override
-    public List<BoundCommand> buttons(StandardCommands commands) {
-        return List.of(commands.cancel());
     }
 
     /** The variants of the window. */

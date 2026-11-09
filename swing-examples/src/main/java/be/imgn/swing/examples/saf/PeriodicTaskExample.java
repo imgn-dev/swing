@@ -15,7 +15,7 @@ import javax.swing.JLabel;
  * A periodic action that runs until the application exits, and shows the time elapsed every half second. It starts once
  * the main window is shown, and belongs to the view's scope, which stops it at shutdown.
  */
-@Application(name = "PeriodicTaskExample")
+@Application
 public final class PeriodicTaskExample implements SingleFrame {
 
     /** The period of the action. */

@@ -45,6 +45,7 @@ final class ViewBuilder {
             Injector parent,
             DisposalScope parentScope,
             @Nullable ViewHost opener,
+            WindowHost.Kind kind,
             String stateKey,
             String name) {
         DisposalScope scope = parentScope.child(name);
@@ -54,7 +55,7 @@ final class ViewBuilder {
                 .build();
         // Registered before anything is resolved through the host, so that its vetoes are reported in its scope.
         hosts.register(injector, scope);
-        WindowHost host = new WindowHost(window, injector, scope, opener, stateKey, services.mode());
+        WindowHost host = new WindowHost(window, injector, scope, opener, kind, stateKey, services.mode());
         services.registry().addWindow(host);
         return host;
     }

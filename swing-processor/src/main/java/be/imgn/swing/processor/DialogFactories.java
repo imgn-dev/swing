@@ -36,9 +36,10 @@ final class DialogFactories {
         }
     }
 
-    // The @Assisted parameters of the @Inject constructor of a dialog view; none for any other class.
+    // The @Assisted parameters of the @Inject constructor of a dialog or frame view; none for any other class.
     private static List<VariableElement> assistedParameters(ProcessingContext context, TypeElement type) {
-        if (!context.isSubtype(type.asType(), Names.DIALOG_VIEW)) {
+        if (!context.isSubtype(type.asType(), Names.DIALOG_VIEW)
+                && !context.isSubtype(type.asType(), Names.FRAME_VIEW)) {
             return List.of();
         }
         return ElementFilter.constructorsIn(type.getEnclosedElements()).stream()

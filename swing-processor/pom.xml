@@ -42,6 +42,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-desktop</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>be.imgn.gaia</groupId>
       <artifactId>gaia-processing-testing</artifactId>
       <version>${gaia.version}</version>

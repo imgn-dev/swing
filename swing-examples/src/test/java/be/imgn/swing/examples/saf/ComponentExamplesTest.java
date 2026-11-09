@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import be.imgn.gaia.core.platform.ApplicationDirectories;
 import be.imgn.swing.testing.AppTester;
-import be.imgn.swing.ui.BoundCommand;
+import be.imgn.swing.testing.OpenFrame;
 import be.imgn.swing.ui.StandardCommands;
 import be.imgn.toml.Toml;
 import be.imgn.toml.TomlTable;
@@ -13,10 +13,8 @@ import java.awt.EventQueue;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -121,43 +119,29 @@ class ComponentExamplesTest {
     }
 
     @Test
-    void singleFrameExample6ShowsItsSecondaryWindowsAsDialogs() {
+    void singleFrameExample6OpensEachVariantOfItsSecondaryWindowInAFrame() {
         try (AppTester<SingleFrameExample6> app = AppTester.start(SingleFrameExample6.class)) {
-            app.dialogs().answerDialog(SecondaryWindow.class, dialog -> {
-                assertThat(dialog.component(JLabel.class).getText()).isEqualTo("Label One");
-                assertThat(dialog.component(JButton.class).getText()).isEqualTo("Hide Window");
-                dialog.component(JButton.class).doClick();
-            });
+            SingleFrameExample6Commands commands = app.commands(SingleFrameExample6Commands.class);
 
-            app.commands(SingleFrameExample6Commands.class).showWindow1().execute();
+            commands.showWindow0().execute();
+            commands.showWindow1().execute();
+            commands.showWindow2().execute();
 
-            assertThat(app.dialogs().shown()).containsExactly(SecondaryWindow.class);
+            List<OpenFrame<?>> frames = app.frames();
+            assertThat(frames).hasSize(4);
+            assertThat(frames.subList(1, 4))
+                    .extracting(OpenFrame::title)
+                    .containsExactly("Window Zero", "Window One", "Window Two");
+            assertThat(frames.subList(1, 4))
+                    .extracting(frame -> frame.component(JLabel.class).getText())
+                    .containsExactly("Label Zero", "Label One", "Label Two");
+
+            assertThat(frames.get(2).close()).isTrue();
+
+            assertThat(app.isRunning()).isTrue();
+            assertThat(app.frames()).hasSize(3);
             assertThat(app.component(JLabel.class).getText()).isEqualTo("Main Label");
         }
-    }
-
-    @Test
-    void secondaryWindowRenamesTheStandardCancelInItsResourcesAndKeepsItsHandler() {
-        List<Object> seen = new ArrayList<>();
-        List<Action> actions = new ArrayList<>();
-        try (AppTester<SingleFrameExample6> app = AppTester.start(SingleFrameExample6.class)) {
-            app.dialogs().answerDialog(SecondaryWindow.class, dialog -> {
-                JButton button = dialog.component(JButton.class);
-                BoundCommand cancel = dialog.commands(StandardCommands.class).cancel();
-                seen.add(button.getText());
-                seen.add(button.getToolTipText());
-                actions.add(button.getAction());
-                actions.add(cancel.asAction());
-                // The renamed command keeps the standard handler, which closes the dialog.
-                seen.add(cancel.execute());
-                seen.add(dialog.isOpen());
-            });
-
-            app.commands(SingleFrameExample6Commands.class).showWindow1().execute();
-        }
-        assertThat(seen).containsExactly("Hide Window", "Hide this window", true, false);
-        assertThat(actions).hasSize(2);
-        assertThat(actions.getFirst()).isSameAs(actions.getLast());
     }
 
     private static List<String> titles(JTabbedPane tabs) {

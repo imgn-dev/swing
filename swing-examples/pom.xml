@@ -34,6 +34,11 @@
     </dependency>
     <dependency>
       <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-desktop</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
       <artifactId>swing-flatlaf</artifactId>
       <version>${project.version}</version>
       <scope>runtime</scope>
@@ -140,6 +145,7 @@
                 <exclude>**/AppTesterSettingsTest.java</exclude>
                 <exclude>**/CommandTasksTest.java</exclude>
                 <exclude>**/EventBusTest.java</exclude>
+                <exclude>**/frames/*Test.java</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -154,6 +160,7 @@
                 <include>**/AppTesterSettingsTest.java</include>
                 <include>**/CommandTasksTest.java</include>
                 <include>**/EventBusTest.java</include>
+                <include>**/frames/*Test.java</include>
               </includes>
             </configuration>
           </execution>

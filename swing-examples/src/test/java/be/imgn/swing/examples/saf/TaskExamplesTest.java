@@ -322,8 +322,7 @@ class TaskExamplesTest {
             release.countDown();
             app.run(() -> {});
 
-            assertThat(app.call(() -> elements(list)))
-                    .containsExactly(second.resolve("c.txt").toFile());
+            assertThat(app.call(() -> elements(list))).containsExactly(second.resolve("c.txt"));
             assertThat(app.call(() -> app.components(JLabel.class).getLast().getText()))
                     .isEqualTo("One file listed");
         }

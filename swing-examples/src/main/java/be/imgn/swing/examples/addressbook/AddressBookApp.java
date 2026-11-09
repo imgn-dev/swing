@@ -15,14 +15,10 @@ import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
@@ -164,11 +160,5 @@ public final class AddressBookApp implements SingleFrame {
     @Override
     public JMenuBar menuBar() {
         return menuBar.create();
-    }
-
-    @Override
-    public void configureFrame(JFrame frame) {
-        URL icon = Objects.requireNonNull(AddressBookApp.class.getResource("icons/main.png"), "icons/main.png");
-        frame.setIconImage(new ImageIcon(icon).getImage());
     }
 }

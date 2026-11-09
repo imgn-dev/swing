@@ -1,0 +1,116 @@
+package be.imgn.swing.desktop.internal;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import be.imgn.toml.Toml;
+import java.io.Closeable;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.time.Duration;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+/** The single instance's transport, with two lock holders in one JVM, where the second sees the lock held. */
+class SocketInstanceLockTest {
+
+    private static final long TIMEOUT_SECONDS = 5;
+    private static final int TOKEN_BYTES = 32;
+
+    @TempDir
+    Path directory;
+
+    private final SocketInstanceLock lock = new SocketInstanceLock(Duration.ofMillis(300), Duration.ofMillis(20));
+    private final BlockingQueue<List<String>> received = new LinkedBlockingQueue<>();
+    private @Nullable Closeable first;
+
+    @AfterEach
+    void releaseTheFirstInstance() throws IOException {
+        if (first != null) {
+            first.close();
+        }
+    }
+
+    private void startFirst() throws IOException {
+        first = lock.acquire(directory, List.of(), received::add).orElseThrow();
+    }
+
+    @Test
+    void forwardsTheArgumentsOfASecondLaunchToTheFirstInstance() throws IOException, InterruptedException {
+        startFirst();
+
+        Optional<Closeable> second = lock.acquire(directory, List.of("notes.txt", "todo.txt"), launch -> {});
+
+        assertThat(second).isEmpty();
+        assertThat(received.poll(TIMEOUT_SECONDS, TimeUnit.SECONDS)).containsExactly("notes.txt", "todo.txt");
+    }
+
+    @Test
+    void writesThePortAndTokenReadableByTheOwnerOnly() throws IOException {
+        startFirst();
+        Path file = directory.resolve(SocketInstanceLock.INSTANCE_FILE);
+
+        InstanceFile instance = Toml.parse(file, InstanceFile.class);
+
+        assertThat(instance.port()).isPositive();
+        assertThat(Base64.getDecoder().decode(instance.token())).hasSize(TOKEN_BYTES);
+        if (Files.getFileStore(file).supportsFileAttributeView("posix")) {
+            assertThat(Files.getPosixFilePermissions(file))
+                    .isEqualTo(Set.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
+        }
+    }
+
+    @Test
+    void ignoresARequestWithAnotherTokenOrThatDoesntParse() throws IOException, InterruptedException {
+        startFirst();
+        InstanceFile instance = Toml.parse(directory.resolve(SocketInstanceLock.INSTANCE_FILE), InstanceFile.class);
+
+        assertThat(send(instance.port(), "token = \"wrong\"\narguments = [\"x\"]\n"))
+                .isEmpty();
+        assertThat(send(instance.port(), "not toml")).isEmpty();
+        assertThat(received.poll(100, TimeUnit.MILLISECONDS)).isNull();
+    }
+
+    @Test
+    void failsWhenTheInstanceHoldingTheLockDoesntAnswer() throws IOException {
+        startFirst();
+        Files.delete(directory.resolve(SocketInstanceLock.INSTANCE_FILE));
+
+        assertThatThrownBy(() -> lock.acquire(directory, List.of("x"), launch -> {}))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("holds the lock")
+                .hasMessageContaining("doesn't answer");
+    }
+
+    @Test
+    void becomesTheFirstInstanceOnceTheOtherOneReleasesTheLock() throws IOException {
+        lock.acquire(directory, List.of(), received::add).orElseThrow().close();
+
+        startFirst();
+
+        assertThat(first).isNotNull();
+    }
+
+    private static String send(int port, String request) throws IOException {
+        try (Socket socket = new Socket(InetAddress.getLoopbackAddress(), port)) {
+            socket.setSoTimeout((int) TimeUnit.SECONDS.toMillis(TIMEOUT_SECONDS));
+            socket.getOutputStream().write(request.getBytes(StandardCharsets.UTF_8));
+            socket.shutdownOutput();
+            return new String(socket.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+}

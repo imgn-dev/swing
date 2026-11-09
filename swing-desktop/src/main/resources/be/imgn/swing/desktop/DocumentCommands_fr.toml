@@ -1,0 +1,11 @@
+[commands.newDocument]
+text = "&Nouveau"
+
+[commands.open]
+text = "&Ouvrir…"
+
+[commands.save]
+text = "&Enregistrer"
+
+[commands.saveAs]
+text = "Enregistrer &sous…"

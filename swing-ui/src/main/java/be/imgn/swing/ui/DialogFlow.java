@@ -3,6 +3,7 @@ package be.imgn.swing.ui;
 import be.imgn.inject.Inject;
 import be.imgn.inject.Injector;
 import be.imgn.inject.Singleton;
+import be.imgn.swing.ui.internal.ApplicationIcon;
 import be.imgn.swing.ui.internal.AwtWindow;
 import be.imgn.swing.ui.internal.DialogControl;
 import be.imgn.swing.ui.internal.UiServices;
@@ -51,11 +52,13 @@ final class DialogFlow {
             Optional<? extends Enum<?>> variant,
             Function<Injector, ? extends DialogView<R>> resolve) {
         Window window = services.windows().createDialog(opener.window().window());
+        opener.injector().getInstance(ApplicationIcon.class).image().ifPresent(window::setIconImage);
         WindowHost host = builder.openWindow(
                 window,
                 opener.injector(),
                 opener.scope(),
                 opener,
+                WindowHost.Kind.DIALOG,
                 type.map(Class::getName).orElse(""),
                 "dialog");
         try {

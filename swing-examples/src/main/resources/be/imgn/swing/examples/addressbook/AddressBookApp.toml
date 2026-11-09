@@ -1,5 +1,6 @@
 name = "Address Book"
 title = "Simple Address Book Application"
+icon = "icons/main.png"
 
 [menus.contacts]
 text = "&Contacts"

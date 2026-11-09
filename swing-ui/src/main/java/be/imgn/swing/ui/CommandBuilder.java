@@ -15,6 +15,7 @@ public final class CommandBuilder {
     private final CommandRegistry registry;
     private final Class<?> owner;
     private final String id;
+    private final boolean overridable;
     private @Nullable Consumer<CommandContext> handler;
     private @Nullable Function<CommandContext, Task<?>> taskHandler;
     private @Nullable Supplier<Observable<Boolean>> enabled;
@@ -23,10 +24,16 @@ public final class CommandBuilder {
     private Concurrency concurrency = Concurrency.PARALLEL;
     private @Nullable String cancels;
 
-    CommandBuilder(CommandRegistry registry, Class<?> owner, String id) {
+    CommandBuilder(CommandRegistry registry, Class<?> owner, String id, boolean overridable) {
         this.registry = registry;
         this.owner = owner;
         this.id = id;
+        this.overridable = overridable;
+    }
+
+    // Whether the view class's resources override the owner's, as they do the standard commands'.
+    boolean isOverridable() {
+        return overridable;
     }
 
     /**

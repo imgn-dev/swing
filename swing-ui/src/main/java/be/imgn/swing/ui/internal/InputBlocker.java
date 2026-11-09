@@ -2,8 +2,11 @@ package be.imgn.swing.ui.internal;
 
 import be.imgn.gaia.core.time.Ticker;
 import be.imgn.inject.Inject;
+import be.imgn.inject.Provider;
 import be.imgn.inject.Singleton;
+import be.imgn.swing.internal.DisposalScope;
 import be.imgn.swing.internal.RunningTask;
+import be.imgn.swing.ui.TaskbarStatus;
 import java.awt.Component;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
@@ -24,17 +27,23 @@ import org.jspecify.annotations.Nullable;
 @Singleton
 public final class InputBlocker {
 
+    private static final int PERCENT = 100;
+
     private final Ticker ticker;
     private final UiTexts texts;
     private final IdentityHashMap<Component, Integer> disabled = new IdentityHashMap<>();
     private final IdentityHashMap<JRootPane, Installed> glassPanes = new IdentityHashMap<>();
     private final List<ApplicationBlock> applicationBlocks = new ArrayList<>();
     private final KeyEventDispatcher keys = this::consumeIfBlocked;
+    // The taskbar reaches the windows, whose registry reaches this blocker: a provider breaks the cycle.
+    private final Provider<TaskbarStatus> taskbar;
+    private DisposalScope taskbarProgress = DisposalScope.root("taskbar progress");
 
     @Inject
-    InputBlocker(Ticker ticker, UiTexts texts) {
+    InputBlocker(Ticker ticker, UiTexts texts, Provider<TaskbarStatus> taskbar) {
         this.ticker = ticker;
         this.texts = texts;
+        this.taskbar = taskbar;
     }
 
     /**
@@ -91,11 +100,36 @@ public final class InputBlocker {
     public Runnable coverApplication(List<JRootPane> windows, RunningTask task) {
         ApplicationBlock block = new ApplicationBlock(task, new ArrayList<>(windows));
         applicationBlocks.add(block);
+        followOnTaskbar();
         Runnable uncover = cover(block.windows, task);
         return () -> {
             applicationBlocks.remove(block);
+            followOnTaskbar();
             uncover.run();
         };
+    }
+
+    // The taskbar shows the progress of the task that blocked the application last, as its glass pane's indicator
+    // does, from its start; an indeterminate progress, or none, clears it.
+    private void followOnTaskbar() {
+        taskbarProgress.close();
+        TaskbarStatus status = taskbar.get();
+        if (applicationBlocks.isEmpty()) {
+            status.clearProgress();
+            return;
+        }
+        taskbarProgress = DisposalScope.root("taskbar progress");
+        RunningTask task = applicationBlocks.getLast().task;
+        showOnTaskbar(status, task.progressValue().get());
+        task.progressValue().subscribe(taskbarProgress, fraction -> showOnTaskbar(status, fraction));
+    }
+
+    private static void showOnTaskbar(TaskbarStatus status, double fraction) {
+        if (fraction < 0) {
+            status.clearProgress();
+        } else {
+            status.progress((int) Math.round(fraction * PERCENT));
+        }
     }
 
     /**

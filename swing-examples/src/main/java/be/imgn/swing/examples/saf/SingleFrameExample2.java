@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 /** A label whose text, font, icon and colors all come from resources. */
-@Application(name = "SingleFrameExample2")
+@Application
 public final class SingleFrameExample2 implements SingleFrame {
 
     @Exposed

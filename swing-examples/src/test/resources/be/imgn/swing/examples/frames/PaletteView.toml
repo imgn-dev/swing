@@ -1,0 +1,13 @@
+title = "Palette"
+
+[label]
+text = "Plain"
+
+[variants.red]
+title = "Red palette"
+
+[variants.red.label]
+text = "Red"
+
+[variants.blue]
+title = "Blue palette"

@@ -25,7 +25,7 @@ import javax.swing.JToolBar;
  * started it, the window, or the application. The task reports its progress and its steps, which the status label
  * shows.
  */
-@Application(name = "BlockingExample1", vendor = "Sun", version = "1.0")
+@Application(vendor = "Sun", version = "1.0")
 public final class BlockingExample1 implements SingleFrame {
 
     /** The number of steps of the task. */

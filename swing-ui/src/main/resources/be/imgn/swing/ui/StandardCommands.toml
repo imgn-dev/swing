@@ -39,3 +39,11 @@ text = "Cancel"
 
 [commands.apply]
 text = "&Apply"
+
+[commands.undo]
+text = "&Undo"
+shortcut = "shortcut Z"
+
+[commands.redo]
+text = "&Redo"
+shortcut = "shortcut Y"

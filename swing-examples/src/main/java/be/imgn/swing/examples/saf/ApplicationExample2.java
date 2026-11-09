@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 /** Hello World with its text, its font and the window's title, built with references, in resources. */
-@Application(name = "ApplicationExample2", vendor = "Sun", version = "1.0")
+@Application(vendor = "Sun", version = "1.0")
 public final class ApplicationExample2 implements SingleFrame {
 
     @Exposed

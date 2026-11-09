@@ -20,6 +20,7 @@ module be.imgn.swing.ui {
     exports be.imgn.swing.ui;
     exports be.imgn.swing.ui.spi;
     exports be.imgn.swing.ui.internal to
+            be.imgn.swing.desktop,
             be.imgn.swing.flatlaf,
             be.imgn.swing.testing;
 

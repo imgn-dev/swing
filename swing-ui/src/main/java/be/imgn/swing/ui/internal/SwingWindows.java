@@ -9,6 +9,7 @@ import be.imgn.swing.ui.Window;
 import be.imgn.swing.ui.Windows;
 import java.awt.Component;
 import java.awt.Dialog;
+import java.awt.Frame;
 import java.awt.Image;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -86,6 +87,13 @@ public final class SwingWindows implements Windows {
         public void focus(Component component) {
             requireNonNull(component, "component").requestFocusInWindow();
         }
+
+        @Override
+        public void toFront() {
+            frame.setExtendedState(frame.getExtendedState() & ~Frame.ICONIFIED);
+            frame.toFront();
+            frame.requestFocus();
+        }
     }
 
     /** A modal dialog. */
@@ -119,6 +127,12 @@ public final class SwingWindows implements Windows {
         @Override
         public void focus(Component component) {
             requireNonNull(component, "component").requestFocusInWindow();
+        }
+
+        @Override
+        public void toFront() {
+            dialog.toFront();
+            dialog.requestFocus();
         }
     }
 }

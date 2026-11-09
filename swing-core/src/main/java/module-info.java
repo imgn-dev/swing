@@ -18,6 +18,7 @@ module be.imgn.swing {
     exports be.imgn.swing.spi;
     exports be.imgn.swing.internal to
             be.imgn.swing.ui,
+            be.imgn.swing.desktop,
             be.imgn.swing.flatlaf,
             be.imgn.swing.testing;
 

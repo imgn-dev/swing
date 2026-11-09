@@ -1,4 +1,4 @@
-package be.imgn.swing.ui;
+package be.imgn.swing.ui.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,19 +13,19 @@ import javax.swing.ImageIcon;
 import org.junit.jupiter.api.Test;
 
 /** The main frame's icon image, made from the application's icon. */
-class MainWindowFlowTest {
+class ApplicationIconTest {
 
     @Test
     void takesTheImageOfAnImageIcon() {
         BufferedImage image = new BufferedImage(4, 4, BufferedImage.TYPE_INT_ARGB);
 
-        assertThat(MainWindowFlow.image(new ImageIcon(image))).isSameAs(image);
+        assertThat(ApplicationIcon.image(new ImageIcon(image))).isSameAs(image);
     }
 
     @Test
     void makesNoImageOfAnIconOtherThanAnImageIconWithoutWidthOrHeight() {
-        assertThat(MainWindowFlow.image(new SizedIcon(0, 2))).isNull();
-        assertThat(MainWindowFlow.image(new SizedIcon(3, 0))).isNull();
+        assertThat(ApplicationIcon.image(new SizedIcon(0, 2))).isNull();
+        assertThat(ApplicationIcon.image(new SizedIcon(3, 0))).isNull();
     }
 
     @Test
@@ -48,7 +48,7 @@ class MainWindowFlowTest {
             }
         };
 
-        Image image = Objects.requireNonNull(MainWindowFlow.image(icon));
+        Image image = Objects.requireNonNull(ApplicationIcon.image(icon));
 
         assertThat(image).isInstanceOf(BufferedImage.class);
         BufferedImage painted = (BufferedImage) image;

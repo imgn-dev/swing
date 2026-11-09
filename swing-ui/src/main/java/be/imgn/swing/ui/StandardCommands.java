@@ -93,6 +93,24 @@ public class StandardCommands {
     }
 
     /**
+     * Returns the command that undoes the next edit of the view's {@link UndoStack}; enabled while it can undo.
+     *
+     * @return the command
+     */
+    public BoundCommand undo() {
+        return registry.standard(Standard.UNDO);
+    }
+
+    /**
+     * Returns the command that redoes the next edit of the view's {@link UndoStack}; enabled while it can redo.
+     *
+     * @return the command
+     */
+    public BoundCommand redo() {
+        return registry.standard(Standard.REDO);
+    }
+
+    /**
      * Returns the command that closes the current window after its vetoes; on the main frame of a single-frame
      * application, the same as {@link #exit()}.
      *

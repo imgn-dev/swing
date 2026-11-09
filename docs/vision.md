@@ -461,6 +461,12 @@ Mnemonic collisions are not checked by the build: menus are built in code, and t
 
 - Wizard and docking.
 
+### After milestone 5: Java 25
+
+- Java 25 becomes the baseline: `java.release` 25, CI on JDK 25 only, and the JDK 21 workarounds of the root POM removed (the Error Prone profile and the release profile's JDK check).
+- The code may then use what Java 22 to 25 finalized: unnamed variables, `ScopedValue`, flexible constructor bodies, module import declarations and stream gatherers.
+- A desktop application ships its own runtime, so its users never depend on the JDK version; the cost is applications that still build on Java 21.
+
 ---
 
 ## Upstream changes

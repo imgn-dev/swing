@@ -9,7 +9,7 @@ import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
 
 /** {@link ActionExample2}, where clearing the title is enabled only once a title was set. */
-@Application(name = "ActionExample3")
+@Application
 public final class ActionExample3 extends ActionExample2 {
 
     @Exposed

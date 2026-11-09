@@ -2,18 +2,20 @@ package be.imgn.swing.ui.internal;
 
 import be.imgn.inject.Injector;
 import be.imgn.swing.internal.DisposalScope;
-import be.imgn.swing.ui.SingleFrame;
 
-/** Creates and shows the main window of the application class; called on the EDT. */
+/** Starts the windows of the application class; called on the EDT. */
 public interface MainWindowStarter {
 
     /**
-     * Creates the main window, builds the application class as its view, and shows it.
+     * Creates and shows the main window of a single-frame application class, with the class as its view, or calls the
+     * {@code start} of a multi-frame one, which opens the first frames.
      *
      * @param type the application class
      * @param root the root injector
      * @param application the application's scope
-     * @return the application class's instance, the main window's view
+     * @return what calls the application class's {@code ready()}
+     * @throws IllegalStateException if the class implements neither {@code SingleFrame} nor {@code MultiFrame}, or a
+     *     multi-frame application opened no frame
      */
-    SingleFrame start(Class<?> type, Injector root, DisposalScope application);
+    Runnable start(Class<?> type, Injector root, DisposalScope application);
 }

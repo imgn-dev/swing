@@ -1,0 +1,9 @@
+[commands.save]
+text = "&Save"
+icon = "icons/save.svg"
+shortcut = "shortcut S"
+tool-tip-text = "Save the note"
+
+[editor]
+font = "Monospaced-14"
+accessible-name = "Note text"

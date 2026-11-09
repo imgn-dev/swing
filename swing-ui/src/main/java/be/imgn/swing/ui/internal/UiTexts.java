@@ -95,4 +95,42 @@ public final class UiTexts {
     public String close() {
         return text("close");
     }
+
+    /**
+     * Returns the question a save chooser asks before replacing a file.
+     *
+     * @param name the file's name
+     * @return the text
+     */
+    public String replace(String name) {
+        return format("replace", name);
+    }
+
+    /**
+     * Returns the question of the save prompt.
+     *
+     * @param name the document's name
+     * @return the text
+     */
+    public String saveChanges(String name) {
+        return format("saveChanges", name);
+    }
+
+    /**
+     * Returns the text of the save prompt's Save button, with its mnemonic.
+     *
+     * @return the text
+     */
+    public String save() {
+        return text("save");
+    }
+
+    /**
+     * Returns the text of the save prompt's Don't Save button, with its mnemonic.
+     *
+     * @return the text
+     */
+    public String discard() {
+        return text("discard");
+    }
 }

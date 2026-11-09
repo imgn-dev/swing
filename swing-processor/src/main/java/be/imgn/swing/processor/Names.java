@@ -36,6 +36,9 @@ final class Names {
     static final String UI = "be.imgn.swing.ui.Ui";
     static final String VIEW = "be.imgn.swing.ui.View";
     static final String SINGLE_FRAME = "be.imgn.swing.ui.SingleFrame";
+    static final String MULTI_FRAME = "be.imgn.swing.ui.MultiFrame";
+    static final String FRAME_VIEW = "be.imgn.swing.ui.FrameView";
+    static final String DOCUMENT_VIEW = "be.imgn.swing.desktop.DocumentView";
     static final String DIALOG_VIEW = "be.imgn.swing.ui.DialogView";
     static final String WINDOW_SCOPED = "be.imgn.swing.ui.WindowScoped";
     static final String VIEW_SCOPED = "be.imgn.swing.ui.ViewScoped";
@@ -72,10 +75,15 @@ final class Names {
             "copy",
             "paste",
             "selectAll",
+            "undo",
+            "redo",
             "closeWindow",
             "ok",
             "cancel",
             "apply");
+
+    /** The ids of the commands {@code DocumentCommands} gives a document view. */
+    static final List<String> DOCUMENT_COMMANDS_IDS = List.of("newDocument", "open", "save", "saveAs");
 
     /** The ids of the standard menus. */
     static final Set<String> STANDARD_MENU_IDS = Set.of("file", "edit", "view", "window", "help");

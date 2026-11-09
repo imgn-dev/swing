@@ -7,21 +7,30 @@ import be.imgn.swing.ui.internal.IconCache;
 import be.imgn.swing.ui.internal.UiTexts;
 import be.imgn.toml.TomlString;
 import be.imgn.toml.TomlTable;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.font.TextAttribute;
+import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 
 /**
  * The About dialog of the standard {@code about()} command. It shows, from top to bottom, each one that is present: the
  * application's icon, its displayed name, its version and its vendor, then the {@code description}, {@code copyright}
- * and {@code website} of the application class's resources. The website is a read-only, selectable text field without
- * border, so the user can copy it.
+ * and {@code website} of the application class's resources. When the system can browse, the website is a link that
+ * opens it through {@link SystemShell}; otherwise, it is a read-only, selectable text field without border, so the user
+ * can copy it.
  *
  * <p>Tests answer it with {@code FakeDialogs.answerDialog(AboutDialog.class, ...)}; only the framework creates it.
  */
@@ -33,13 +42,15 @@ public final class AboutDialog implements DialogView<Void> {
     private final UiTexts texts;
     private final Resources resources;
     private final IconCache icons;
+    private final SystemShell shell;
 
     @Inject
-    AboutDialog(ApplicationInfo application, UiTexts texts, Resources resources, IconCache icons) {
+    AboutDialog(ApplicationInfo application, UiTexts texts, Resources resources, IconCache icons, SystemShell shell) {
         this.application = application;
         this.texts = texts;
         this.resources = resources;
         this.icons = icons;
+        this.shell = shell;
     }
 
     /**
@@ -72,7 +83,24 @@ public final class AboutDialog implements DialogView<Void> {
         panel.add(component);
     }
 
-    private static JTextField website(String website) {
+    // A link when the system can browse, else a field the user can copy the website from.
+    private JComponent website(String website) {
+        if (!shell.canBrowse()) {
+            return field(website);
+        }
+        JButton link = new JButton(website);
+        link.setBorderPainted(false);
+        link.setContentAreaFilled(false);
+        link.setFocusPainted(false);
+        link.setBorder(BorderFactory.createEmptyBorder());
+        link.setForeground(Objects.requireNonNullElse(UIManager.getColor("Component.linkColor"), Color.BLUE));
+        link.setFont(link.getFont().deriveFont(Map.of(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON)));
+        link.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        link.addActionListener(event -> shell.browse(URI.create(website)));
+        return link;
+    }
+
+    private static JTextField field(String website) {
         JTextField field = new JTextField(website);
         field.setEditable(false);
         field.setBorder(BorderFactory.createEmptyBorder());

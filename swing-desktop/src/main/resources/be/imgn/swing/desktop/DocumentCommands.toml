@@ -1,0 +1,18 @@
+# The text and shortcuts of the document commands. A document view overrides them in its own resources, under the same
+# tables.
+
+[commands.newDocument]
+text = "&New"
+shortcut = "shortcut N"
+
+[commands.open]
+text = "&Open…"
+shortcut = "shortcut O"
+
+[commands.save]
+text = "&Save"
+shortcut = "shortcut S"
+
+[commands.saveAs]
+text = "Save &As…"
+shortcut = "shortcut shift S"

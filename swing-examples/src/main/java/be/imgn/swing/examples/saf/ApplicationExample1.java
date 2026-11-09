@@ -14,7 +14,7 @@ import javax.swing.SwingConstants;
  * only gives its content, and the frame's title and centering are the framework's; the label's text and font, set in
  * code in the original, are in the resources.
  */
-@Application(name = "ApplicationExample1")
+@Application
 public final class ApplicationExample1 implements SingleFrame {
 
     @Exposed

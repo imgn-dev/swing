@@ -11,7 +11,7 @@ import java.awt.Window;
 import java.util.Objects;
 import java.util.Optional;
 
-/** The UI module's {@link FailureHandler}: the error dialog, owned by the focused window, else by the main window. */
+/** The UI module's {@link FailureHandler}: the error dialog, owned by the focused window, else by the active frame. */
 @Singleton
 @ExposeAs(FailureHandler.class)
 public final class DialogFailureHandler implements FailureHandler {
@@ -40,7 +40,7 @@ public final class DialogFailureHandler implements FailureHandler {
     private void show(Throwable failure) {
         String message = Objects.requireNonNullElse(
                 failure.getMessage(), failure.getClass().getName());
-        Optional<WindowHost> window = focused().or(registry::main);
+        Optional<WindowHost> window = focused().or(registry::activeFrame);
         if (window.isPresent()) {
             window.get().injector().getInstance(Dialogs.class).error(message, failure);
         } else {

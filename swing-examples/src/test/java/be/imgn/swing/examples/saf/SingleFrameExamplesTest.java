@@ -6,10 +6,13 @@ import be.imgn.swing.testing.AppTester;
 import be.imgn.swing.ui.StandardCommands;
 import java.awt.Color;
 import java.awt.Font;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class SingleFrameExamplesTest {
 
@@ -68,6 +71,34 @@ class SingleFrameExamplesTest {
             app.commands(ErrorExampleCommands.class).onButton().execute();
 
             assertThat(app.dialogs().errors()).containsExactly("Ah\nAh\nAh");
+        }
+    }
+
+    @Test
+    void singleFrameExample4LoadsTheFileItsChooserGives(@TempDir Path directory) throws Exception {
+        Path file = directory.resolve("page.txt");
+        Files.writeString(file, "Chosen text");
+        try (AppTester<SingleFrameExample4> app = AppTester.start(SingleFrameExample4.class)) {
+            app.dialogs().answerOpenFile(file);
+
+            app.commands(SingleFrameExample4Commands.class).open().execute();
+
+            assertThat(app.dialogs().fileChoices()).hasSize(1);
+            for (int attempt = 0;
+                    attempt < 500
+                            && !app.call(() -> app.application().textPane().getText())
+                                    .contains("Chosen text");
+                    attempt++) {
+                Thread.sleep(10);
+            }
+            assertThat(app.call(() -> app.application().textPane().getText())).contains("Chosen text");
+        }
+    }
+
+    @Test
+    void anApplicationWithoutANameIsNamedAfterItsClass() {
+        try (AppTester<SingleFrameExample1> app = AppTester.start(SingleFrameExample1.class)) {
+            assertThat(app.info().name()).isEqualTo("SingleFrameExample1");
         }
     }
 }

@@ -1,7 +1,3 @@
-[commands.cancel]
-text = "Hide Window"
-tool-tip-text = "Hide this window"
-
 [label]
 font = "Lucida-PLAIN-48"
 

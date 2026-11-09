@@ -20,12 +20,19 @@ import be.imgn.swing.internal.TaskRunner;
 import be.imgn.swing.spi.SettingsDescriptor;
 import be.imgn.swing.ui.BoundCommand;
 import be.imgn.swing.ui.Dialogs;
+import be.imgn.swing.ui.FrameView;
+import be.imgn.swing.ui.Frames;
+import be.imgn.swing.ui.MultiFrame;
+import be.imgn.swing.ui.SystemShell;
+import be.imgn.swing.ui.TaskbarStatus;
 import be.imgn.swing.ui.Windows;
 import be.imgn.swing.ui.internal.Edt;
 import be.imgn.swing.ui.internal.Launch;
 import be.imgn.swing.ui.internal.LaunchOptions;
 import be.imgn.swing.ui.internal.PeriodicActions;
+import be.imgn.swing.ui.internal.TesterExtension;
 import be.imgn.swing.ui.internal.UiMode;
+import be.imgn.swing.ui.internal.UiTexts;
 import be.imgn.swing.ui.internal.ViewHost;
 import be.imgn.swing.ui.internal.WindowHost;
 import be.imgn.swing.ui.internal.WindowRegistry;
@@ -46,6 +53,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -81,6 +89,10 @@ import org.jspecify.annotations.Nullable;
  * {@link #close()} waits up to 2 seconds for them. Time is a {@link FakeTicker} and an {@link InstantSource} fixed at
  * the epoch.
  *
+ * <p>In a multi-frame application, which has no main window, the methods that act on the main window act on the active
+ * frame, and {@link #bean} resolves through its view's injector. {@link #frames()} and {@link #frame(Class)} reach
+ * every open frame.
+ *
  * <p>The tester keeps the {@code ValidationFeedback} of the modules on its path, so tests check a form's errors as the
  * user sees them: through the tool tip text and accessible description of the component.
  *
@@ -95,6 +107,9 @@ public final class AppTester<T> implements AutoCloseable {
     private final TestExecutor executor = new TestExecutor();
     private final FakeDialogs dialogs = new FakeDialogs();
     private final FakeTicker ticker = new FakeTicker();
+    private final FakeShell shell = new FakeShell();
+    private final FakeTaskbar taskbar = new FakeTaskbar();
+    private volatile @Nullable DesktopFakes desktop;
     private final FileSystem fileSystem;
     private final boolean ownsFileSystem;
     private final HeadlessWindows windows = new HeadlessWindows(this::showDialog);
@@ -161,18 +176,24 @@ public final class AppTester<T> implements AutoCloseable {
         AtomicReference<@Nullable Throwable> startupFailure = new AtomicReference<>();
         LaunchOptions options = new LaunchOptions(
                 locale,
-                builder -> builder.bind(Platform.class, platform)
-                        .bind(UiExecutor.class, executor)
-                        .bind(FailureHandler.class, failures::add)
-                        .bind(Exit.class, (Exit) this::exited)
-                        .bind(Windows.class, windows)
-                        .bind(Dialogs.class, dialogs)
-                        .bind(UiMode.class, new UiMode(true, failures::add))
-                        .bind(Ticker.class, ticker)
-                        .bind(InstantSource.class, InstantSource.fixed(Instant.EPOCH)),
+                builder -> {
+                    builder.bind(Platform.class, platform)
+                            .bind(UiExecutor.class, executor)
+                            .bind(FailureHandler.class, failures::add)
+                            .bind(Exit.class, (Exit) this::exited)
+                            .bind(Windows.class, windows)
+                            .bind(Dialogs.class, dialogs)
+                            .bind(SystemShell.class, shell)
+                            .bind(TaskbarStatus.class, taskbar)
+                            .bind(UiMode.class, new UiMode(true, failures::add))
+                            .bind(Ticker.class, ticker)
+                            .bind(InstantSource.class, InstantSource.fixed(Instant.EPOCH));
+                    bindExtensions(builder);
+                },
                 injector -> {
                     root.set(injector);
                     executor.attach(injector.getInstance(TaskRunner.class));
+                    dialogs.texts(() -> injector.getInstance(UiTexts.class));
                     DefaultSettingsStore store = injector.getInstance(DefaultSettingsStore.class);
                     settings = store;
                     executor.attachSettings(store);
@@ -193,6 +214,64 @@ public final class AppTester<T> implements AutoCloseable {
         failures.throwIfAny();
     }
 
+    // The modules found through the service loader bind their replacements; with swing-desktop, the tester binds its
+    // fakes of the desktop's beans as well. Without it, no type of swing-desktop is touched.
+    private void bindExtensions(Injector.Builder builder) {
+        List<TesterExtension> extensions = ServiceLoader.load(TesterExtension.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .toList();
+        extensions.forEach(extension -> extension.bind(builder));
+        if (!extensions.isEmpty()) {
+            DesktopFakes fakes = new DesktopFakes();
+            fakes.bind(builder);
+            desktop = fakes;
+        }
+    }
+
+    private DesktopFakes desktop() {
+        DesktopFakes fakes = desktop;
+        if (fakes == null) {
+            throw new IllegalStateException("The application doesn't use swing-desktop: add the dependency on "
+                    + "be.imgn.swing:swing-desktop to use the desktop's methods of the tester");
+        }
+        return fakes;
+    }
+
+    /**
+     * Returns the notifications, which record each notification shown.
+     *
+     * @return the notifications
+     * @throws IllegalStateException if the application doesn't use swing-desktop
+     */
+    public FakeNotifications notifications() {
+        return desktop().notifications();
+    }
+
+    /**
+     * Does in the running application what a second launch with these arguments forwards: calls its
+     * {@code SecondInstanceHandler} on the EDT, then settles.
+     *
+     * @param arguments the arguments of the second launch
+     * @throws IllegalStateException if the application doesn't use swing-desktop, or has no handler
+     */
+    public void launchAgain(String... arguments) {
+        desktop();
+        List<String> launch = List.of(arguments);
+        run(() -> DesktopFakes.launchAgain(root(), launch));
+    }
+
+    /**
+     * Hands files to the application's {@code OpenFilesHandler} on the EDT, as an open-file event does, then settles.
+     *
+     * @param files the files
+     * @throws IllegalStateException if the application doesn't use swing-desktop, or has no handler
+     */
+    public void openFiles(Path... files) {
+        desktop();
+        List<Path> opened = List.of(files);
+        run(() -> DesktopFakes.openFiles(root(), opened));
+    }
+
     private void exited(int status) {
         exitStatus = status;
         running = false;
@@ -206,11 +285,63 @@ public final class AppTester<T> implements AutoCloseable {
         return injector;
     }
 
+    // The main window's view, or in a multi-frame application, the active frame's.
     private ViewHost mainView() {
-        WindowHost main = root().getInstance(WindowRegistry.class)
-                .main()
-                .orElseThrow(() -> new IllegalStateException("The main window is not open"));
-        return main.views().getFirst();
+        WindowRegistry registry = root().getInstance(WindowRegistry.class);
+        Optional<WindowHost> main = registry.main();
+        if (main.isPresent()) {
+            return main.get().views().getFirst();
+        }
+        FrameView active = root().getInstance(Frames.class)
+                .active()
+                .orElseThrow(() -> new IllegalStateException("No frame is open"));
+        return frameViews().stream()
+                .filter(view -> active.equals(view.view().orElse(null)))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No frame is open"));
+    }
+
+    private List<ViewHost> frameViews() {
+        return root().getInstance(WindowRegistry.class).windows().stream()
+                .filter(WindowHost::isFrame)
+                .filter(window -> !window.views().isEmpty())
+                .map(window -> window.views().getFirst())
+                .toList();
+    }
+
+    /**
+     * Returns the open frames, in the order they were opened, the main frame of a single-frame application first.
+     *
+     * @return the frames
+     */
+    public List<OpenFrame<?>> frames() {
+        return call(() -> frameViews().stream()
+                .<OpenFrame<?>>map(view -> new OpenFrame<>(this, view.view().orElseThrow(), view))
+                .toList());
+    }
+
+    /**
+     * Returns the one open frame whose view is of a type.
+     *
+     * @param type the frame view class
+     * @param <V> the frame view class
+     * @return the frame
+     * @throws NullPointerException if {@code type} is {@code null}
+     * @throws IllegalStateException if there is none or more than one
+     */
+    public <V extends FrameView> OpenFrame<V> frame(Class<V> type) {
+        Objects.requireNonNull(type, "type");
+        return call(() -> {
+            List<ViewHost> matching = frameViews().stream()
+                    .filter(view -> type.isInstance(view.view().orElse(null)))
+                    .toList();
+            if (matching.size() != 1) {
+                throw new IllegalStateException(
+                        matching.size() + " open frames show a " + type.getName() + ", where one was expected");
+            }
+            ViewHost view = matching.getFirst();
+            return new OpenFrame<>(this, type.cast(view.view().orElseThrow()), view);
+        });
     }
 
     /**
@@ -288,12 +419,14 @@ public final class AppTester<T> implements AutoCloseable {
     }
 
     /**
-     * Returns the application class's instance, the main window's view.
+     * Returns the application class's instance: the main window's view, or the singleton of a multi-frame application.
      *
      * @return the instance
      */
     public T application() {
-        return call(() -> type.cast(mainView().view().orElseThrow()));
+        return call(() -> MultiFrame.class.isAssignableFrom(type)
+                ? root().getInstance(type)
+                : type.cast(mainView().view().orElseThrow()));
     }
 
     /**
@@ -384,6 +517,24 @@ public final class AppTester<T> implements AutoCloseable {
      */
     public FakeTicker ticker() {
         return ticker;
+    }
+
+    /**
+     * Returns the system shell, which records the URIs browsed and the files opened.
+     *
+     * @return the shell
+     */
+    public FakeShell shell() {
+        return shell;
+    }
+
+    /**
+     * Returns the taskbar, which records its progress, badge and attention requests.
+     *
+     * @return the taskbar
+     */
+    public FakeTaskbar taskbar() {
+        return taskbar;
     }
 
     /**

@@ -32,6 +32,7 @@ public final class DefaultLifecycle implements Lifecycle {
     private final Exit exit;
     private final AtomicReference<State> state = new AtomicReference<>(State.RUNNING);
     private final List<Runnable> cancelListeners = new CopyOnWriteArrayList<>();
+    private volatile int requestedStatus;
 
     @Inject
     DefaultLifecycle(
@@ -53,8 +54,18 @@ public final class DefaultLifecycle implements Lifecycle {
     public void requestExit(int status) {
         // The request takes the state at once, so a second one made before the executor runs the first is ignored.
         if (state.compareAndSet(State.RUNNING, State.REQUESTED)) {
+            requestedStatus = status;
             executor.execute(() -> shutdown(status));
         }
+    }
+
+    /**
+     * Returns the status of the last exit requested, which a veto that stopped it requests again.
+     *
+     * @return the status
+     */
+    public int requestedStatus() {
+        return requestedStatus;
     }
 
     /**

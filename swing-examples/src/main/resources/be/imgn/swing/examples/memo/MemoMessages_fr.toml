@@ -1,0 +1,3 @@
+saved = "{file} enregistré."
+words = "{count,choice,0#aucun mot|1#un mot|1<{count,number,integer} mots}"
+textFiles = "Fichiers texte"

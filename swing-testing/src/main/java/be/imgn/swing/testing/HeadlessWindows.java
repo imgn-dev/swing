@@ -60,6 +60,7 @@ final class HeadlessWindows implements Windows {
         private boolean shown;
         private @Nullable Image iconImage;
         private @Nullable Component focused;
+        private int toFrontCount;
 
         HeadlessWindow(boolean dialog) {
             this.dialog = dialog;
@@ -84,6 +85,16 @@ final class HeadlessWindows implements Windows {
         @Override
         public void focus(Component component) {
             this.focused = requireNonNull(component, "component");
+        }
+
+        // A window that is never realized has no front: the requests are counted instead.
+        @Override
+        public void toFront() {
+            toFrontCount++;
+        }
+
+        int toFrontCount() {
+            return toFrontCount;
         }
 
         String title() {

@@ -10,9 +10,12 @@ import be.imgn.swing.ui.AboutDialog;
 import be.imgn.swing.ui.StandardCommands;
 import be.imgn.swing.ui.Window;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.font.TextAttribute;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +23,7 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -50,6 +54,7 @@ class AboutDialogTest {
             case JLabel label when label.getIcon() != null -> "icon";
             case JLabel label -> label.getText();
             case JTextField field -> field.getText();
+            case JButton link -> link.getText();
             default -> throw new AssertionError("Unexpected line " + component);
         };
     }
@@ -109,9 +114,34 @@ class AboutDialogTest {
     }
 
     @Test
-    void showsTheWebsiteInAReadOnlySelectableFieldWithoutBorder() {
+    void showsTheWebsiteAsALinkThatBrowsesIt() {
         List<Object> checks = new ArrayList<>();
         try (AppTester<NotesApp> app = AppTester.start(NotesApp.class)) {
+            app.dialogs().answerDialog(AboutDialog.class, dialog -> {
+                JButton link = dialog.components(JButton.class).stream()
+                        .filter(button -> WEBSITE.equals(button.getText()))
+                        .findFirst()
+                        .orElseThrow();
+                checks.add(link.isBorderPainted());
+                checks.add(link.isContentAreaFilled());
+                checks.add(link.isFocusPainted());
+                checks.add(link.getFont().getAttributes().get(TextAttribute.UNDERLINE));
+                checks.add(link.getCursor().getType());
+                link.doClick();
+            });
+
+            app.commands(StandardCommands.class).about().execute();
+
+            assertThat(app.shell().browsed()).containsExactly(URI.create(WEBSITE));
+        }
+        assertThat(checks).containsExactly(false, false, false, TextAttribute.UNDERLINE_ON, Cursor.HAND_CURSOR);
+    }
+
+    @Test
+    void showsTheWebsiteInAReadOnlySelectableFieldWithoutBorderWhenTheSystemCantBrowse() {
+        List<Object> checks = new ArrayList<>();
+        try (AppTester<NotesApp> app = AppTester.start(NotesApp.class)) {
+            app.shell().supportBrowsing(false);
             app.dialogs().answerDialog(AboutDialog.class, dialog -> {
                 JTextField website = dialog.component(JTextField.class);
                 website.selectAll();
@@ -183,6 +213,7 @@ class AboutDialogTest {
         List<@Nullable Component> focused = new ArrayList<>();
         List<Component> fields = new ArrayList<>();
         try (AppTester<NotesApp> app = AppTester.start(NotesApp.class)) {
+            app.shell().supportBrowsing(false);
             app.dialogs().answerDialog(AboutDialog.class, dialog -> {
                 JTextField website = dialog.component(JTextField.class);
                 fields.add(website);

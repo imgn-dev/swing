@@ -4,28 +4,24 @@ import be.imgn.inject.ExposeAs;
 import be.imgn.inject.Inject;
 import be.imgn.inject.Injector;
 import be.imgn.inject.Singleton;
+import be.imgn.swing.Arguments;
+import be.imgn.swing.ExitVeto;
 import be.imgn.swing.internal.DisposalScope;
+import be.imgn.swing.internal.ExitVetoes;
+import be.imgn.swing.ui.internal.ApplicationIcon;
 import be.imgn.swing.ui.internal.MainWindowStarter;
 import be.imgn.swing.ui.internal.SwingWindows;
+import be.imgn.swing.ui.internal.TaskbarAdaptor;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
 import be.imgn.swing.ui.internal.WindowHost;
-import be.imgn.swing.ui.internal.WindowStateSupport;
-import be.imgn.toml.TomlString;
 import java.awt.BorderLayout;
 import java.awt.Desktop;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Point;
+import java.awt.Taskbar;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.lang.System.Logger.Level;
 import java.util.Optional;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
@@ -33,32 +29,51 @@ import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 import org.jspecify.annotations.Nullable;
 
-/** Creates and shows the main window of a single-frame application. */
+/**
+ * Starts the windows of the application: the main window of a single-frame application, or the first frames of a
+ * multi-frame one.
+ */
 @Singleton
 @ExposeAs(MainWindowStarter.class)
 final class MainWindowFlow implements MainWindowStarter {
 
-    private static final System.Logger LOGGER = System.getLogger(MainWindowFlow.class.getName());
-
     private final ViewBuilder builder;
     private final UiServices services;
+    private final FrameFlow frames;
+    private final ExitVetoes vetoes;
 
     @Inject
-    MainWindowFlow(ViewBuilder builder, UiServices services) {
+    MainWindowFlow(ViewBuilder builder, UiServices services, FrameFlow frames, ExitVetoes vetoes) {
         this.builder = builder;
         this.services = services;
+        this.frames = frames;
+        this.vetoes = vetoes;
     }
 
     @Override
-    public SingleFrame start(Class<?> type, Injector root, DisposalScope application) {
-        if (!SingleFrame.class.isAssignableFrom(type)) {
-            throw new IllegalStateException(type.getName() + " must implement SingleFrame in milestone 1");
+    public Runnable start(Class<?> type, Injector root, DisposalScope application) {
+        // Before the first window, so that the Dock shows the application's icon rather than Java's.
+        TaskbarAdaptor taskbar = TaskbarAdaptor.system();
+        if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+            root.getInstance(ApplicationIcon.class).image().ifPresent(taskbar::setIconImage);
         }
+        Runnable ready;
+        if (SingleFrame.class.isAssignableFrom(type)) {
+            ready = single(type, root, application);
+        } else if (MultiFrame.class.isAssignableFrom(type)) {
+            ready = multi(type.asSubclass(MultiFrame.class), root, application);
+        } else {
+            throw new IllegalStateException(type.getName() + " must implement SingleFrame or MultiFrame");
+        }
+        wireDesktop();
+        return ready;
+    }
+
+    private Runnable single(Class<?> type, Injector root, DisposalScope application) {
         Window window = services.windows().createFrame();
-        @Nullable JFrame frame = window instanceof SwingWindows.FrameWindow real ? real.frame() : null;
-        if (frame != null) {
-            frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-            frame.addWindowListener(new WindowAdapter() {
+        if (window instanceof SwingWindows.FrameWindow real) {
+            real.frame().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            real.frame().addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent event) {
                     services.lifecycle().requestExit();
@@ -66,68 +81,30 @@ final class MainWindowFlow implements MainWindowStarter {
             });
         }
         // Before the view is built, so that a title or icon the view sets in content() wins.
-        window.setTitle(
-                services.resources().table(type).entries().get("title") instanceof TomlString title
-                        ? title.value()
-                        : services.application().displayedName());
-        if (services.resources().table(type).entries().get("icon") instanceof TomlString icon) {
-            @Nullable Image image = image(services.icons().load(type, icon.value()));
-            if (image != null) {
-                window.setIconImage(image);
-            } else {
-                LOGGER.log(
-                        Level.WARNING,
-                        "The icon " + icon.value() + " of " + type.getName()
-                                + " has no width or height: the main window gets no icon image");
-            }
-        }
-        WindowHost host = builder.openWindow(window, root, application, null, "main", "main window");
-        ViewHost view = builder.buildView(
-                host, Optional.of(type), Optional.empty(), injector -> injector.getInstance(type), null, built -> {
-                    SingleFrame single = (SingleFrame) built.view().orElseThrow();
-                    place(window.rootPane(), single.content(), single.menuBar(), single.toolBar());
-                });
+        frames.title(window, services.resources().table(type));
+        frames.icon(window);
+        WindowHost host =
+                builder.openWindow(window, root, application, null, WindowHost.Kind.MAIN, "main", "main window");
+        ViewHost view = frames.build(
+                host, Optional.of(type), Optional.empty(), injector -> injector.getInstance(type), built -> {});
         SingleFrame single = (SingleFrame) view.view().orElseThrow();
-        WindowStateSupport state = host.injector().getInstance(WindowStateSupport.class);
-        if (frame != null) {
-            // A fresh frame sits at (0, 0), so a sentinel location tells a configureFrame that moves it there apart
-            // from one that leaves it alone; one that asks the platform for the location has moved it as well.
-            Point before = new Point(-1, -1);
-            frame.setLocation(before);
-            single.configureFrame(frame);
-            boolean moved = frame.isLocationByPlatform() || !before.equals(frame.getLocation());
-            frame.pack();
-            boolean restored = state.restore(single.restoreBounds());
-            if (!moved && !restored) {
-                frame.setLocationRelativeTo(null);
-            }
-        } else {
-            // A headless window has no bounds, but its components' state is restored all the same.
-            state.restore(single.restoreBounds());
-        }
-        wireDesktop(view);
+        frames.place(host, single);
         services.windows().show(window);
-        return single;
+        frames.track(host);
+        return single::ready;
     }
 
-    // A window takes an image, not an icon: an icon that holds no image, such as an SVG one, is painted into one,
-    // unless
-    // it has no size, since an image can't be empty.
-    static @Nullable Image image(Icon icon) {
-        if (icon instanceof ImageIcon imageIcon) {
-            return imageIcon.getImage();
+    private Runnable multi(Class<? extends MultiFrame> type, Injector root, DisposalScope application) {
+        MultiFrame multi = root.getInstance(type);
+        // The application class is a singleton of the root injector, whose vetoes are otherwise contributions only.
+        if (multi instanceof ExitVeto veto) {
+            vetoes.register(application, veto);
         }
-        if (icon.getIconWidth() <= 0 || icon.getIconHeight() <= 0) {
-            return null;
+        multi.start(frames, root.getInstance(Arguments.class));
+        if (frames.views().isEmpty()) {
+            throw new IllegalStateException(type.getName() + ".start opened no frame");
         }
-        BufferedImage image = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphics = image.createGraphics();
-        try {
-            icon.paintIcon(null, graphics, 0, 0);
-        } finally {
-            graphics.dispose();
-        }
-        return image;
+        return multi::ready;
     }
 
     static void place(JRootPane rootPane, JComponent content, @Nullable JMenuBar menuBar, @Nullable JToolBar toolBar) {
@@ -142,12 +119,11 @@ final class MainWindowFlow implements MainWindowStarter {
         }
     }
 
-    // On macOS, the application menu's Quit, About and Preferences run the main view's commands.
-    private void wireDesktop(ViewHost view) {
+    // On macOS, the application menu's Quit, About and Preferences run the commands of the active frame's view.
+    private void wireDesktop() {
         if (!services.isMacOS() || !Desktop.isDesktopSupported()) {
             return;
         }
-        CommandRegistry registry = view.injector().getInstance(CommandRegistry.class);
         Desktop desktop = Desktop.getDesktop();
         if (desktop.isSupported(Desktop.Action.APP_QUIT_HANDLER)) {
             desktop.setQuitHandler((event, response) -> {
@@ -162,19 +138,29 @@ final class MainWindowFlow implements MainWindowStarter {
                     withdraw[0].run();
                     response.cancelQuit();
                 });
-                if (!registry.standard(Standard.EXIT).execute(system(SystemAction.QUIT))) {
+                Optional<CommandRegistry> registry = activeRegistry();
+                if (registry.isEmpty()) {
+                    services.lifecycle().requestExit();
+                } else if (!registry.get().standard(Standard.EXIT).execute(system(SystemAction.QUIT))) {
                     withdraw[0].run();
                     response.cancelQuit();
                 }
             });
         }
         if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
-            desktop.setAboutHandler(event -> registry.standard(Standard.ABOUT).execute(system(SystemAction.ABOUT)));
+            desktop.setAboutHandler(event -> activeRegistry()
+                    .ifPresent(registry -> registry.standard(Standard.ABOUT).execute(system(SystemAction.ABOUT))));
         }
         if (desktop.isSupported(Desktop.Action.APP_PREFERENCES)) {
-            desktop.setPreferencesHandler(
-                    event -> registry.standard(Standard.PREFERENCES).execute(system(SystemAction.PREFERENCES)));
+            desktop.setPreferencesHandler(event -> activeRegistry()
+                    .ifPresent(registry ->
+                            registry.standard(Standard.PREFERENCES).execute(system(SystemAction.PREFERENCES))));
         }
+    }
+
+    private Optional<CommandRegistry> activeRegistry() {
+        return frames.activeHost()
+                .map(host -> host.views().getFirst().injector().getInstance(CommandRegistry.class));
     }
 
     private static CommandContext system(SystemAction action) {

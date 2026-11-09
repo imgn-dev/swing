@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 /** Closing the window asks the exit veto, which asks for a confirmation. */
-@Application(name = "ExitExample1")
+@Application
 public final class ExitExample1 implements SingleFrame, ExitVeto {
 
     private static final int MARGIN = 100;

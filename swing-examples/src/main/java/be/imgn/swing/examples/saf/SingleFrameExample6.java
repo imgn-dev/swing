@@ -4,6 +4,7 @@ import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
 import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Exposed;
+import be.imgn.swing.ui.Frames;
 import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
@@ -14,11 +15,10 @@ import javax.swing.JMenuBar;
 import javax.swing.SwingConstants;
 
 /**
- * Secondary windows shown from the menu. Opening frames from code comes with multi-frame applications, in milestone 3,
- * so the port shows the three windows as dialog views owned by the main frame, each with a label and a button that
- * hides it.
+ * Secondary windows opened from the menu, each a frame of its own with a label, as in the original. Each command opens
+ * a new frame of its variant; closing one leaves the application running.
  */
-@Application(name = "SingleFrameExample6", vendor = "Sun", version = "1.0")
+@Application(vendor = "Sun", version = "1.0")
 public final class SingleFrameExample6 implements SingleFrame {
 
     @Exposed
@@ -26,11 +26,13 @@ public final class SingleFrameExample6 implements SingleFrame {
 
     private final SingleFrameExample6Commands commands;
     private final Ui ui;
+    private final Frames frames;
 
     @Inject
-    SingleFrameExample6(SingleFrameExample6Commands commands, Ui ui) {
+    SingleFrameExample6(SingleFrameExample6Commands commands, Ui ui, Frames frames) {
         this.commands = commands;
         this.ui = ui;
+        this.frames = frames;
     }
 
     /**
@@ -61,16 +63,16 @@ public final class SingleFrameExample6 implements SingleFrame {
 
     @Command
     void showWindow0() {
-        ui.showDialog(SecondaryWindow.class, SecondaryWindow.Name.ZERO);
+        frames.open(SecondaryWindow.class, SecondaryWindow.Name.ZERO);
     }
 
     @Command
     void showWindow1() {
-        ui.showDialog(SecondaryWindow.class, SecondaryWindow.Name.ONE);
+        frames.open(SecondaryWindow.class, SecondaryWindow.Name.ONE);
     }
 
     @Command
     void showWindow2() {
-        ui.showDialog(SecondaryWindow.class, SecondaryWindow.Name.TWO);
+        frames.open(SecondaryWindow.class, SecondaryWindow.Name.TWO);
     }
 }

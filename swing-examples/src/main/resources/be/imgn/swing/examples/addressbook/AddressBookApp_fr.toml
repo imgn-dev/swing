@@ -1,5 +1,6 @@
 name = "Gestion d'adresses"
 title = "Simple application de gestion d'adresses"
+icon = "icons/main.png"
 
 [menus.contacts]
 text = "&Contacts"

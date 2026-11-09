@@ -1,5 +1,5 @@
-/** The acceptance ports of milestone 1, which run on the module path. */
+/** The acceptance ports and samples, which run on the module path. */
 module be.imgn.swing.examples {
-    requires be.imgn.swing.ui;
+    requires be.imgn.swing.desktop;
     requires static org.jspecify;
 }

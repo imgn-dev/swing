@@ -30,3 +30,9 @@ text = "Annuler"
 
 [commands.apply]
 text = "&Appliquer"
+
+[commands.undo]
+text = "&Annuler"
+
+[commands.redo]
+text = "&Rétablir"

@@ -15,6 +15,7 @@ public final class WindowHost {
     private final Injector injector;
     private final DisposalScope scope;
     private final @Nullable ViewHost opener;
+    private final Kind kind;
     private String stateKey;
     private final ShortcutBindings shortcuts;
     private final List<ViewHost> views = new ArrayList<>();
@@ -26,7 +27,8 @@ public final class WindowHost {
      * @param injector the child injector hosting the window scope
      * @param scope the window's scope
      * @param opener the view that opened the window, for a dialog
-     * @param stateKey the key of the window's saved state: {@code main}, or the binary name of a dialog's view class
+     * @param kind what the window is
+     * @param stateKey the key of the window's saved state: {@code main}, or the binary name of a view class
      * @param mode how strictly the window's mistakes are reported
      */
     public WindowHost(
@@ -34,12 +36,14 @@ public final class WindowHost {
             Injector injector,
             DisposalScope scope,
             @Nullable ViewHost opener,
+            Kind kind,
             String stateKey,
             UiMode mode) {
         this.window = window;
         this.injector = injector;
         this.scope = scope;
         this.opener = opener;
+        this.kind = kind;
         this.stateKey = stateKey;
         this.shortcuts = new ShortcutBindings(window.rootPane(), mode);
     }
@@ -74,7 +78,7 @@ public final class WindowHost {
     /**
      * Returns the view that opened this window, for a dialog.
      *
-     * @return the opener, empty for the main window
+     * @return the opener, empty for a frame
      */
     public Optional<ViewHost> opener() {
         return Optional.ofNullable(opener);
@@ -86,13 +90,31 @@ public final class WindowHost {
      * @return {@code true} for the main window
      */
     public boolean isMain() {
-        return opener == null;
+        return kind == Kind.MAIN;
+    }
+
+    /**
+     * Returns whether this window is a frame: the main window, or a frame that {@code Frames} opened.
+     *
+     * @return {@code true} for a frame
+     */
+    public boolean isFrame() {
+        return kind != Kind.DIALOG;
+    }
+
+    /**
+     * Returns what the window is.
+     *
+     * @return the kind
+     */
+    public Kind kind() {
+        return kind;
     }
 
     /**
      * Returns the key of the window's saved state.
      *
-     * @return {@code main}, or the binary name of a dialog's view class
+     * @return {@code main}, or the binary name of a view class
      */
     public String stateKey() {
         return stateKey;
@@ -146,5 +168,15 @@ public final class WindowHost {
                 scope.close();
             }
         }
+    }
+
+    /** What a window is. */
+    public enum Kind {
+        /** The main window of a single-frame application. */
+        MAIN,
+        /** A frame that {@code Frames} opened. */
+        FRAME,
+        /** A modal dialog. */
+        DIALOG
     }
 }

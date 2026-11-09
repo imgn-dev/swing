@@ -69,7 +69,8 @@ final class ResourceChecks {
                 Commands.all(context, type),
                 ViewModel.componentFields(context, type),
                 context.annotation(type, Names.APPLICATION).isPresent(),
-                context.isSubtype(type.asType(), Names.SINGLE_FRAME),
+                context.isSubtype(type.asType(), Names.FRAME_VIEW),
+                isDocumentView(type),
                 context.isSubtype(type.asType(), Names.DIALOG_VIEW),
                 variants(type));
         List<ResourceFile> files =
@@ -177,7 +178,13 @@ final class ResourceChecks {
         }
     }
 
-    // The variants of a dialog view: the constants of its nested @Variants enum, in kebab case.
+    // swing-desktop may be absent from the class path: a class that can't implement DocumentView isn't one.
+    private boolean isDocumentView(TypeElement type) {
+        return context.elements().getTypeElement(Names.DOCUMENT_VIEW) != null
+                && context.isSubtype(type.asType(), Names.DOCUMENT_VIEW);
+    }
+
+    // The variants of a dialog or frame view: the constants of its nested @Variants enum, in kebab case.
     private List<String> variants(TypeElement type) {
         List<String> variants = new ArrayList<>();
         for (TypeElement nested : ElementFilter.typesIn(type.getEnclosedElements())) {
@@ -280,13 +287,16 @@ final class ResourceChecks {
         ResourceFile file = source.file();
         TomlPositions positions = source.positions();
         for (String id : commands.entries().keySet()) {
-            if (!model.commands().containsKey(id) && !Names.STANDARD_COMMANDS_IDS.contains(id)) {
+            if (!model.commands().containsKey(id)
+                    && !Names.STANDARD_COMMANDS_IDS.contains(id)
+                    && !(model.documentView() && Names.DOCUMENT_COMMANDS_IDS.contains(id))) {
                 reporter.error(
                         model.type(),
                         file,
                         positions.key(commands, id),
                         "[commands." + id + "] names no" + " command of "
-                                + model.type().getQualifiedName() + ", its superclasses or StandardCommands");
+                                + model.type().getQualifiedName() + ", its superclasses or StandardCommands"
+                                + (model.documentView() ? ", nor a document command" : ""));
                 continue;
             }
             Element element = elementOf(model, id);
@@ -645,7 +655,7 @@ final class ResourceChecks {
         TomlPositions positions = source.positions();
         boolean applies = switch (key) {
             case "name", "theme", "description", "copyright", "website", "icon" -> model.application();
-            case "title" -> model.dialogView() || (model.application() && model.singleFrame());
+            case "title" -> model.dialogView() || (model.frameView() && !model.documentView());
             default -> false;
         };
         if (!applies) {
@@ -656,7 +666,8 @@ final class ResourceChecks {
                     key + " is not a property of "
                             + model.type().getQualifiedName()
                             + ": name, theme, description, copyright, website and icon apply to the application"
-                            + " class, title to a single-frame application class and to dialog views");
+                            + " class, title to frame views and dialog views, but not to document views, whose title"
+                            + " follows their document");
             return;
         }
         if (!(value instanceof TomlString string)) {
@@ -844,7 +855,8 @@ final class ResourceChecks {
             Map<String, CommandInfo> commands,
             Map<String, VariableElement> components,
             boolean application,
-            boolean singleFrame,
+            boolean frameView,
+            boolean documentView,
             boolean dialogView,
             List<String> variants) {}
 
