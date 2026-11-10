@@ -397,21 +397,24 @@ class NestedResourcesTest {
         assertThat(compilation).succeeded();
         assertThat(compilation)
                 .generatedSourceFile("p.$ContactDialog$$Injector")
-                .contains("resources.string(\"home.streetLabel\", \"text\").ifPresent(value -> resources.setText("
-                        + "nested(nested(view.home, \"home\").streetLabel, \"home.streetLabel\"), value));")
-                .contains("resources.string(\"office.phone.label\", \"text\").ifPresent(value -> resources.setText("
+                .contains("resources.string(\"home.streetLabel\", \"text\").ifPresent(value -> resources.apply("
+                        + "\"home.streetLabel\", \"text\", () -> resources.setText("
+                        + "nested(nested(view.home, \"home\").streetLabel, \"home.streetLabel\"), value)));")
+                .contains("resources.string(\"office.phone.label\", \"text\").ifPresent(value -> resources.apply("
+                        + "\"office.phone.label\", \"text\", () -> resources.setText("
                         + "nested(nested(nested(view.office, \"office\").phone, \"office.phone\").label,"
-                        + " \"office.phone.label\"), value));")
-                .contains("resources.integer(\"home.phone.number\", \"columns\").ifPresent(value -> "
+                        + " \"office.phone.label\"), value)));")
+                .contains("resources.integer(\"home.phone.number\", \"columns\").ifPresent(value -> resources.apply("
+                        + "\"home.phone.number\", \"columns\", () -> "
                         + "nested(nested(nested(view.home, \"home\").phone, \"home.phone\").number,"
-                        + " \"home.phone.number\").setColumns(value));")
+                        + " \"home.phone.number\").setColumns(value)));")
                 .contains("resources.string(\"home.cityLabel\", \"text\")")
                 .contains("ComponentResources.setTabTitle(nested(nested(view.home, \"home\").streetLabel,"
                         + " \"home.streetLabel\"), value)")
                 .contains("private static <C> C nested(C component, String path)")
-                .doesNotContain("\"home.zipLabel\"")
-                .doesNotContain("\"office.streetLabel\"")
-                .doesNotContain("\"home.phone.label\"");
+                .doesNotContain("(\"home.zipLabel\", \"")
+                .doesNotContain("(\"office.streetLabel\", \"")
+                .doesNotContain("(\"home.phone.label\", \"");
         assertThat(compilation).generatedSourceFile("p.$ContactDialog$$State").doesNotContain("streetLabel");
     }
 
@@ -504,8 +507,34 @@ class NestedResourcesTest {
         assertThat(compilation)
                 .generatedSourceFile("p.$TreeView$$Injector")
                 .contains("\"root.child.child.label\"")
-                .doesNotContain("\"root.child.child.child\"")
-                .doesNotContain("\"root.label\"");
+                .doesNotContain("(\"root.child.child.child\", \"")
+                .contains("component.accept(\"root.child\", view.root.child);")
+                .contains("component.accept(\"root.child.child.label\", view.root.child.child.label);")
+                .doesNotContain("component.accept(\"root.child.child.child\"")
+                .doesNotContain("(\"root.label\", \"");
+    }
+
+    @Test
+    void listsTheExposedComponentFieldsToAnyDepthEnclosingPathsFirst() throws IOException {
+        var compilation = dialog("").compile();
+
+        assertThat(compilation).succeeded();
+        String injector = compilation
+                .generatedSourceFile("p.$ContactDialog$$Injector")
+                .orElseThrow()
+                .getCharContent(true)
+                .toString();
+        Assertions.assertThat(injector)
+                .contains("component.accept(\"office\", view.office);")
+                .contains("component.accept(\"home.cityLabel\", view.home.cityLabel);")
+                .contains("if (view.home != null && view.home.missingLabel != null) {")
+                .doesNotContain("\"home.packageLabel\"")
+                .doesNotContain("\"home.plainLabel\"")
+                .doesNotContain("\"home.valid\"");
+        Assertions.assertThat(injector.indexOf("(\"home\", view.home)"))
+                .isLessThan(injector.indexOf("(\"home.phone\", view.home.phone)"));
+        Assertions.assertThat(injector.indexOf("(\"home.phone\", view.home.phone)"))
+                .isLessThan(injector.indexOf("(\"home.phone.number\", view.home.phone.number)"));
     }
 
     @Test
@@ -522,7 +551,7 @@ class NestedResourcesTest {
         assertThat(compilation).succeeded();
         assertThat(compilation)
                 .generatedSourceFile("p.$ContactDialog$$Injector")
-                .doesNotContain("\"home.streetLabel\"");
+                .doesNotContain("(\"home.streetLabel\", \"");
     }
 
     @Test

@@ -64,6 +64,11 @@
               <artifactId>inject-processor</artifactId>
               <version>${inject.version}</version>
             </path>
+            <path>
+              <groupId>be.imgn.toml</groupId>
+              <artifactId>toml-processor</artifactId>
+              <version>${toml.version}</version>
+            </path>
           </annotationProcessorPaths>
         </configuration>
         <executions>
@@ -96,8 +101,8 @@
         <executions>
           <!-- On the module path, the tests are patched into the module, whose
                descriptor provides none of their beans, subscriber indexes or
-               toml binders: the tests of the event bus and of the settings
-               store run on the class path, where the service loader reads
+               toml binders: the tests of the event bus, of the settings
+               store and of the saved locale run on the class path, where the service loader reads
                META-INF/services. -->
           <execution>
             <id>default-test</id>
@@ -107,6 +112,8 @@
                 <exclude>**/SubscriberRegistrarTest.java</exclude>
                 <exclude>**/DefaultSettingsStoreTest.java</exclude>
                 <exclude>**/SaveSettingsStepTest.java</exclude>
+                <exclude>**/LocaleFileTest.java</exclude>
+                <exclude>**/DefaultLocalesTest.java</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -120,6 +127,8 @@
               <includes>
                 <include>**/DefaultSettingsStoreTest.java</include>
                 <include>**/SaveSettingsStepTest.java</include>
+                <include>**/LocaleFileTest.java</include>
+                <include>**/DefaultLocalesTest.java</include>
               </includes>
             </configuration>
           </execution>
@@ -145,6 +154,10 @@
       <plugin>
         <groupId>be.imgn.inject</groupId>
         <artifactId>inject-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>be.imgn.gaia</groupId>
+        <artifactId>gaia-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

@@ -25,7 +25,11 @@ public final class SwingProcessor extends StepProcessor {
     protected List<Step> steps(ProcessingContext context) {
         // gaia's register-services goal adds the provides directives to the compiled module descriptor.
         for (String service : List.of(
-                Names.APPLICATION_DESCRIPTOR, Names.RESOURCE_OPENER, Names.COMPONENT_INJECTOR, Names.COMPONENT_STATE)) {
+                Names.APPLICATION_DESCRIPTOR,
+                Names.RESOURCE_OPENER,
+                Names.COMPONENT_INJECTOR,
+                Names.COMPONENT_STATE,
+                Names.MESSAGES_DESCRIPTOR)) {
             context.services().skipModuleCheck(ClassName.bestGuess(service));
         }
         context.services().skipModuleCheck(ClassName.bestGuess(Names.SETTINGS_DESCRIPTOR));

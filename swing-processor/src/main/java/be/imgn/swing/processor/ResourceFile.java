@@ -20,16 +20,17 @@ record ResourceFile(
         String language,
         String country,
         String platform,
+        boolean dark,
         @Nullable TomlDocument document,
         @Nullable TomlParseException error) {
 
     /**
-     * Returns whether this is the base file: no locale, no platform.
+     * Returns whether this is the base file: no locale, no platform, not dark.
      *
      * @return {@code true} for the base file
      */
     boolean isBase() {
-        return language.isEmpty() && platform.isEmpty();
+        return language.isEmpty() && platform.isEmpty() && !dark;
     }
 
     /**
@@ -38,7 +39,7 @@ record ResourceFile(
      * @return {@code true} for a file such as {@code CounterApp_fr.toml}
      */
     boolean isLanguage() {
-        return !language.isEmpty() && country.isEmpty() && platform.isEmpty();
+        return !language.isEmpty() && country.isEmpty() && platform.isEmpty() && !dark;
     }
 
     /**
@@ -47,7 +48,17 @@ record ResourceFile(
      * @return {@code true} for a file such as {@code CounterApp_fr_BE.toml}
      */
     boolean isLocale() {
-        return !language.isEmpty() && platform.isEmpty();
+        return !language.isEmpty() && platform.isEmpty() && !dark;
+    }
+
+    /**
+     * Returns whether this is a dark variant, read while the appearance is dark. Only the base file has one,
+     * {@code CounterApp.dark.toml}; one with a locale or a platform is an error.
+     *
+     * @return {@code true} for a file whose name ends with {@code .dark.toml}
+     */
+    boolean isDark() {
+        return dark;
     }
 
     Optional<TomlDocument> parsed() {

@@ -8,3 +8,6 @@ tool-tip-text = "open the document"
 [commands.close]
 text = "&Close"
 tool-tip-text = "close the document"
+
+[textPane]
+accessible-name = "Text"

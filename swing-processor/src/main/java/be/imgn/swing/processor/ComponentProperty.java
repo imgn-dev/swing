@@ -26,11 +26,12 @@ enum ComponentProperty {
     COLUMNS("columns", Kind.INTEGER, "%s.setColumns(value)"),
     ROWS("rows", Kind.INTEGER, "%s.setRows(value)"),
     TITLE("title", Kind.STRING, "@.setTitle(%s, value)"),
-    TAB_TITLE("tab-title", Kind.STRING, "@.setTabTitle(%s, value)");
+    // A component that is not a tab yet, which Ui.addTab may add later, is skipped.
+    TAB_TITLE("tab-title", Kind.STRING, "{ if (@.isTab(%1$s)) { @.setTabTitle(%1$s, value); } }");
 
     private final String key;
     private final Kind kind;
-    // The code that applies the value: %s is the field, @ the ComponentResources class.
+    // The code that applies the value: %s or %1$s is the field, @ the ComponentResources class.
     private final String setter;
 
     ComponentProperty(String key, Kind kind, String setter) {
@@ -79,7 +80,9 @@ enum ComponentProperty {
         String apply = mnemonics
                 ? "resources.setText(" + target + ", value)"
                 : setter.formatted(target).replace("@", componentResources);
-        return "        " + read + ".ifPresent(value -> " + apply + ");";
+        // Through ComponentResources.apply, which skips a property that fails at a refresh, as the refresh requires.
+        return "        " + read + ".ifPresent(value -> resources.apply(" + Java.literal(path) + ", "
+                + Java.literal(key) + ", () -> " + apply + "));";
     }
 
     private static boolean hasSetter(ProcessingContext context, TypeMirror type, String name, String parameter) {

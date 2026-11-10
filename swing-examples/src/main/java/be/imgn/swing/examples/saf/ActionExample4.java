@@ -7,6 +7,7 @@ import be.imgn.swing.Task;
 import be.imgn.swing.TaskContext;
 import be.imgn.swing.ui.Command;
 import be.imgn.swing.ui.Concurrency;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
@@ -42,7 +43,12 @@ public final class ActionExample4 implements SingleFrame {
     private static final int MARGIN = 2;
     private static final int PADDING = 4;
 
-    private final JTextField root = new JTextField(System.getProperty("java.home"), COLUMNS);
+    @Exposed
+    final JList<Path> list = new JList<>();
+
+    @Exposed
+    final JTextField root = new JTextField(System.getProperty("java.home"), COLUMNS);
+
     private final DefaultListModel<Path> files = new DefaultListModel<>();
     private final Property<String> message = Property.of(" ");
     private final ActionExample4Commands commands;
@@ -73,7 +79,7 @@ public final class ActionExample4 implements SingleFrame {
         buttons.add(root);
         buttons.add(commands.go().createButton());
         buttons.add(commands.stop().createButton());
-        JList<Path> list = new JList<>(files);
+        list.setModel(files);
         list.setVisibleRowCount(ROWS);
         JScrollPane scroll = new JScrollPane(list);
         scroll.setBorder(BorderFactory.createEmptyBorder(MARGIN, PADDING, MARGIN, PADDING));

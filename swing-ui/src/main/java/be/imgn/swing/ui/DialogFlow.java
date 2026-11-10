@@ -10,7 +10,6 @@ import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
 import be.imgn.swing.ui.internal.WindowHost;
 import be.imgn.swing.ui.internal.WindowStateSupport;
-import be.imgn.toml.TomlString;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -71,10 +70,7 @@ final class DialogFlow {
                             .orElse(""));
             @SuppressWarnings("unchecked")
             DialogView<R> dialog = (DialogView<R>) view.view().orElseThrow();
-            window.setTitle(
-                    builder.table(view.type(), variant).entries().get("title") instanceof TomlString title
-                            ? title.value()
-                            : services.application().displayedName());
+            host.resourceTitle(FrameFlow.titleOf(builder.table(view.type(), variant), services));
             WindowStateSupport state = host.injector().getInstance(WindowStateSupport.class);
             if (window instanceof AwtWindow real && real.awt() instanceof JDialog jdialog) {
                 jdialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);

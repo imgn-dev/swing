@@ -1,9 +1,12 @@
 package be.imgn.swing.ui.internal;
 
 import be.imgn.inject.Injector;
+import be.imgn.swing.Scope;
 import be.imgn.swing.internal.DisposalScope;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
@@ -20,6 +23,9 @@ public final class ViewHost {
     private final List<Runnable> pendingAttachments = new ArrayList<>();
     private boolean building = true;
     private @Nullable Object view;
+    private @Nullable Enum<?> variant;
+    // What a refresh runs for the view, by phase, in registration order; each action leaves with its scope.
+    private final Map<RefreshPhase, List<Runnable>> refreshes = new EnumMap<>(RefreshPhase.class);
 
     /**
      * Creates the host of a view, on the thread that builds it.
@@ -110,6 +116,46 @@ public final class ViewHost {
      */
     public void view(Object resolved) {
         this.view = resolved;
+    }
+
+    /**
+     * Returns the variant the view was opened with.
+     *
+     * @return the variant, or empty for none
+     */
+    public Optional<Enum<?>> variant() {
+        return Optional.ofNullable(variant);
+    }
+
+    /**
+     * Records the variant the view is opened with.
+     *
+     * @param opened the variant
+     */
+    public void variant(Enum<?> opened) {
+        this.variant = opened;
+    }
+
+    /**
+     * Adds what a refresh runs for the view in a phase, until a scope closes.
+     *
+     * @param phase the phase
+     * @param scope the scope the action belongs to
+     * @param action the action, run on the EDT
+     */
+    public void onRefresh(RefreshPhase phase, Scope scope, Runnable action) {
+        List<Runnable> actions = refreshes.computeIfAbsent(phase, ignored -> new ArrayList<>());
+        actions.add(action);
+        scope.onClose(() -> actions.remove(action));
+    }
+
+    /**
+     * Runs what a refresh runs for the view in a phase, in registration order.
+     *
+     * @param phase the phase
+     */
+    public void refresh(RefreshPhase phase) {
+        List.copyOf(refreshes.getOrDefault(phase, List.of())).forEach(Runnable::run);
     }
 
     /**

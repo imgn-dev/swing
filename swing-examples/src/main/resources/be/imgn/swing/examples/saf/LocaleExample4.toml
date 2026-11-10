@@ -1,0 +1,7 @@
+title = "ExitListener Demo"
+
+[globalChoice]
+accessible-name = "Display locale"
+
+[partChoice]
+accessible-name = "Locale of the pane below"

@@ -5,3 +5,9 @@ tool-tip-text = "List all of the files in the specified directory"
 [commands.stop]
 text = "&Stop"
 tool-tip-text = "Stop the file listing background task"
+
+[root]
+accessible-name = "Directory"
+
+[list]
+accessible-name = "Files"

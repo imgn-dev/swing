@@ -127,14 +127,12 @@ public final class SingleFrameExample5 implements SingleFrame {
 
     @Override
     public JToolBar toolBar() {
-        JToolBar toolBar = ui.toolBar(
+        return ui.toolBar(
                 commands.previousImage(),
                 commands.nextImage(),
                 commands.refreshImage(),
                 ToolBarEntry.SEPARATOR,
                 commands.stopLoading());
-        toolBar.setFloatable(false);
-        return toolBar;
     }
 
     @Command(enabled = "nextImageEnabled")

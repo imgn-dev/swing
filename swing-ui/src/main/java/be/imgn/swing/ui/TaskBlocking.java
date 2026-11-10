@@ -77,6 +77,7 @@ final class TaskBlocking {
             case Trigger.MenuSelection ignored -> null;
             case Trigger.OperatingSystem ignored -> null;
             case Trigger.Programmatic ignored -> null;
+            case Trigger.Palette ignored -> null;
         };
     }
 }

@@ -7,3 +7,6 @@ tool-tip-text = "Enregistrer la note"
 [editor]
 font = "Monospaced-14"
 accessible-name = "Texte de la note"
+
+[status]
+foreground = "#5f6368"

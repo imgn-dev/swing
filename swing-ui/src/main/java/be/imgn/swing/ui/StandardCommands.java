@@ -1,6 +1,8 @@
 package be.imgn.swing.ui;
 
 import be.imgn.inject.Inject;
+import be.imgn.swing.ui.internal.WindowHost;
+import be.imgn.swing.ui.internal.WindowRegistry;
 
 /**
  * The standard commands of a view, with working handlers, and the superclass of every generated
@@ -153,6 +155,52 @@ public class StandardCommands {
      */
     public BoundCommand apply() {
         return dialogCommand(Standard.APPLY);
+    }
+
+    /**
+     * Returns a dynamic menu entry of the open frames, in opening order, numbered, each named by its frame's title and
+     * bringing its frame to the front when selected. It follows the frames that open and close, and the titles set
+     * through {@link Window#setTitle(String)}; dialogs are not listed. A Window menu holds it:
+     * {@code menus.window().with(commands.openWindows())}.
+     *
+     * @return the entry
+     */
+    public MenuEntry openWindows() {
+        WindowRegistry windows = registry.services().registry();
+        return MenuEntry.dynamic(windows.openFrames()
+                .map(frames -> DynamicEntry.numbered(frames.stream()
+                        .map(frame -> DynamicEntry.item(
+                                // A title is data: an & in it is no mnemonic.
+                                frame.title().replace("&", "&&"), () -> toFront(frame.window())))
+                        .toList())));
+    }
+
+    private void toFront(WindowHost frame) {
+        frame.views()
+                .getFirst()
+                .view()
+                .ifPresent(view -> registry.injector().getInstance(Frames.class).toFront((FrameView) view));
+    }
+
+    /**
+     * Returns the command that shows the {@link CommandPalette} of this view's window, where the user finds a command
+     * by typing part of its text. The framework asks for it at the end of the build of every frame view, so that its
+     * shortcut works in every frame.
+     *
+     * @return the command
+     */
+    public BoundCommand commandPalette() {
+        return registry.standard(Standard.COMMAND_PALETTE);
+    }
+
+    /**
+     * Returns the command that shows the {@link KeymapDialog} over this view's window, where the user assigns, removes
+     * and resets the shortcuts of its commands. It has no shortcut.
+     *
+     * @return the command
+     */
+    public BoundCommand keymap() {
+        return registry.standard(Standard.KEYMAP);
     }
 
     private BoundCommand dialogCommand(Standard standard) {

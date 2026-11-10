@@ -3,13 +3,13 @@ package be.imgn.swing;
 import be.imgn.gaia.core.platform.Platform;
 import be.imgn.inject.Inject;
 import be.imgn.inject.Singleton;
+import be.imgn.swing.internal.ResourceState;
 import be.imgn.swing.internal.ResourceTables;
 import be.imgn.toml.TomlTable;
 import java.util.Collection;
 import java.util.Locale;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The resources of classes: their TOML files, merged along the class hierarchy and across the locale and platform
@@ -18,8 +18,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>For a class {@code p.NotesView}, in the locale {@code fr_BE} on macOS, these files of {@code p/} are read, each
  * one overriding the previous: the resources of the superclass, merged the same way; {@code NotesView.toml};
  * {@code NotesView.macos.toml}; {@code NotesView_fr.toml}, then {@code NotesView_fr.macos.toml};
- * {@code NotesView_fr_BE.toml}, then {@code NotesView_fr_BE.macos.toml}. A table merges key by key; any other value
- * replaces the previous one. The {@code ${key.path}} references in strings are then resolved in the merged table.
+ * {@code NotesView_fr_BE.toml}, then {@code NotesView_fr_BE.macos.toml}. While the {@link Appearances appearance} is
+ * dark, {@code NotesView.dark.toml} is read right after {@code NotesView.macos.toml}. A table merges key by key; any
+ * other value replaces the previous one. The {@code ${key.path}} references in strings are then resolved in the merged
+ * table.
+ *
+ * <p>{@link #table(Class)} reads the current display locale, which {@link Locales} changes: a change drops the cached
+ * tables, so that the next call merges the files of the new locale.
  *
  * <p>The files are read through the {@link ResourceOpener} of their package, found through the
  * {@link java.util.ServiceLoader}.
@@ -28,17 +33,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Resources {
 
     private final ResourceTables tables;
-    private final Locale locale;
-    private final Map<Class<?>, TomlTable> cache = new ConcurrentHashMap<>();
+    private final ResourceState state;
 
     @Inject
-    Resources(Platform platform, DisplayLocale locale) {
-        this(ResourceTables.loaded(platformId(platform)), locale.locale());
+    Resources(Platform platform, ResourceState state) {
+        this(ResourceTables.loaded(platformId(platform)), state);
     }
 
-    private Resources(ResourceTables tables, Locale locale) {
+    Resources(ResourceTables tables, ResourceState state) {
         this.tables = tables;
-        this.locale = locale;
+        this.state = state;
     }
 
     private static Optional<String> platformId(Platform platform) {
@@ -52,15 +56,47 @@ public final class Resources {
     }
 
     /**
-     * Returns the merged resources of a class, in the display locale. A nested class's files are named after its simple
-     * name.
+     * Returns the merged resources of a class, in the current display locale. A nested class's files are named after
+     * its simple name. The table is cached until the locale changes: two calls in one locale return the same instance.
      *
      * @param type the class
      * @return the merged table, empty if the class has no resources
      * @throws IllegalStateException if a file does not parse, or a reference names no string
      */
     public TomlTable table(Class<?> type) {
-        return cache.computeIfAbsent(type, key -> tables.merged(key, locale));
+        ResourceState.Snapshot snapshot = state.snapshot();
+        return snapshot.tables().computeIfAbsent(type, key -> tables.merged(key, snapshot.locale(), dark(snapshot)));
+    }
+
+    /**
+     * Returns the merged resources of a class, in a given locale, whatever the display locale. The table is cached.
+     *
+     * @param type the class
+     * @param locale the locale
+     * @return the merged table, empty if the class has no resources
+     * @throws NullPointerException if an argument is {@code null}
+     * @throws IllegalStateException if a file does not parse, or a reference names no string
+     */
+    public TomlTable table(Class<?> type, Locale locale) {
+        Objects.requireNonNull(type, "type");
+        Objects.requireNonNull(locale, "locale");
+        ResourceState.Snapshot snapshot = state.snapshot();
+        return snapshot.localized()
+                .computeIfAbsent(
+                        new ResourceState.Localized(type, locale), key -> tables.merged(type, locale, dark(snapshot)));
+    }
+
+    private static boolean dark(ResourceState.Snapshot snapshot) {
+        return snapshot.appearance() == Appearance.DARK;
+    }
+
+    /**
+     * Returns the display locale that {@link #table(Class)} reads now.
+     *
+     * @return the locale
+     */
+    public Locale locale() {
+        return state.snapshot().locale();
     }
 
     /**

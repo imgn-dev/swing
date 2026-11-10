@@ -1,6 +1,7 @@
 package be.imgn.swing;
 
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Set;
 
@@ -32,4 +33,14 @@ public interface ResourceOpener {
      * @return the icon paths, such as {@code icons/save.svg}
      */
     Set<String> icons();
+
+    /**
+     * Returns the package's directory in the class output, which hot reload watches in development mode: the parent of
+     * the opener's own class file when the package's classes are loaded from a directory on the default file system.
+     *
+     * @return the directory, or empty when the package is loaded from a JAR, or another place than a directory
+     */
+    default Optional<Path> directory() {
+        return Optional.empty();
+    }
 }

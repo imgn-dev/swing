@@ -146,6 +146,7 @@
                 <exclude>**/CommandTasksTest.java</exclude>
                 <exclude>**/EventBusTest.java</exclude>
                 <exclude>**/frames/*Test.java</exclude>
+                <exclude>**/refresh/*Test.java</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -161,6 +162,7 @@
                 <include>**/CommandTasksTest.java</include>
                 <include>**/EventBusTest.java</include>
                 <include>**/frames/*Test.java</include>
+                <include>**/refresh/*Test.java</include>
               </includes>
             </configuration>
           </execution>

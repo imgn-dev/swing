@@ -3,6 +3,7 @@ package be.imgn.swing.ui;
 import be.imgn.inject.Inject;
 import be.imgn.inject.Injector;
 import be.imgn.swing.Scope;
+import be.imgn.swing.ui.internal.RefreshPhase;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
 import be.imgn.toml.TomlTable;
@@ -45,6 +46,20 @@ public final class CommandRegistry {
         this.injector = injector;
         this.services = services;
         this.standards = new StandardHandlers(this);
+        // The window's refresh removes the shortcuts of all its views before any registers again.
+        view.onRefresh(
+                RefreshPhase.UNREGISTER,
+                scope,
+                () -> List.copyOf(commands.values())
+                        .forEach(command -> view.window().shortcuts().remove(command.identity())));
+        view.onRefresh(
+                RefreshPhase.COMMANDS,
+                scope,
+                () -> List.copyOf(commands.values()).forEach(BoundCommand::refresh));
+        view.onRefresh(
+                RefreshPhase.REGISTER,
+                scope,
+                () -> List.copyOf(commands.values()).forEach(BoundCommand::registerShortcut));
     }
 
     /**
@@ -132,6 +147,11 @@ public final class CommandRegistry {
         }
     }
 
+    // The commands of the view that are attached, in the order they were bound.
+    List<BoundCommand> commands() {
+        return commands.values().stream().filter(BoundCommand::isAttached).toList();
+    }
+
     /**
      * Returns a command bound in this registry, if any.
      *
@@ -158,7 +178,7 @@ public final class CommandRegistry {
         }
     }
 
-    private CommandResources resourcesOf(Class<?> owner, String id, boolean overridable) {
+    CommandResources resourcesOf(Class<?> owner, String id, boolean overridable) {
         Map<Class<?>, TomlTable> tables = new LinkedHashMap<>();
         if (Standard.of(id).isPresent()) {
             tables.put(StandardCommands.class, section(StandardCommands.class, id));

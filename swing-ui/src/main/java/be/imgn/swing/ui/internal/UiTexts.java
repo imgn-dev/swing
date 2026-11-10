@@ -2,33 +2,29 @@ package be.imgn.swing.ui.internal;
 
 import be.imgn.inject.Inject;
 import be.imgn.inject.Singleton;
-import be.imgn.swing.DisplayLocale;
 import be.imgn.swing.Resources;
 import be.imgn.toml.TomlString;
-import be.imgn.toml.TomlTable;
 import java.text.MessageFormat;
-import java.util.Locale;
 
 /** The framework's own texts, from {@code UiTexts.toml} and its locale variants. */
 @Singleton
 public final class UiTexts {
 
-    private final TomlTable table;
-    private final Locale locale;
+    // Read at each call, so that the texts follow the display locale.
+    private final Resources resources;
 
     @Inject
-    UiTexts(Resources resources, DisplayLocale locale) {
-        this.table = resources.table(UiTexts.class);
-        this.locale = locale.locale();
+    UiTexts(Resources resources) {
+        this.resources = resources;
     }
 
     private String text(String key) {
-        return table.entries().get(key) instanceof TomlString text ? text.value() : key;
+        return resources.table(UiTexts.class).entries().get(key) instanceof TomlString text ? text.value() : key;
     }
 
     // Formats a text that is a MessageFormat pattern, in the display locale.
     private String format(String key, Object... arguments) {
-        return new MessageFormat(text(key), locale).format(arguments);
+        return new MessageFormat(text(key), resources.locale()).format(arguments);
     }
 
     /**
@@ -132,5 +128,114 @@ public final class UiTexts {
      */
     public String discard() {
         return text("discard");
+    }
+
+    /**
+     * Returns the title of the keymap dialog, also its table's accessible name.
+     *
+     * @return the text
+     */
+    public String keyboardShortcuts() {
+        return text("keyboardShortcuts");
+    }
+
+    /**
+     * Returns the header of the keymap dialog's column of commands.
+     *
+     * @return the text
+     */
+    public String command() {
+        return text("command");
+    }
+
+    /**
+     * Returns the header of the keymap dialog's column of shortcuts.
+     *
+     * @return the text
+     */
+    public String shortcut() {
+        return text("shortcut");
+    }
+
+    /**
+     * Returns the label of the keymap dialog's filter, with its mnemonic.
+     *
+     * @return the text
+     */
+    public String filter() {
+        return text("filter");
+    }
+
+    /**
+     * Returns the label of the keymap dialog's field that records a shortcut, with its mnemonic.
+     *
+     * @return the text
+     */
+    public String shortcutLabel() {
+        return text("shortcutLabel");
+    }
+
+    /**
+     * Returns the text of the keymap dialog's Remove button, with its mnemonic.
+     *
+     * @return the text
+     */
+    public String remove() {
+        return text("remove");
+    }
+
+    /**
+     * Returns the text of the keymap dialog's Reset button, with its mnemonic.
+     *
+     * @return the text
+     */
+    public String reset() {
+        return text("reset");
+    }
+
+    /**
+     * Returns the text of the keymap dialog's Reset All button, with its mnemonic.
+     *
+     * @return the text
+     */
+    public String resetAll() {
+        return text("resetAll");
+    }
+
+    /**
+     * Returns the warning that another command has a recorded shortcut.
+     *
+     * @param command the other command's text
+     * @return the text
+     */
+    public String alsoUsedBy(String command) {
+        return format("alsoUsedBy", command);
+    }
+
+    /**
+     * Returns the placeholder of the command palette's field, also its accessible name.
+     *
+     * @return the text
+     */
+    public String typeCommand() {
+        return text("typeCommand");
+    }
+
+    /**
+     * Returns what the command palette shows when no command matches.
+     *
+     * @return the text
+     */
+    public String noCommand() {
+        return text("noCommand");
+    }
+
+    /**
+     * Returns the accessible name of the About dialog's website field.
+     *
+     * @return the text
+     */
+    public String website() {
+        return text("website");
     }
 }

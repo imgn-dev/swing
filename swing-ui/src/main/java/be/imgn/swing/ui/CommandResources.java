@@ -11,8 +11,9 @@ import java.util.Optional;
  *
  * @param table the merged table
  * @param iconPackage the package the icon's path is relative to: that of the class whose table gives it
+ * @param frameworkShortcut whether the shortcut comes from the framework's own resources of a standard command
  */
-record CommandResources(TomlTable table, String iconPackage) {
+record CommandResources(TomlTable table, String iconPackage, boolean frameworkShortcut) {
 
     /**
      * Merges the tables of a command, each given with the class whose resources hold it.
@@ -23,13 +24,17 @@ record CommandResources(TomlTable table, String iconPackage) {
     static CommandResources of(Map<Class<?>, TomlTable> tables) {
         TomlTable merged = TomlTable.builder().build();
         String iconPackage = "";
+        boolean frameworkShortcut = false;
         for (Map.Entry<Class<?>, TomlTable> table : tables.entrySet()) {
             merged = ResourceTables.merge(merged, table.getValue());
             if (table.getValue().entries().containsKey("icon")) {
                 iconPackage = table.getKey().getPackageName();
             }
+            if (table.getValue().entries().containsKey("shortcut")) {
+                frameworkShortcut = table.getKey() == StandardCommands.class;
+            }
         }
-        return new CommandResources(merged, iconPackage);
+        return new CommandResources(merged, iconPackage, frameworkShortcut);
     }
 
     static TomlTable section(TomlTable resources, String kind, String id) {

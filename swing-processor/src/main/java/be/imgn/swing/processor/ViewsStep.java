@@ -6,11 +6,13 @@ import be.imgn.gaia.processing.SourceScope;
 import be.imgn.gaia.processing.Step;
 import be.imgn.gaia.processing.source.ClassName;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -232,7 +234,7 @@ final class ViewsStep implements Step {
                     public void registerOverrides(%8$s registry) {
                 %9$s
                     }
-                %10$s}
+                %11$s%10$s}
                 """.formatted(
                         view,
                         scope.generated(),
@@ -243,7 +245,8 @@ final class ViewsStep implements Step {
                         String.join("\n", tabTitles),
                         scope.name(Names.COMMAND_REGISTRY),
                         String.join("\n", overrides),
-                        nested.isEmpty() ? "" : nestedMethod(type));
+                        nested.isEmpty() ? "" : nestedMethod(type),
+                        componentsMethod(scope, type));
     }
 
     // The statements that write every property that applies to a component field, read at its field path and reached
@@ -261,6 +264,80 @@ final class ViewsStep implements Step {
                 (property == ComponentProperty.TAB_TITLE ? tabTitles : properties).add(statement);
             }
         }
+    }
+
+    private String componentsMethod(SourceScope scope, TypeElement type) {
+        List<String> components = new ArrayList<>();
+        String packageName = Java.packageOf(type).getQualifiedName().toString();
+        Set<String> path = new HashSet<>(Set.of(type.getQualifiedName().toString()));
+        components(type.asType(), "", "view", List.of(), path, packageName, components);
+        // The paths the resources name, which the cut of a type that holds itself may have left out.
+        Map<String, VariableElement> fields = ViewModel.componentFields(context, type);
+        ViewModel.nestedFields(context, shared.files(), type).keySet().forEach(nested -> {
+            if (fields.containsKey(nested.split("\\.", -1)[0])
+                    && components.stream().noneMatch(listed -> listed.contains("(" + Java.literal(nested) + ","))) {
+                components.add(componentStatement(nested));
+            }
+        });
+        return """
+
+                    @Override
+                    public void components(%s view, %s<String, %s> component) {
+                %s
+                    }
+                """.formatted(
+                        scope.name(type),
+                        scope.name(BiConsumer.class),
+                        scope.name(Names.COMPONENT),
+                        String.join("\n", components));
+    }
+
+    // The statements that give each exposed component field, to any depth, read through its enclosing fields, each
+    // checked for null on the way. A type already on the path is not followed again, so that a type that holds itself
+    // ends.
+    private void components(
+            TypeMirror type,
+            String prefix,
+            String access,
+            List<String> guards,
+            Set<String> path,
+            String packageName,
+            List<String> statements) {
+        if (type.getKind() != TypeKind.DECLARED) {
+            return;
+        }
+        TypeElement element = (TypeElement) ((DeclaredType) type).asElement();
+        ViewModel.componentFields(context, element).forEach((name, field) -> {
+            if (!ViewModel.reachable(field, packageName)) {
+                return;
+            }
+            String fieldPath = prefix.isEmpty() ? name : prefix + "." + name;
+            String fieldAccess = access + "." + name;
+            List<String> fieldGuards = new ArrayList<>(guards);
+            fieldGuards.add(fieldAccess + " != null");
+            statements.add(statement(fieldGuards, fieldPath, fieldAccess));
+            String fieldType = context.types().erasure(field.asType()).toString();
+            if (path.add(fieldType)) {
+                components(field.asType(), fieldPath, fieldAccess, fieldGuards, path, packageName, statements);
+                path.remove(fieldType);
+            }
+        });
+    }
+
+    private static String statement(List<String> guards, String path, String access) {
+        return "        if (%s) {\n            component.accept(%s, %s);\n        }"
+                .formatted(String.join(" && ", guards), Java.literal(path), access);
+    }
+
+    // The statement that gives a nested field the resources name, each enclosing field checked for null.
+    private static String componentStatement(String path) {
+        List<String> guards = new ArrayList<>();
+        String access = "view";
+        for (String name : path.split("\\.", -1)) {
+            access = access + "." + name;
+            guards.add(access + " != null");
+        }
+        return statement(guards, path, access);
     }
 
     // The expression that reads a nested component through its enclosing fields, each checked on the way, so that a

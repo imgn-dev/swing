@@ -8,6 +8,7 @@ import be.imgn.swing.Resources;
 import be.imgn.swing.UiExecutor;
 import be.imgn.swing.internal.DefaultLifecycle;
 import be.imgn.swing.internal.TaskRunner;
+import be.imgn.swing.ui.Keymap;
 import be.imgn.swing.ui.Windows;
 
 /** The application's services that the beans of the windows and views share. */
@@ -28,6 +29,7 @@ public final class UiServices {
     private final Windows windows;
     private final ViewSupports supports;
     private final UiTexts texts;
+    private final Keymap keymap;
 
     @Inject
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -45,7 +47,8 @@ public final class UiServices {
             FocusTracker focus,
             Windows windows,
             ViewSupports supports,
-            UiTexts texts) {
+            UiTexts texts,
+            Keymap keymap) {
         this.resources = resources;
         this.application = application;
         this.platform = platform;
@@ -60,6 +63,7 @@ public final class UiServices {
         this.windows = windows;
         this.supports = supports;
         this.texts = texts;
+        this.keymap = keymap;
     }
 
     /**
@@ -195,5 +199,14 @@ public final class UiServices {
      */
     public UiTexts texts() {
         return texts;
+    }
+
+    /**
+     * Returns the keymap.
+     *
+     * @return the keymap
+     */
+    public Keymap keymap() {
+        return keymap;
     }
 }

@@ -15,6 +15,7 @@ import be.imgn.swing.ui.TaskbarStatus;
 import be.imgn.swing.ui.ValidationFeedback;
 import java.lang.annotation.Annotation;
 import java.util.concurrent.Executor;
+import javax.swing.JComponent;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -60,6 +61,17 @@ final class UiBeans {
             } catch (ReflectiveOperationException | UnsupportedLookAndFeelException e) {
                 LOGGER.log(System.Logger.Level.WARNING, "Could not install the system look and feel", e);
             }
+        };
+    }
+
+    // After the look and feel is installed, whose defaults would otherwise start in the JVM's locale.
+    @Provides
+    @Default
+    @Singleton
+    static SwingLocale swingLocale() {
+        return locale -> {
+            JComponent.setDefaultLocale(locale);
+            UIManager.getDefaults().setDefaultLocale(locale);
         };
     }
 

@@ -80,11 +80,11 @@ final class MainWindowFlow implements MainWindowStarter {
                 }
             });
         }
-        // Before the view is built, so that a title or icon the view sets in content() wins.
-        frames.title(window, services.resources().table(type));
-        frames.icon(window);
         WindowHost host =
                 builder.openWindow(window, root, application, null, WindowHost.Kind.MAIN, "main", "main window");
+        // Before the view is built, so that a title or icon the view sets in content() wins.
+        frames.title(host, services.resources().table(type));
+        frames.icon(window);
         ViewHost view = frames.build(
                 host, Optional.of(type), Optional.empty(), injector -> injector.getInstance(type), built -> {});
         SingleFrame single = (SingleFrame) view.view().orElseThrow();

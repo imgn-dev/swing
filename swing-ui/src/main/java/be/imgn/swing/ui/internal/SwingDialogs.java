@@ -5,11 +5,18 @@ import static java.util.Objects.requireNonNull;
 import be.imgn.gaia.core.platform.Platform;
 import be.imgn.inject.Inject;
 import be.imgn.swing.ApplicationInfo;
+import be.imgn.swing.ui.CommandPalette;
 import be.imgn.swing.ui.Dialogs;
 import be.imgn.swing.ui.FileType;
+import be.imgn.swing.ui.PaletteEntry;
 import be.imgn.swing.ui.SaveChoice;
 import be.imgn.swing.ui.Window;
 import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dialog;
+import java.awt.Point;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -27,6 +35,9 @@ import org.jspecify.annotations.Nullable;
 
 /** The real {@link Dialogs}: option panes, file choosers and the error dialog, owned by its window. */
 public final class SwingDialogs implements Dialogs {
+
+    private static final int PALETTE_WIDTH = 480;
+    private static final int PALETTE_MARGIN = 48;
 
     private final Window window;
     private final ApplicationInfo application;
@@ -161,6 +172,53 @@ public final class SwingDialogs implements Dialogs {
             return SaveChoice.SAVE;
         }
         return buttons[1].equals(value) ? SaveChoice.DISCARD : SaveChoice.CANCEL;
+    }
+
+    @Override
+    public Optional<PaletteEntry> chooseCommand(List<PaletteEntry> entries) {
+        requireNonNull(entries, "entries");
+        java.awt.Window parent = window instanceof AwtWindow real ? real.awt() : null;
+        JDialog dialog = new JDialog(parent, Dialog.ModalityType.DOCUMENT_MODAL);
+        dialog.setUndecorated(true);
+        AtomicReference<@Nullable PaletteEntry> chosen = new AtomicReference<>();
+        dialog.setContentPane(new PalettePanel<>(
+                PaletteEntry.class,
+                query -> CommandPalette.search(entries, query),
+                PaletteEntry::text,
+                PaletteEntry::shortcut,
+                texts.typeCommand(),
+                texts.noCommand(),
+                entry -> {
+                    chosen.set(entry);
+                    dialog.setVisible(false);
+                }));
+        dialog.pack();
+        place(dialog);
+        // Losing the focus cancels, as clicking elsewhere does in a palette.
+        dialog.addWindowFocusListener(new WindowAdapter() {
+            @Override
+            public void windowLostFocus(WindowEvent event) {
+                dialog.setVisible(false);
+            }
+        });
+        dialog.setVisible(true);
+        dialog.dispose();
+        return Optional.ofNullable(chosen.get());
+    }
+
+    // Horizontally centered on the window, its top 48 pixels below the top of the window's content, as wide as the
+    // window less 48 pixels but no wider than 480.
+    private void place(JDialog dialog) {
+        Container content = window.rootPane().getContentPane();
+        Component frame = owner();
+        int width = Math.max(1, Math.min(PALETTE_WIDTH, frame.getWidth() - PALETTE_MARGIN));
+        dialog.setSize(width, dialog.getHeight());
+        if (content.isShowing()) {
+            Point origin = content.getLocationOnScreen();
+            dialog.setLocation(origin.x + (content.getWidth() - width) / 2, origin.y + PALETTE_MARGIN);
+        } else {
+            dialog.setLocationRelativeTo(owner());
+        }
     }
 
     /**

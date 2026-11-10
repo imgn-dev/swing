@@ -4,10 +4,12 @@ import be.imgn.inject.Inject;
 import be.imgn.inject.Singleton;
 import be.imgn.swing.ui.spi.ComponentInjector;
 import be.imgn.swing.ui.spi.ComponentState;
+import java.awt.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.function.BiConsumer;
 
 /** The generated injectors and state accessors of the view classes, found through the {@link ServiceLoader}. */
 @Singleton
@@ -37,6 +39,24 @@ public final class ViewSupports {
     @SuppressWarnings("unchecked")
     public <V> Optional<ComponentInjector<V>> injectorOf(Class<V> type) {
         return Optional.ofNullable((ComponentInjector<V>) injectors.get(type));
+    }
+
+    /**
+     * Returns the paths of the {@code @Exposed} component fields of a built view, by the component they hold.
+     *
+     * @param view the view's host
+     * @return the paths, such as {@code home.streetLabel}; empty before the view exists
+     */
+    public Map<Component, String> fields(ViewHost view) {
+        Map<Component, String> fields = new HashMap<>();
+        view.view()
+                .ifPresent(
+                        instance -> components(view.type(), instance, (path, held) -> fields.putIfAbsent(held, path)));
+        return fields;
+    }
+
+    private <V> void components(Class<V> type, Object instance, BiConsumer<String, Component> component) {
+        injectorOf(type).ifPresent(generated -> generated.components(type.cast(instance), component));
     }
 
     /**

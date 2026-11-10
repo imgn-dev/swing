@@ -4,6 +4,7 @@ import be.imgn.swing.FailureHandler;
 import be.imgn.swing.internal.DisposalScope;
 import be.imgn.swing.internal.Guarded;
 import be.imgn.swing.ui.internal.Mnemonics;
+import be.imgn.swing.ui.internal.RefreshPhase;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
 import be.imgn.toml.TomlTable;
@@ -29,28 +30,38 @@ final class MenuBuilder {
     private final ViewHost view;
     private final UiServices services;
     private final Map<String, BoundMenu> menus = new HashMap<>();
+    private final Map<BoundMenu, Class<?>> owners = new HashMap<>();
 
     MenuBuilder(ViewHost view, UiServices services) {
         this.view = view;
         this.services = services;
+        // First among the menus' refreshes, which the menus built since then follow.
+        view.onRefresh(
+                RefreshPhase.MENUS,
+                view.scope(),
+                () -> owners.forEach((menu, owner) -> menu.text(text(owner, menu.id()))));
     }
 
     BoundMenu menu(Class<?> owner, String id) {
         return menus.computeIfAbsent(owner.getName() + "#" + id, key -> {
-            Map<Class<?>, TomlTable> tables = new LinkedHashMap<>();
-            if (STANDARD_MENUS.contains(id)) {
-                tables.put(StandardMenus.class, section(StandardMenus.class, id));
-                // An override in the application class's resources renames the menu in every view; the view class's
-                // own resources come last.
-                Class<?> application = services.applicationType();
-                tables.put(application, section(application, id));
-            }
-            Class<?> type = owner == StandardMenus.class ? view.type() : owner;
-            tables.put(type, section(type, id));
-            CommandResources resources = CommandResources.of(tables);
-            return new BoundMenu(
-                    this, id, Mnemonics.parse(resources.string("text").orElse(id)));
+            BoundMenu menu = new BoundMenu(this, id, text(owner, id));
+            owners.put(menu, owner);
+            return menu;
         });
+    }
+
+    private Mnemonics text(Class<?> owner, String id) {
+        Map<Class<?>, TomlTable> tables = new LinkedHashMap<>();
+        if (STANDARD_MENUS.contains(id)) {
+            tables.put(StandardMenus.class, section(StandardMenus.class, id));
+            // An override in the application class's resources renames the menu in every view; the view class's own
+            // resources come last.
+            Class<?> application = services.applicationType();
+            tables.put(application, section(application, id));
+        }
+        Class<?> type = owner == StandardMenus.class ? view.type() : owner;
+        tables.put(type, section(type, id));
+        return Mnemonics.parse(CommandResources.of(tables).string("text").orElse(id));
     }
 
     private TomlTable section(Class<?> type, String id) {
@@ -64,17 +75,22 @@ final class MenuBuilder {
     /** Creates a menu whose dynamic sections subscribe in a scope: the view's, or a dynamic section's for a submenu. */
     JMenu createMenu(MenuSpec spec, DisposalScope scope) {
         JMenu menu = new JMenu();
-        Mnemonics text = spec.menu().text();
-        menu.setText(text.text());
-        if (!services.isMacOS() && text.hasMnemonic()) {
-            menu.setMnemonic(text.keyCode());
-            menu.setDisplayedMnemonicIndex(text.index());
-        }
+        applyText(menu, spec.menu().text());
+        view.onRefresh(
+                RefreshPhase.MENUS, scope, () -> applyText(menu, spec.menu().text()));
         MenuContent content = new MenuContent(
                 this, menu.getPopupMenu(), "the menu " + spec.menu().id(), scope);
         spec.entries().forEach(content::add);
         content.built();
+        content.followRefreshes();
         return menu;
+    }
+
+    private void applyText(JMenu menu, Mnemonics text) {
+        menu.setText(text.text());
+        boolean mnemonic = !services.isMacOS() && text.hasMnemonic();
+        menu.setMnemonic(mnemonic ? text.keyCode() : 0);
+        menu.setDisplayedMnemonicIndex(mnemonic ? text.index() : -1);
     }
 
     JMenuBar menuBar(MenuSpec... specs) {
@@ -84,6 +100,7 @@ final class MenuBuilder {
         }
         List<Component> menusOfBar = List.of(bar.getComponents());
         check(menusOfBar, "the menu bar");
+        view.onRefresh(RefreshPhase.MENUS, view.scope(), () -> check(List.of(bar.getComponents()), "the menu bar"));
         return bar;
     }
 
@@ -96,18 +113,26 @@ final class MenuBuilder {
             content.add(entry);
         }
         content.built();
+        content.followRefreshes();
         invoker.setComponentPopupMenu(popup);
         return popup;
     }
 
     JToolBar toolBar(ToolBarEntry... entries) {
         JToolBar toolBar = new JToolBar();
+        toolBar.setFloatable(false);
         for (ToolBarEntry entry : entries) {
             switch (entry) {
                 case BoundCommand command -> {
                     AbstractButton button =
                             command.hasSelectedState() ? command.createToggleButton() : command.createButton();
                     button.setHideActionText(command.hasIcon());
+                    command.nameToolBarButton(button);
+                    // An icon a refresh gives or takes shows or hides the text.
+                    view.onRefresh(RefreshPhase.COMMANDS, view.scope(), () -> {
+                        button.setHideActionText(command.hasIcon());
+                        command.nameToolBarButton(button);
+                    });
                     button.setFocusable(false);
                     toolBar.add(button);
                 }
@@ -123,18 +148,21 @@ final class MenuBuilder {
      */
     List<Component> components(DynamicEntry entry, DisposalScope scope) {
         return switch (entry) {
-            case BoundCommand command -> commandItem(command);
+            case BoundCommand command -> commandItem(command, scope);
             case Separator ignored -> List.of(new JPopupMenu.Separator());
             case MenuSpec spec -> List.of(createMenu(spec, scope));
             case DynamicEntry.Item item -> List.of(item(item));
         };
     }
 
-    List<Component> commandItem(BoundCommand command) {
+    // The item leaves the command's components with its scope, such as a rebuilt section's.
+    List<Component> commandItem(BoundCommand command, DisposalScope scope) {
         if (services.isMacOS() && command.isSystemAction()) {
             return List.of();
         }
-        return List.of(command.hasSelectedState() ? command.createCheckBoxMenuItem() : command.createMenuItem());
+        JMenuItem item = command.hasSelectedState() ? command.createCheckBoxMenuItem() : command.createMenuItem();
+        scope.onClose(() -> command.forget(item));
+        return List.of(item);
     }
 
     private JMenuItem item(DynamicEntry.Item item) {

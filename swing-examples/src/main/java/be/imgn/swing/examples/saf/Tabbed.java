@@ -5,6 +5,7 @@ import be.imgn.swing.Application;
 import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
+import be.imgn.swing.ui.Ui;
 import java.awt.BasicStroke;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -44,10 +45,12 @@ public final class Tabbed implements SingleFrame {
     @Exposed
     final JLabel three = new JLabel();
 
+    private final Ui ui;
     private final ExampleMessages messages;
 
     @Inject
-    Tabbed(ExampleMessages messages) {
+    Tabbed(Ui ui, ExampleMessages messages) {
+        this.ui = ui;
         this.messages = messages;
     }
 
@@ -63,7 +66,7 @@ public final class Tabbed implements SingleFrame {
     @Override
     public JComponent content() {
         for (JLabel tab : List.of(one, two, three)) {
-            tabs.addTab("", tab);
+            ui.addTab(tabs, tab);
             tabs.setTabComponentAt(tabs.indexOfComponent(tab), new TabHeader(tabs, messages.closeTab()));
         }
         return tabs;

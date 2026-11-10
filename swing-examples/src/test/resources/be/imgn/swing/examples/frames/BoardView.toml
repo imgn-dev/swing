@@ -1,1 +1,4 @@
 title = "Board"
+
+[name]
+accessible-name = "Name"

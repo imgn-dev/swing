@@ -6,6 +6,9 @@ import be.imgn.gaia.processing.SourceScope;
 import be.imgn.gaia.processing.Step;
 import be.imgn.gaia.processing.source.ClassName;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashMap;
@@ -134,6 +137,20 @@ final class ResourcesStep implements Step {
                     public %8$s<String> icons() {
                         return %8$s.of(%9$s);
                     }
+
+                    // The package's directory in the class output, where hot reload watches the files; none in a JAR.
+                    @Override
+                    public %6$s<%10$s> directory() {
+                        %11$s url = %3$s.class.getResource(%12$s);
+                        if (url == null || !"file".equals(url.getProtocol())) {
+                            return %6$s.empty();
+                        }
+                        try {
+                            return %6$s.ofNullable(%10$s.of(url.toURI()).getParent());
+                        } catch (%13$s | IllegalArgumentException e) {
+                            return %6$s.empty();
+                        }
+                    }
                 }
                 """.formatted(
                         entry.name(),
@@ -144,6 +161,10 @@ final class ResourcesStep implements Step {
                         scope.name(Optional.class),
                         scope.name(InputStream.class),
                         scope.name(Set.class),
-                        icons);
+                        icons,
+                        scope.name(Path.class),
+                        scope.name(URL.class),
+                        Java.literal(simpleName + ".class"),
+                        scope.name(URISyntaxException.class));
     }
 }

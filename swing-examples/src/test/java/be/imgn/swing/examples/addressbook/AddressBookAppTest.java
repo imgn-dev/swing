@@ -35,7 +35,7 @@ class AddressBookAppTest {
             assertThat(app.title()).isEqualTo("Simple Address Book Application");
             assertThat(app.components(JMenu.class))
                     .extracting(JMenu::getText)
-                    .containsExactly("File", "Edit", "Contacts", "Tasks Tests");
+                    .containsExactly("File", "Edit", "Contacts", "Language", "Tasks Tests");
             assertThat(app.components(JMenuItem.class))
                     .filteredOn(item -> !(item instanceof JMenu))
                     .extracting(JMenuItem::getText)
@@ -365,7 +365,7 @@ class AddressBookAppTest {
             assertThat(app.title()).isEqualTo("Simple application de gestion d'adresses");
             assertThat(app.components(JMenu.class))
                     .extracting(JMenu::getText)
-                    .containsExactly("Fichier", "Édition", "Contacts", "Tests de tâches");
+                    .containsExactly("Fichier", "Édition", "Contacts", "Langage", "Tests de tâches");
             assertThat(app.application().table.getColumnName(0)).isEqualTo("Prénom");
             assertThat(app.component(JLabel.class, "Photo du contact").getText())
                     .isEqualTo("Aucun contact sélectionné");

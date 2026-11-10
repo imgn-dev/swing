@@ -1,0 +1,28 @@
+title = "Rafraîchir"
+
+[label]
+text = "Bonjour"
+enabled = false
+foreground = "#202124"
+
+[first]
+tab-title = "Premier"
+
+[later]
+tab-title = "Plus tard"
+
+[commands.greet]
+text = "&Saluer"
+shortcut = "shortcut S"
+tool-tip-text = "Salue"
+accessible-description = "Salue encore"
+
+[commands.clear]
+text = "&Effacer"
+shortcut = "shortcut C"
+
+[menus.things]
+text = "&Choses"
+
+[table]
+accessible-name = "Noms"

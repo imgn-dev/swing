@@ -1,5 +1,6 @@
 package be.imgn.swing.ui.internal;
 
+import be.imgn.swing.internal.HotReloading;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -14,7 +15,7 @@ import java.util.function.Consumer;
 public record UiMode(boolean strict, Consumer<? super IllegalStateException> failures) {
 
     /** The system property of development mode. */
-    public static final String DEV_PROPERTY = "be.imgn.swing.dev";
+    public static final String DEV_PROPERTY = HotReloading.DEV_PROPERTY;
 
     /**
      * Creates a mode.

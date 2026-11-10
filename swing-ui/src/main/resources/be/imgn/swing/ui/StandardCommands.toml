@@ -47,3 +47,10 @@ shortcut = "shortcut Z"
 [commands.redo]
 text = "&Redo"
 shortcut = "shortcut Y"
+
+[commands.keymap]
+text = "&Keyboard Shortcuts…"
+
+[commands.commandPalette]
+text = "Command Pal&ette…"
+shortcut = "shortcut shift P"

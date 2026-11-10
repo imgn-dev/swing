@@ -29,6 +29,8 @@ import javax.lang.model.element.TypeElement;
 final class SettingsStep implements Step {
 
     private static final Pattern ID = Pattern.compile("[a-z0-9]+(-[a-z0-9]+)*");
+    // The ids under which the framework saves its own records, the display locale and the keymap.
+    private static final Set<String> RESERVED_IDS = Set.of("locale", "keymap");
 
     private final ProcessingContext context;
     // The ids of the compilation, across its rounds, with the record that claimed each.
@@ -71,6 +73,14 @@ final class SettingsStep implements Step {
                     .attribute("value")
                     .error("The settings id " + Java.literal(id) + " is not lower-case kebab case: one or more groups"
                             + " of a-z and 0-9, separated by single -");
+            valid = false;
+        } else if (RESERVED_IDS.contains(id)) {
+            context.diagnostics()
+                    .on(type)
+                    .annotation(Names.SETTINGS)
+                    .attribute("value")
+                    .error("The settings id " + Java.literal(id) + " belongs to the framework, which saves the display"
+                            + " locale and the keymap under the ids locale and keymap");
             valid = false;
         } else {
             String name = type.getQualifiedName().toString();

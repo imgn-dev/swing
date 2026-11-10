@@ -8,8 +8,8 @@ import be.imgn.swing.ui.ViewScoped;
 import javax.swing.JMenuBar;
 
 /**
- * The menu bar of {@link AddressBookApp}, as in Guts' demo: the file, edit, contacts and task test menus. Its menus'
- * texts are in the application's resources, which give {@link AddressBookAppMenus}.
+ * The menu bar of {@link AddressBookApp}, as in Guts' demo: the file, edit, contacts, language and task test menus. Its
+ * menus' texts are in the application's resources, which give {@link AddressBookAppMenus}.
  */
 @ViewScoped
 public final class AddressBookMenuBar {
@@ -57,6 +57,7 @@ public final class AddressBookMenuBar {
                                 contacts.modifyContactWithWizard(),
                                 MenuEntry.SEPARATOR,
                                 contacts.deleteContact()),
+                menus.language().with(general.french(), general.english()),
                 menus.taskTests()
                         .with(
                                 tasks.oneTaskNoBlocker(),

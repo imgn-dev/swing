@@ -5,6 +5,7 @@ import be.imgn.swing.Application;
 import be.imgn.swing.Property;
 import be.imgn.swing.SettingsStore;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
@@ -34,9 +35,15 @@ public final class LocalStorageExample1 implements SingleFrame {
     private static final int BOUND = 10_000;
     private static final int BORDER = 4;
 
-    private final JTextField key = new JTextField(" Key ", COLUMNS);
-    private final JTextField value = new JTextField(" Value ", COLUMNS);
-    private final JList<String> mapList = new JList<>();
+    @Exposed
+    final JList<String> mapList = new JList<>();
+
+    @Exposed
+    final JTextField key = new JTextField(" Key ", COLUMNS);
+
+    @Exposed
+    final JTextField value = new JTextField(" Value ", COLUMNS);
+
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
     private final RandomGenerator random = RandomGenerator.getDefault();
     private final Property<Entries> entries;

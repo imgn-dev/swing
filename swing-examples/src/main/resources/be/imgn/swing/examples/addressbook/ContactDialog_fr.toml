@@ -41,3 +41,9 @@ text = "Téléphone"
 
 [commands.ok]
 text = "&Enregistrer"
+
+[home.street2Field]
+accessible-name = "Rue, deuxième ligne"
+
+[office.street2Field]
+accessible-name = "Rue, deuxième ligne"

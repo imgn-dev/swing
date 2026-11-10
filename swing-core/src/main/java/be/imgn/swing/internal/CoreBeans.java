@@ -6,9 +6,12 @@ import be.imgn.gaia.core.time.Ticker;
 import be.imgn.inject.Default;
 import be.imgn.inject.Provides;
 import be.imgn.inject.Singleton;
+import be.imgn.swing.Appearance;
+import be.imgn.swing.Appearances;
 import be.imgn.swing.ApplicationInfo;
 import be.imgn.swing.Exit;
 import be.imgn.swing.FailureHandler;
+import be.imgn.swing.Property;
 import be.imgn.swing.UiExecutor;
 import java.lang.System.Logger.Level;
 import java.time.InstantSource;
@@ -50,6 +53,22 @@ final class CoreBeans {
     @Singleton
     static Exit exit() {
         return System::exit;
+    }
+
+    @Provides
+    @Default
+    @Singleton
+    static Refresher refresher() {
+        return () -> {};
+    }
+
+    // Always light: the system look and feel's; swing-flatlaf provides one that follows the system.
+    @Provides
+    @Default
+    @Singleton
+    static Appearances appearances() {
+        Property<Appearance> light = Property.of(Appearance.LIGHT);
+        return () -> light;
     }
 
     @Provides

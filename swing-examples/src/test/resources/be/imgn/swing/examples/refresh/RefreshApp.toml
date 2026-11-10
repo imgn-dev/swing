@@ -1,0 +1,28 @@
+title = "Refresh"
+
+[label]
+text = "Hello"
+enabled = false
+foreground = "#202124"
+
+[first]
+tab-title = "First"
+
+[later]
+tab-title = "Later"
+
+[commands.greet]
+text = "&Greet"
+shortcut = "shortcut G"
+tool-tip-text = "Greets"
+accessible-description = "Greets once more"
+
+[commands.clear]
+text = "C&lear"
+shortcut = "shortcut C"
+
+[menus.things]
+text = "&Things"
+
+[table]
+accessible-name = "Names"

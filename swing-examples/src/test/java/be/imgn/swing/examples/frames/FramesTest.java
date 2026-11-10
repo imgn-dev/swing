@@ -443,6 +443,10 @@ class FramesTest {
         void finish(AppTester<?> app) throws InterruptedException {
             steps.add(FINISH);
             awaitUntil(app, () -> done.getCount() == 0);
+            // The task's end unblocks the application on the EDT right after the success hook, in the same event, and
+            // posts the taskbar's update then: the first round may run before that event ends, the second after it.
+            app.run(() -> {});
+            app.run(() -> {});
         }
     }
 }

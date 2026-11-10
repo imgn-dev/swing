@@ -5,6 +5,9 @@ icon = "icons/main.png"
 [menus.contacts]
 text = "&Contacts"
 
+[menus.language]
+text = "&Language"
+
 [menus.task-tests]
 text = "&Tasks Tests"
 
@@ -19,3 +22,6 @@ text = "Birth Date"
 
 [picture]
 accessible-name = "Contact picture"
+
+[table]
+accessible-name = "Contacts"

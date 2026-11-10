@@ -100,8 +100,10 @@ public final class AboutDialog implements DialogView<Void> {
         return link;
     }
 
-    private static JTextField field(String website) {
+    // Named, as a field that holds an address needs, for the accessibility checks and screen readers.
+    private JTextField field(String website) {
         JTextField field = new JTextField(website);
+        field.getAccessibleContext().setAccessibleName(texts.website());
         field.setEditable(false);
         field.setBorder(BorderFactory.createEmptyBorder());
         // A box layout stretches a text field to its maximum size, which is unbounded.

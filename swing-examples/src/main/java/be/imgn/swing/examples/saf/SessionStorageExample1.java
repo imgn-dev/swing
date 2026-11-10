@@ -5,6 +5,7 @@ import be.imgn.swing.Application;
 import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
+import be.imgn.swing.ui.Ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.List;
@@ -95,10 +96,12 @@ public final class SessionStorageExample1 implements SingleFrame {
     @Exposed
     final JScrollPane allColors = new JScrollPane(all);
 
+    private final Ui ui;
     private final ExampleMessages messages;
 
     @Inject
-    SessionStorageExample1(ExampleMessages messages) {
+    SessionStorageExample1(Ui ui, ExampleMessages messages) {
+        this.ui = ui;
         this.messages = messages;
     }
 
@@ -113,9 +116,8 @@ public final class SessionStorageExample1 implements SingleFrame {
 
     @Override
     public JComponent content() {
-        // The titles are the tab-title properties of the fields, applied once the tabs exist.
         for (JComponent tab : List.of(red, blue, green, yellow, orange, pink, allColors)) {
-            colors.addTab("", tab);
+            ui.addTab(colors, tab);
         }
         String[] titles = {messages.nameHeader(), messages.redHeader(), messages.greenHeader(), messages.blueHeader()};
         for (int index = 0; index < titles.length; index++) {

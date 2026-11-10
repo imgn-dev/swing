@@ -25,7 +25,7 @@ Applets and other legacy deployment models are out of scope.
 2. **Explicit, with generated boilerplate.** Nothing is scanned at runtime and no listener is held through a weak reference that may silently disappear. The wiring is ordinary generated code that you can read in `target/generated-sources`.
 3. **No reflection.** One annotation processor generates what the older frameworks discovered by reflection. The runtime only looks up generated code by `Class`. The only runtime discovery is `ServiceLoader`.
 4. **Structure in code; text and tuning in TOML.** Text, icons, shortcuts, mnemonics, accessible names, colors and timings go in resources, where translators and designers can edit them. Layout and component trees stay in Java, where refactoring tools work.
-5. **A core without Swing, for what is useful outside a UI.** Lifecycle, scopes, observable state, tasks, events, settings, resources and messages never touch Swing. A domain module shared with a command-line tool, a server or batch jobs can use them without requiring `java.desktop`, and the module graph guarantees that it stays free of Swing. Commands are a UI concept, with text, icons, shortcuts and menus, so they belong to the UI layer.
+5. **A core without Swing, for what is useful outside a UI.** Lifecycle, scopes, observable state, tasks, events, settings, resources and messages never touch Swing. A domain module shared with a command-line tool, a server or batch jobs can use them without requiring `java.desktop`, and the module graph guarantees that it stays free of Swing. Commands are a UI concept, with text, icons, shortcuts and menus, so they belong to the UI layer. The appearance, light or dark, is the one UI concept in core, since core's resources have dark variants; it holds no Swing type.
 6. **Everything has an owner.** Every subscription, listener, binding and task belongs to a scope (application, window or view). Closing the scope releases them.
 7. **The module path comes first.** The framework works on the module path as well as the classpath, and is packaged with `jlink` / `jpackage`.
 
@@ -37,11 +37,11 @@ The names below are working names.
 
 | Module | Contents | Depends on |
 |---|---|---|
-| `swing-core` | Lifecycle, scopes, observables, tasks, events, settings, resources, messages | inject, toml, gaia-core |
+| `swing-core` | Lifecycle, scopes, observables, tasks, events, settings, resources, messages, locales, appearance | inject, toml, gaia-core |
 | `swing-processor` | Annotation processor (see [What the processor generates](#what-the-processor-generates)) | gaia-processing, toml |
-| `swing-ui` | Views, windows, commands, resource injection into components, binding, input blockers, dialogs | core |
+| `swing-ui` | Views, windows, commands, resource injection into components, binding, input blockers, dialogs, command palette, keymap, inspector | core |
 | `swing-desktop` | Single instance, OS integration, documents, recent files | ui |
-| `swing-flatlaf` | FlatLaf themes, dark mode, SVG icons, theme tokens | ui |
+| `swing-flatlaf` | FlatLaf themes, following the system's appearance, SVG icons, theme tokens | ui |
 | `swing-testing` | Test harness | core, ui, gaia testing libraries, gaia-memfs |
 | `swing-wizard` (optional) | Multi-step dialogs | ui |
 | `swing-docking` (optional) | DockingFrames integration | ui |
@@ -87,14 +87,20 @@ These features need nothing from Swing, so a module that doesn't require `java.d
   - So does a key that is missing in any locale file.
 - **Typed resource keys.** Code never looks up resources by string: commands are reached through their generated `<Class>Commands` class, and icons through the resources of commands and components.
 - **Resource injection into components.**
-  - Per-class TOML files (`NotesView.toml`, `NotesView_fr.toml`, `NotesView.macos.toml`) are merged along the class hierarchy.
+  - Per-class TOML files (`NotesView.toml`, `NotesView_fr.toml`, `NotesView.macos.toml`) are merged along the class hierarchy, with a dark variant (`NotesView.dark.toml`) read last while the appearance is dark.
   - Keys are kebab-case properties. Generated accessors write them to the components the class holds.
   - Values use native TOML types where they fit. Strings carry colors, fonts, shortcuts and `${references}`.
-- **Live locale switching.** Changing the locale re-injects every open window and refreshes every command and message.
-- **Hot reload in development.** The same mechanism reloads a `.toml` file when it changes on disk, so you can edit a label, save, and see it in the running application.
+- **Live locale switching.**
+  - Changing the locale re-applies the resources of every open window, but `enabled` and `visible`, which the view's code owns once it is built, and refreshes every command, menu and message.
+  - Texts that code computes from messages follow through `Ui.render` and header suppliers; texts that code holds as strings keep their locale.
+  - The user's choice is saved, and messages in another locale than the display locale are available through `Locales.messages`.
+- **Hot reload in development.**
+  - The same mechanism reloads a `.toml` file when the build copies it to the class output, which is polled, so you can edit a label, build, and see it in the running application.
+  - A reloaded file is not checked as the build checks it, and a value that can't be applied is a warning: an exception to the first principle, in development mode only, which the next build makes good.
 - **Accessibility.**
   - Accessible names and descriptions come from resources.
   - Duplicate mnemonics are checked when menus are built from their descriptions, and in dialogs by the test harness: the build can't see menus built in code.
+  - Accessible names are checked when views are built, in development mode and tests only, since the build can't see component trees.
 
 ### UI layer (Swing)
 
@@ -118,7 +124,7 @@ These features need nothing from Swing, so a module that doesn't require `java.d
   - Commands are declared with `@Command` on methods and collected by the processor.
   - The id defaults to the method name: `void increment()` declares the command `increment`.
   - The id is also the command's TOML key, spelled exactly the same: `selectAll` is configured under `[commands.selectAll]`, and an explicit `@Command(id = "select-all")` under `[commands.select-all]`.
-  - Menus, toolbars, buttons, popups, the command palette and the keymap all read from one command registry.
+  - Each view has a command registry. Menus, toolbars, buttons and popups read it; the command palette and the keymap dialog read those of a window's views.
   - Code never refers to a command by string. It goes through the generated `<Class>Commands` class (see [Commands in the UI](#ui-layer-swing)).
   - Undo/redo plugs into commands.
 - **Commands in the UI.**
@@ -146,6 +152,10 @@ These features need nothing from Swing, so a module that doesn't require `java.d
     | `cut()`, `copy()`, `paste()`, `selectAll()` | Act on the focused component, and are enabled only when it supports them |
     | `undo()`, `redo()` | Act on the current undo stack |
     | `closeWindow()` | Asks the window's close vetoes, then closes it |
+    | `commandPalette()` | Shows the command palette (`shortcut shift P`) |
+    | `keymap()` | Shows the keymap dialog |
+
+  - `StandardCommands` also gives `openWindows()`, a menu entry that lists the open frames, for a Window menu.
 
   - Their text and shortcuts come from the framework's own resources, per platform and locale. An application overrides them in its own TOML (`[commands.exit]`), and the build checks those overrides like any other.
 - **Binding.**
@@ -153,9 +163,14 @@ These features need nothing from Swing, so a module that doesn't require `java.d
   - Validation shows feedback on the field.
   - A "dirty" state is computed from the bindings.
 - **Look and feel.**
-  - FlatLaf by default, with dark mode that follows the operating system.
+  - FlatLaf by default, with dark mode that follows the operating system's setting while running.
   - SVG icons that stay sharp on HiDPI screens.
-  - Theme tokens in TOML.
+  - Theme tokens are FlatLaf's UI defaults and variables, in a `[flatlaf]` table of the application's resources; the build checks the table's form but not its keys: an exception to the first principle that FlatLaf's open set of keys and variables forces.
+  - A component's colors per appearance are a dark variant of its resources, `NotesView.dark.toml`.
+- **Command palette and keymap.**
+  - The palette searches the commands of the active window's views, by text, and runs the chosen one with the `Palette` trigger. Its shortcut, Ctrl+Shift+P, is `shortcut shift P`: ⌘⇧P on macOS.
+  - The keymap holds the user's shortcuts apart from the registries, since they outlive every view, knows a command by its owner and id, and is saved. Its dialog lists the commands of the active window's views.
+  - Both list the commands the views have created: a standard command that no view asked for is in neither.
 - **Dialogs.** Messages and confirmations, OK/Cancel/Apply, an error dialog with details and a copy-to-clipboard button, and an About dialog filled from the application's metadata.
 
 ### Desktop integration
@@ -171,7 +186,6 @@ These features need nothing from Swing, so a module that doesn't require `java.d
   - A recent-files list.
   - The window title follows the document.
   - An undo stack per document.
-- **Command palette and keymap.** Every command is registered with its text and shortcut. That makes a searchable palette (Ctrl+Shift+P) and a remappable, saved keymap cheap to build.
 
 ### Developer experience
 
@@ -179,7 +193,7 @@ These features need nothing from Swing, so a module that doesn't require `java.d
   - Fake platform and clock, a memory file system, and an EDT-violation checker.
   - Tests drive the UI by running commands rather than by robot clicks.
   - Every menu bar, menu and dialog a test builds is checked for duplicate mnemonics.
-- **Inspector overlay.** In development mode, shows each component's name, resource key and scope.
+- **Inspector overlay.** In development mode, shows each component's `@Exposed` field path, which is also its table in the view's resources, the identity of the command that created it and its table, `[commands.save]`, and the view and window that hold it.
 - **Packaging.**
   - Guidance for `jlink` / `jpackage` installers.
   - Since nothing uses reflection, a GraalVM native image is realistic. Swing support in native images varies by platform, so it must be tested on each target before it is promised.
@@ -383,8 +397,9 @@ confirmExit = "Voulez-vous vraiment quitter ?"
 | `<Class>Commands` classes, extending `StandardCommands`, with one `BoundCommand` method per command: id, handler, enabled/selected observables, blocking scope, whether the handler returns a `Task` | `@Command` methods | SwingAppFramework's actions found by method name; Guts' `GutsAction` field scanning |
 | Subscription registrars, with exact generic event types | `@Subscribe` methods | Guts' `@Consumes` discovery through `getMethods()` |
 | Message implementations, checked against every locale file | `@Messages` interfaces + TOML | `TextMap`, `MessageFormat` lookups by string |
+| `$X$$MessagesDescriptor` services | `@Messages` interfaces | Looking up messages by locale at runtime |
 | Property accessors for the components a class holds and for common Swing types | Fields, plus a pre-generated list of Swing types | commons-beanutils, Guts' `UntypedProperty` |
-| One resource opener per package | Packages that contain resources | Reading other modules' resources, which the module path forbids |
+| One resource opener per package, which also gives the package's directory in the class output, for hot reload | Packages that contain resources | Reading other modules' resources, which the module path forbids |
 | Build-time checks of TOML resources: syntax with line and column, keys, value types, command ids (see below) | TOML files | Runtime warnings |
 
 ### Checks of command resources
@@ -456,6 +471,9 @@ Mnemonic collisions are not checked by the build: menus are built in code, and t
 - Hot reload of resources.
 - The inspector overlay.
 - Accessible-name checks.
+- Live locale switching, with the locale's component orientation and Swing's default locale.
+- Following the system's appearance, and theme tokens.
+- A Window menu, toolbars that don't float, and tab titles.
 
 ### Milestone 5: optional modules
 

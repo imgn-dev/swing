@@ -6,3 +6,6 @@ icon = "icons/notes.png"
 [commands.save]
 text = "&Save"
 shortcut = "shortcut S"
+
+[editor]
+accessible-name = "Note text"

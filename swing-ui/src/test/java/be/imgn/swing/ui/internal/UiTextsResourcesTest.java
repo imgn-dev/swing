@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 class UiTextsResourcesTest {
 
     private static final List<String> FILES = List.of("UiTexts.toml", "UiTexts_fr.toml");
-    private static final List<String> PATTERNS = List.of("version", "by", "replace", "saveChanges");
+    private static final List<String> PATTERNS = List.of("version", "by", "replace", "saveChanges", "alsoUsedBy");
 
     @Test
     void everyLocaleHasEveryKey() throws IOException {
@@ -73,6 +73,19 @@ class UiTextsResourcesTest {
         try (InputStream in = UiTextsResourcesTest.class.getResourceAsStream("/be/imgn/swing/ui/internal/" + file)) {
             assertThat(in).as(file).isNotNull();
             return Toml.parse(ByteSource.wrap(in.readAllBytes())).root();
+        }
+    }
+
+    @Test
+    void theKeymapDialogsLabelsAndButtonsHaveDistinctMnemonics() throws IOException {
+        for (String file : FILES) {
+            TomlTable texts = read(file);
+            List<Character> mnemonics = Stream.of("filter", "shortcutLabel", "remove", "reset", "resetAll")
+                    .map(key -> Mnemonics.parse(((TomlString) texts.get(key).orElseThrow()).value()))
+                    .map(Mnemonics::character)
+                    .toList();
+
+            assertThat(mnemonics).as(file).doesNotHaveDuplicates();
         }
     }
 }

@@ -8,9 +8,17 @@ import java.awt.Color;
 import java.awt.Font;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JRootPane;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.border.TitledBorder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -124,6 +132,60 @@ class SingleFrameExamplesTest {
             try (AppTester<?> app = AppTester.start(example)) {
                 assertThat(app.info().name()).as(example.getName()).isEqualTo(example.getSimpleName());
             }
+        }
+    }
+
+    @Test
+    void namesTheButtonsOfAToolbarThatShowOnlyAnIconAfterTheirCommands() {
+        try (AppTester<SingleFrameExample5> app = AppTester.start(SingleFrameExample5.class)) {
+            List<AbstractButton> iconOnly =
+                    app.call(() -> Arrays.stream(app.component(JToolBar.class).getComponents())
+                            .filter(AbstractButton.class::isInstance)
+                            .map(AbstractButton.class::cast)
+                            .filter(AbstractButton::getHideActionText)
+                            .toList());
+
+            assertThat(iconOnly).isNotEmpty();
+            for (AbstractButton button : iconOnly) {
+                assertThat(app.call(() -> button.getAccessibleContext().getAccessibleName()))
+                        .isEqualTo(button.getAction().getValue(Action.NAME));
+            }
+            assertThat(app.call(() -> app.component(JToolBar.class).isFloatable()))
+                    .isFalse();
+        }
+    }
+
+    @Test
+    void hasToolbarsThatDontFloat() {
+        try (AppTester<SingleFrameExample4> app = AppTester.start(SingleFrameExample4.class)) {
+            assertThat(app.call(() -> app.component(JToolBar.class).isFloatable()))
+                    .isFalse();
+        }
+        try (AppTester<BlockingExample1> app = AppTester.start(BlockingExample1.class)) {
+            assertThat(app.call(() -> app.component(JToolBar.class).isFloatable()))
+                    .isFalse();
+        }
+    }
+
+    @Test
+    void keepsItsOwnShortcutOverThePalettes() {
+        try (AppTester<BlockingExample1> app = AppTester.start(BlockingExample1.class)) {
+            KeyStroke ctrlShiftP = KeyStroke.getKeyStroke("ctrl shift P");
+
+            assertThat(app.call(() -> app.commands(BlockingExample1Commands.class)
+                            .blockApplication()
+                            .asAction()
+                            .getValue(Action.ACCELERATOR_KEY)))
+                    .isEqualTo(ctrlShiftP);
+            assertThat(app.call(() -> Optional.ofNullable(app.commands(StandardCommands.class)
+                            .commandPalette()
+                            .asAction()
+                            .getValue(Action.ACCELERATOR_KEY))))
+                    .isEmpty();
+            assertThat(app.call(() -> app.component(JRootPane.class)
+                            .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                            .get(ctrlShiftP)))
+                    .isEqualTo("be.imgn.swing.command:be.imgn.swing.examples.saf.BlockingExample1#blockApplication");
         }
     }
 }

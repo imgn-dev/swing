@@ -12,10 +12,13 @@ import be.imgn.swing.internal.NoTask;
 import be.imgn.swing.internal.RunningTask;
 import be.imgn.swing.ui.internal.EdtDelivery;
 import be.imgn.swing.ui.internal.PeriodicActions;
+import be.imgn.swing.ui.internal.RefreshPhase;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,8 +30,12 @@ import javax.swing.JList;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 /**
  * What a view needs to build its components. Every method is called on the EDT, and every subscription it makes belongs
@@ -187,6 +194,7 @@ public final class Ui {
      */
     public <E> void bind(JTable table, ObservableList<E> rows, List<Column<E, ?>> columns) {
         ListBindings.bind(view.scope(), checked(table, rows), rows, List.copyOf(columns), null, null);
+        followHeaders(table);
     }
 
     /**
@@ -207,6 +215,7 @@ public final class Ui {
             JTable table, ObservableList<E> rows, List<Column<E, ?>> columns, Property<Optional<E>> selection) {
         Objects.requireNonNull(selection, "selection");
         ListBindings.bind(view.scope(), checked(table, rows), rows, List.copyOf(columns), selection, null);
+        followHeaders(table);
     }
 
     /**
@@ -233,6 +242,28 @@ public final class Ui {
         Objects.requireNonNull(selection, "selection");
         Objects.requireNonNull(key, "key");
         ListBindings.bind(view.scope(), checked(table, rows), rows, List.copyOf(columns), selection, key);
+        followHeaders(table);
+    }
+
+    /**
+     * Runs an update that computes texts from messages or resources: at once, then after every change of one of the
+     * sources, on the EDT, as the targets of {@link #bind(Consumer, Observable)} are, and again at every refresh of the
+     * open windows, after a change of the display locale, of the appearance, or a reload of the resources. Its
+     * subscriptions belong to the view's scope. Several changes before the update runs cause one run.
+     *
+     * <pre>{@code ui.render(() -> status.setText(messages.words(words.get())), words);}</pre>
+     *
+     * @param render the update, run on the EDT
+     * @param sources the observables whose changes run it again
+     * @throws NullPointerException if an argument or a source is {@code null}
+     */
+    public void render(Runnable render, Observable<?>... sources) {
+        Objects.requireNonNull(render, "render");
+        List<Observable<?>> observed = List.of(sources);
+        render.run();
+        Runnable update = EdtDelivery.updater(view.scope(), render, EdtDelivery.Order.VIEW);
+        observed.forEach(source -> source.subscribe(view.scope(), ignored -> update.run()));
+        view.onRefresh(RefreshPhase.CODE, view.scope(), render);
     }
 
     private static <E> JList<E> checked(JList<E> list, ObservableList<E> items, Function<? super E, String> text) {
@@ -246,6 +277,47 @@ public final class Ui {
         Objects.requireNonNull(table, "table");
         Objects.requireNonNull(rows, "rows");
         return table;
+    }
+
+    // The headers of the columns, given as suppliers, are read again at every refresh, whatever order the user gave the
+    // columns.
+    private void followHeaders(JTable table) {
+        view.onRefresh(RefreshPhase.CODE, view.scope(), () -> {
+            TableModel model = table.getModel();
+            for (TableColumn column : Collections.list(table.getColumnModel().getColumns())) {
+                column.setHeaderValue(model.getColumnName(column.getModelIndex()));
+            }
+            JTableHeader header = table.getTableHeader();
+            if (header != null) {
+                header.repaint();
+            }
+        });
+    }
+
+    /**
+     * Adds a component as the last tab of a tabbed pane, and applies its {@code tab-title} at once, from the resources
+     * of the view's {@code @Exposed} field that holds it, nested ones included: a tab needs no empty title, and gets
+     * its title whenever it is added, during the build or later. A refresh applies it again.
+     *
+     * @param tabs the tabbed pane
+     * @param component the component, held by an {@code @Exposed} component field of the view
+     * @throws NullPointerException if an argument is {@code null}
+     * @throws IllegalArgumentException if no {@code @Exposed} component field of the view holds the component
+     * @throws IllegalStateException if the view is not built yet, as in its constructor
+     */
+    public void addTab(JTabbedPane tabs, Component component) {
+        Objects.requireNonNull(tabs, "tabs");
+        Objects.requireNonNull(component, "component");
+        if (view.view().isEmpty()) {
+            throw new IllegalStateException(
+                    "The view " + view.type().getName() + " is not built yet: add its tabs in content() or later");
+        }
+        ViewBuilder builder = view.injector().getInstance(ViewBuilder.class);
+        String path = builder.fieldOf(view, component)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No @Exposed component field of " + view.type().getName() + " holds the "
+                                + component.getClass().getName()));
+        tabs.addTab(builder.tabTitle(view, path).orElse(""), component);
     }
 
     /**

@@ -3,7 +3,10 @@ package be.imgn.swing.ui.internal;
 import be.imgn.inject.Inject;
 import be.imgn.inject.Injector;
 import be.imgn.inject.Singleton;
+import be.imgn.swing.Observable;
+import be.imgn.swing.Property;
 import be.imgn.swing.Scope;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -14,6 +17,13 @@ import org.jspecify.annotations.Nullable;
 /** The windows and views the framework opened, from the main window to the innermost dialog. Used on the EDT. */
 @Singleton
 public final class WindowRegistry {
+
+    /**
+     * The client property of a window's root pane that {@code Window.setTitle} sets too, so that its title is followed.
+     */
+    public static final String TITLE_PROPERTY = "be.imgn.swing.title";
+
+    private final Property<List<OpenFrame>> openFrames = Property.of(List.of());
 
     private final InputBlocker blocker;
     private final List<WindowHost> windows = new ArrayList<>();
@@ -32,15 +42,42 @@ public final class WindowRegistry {
      *
      * @param window the window's host
      */
-    public synchronized void addWindow(WindowHost window) {
-        windows.add(window);
+    public void addWindow(WindowHost window) {
+        synchronized (this) {
+            windows.add(window);
+        }
         window.scope().onClose(() -> removeWindow(window));
         blocker.windowOpened(window.window().rootPane());
+        // The windows' titles change through Window.setTitle, which also sets this property of the root pane.
+        PropertyChangeListener titled = event -> openFramesChanged();
+        window.window().rootPane().addPropertyChangeListener(TITLE_PROPERTY, titled);
+        window.scope().onClose(() -> window.window().rootPane().removePropertyChangeListener(TITLE_PROPERTY, titled));
+        openFramesChanged();
     }
 
-    private synchronized void removeWindow(WindowHost window) {
-        windows.remove(window);
-        focusOrder.remove(window);
+    private void removeWindow(WindowHost window) {
+        synchronized (this) {
+            windows.remove(window);
+            focusOrder.remove(window);
+        }
+        openFramesChanged();
+    }
+
+    /**
+     * Returns the open frames, in opening order, with their titles, which follow the frames that open and close and the
+     * titles set through {@code Window.setTitle}.
+     *
+     * @return the observable frames
+     */
+    public Observable<List<OpenFrame>> openFrames() {
+        return openFrames;
+    }
+
+    // Outside the lock, since the listeners rebuild menus.
+    private void openFramesChanged() {
+        openFrames.set(frames().stream()
+                .map(frame -> new OpenFrame(frame, frame.window().title()))
+                .toList());
     }
 
     /**
@@ -48,15 +85,21 @@ public final class WindowRegistry {
      *
      * @param view the view's host
      */
-    public synchronized void addView(ViewHost view) {
-        viewsByInjector.put(view.injector(), view);
-        viewsByScope.put(view.scope(), view);
+    public void addView(ViewHost view) {
+        synchronized (this) {
+            viewsByInjector.put(view.injector(), view);
+            viewsByScope.put(view.scope(), view);
+        }
         view.scope().onClose(() -> removeView(view));
+        openFramesChanged();
     }
 
-    private synchronized void removeView(ViewHost view) {
-        viewsByInjector.remove(view.injector());
-        viewsByScope.remove(view.scope());
+    private void removeView(ViewHost view) {
+        synchronized (this) {
+            viewsByInjector.remove(view.injector());
+            viewsByScope.remove(view.scope());
+        }
+        openFramesChanged();
     }
 
     /**
@@ -151,4 +194,12 @@ public final class WindowRegistry {
                 .filter(window -> window.window().rootPane().equals(rootPane))
                 .findFirst();
     }
+
+    /**
+     * An open frame, with its title.
+     *
+     * @param window the frame's host
+     * @param title its title
+     */
+    public record OpenFrame(WindowHost window, String title) {}
 }

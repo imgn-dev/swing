@@ -2,6 +2,7 @@ package be.imgn.swing.processor;
 
 import static be.imgn.gaia.processing.testing.CompilationAssert.assertThat;
 
+import javax.tools.StandardLocation;
 import org.junit.jupiter.api.Test;
 
 class MessagesStepTest {
@@ -37,10 +38,54 @@ class MessagesStepTest {
                 .contains("@Singleton")
                 .contains("@ExposeAs(CounterMessages.class)")
                 .contains("public final class $CounterMessages$$Messages implements CounterMessages")
-                .contains("$CounterMessages$$Messages(Resources resources, DisplayLocale locale)")
-                .contains("this.count = MessagePattern.of(messages, \"count\", List.of(\"count\"), locale.locale());")
-                .contains("public String count(int count) {\n        return this.count.format(count);");
+                .contains("@Inject\n    $CounterMessages$$Messages(Resources resources) {")
+                .contains("this.source = MessageSource.following(resources, CounterMessages.class, Patterns::new);")
+                .contains("$CounterMessages$$Messages(Resources resources, Locale locale) {")
+                .contains("this.source = MessageSource.fixed(resources, CounterMessages.class, locale, Patterns::new);")
+                .contains("this.count = MessagePattern.of(messages, \"count\", List.of(\"count\"), locale);")
+                .contains("public String count(int count) {\n        return this.source.get().count.format(count);");
+        assertThat(compilation)
+                .generatedSourceFile("p.$CounterMessages$$MessagesDescriptor")
+                .contains("public final class $CounterMessages$$MessagesDescriptor implements MessagesDescriptor")
+                .contains("return CounterMessages.class;")
+                .contains("return new $CounterMessages$$Messages(resources, locale);");
+        assertThat(compilation)
+                .generatedFile(StandardLocation.CLASS_OUTPUT, "META-INF/services/be.imgn.swing.spi.MessagesDescriptor")
+                .contains("p.$CounterMessages$$MessagesDescriptor");
         assertThat(compilation).generatedSourceFile("p.$$Resources").contains("return \"p\";");
+    }
+
+    @Test
+    void compilesParametersNamedLikeTheFieldsOfTheImplementation() {
+        var compilation = Sources.create()
+                .source("p.CopyMessages", """
+                        package p;
+
+                        @be.imgn.swing.Messages
+                        public interface CopyMessages {
+                            String copied(String source);
+
+                            String messages(String locale, int messages);
+                        }
+                        """)
+                .resource("p/CopyMessages.toml", """
+                        copied = "Copied {source}."
+                        messages = "{messages} in {locale}"
+                        """)
+                .compile();
+
+        assertThat(compilation).succeeded().hadNoWarnings();
+    }
+
+    @Test
+    void rejectsADarkVariantOfMessages() {
+        var compilation = Sources.create()
+                .source("p.CounterMessages", MESSAGES)
+                .resource("p/CounterMessages.toml", "count = \"{count}\"\nconfirmExit = \"Exit?\"\n")
+                .resource("p/CounterMessages.dark.toml", "count = \"{count}!\"\n")
+                .compile();
+
+        assertThat(compilation).failed().hadErrorContaining("CounterMessages.dark.toml is a dark variant of messages");
     }
 
     @Test

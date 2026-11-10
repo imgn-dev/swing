@@ -8,13 +8,20 @@ import be.imgn.swing.internal.DisposalScope;
 import be.imgn.swing.internal.Hosts;
 import be.imgn.swing.internal.ResourceTables;
 import be.imgn.swing.internal.SubscriberRegistrar;
+import be.imgn.swing.ui.internal.AccessibilityCheck;
+import be.imgn.swing.ui.internal.ComponentInspector;
 import be.imgn.swing.ui.internal.DialogControl;
+import be.imgn.swing.ui.internal.InspectorOverlay;
+import be.imgn.swing.ui.internal.UiMode;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
 import be.imgn.swing.ui.internal.WindowHost;
 import be.imgn.swing.ui.spi.ComponentInjector;
 import be.imgn.swing.ui.spi.ComponentResources;
 import be.imgn.toml.TomlTable;
+import java.awt.Component;
+import java.awt.ComponentOrientation;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -57,6 +64,18 @@ final class ViewBuilder {
         hosts.register(injector, scope);
         WindowHost host = new WindowHost(window, injector, scope, opener, kind, stateKey, services.mode());
         services.registry().addWindow(host);
+        if (Boolean.getBoolean(UiMode.DEV_PROPERTY)) {
+            ComponentInspector inspector = injector.getInstance(ComponentInspector.class);
+            InspectorOverlay.install(
+                    window.rootPane(),
+                    host.shortcuts(),
+                    scope,
+                    component -> inspector
+                            .inspect(component)
+                            .map(ComponentInspector.Inspected::lines)
+                            .orElse(List.of(component.getClass().getName())),
+                    services.isMacOS());
+        }
         return host;
     }
 
@@ -79,6 +98,7 @@ final class ViewBuilder {
                 .build();
         hosts.register(injector, scope);
         ViewHost view = new ViewHost(type.isPresent() ? type.get() : Object.class, injector, scope, window, dialog);
+        variant.ifPresent(view::variant);
         services.registry().addView(view);
         // The instances built meanwhile join the bus when the build ends, as their commands are attached.
         Runnable subscribe = subscribers.hold();
@@ -96,12 +116,44 @@ final class ViewBuilder {
             ComponentResources resources = resources(view.type(), variant);
             inject(view.type(), instance, resources, false);
             place.accept(view);
+            window.window()
+                    .rootPane()
+                    .applyComponentOrientation(ComponentOrientation.getOrientation(
+                            services.resources().locale()));
             inject(view.type(), instance, resources, true);
             view.built();
+            // In development mode and tests only: a user can't act on a missing accessible name.
+            if (services.mode().strict()) {
+                AccessibilityCheck.check(
+                        window.window().rootPane(), services.supports().fields(view), view.type(), services.mode());
+            }
         } finally {
             subscribe.run();
         }
         return view;
+    }
+
+    // Applies the view's component resources again, at a refresh, but enabled and visible, which its code owns now.
+    void reinject(ViewHost view) {
+        Optional<Object> instance = view.view();
+        if (instance.isEmpty()) {
+            return;
+        }
+        Class<?> type = view.type();
+        ComponentResources resources = ComponentResources.refreshing(
+                table(type, view.variant()), path -> services.icons().load(type, path), !services.isMacOS(), type);
+        inject(type, instance.get(), resources, false);
+        inject(type, instance.get(), resources, true);
+    }
+
+    // The path of the @Exposed component field of a view that holds a component, nested ones included.
+    Optional<String> fieldOf(ViewHost view, Component component) {
+        return Optional.ofNullable(services.supports().fields(view).get(component));
+    }
+
+    // The tab-title of a view's component field.
+    Optional<String> tabTitle(ViewHost view, String path) {
+        return resources(view.type(), view.variant()).string(path, "tab-title");
     }
 
     private <V> void overrides(Class<V> type, Injector injector) {

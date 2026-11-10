@@ -1,6 +1,8 @@
 package be.imgn.swing.ui.spi;
 
 import be.imgn.swing.ui.CommandRegistry;
+import java.awt.Component;
+import java.util.function.BiConsumer;
 
 /**
  * Writes a view class's resources to the components its fields hold, and to the component fields of those components
@@ -41,4 +43,14 @@ public interface ComponentInjector<V> {
      * @param registry the view's command registry
      */
     void registerOverrides(CommandRegistry registry);
+
+    /**
+     * Gives each {@code @Exposed} component field of the view that holds a component, with its path, nested fields of
+     * component fields included, as {@code home.streetLabel}, enclosing paths first. The accessibility checks, the
+     * inspector and {@code Ui.addTab} name the components of a view this way.
+     *
+     * @param view the view
+     * @param component takes a field's path and the component it holds
+     */
+    void components(V view, BiConsumer<String, Component> component);
 }

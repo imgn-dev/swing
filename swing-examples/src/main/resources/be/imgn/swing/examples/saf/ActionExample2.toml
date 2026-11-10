@@ -7,5 +7,6 @@ text = "&Set Window Title"
 tool-tip-text = "Set the Window's title"
 
 [field]
+accessible-name = "Text"
 text = "<Enter the window title here>"
 font = "LucidaSans-PLAIN-32"

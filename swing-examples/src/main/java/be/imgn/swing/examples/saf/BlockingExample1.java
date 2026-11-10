@@ -84,10 +84,8 @@ public final class BlockingExample1 implements SingleFrame {
 
     @Override
     public JToolBar toolBar() {
-        JToolBar toolBar = ui.toolBar(
+        return ui.toolBar(
                 commands.blockAction(), commands.blockComponent(), commands.blockWindow(), commands.blockApplication());
-        toolBar.setFloatable(false);
-        return toolBar;
     }
 
     @Command(block = Block.COMMAND)

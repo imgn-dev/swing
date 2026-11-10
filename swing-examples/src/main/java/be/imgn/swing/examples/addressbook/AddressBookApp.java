@@ -27,6 +27,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The main window of the address book: the list of contacts, above the details of the selected one, beside its picture.
@@ -72,6 +73,8 @@ public final class AddressBookApp implements SingleFrame {
     private final EventBus bus;
     private final AddressBookMessages messages;
     private final Converter<Optional<LocalDate>> birthDate;
+    // The contact whose picture is shown, or null for none.
+    private @Nullable Contact pictured;
 
     @Inject
     AddressBookApp(
@@ -105,10 +108,10 @@ public final class AddressBookApp implements SingleFrame {
                 table,
                 service.contacts(),
                 List.of(
-                        Column.of(messages.firstNameHeader(), String.class, Contact::firstName),
-                        Column.of(messages.lastNameHeader(), String.class, Contact::lastName),
+                        Column.of(messages::firstNameHeader, String.class, Contact::firstName),
+                        Column.of(messages::lastNameHeader, String.class, Contact::lastName),
                         Column.of(
-                                messages.homeCityHeader(),
+                                messages::homeCityHeader,
                                 String.class,
                                 contact -> contact.home().city())),
                 selected,
@@ -118,7 +121,8 @@ public final class AddressBookApp implements SingleFrame {
         secondarySplit.setBottomComponent(detail());
         picture.setMinimumSize(new Dimension(IMAGE_SIZE, IMAGE_SIZE));
         picture.setPreferredSize(new Dimension(IMAGE_SIZE, IMAGE_SIZE));
-        picture.setText(messages.noContactSelected());
+        // Again at every refresh, so that the text follows the locale.
+        ui.render(this::showPictureText);
         mainSplit.setLeftComponent(secondarySplit);
         mainSplit.setRightComponent(picture);
         JPanel panel = new JPanel(new BorderLayout());
@@ -148,12 +152,17 @@ public final class AddressBookApp implements SingleFrame {
     @Subscribe
     void showPicture(ContactSelected event) {
         var contact = event.contact();
-        var icon = contact.flatMap(selection -> service.contactPicture(selection.id()));
-        picture.setIcon(icon.orElse(null));
-        if (contact.isEmpty()) {
+        pictured = contact.orElse(null);
+        picture.setIcon(contact.flatMap(selection -> service.contactPicture(selection.id()))
+                .orElse(null));
+        showPictureText();
+    }
+
+    private void showPictureText() {
+        if (pictured == null) {
             picture.setText(messages.noContactSelected());
         } else {
-            picture.setText(icon.isPresent() ? "" : messages.noPicture());
+            picture.setText(picture.getIcon() != null ? "" : messages.noPicture());
         }
     }
 

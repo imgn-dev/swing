@@ -22,6 +22,13 @@ public interface Window {
     void setTitle(String title);
 
     /**
+     * Returns the title of the window, as last set.
+     *
+     * @return the title, empty if none was set
+     */
+    String title();
+
+    /**
      * Sets the icon image of the window, which the platform shows in its title bar, task bar or window list.
      *
      * @param image the image

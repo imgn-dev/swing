@@ -11,7 +11,8 @@ final class Names {
     static final String MESSAGES = "be.imgn.swing.Messages";
     static final String RESOURCE_OPENER = "be.imgn.swing.ResourceOpener";
     static final String RESOURCES = "be.imgn.swing.Resources";
-    static final String DISPLAY_LOCALE = "be.imgn.swing.DisplayLocale";
+    static final String MESSAGE_SOURCE = "be.imgn.swing.spi.MessageSource";
+    static final String MESSAGES_DESCRIPTOR = "be.imgn.swing.spi.MessagesDescriptor";
     static final String MESSAGE_PATTERN = "be.imgn.swing.spi.MessagePattern";
     static final String OBSERVABLE = "be.imgn.swing.Observable";
     static final String PROPERTY = "be.imgn.swing.Property";
@@ -80,7 +81,9 @@ final class Names {
             "closeWindow",
             "ok",
             "cancel",
-            "apply");
+            "apply",
+            "keymap",
+            "commandPalette");
 
     /** The ids of the commands {@code DocumentCommands} gives a document view. */
     static final List<String> DOCUMENT_COMMANDS_IDS = List.of("newDocument", "open", "save", "saveAs");

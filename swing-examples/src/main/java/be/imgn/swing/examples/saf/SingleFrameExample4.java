@@ -3,6 +3,7 @@ package be.imgn.swing.examples.saf;
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.MenuEntry;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
@@ -24,7 +25,9 @@ import javax.swing.ScrollPaneConstants;
 @Application(vendor = "Sun", version = "1.0")
 public final class SingleFrameExample4 implements SingleFrame {
 
-    private final JTextPane textPane = new JTextPane();
+    @Exposed
+    final JTextPane textPane = new JTextPane();
+
     private final SingleFrameExample4Commands commands;
     private final Ui ui;
     private final ExampleMessages messages;
@@ -65,9 +68,7 @@ public final class SingleFrameExample4 implements SingleFrame {
 
     @Override
     public JToolBar toolBar() {
-        JToolBar toolBar = ui.toolBar(commands.cut(), commands.copy(), commands.paste());
-        toolBar.setFloatable(false);
-        return toolBar;
+        return ui.toolBar(commands.cut(), commands.copy(), commands.paste());
     }
 
     @Command

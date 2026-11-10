@@ -17,7 +17,9 @@ enum Standard {
     CLOSE_WINDOW("closeWindow"),
     OK("ok"),
     CANCEL("cancel"),
-    APPLY("apply");
+    APPLY("apply"),
+    KEYMAP("keymap"),
+    COMMAND_PALETTE("commandPalette");
 
     private final String id;
 

@@ -47,3 +47,9 @@ text = "< Pré&cédent"
 
 [commands.next]
 text = "&Suivant >"
+
+[home.street2Field]
+accessible-name = "Rue, deuxième ligne"
+
+[office.street2Field]
+accessible-name = "Rue, deuxième ligne"

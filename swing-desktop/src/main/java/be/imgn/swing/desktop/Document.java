@@ -19,6 +19,7 @@ import be.imgn.swing.ui.Frames;
 import be.imgn.swing.ui.SaveChoice;
 import be.imgn.swing.ui.UndoStack;
 import be.imgn.swing.ui.ViewScoped;
+import be.imgn.swing.ui.internal.RefreshPhase;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
 import java.io.File;
@@ -122,6 +123,7 @@ public final class Document {
         form.dirty().subscribe(scope, ignored -> showTitle());
         file.subscribe(scope, ignored -> showTitle());
         showTitle();
+        built.onRefresh(RefreshPhase.TITLE, scope, this::refreshed);
     }
 
     /**
@@ -156,8 +158,21 @@ public final class Document {
 
     private void untitled() {
         untitled = documents.claimUntitled();
-        name.set(untitled == 1 ? texts.untitled() : texts.untitled() + " " + untitled);
+        name.set(untitledName());
         file.set(Optional.empty());
+    }
+
+    private String untitledName() {
+        return untitled == 1 ? texts.untitled() : texts.untitled() + " " + untitled;
+    }
+
+    // At a refresh, an untitled document takes its name in the new locale, and the title follows the desktop's
+    // messages.
+    private void refreshed() {
+        if (untitled != 0) {
+            name.set(untitledName());
+        }
+        showTitle();
     }
 
     private void release() {

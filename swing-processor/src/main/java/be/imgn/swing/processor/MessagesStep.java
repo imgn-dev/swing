@@ -14,6 +14,7 @@ import be.imgn.toml.TomlValue;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -102,6 +103,14 @@ final class MessagesStep implements Step {
 
     private boolean check(
             TypeElement type, Map<String, ExecutableElement> methods, ResourceFile file, ResourceFile base) {
+        if (file.isDark()) {
+            shared.reporter()
+                    .error(
+                            type,
+                            file.name() + " is a dark variant of messages: texts don't change with the appearance, so"
+                                    + " messages have none");
+            return false;
+        }
         if (file.error() != null) {
             shared.reporter().error(type, file, file.error().position(), message(file.error()));
             return false;
@@ -202,11 +211,17 @@ final class MessagesStep implements Step {
         ClassName name = ClassName.of(type).generatedName("Messages");
         String simpleName = name.simpleName();
         context.sources().write(name.canonicalName(), scope -> body(scope, type, simpleName, methods), type);
+        ClassName descriptor = ClassName.of(type).generatedName("MessagesDescriptor");
+        context.sources()
+                .write(
+                        descriptor.canonicalName(),
+                        scope -> descriptorBody(scope, type, descriptor.simpleName(), simpleName),
+                        type);
+        context.services().add(ClassName.bestGuess(Names.MESSAGES_DESCRIPTOR), descriptor, type);
     }
 
-    private String body(
-            SourceScope scope, TypeElement type, String simpleName, Map<String, ExecutableElement> methods) {
-        String messages = scope.name(type);
+    private static Parts parts(SourceScope scope, Map<String, ExecutableElement> methods) {
+        String pattern = scope.name(Names.MESSAGE_PATTERN);
         List<String> fields = new ArrayList<>();
         List<String> assignments = new ArrayList<>();
         List<String> implementations = new ArrayList<>();
@@ -215,11 +230,11 @@ final class MessagesStep implements Step {
             String name = entry.getKey();
             ExecutableElement method = entry.getValue();
             List<String> parameters = parameters(method);
-            fields.add("    private final %s %s;".formatted(scope.name(Names.MESSAGE_PATTERN), name));
-            assignments.add("        this.%1$s = %2$s.of(messages, %3$s, %4$s.of(%5$s), locale.locale());"
+            fields.add("        private final %s %s;".formatted(pattern, name));
+            assignments.add("            this.%1$s = %2$s.of(messages, %3$s, %4$s.of(%5$s), locale);"
                     .formatted(
                             name,
-                            scope.name(Names.MESSAGE_PATTERN),
+                            pattern,
                             Java.literal(name),
                             list,
                             parameters.stream().map(Java::literal).collect(Collectors.joining(", "))));
@@ -231,37 +246,95 @@ final class MessagesStep implements Step {
 
                         @Override
                         public String %1$s(%2$s) {
-                            return this.%1$s.format(%3$s);
+                            return this.source.get().%1$s.format(%3$s);
                         }
                     """.formatted(name, String.join(", ", declared), String.join(", ", parameters)));
         }
+        return new Parts(fields, assignments, implementations);
+    }
+
+    private String body(
+            SourceScope scope, TypeElement type, String simpleName, Map<String, ExecutableElement> methods) {
+        String messages = scope.name(type);
+        Parts parts = parts(scope, methods);
+        String resources = scope.name(Names.RESOURCES);
+        String locale = scope.name(Locale.class);
+        String source = scope.name(Names.MESSAGE_SOURCE);
         return """
-                /** The messages {@link %1$s}, read from its TOML files in the display locale. */
+                /**
+                 * The messages {@link %1$s}, read from its TOML files in the display locale, which they follow, or in a
+                 * fixed locale.
+                 */
                 %2$s
                 @%3$s
                 @%4$s(%1$s.class)
                 public final class %5$s implements %1$s {
 
-                %6$s
+                    private final %6$s<Patterns> source;
 
                     @%7$s
-                    %5$s(%8$s resources, %9$s locale) {
-                        %10$s messages = resources.table(%1$s.class);
-                %11$s
+                    %5$s(%8$s resources) {
+                        this.source = %6$s.following(resources, %1$s.class, Patterns::new);
                     }
-                %12$s}
+
+                    %5$s(%8$s resources, %9$s locale) {
+                        this.source = %6$s.fixed(resources, %1$s.class, locale, Patterns::new);
+                    }
+                %10$s
+                    // The patterns of one table, read at once, so that no call mixes two locales.
+                    private static final class Patterns {
+                %11$s
+
+                        Patterns(%12$s messages, %9$s locale) {
+                %13$s
+                        }
+                    }
+                }
                 """.formatted(
                         messages,
                         scope.generated(),
                         scope.name(Names.SINGLETON),
                         scope.name(Names.EXPOSE_AS),
                         simpleName,
-                        String.join("\n", fields),
+                        source,
                         scope.name(Names.INJECT),
-                        scope.name(Names.RESOURCES),
-                        scope.name(Names.DISPLAY_LOCALE),
+                        resources,
+                        locale,
+                        String.join("", parts.implementations()),
+                        String.join("\n", parts.fields()),
                         scope.name("be.imgn.toml.TomlTable"),
-                        String.join("\n", assignments),
-                        String.join("", implementations));
+                        String.join("\n", parts.assignments()));
     }
+
+    private String descriptorBody(SourceScope scope, TypeElement type, String simpleName, String implementation) {
+        return """
+                /** Builds the messages {@link %1$s} for a fixed locale. */
+                %2$s
+                public final class %3$s implements %4$s {
+
+                    /** Creates the descriptor; the service loader does. */
+                    public %3$s() {}
+
+                    @Override
+                    public Class<?> type() {
+                        return %1$s.class;
+                    }
+
+                    @Override
+                    public Object create(%5$s resources, %6$s locale) {
+                        return new %7$s(resources, locale);
+                    }
+                }
+                """.formatted(
+                        scope.name(type),
+                        scope.generated(),
+                        simpleName,
+                        scope.name(Names.MESSAGES_DESCRIPTOR),
+                        scope.name(Names.RESOURCES),
+                        scope.name(Locale.class),
+                        implementation);
+    }
+
+    // The fields and assignments of the patterns, and the implementations of the methods.
+    private record Parts(List<String> fields, List<String> assignments, List<String> implementations) {}
 }

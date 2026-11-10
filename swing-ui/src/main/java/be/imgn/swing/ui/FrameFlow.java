@@ -110,11 +110,11 @@ final class FrameFlow implements Frames, FrameControl {
         }
         boolean shown = false;
         try {
-            type.ifPresent(known -> title(window, builder.table(known, variant)));
+            type.ifPresent(known -> title(host, builder.table(known, variant)));
             icon(window);
             ViewHost view = build(host, type, variant, resolve, built -> {
                 if (type.isEmpty()) {
-                    title(window, builder.table(built.type(), variant));
+                    title(host, builder.table(built.type(), variant));
                 }
             });
             host.stateKey(stateKey(view.type(), variant));
@@ -139,11 +139,14 @@ final class FrameFlow implements Frames, FrameControl {
             Optional<? extends Enum<?>> variant,
             Function<Injector, ?> resolve,
             Consumer<ViewHost> resolved) {
-        return builder.buildView(host, type, variant, resolve, null, built -> {
+        ViewHost view = builder.buildView(host, type, variant, resolve, null, built -> {
             resolved.accept(built);
             FrameView frame = (FrameView) built.view().orElseThrow();
             MainWindowFlow.place(host.window().rootPane(), frame.content(), frame.menuBar(), frame.toolBar());
         });
+        // So that the palette's shortcut works in every frame, whether or not a menu shows it.
+        view.injector().getInstance(StandardCommands.class).commandPalette();
+        return view;
     }
 
     // Each variant of a frame view keeps its own window state, as a dialog's variant does.
@@ -155,11 +158,15 @@ final class FrameFlow implements Frames, FrameControl {
     }
 
     /** Sets a frame's title from its view's {@code title} resource, else the displayed name. */
-    void title(Window window, TomlTable resources) {
-        window.setTitle(
-                resources.entries().get("title") instanceof TomlString title
-                        ? title.value()
-                        : services.application().displayedName());
+    void title(WindowHost host, TomlTable resources) {
+        host.resourceTitle(titleOf(resources, services));
+    }
+
+    // The title resource, else the displayed name.
+    static String titleOf(TomlTable resources, UiServices services) {
+        return resources.entries().get("title") instanceof TomlString title
+                ? title.value()
+                : services.application().displayedName();
     }
 
     /** Sets the application's icon on a window, if it has one. */

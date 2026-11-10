@@ -150,7 +150,7 @@ The roadmap doesn't plan a layout helper. A small form builder (a row of a label
 
 ### 13. Toolbars and button rows
 
-- Every toolbar calls `setFloatable(false)`: `saf/SingleFrameExample4`, `saf/SingleFrameExample5`, `saf/BlockingExample1`. Not floating could be the default of `Ui.toolBar`. **Roadmap:** milestone 4, **new**, or at once, as it is a one-line change.
+- Every toolbar calls `setFloatable(false)`: `saf/SingleFrameExample4`, `saf/SingleFrameExample5`, `saf/BlockingExample1`. Not floating could be the default of `Ui.toolBar`. **Roadmap:** milestone 4, **new**, or at once, as it is a one-line change. **Integrated** into [milestone 4](milestone-4.md#toolbars).
 - `saf/ActionExample2`, `saf/ActionExample4`, `saf/BlockingExample1` and `saf/LocalStorageExample1` add `commands.x().createButton()` to a `FlowLayout` panel, button by button. `Ui.buttonBar(BoundCommand...)` would build the row. **Roadmap:** milestone 2, **new**, with the form builder. **Integrated** into [milestone 2](milestone-2.md#button-rows).
 - `saf/SingleFrameExample5`, `saf/BlockingExample1` and `saf/DocumentExample` list the same commands in a menu and a toolbar. Whether a toolbar should derive from a menu is open; the examples alone don't settle it.
 
@@ -158,7 +158,7 @@ The roadmap doesn't plan a layout helper. A small form builder (a row of a label
 
 `saf/SessionStorageExample1`, `saf/Tabbed` and `addressbook/ContactTabsDialog` call `addTab("", component)`, and the component's field gives the title through its `tab-title` resource. Applying the title when a tab is added, or a `Ui` method that adds a tab without a title, would remove the empty string.
 
-**Roadmap:** milestone 4, **new**.
+**Roadmap:** milestone 4, **new**. **Integrated** into [milestone 4](milestone-4.md#tab-titles), as `Ui.addTab`.
 
 ### 15. Cleanups of the examples
 

@@ -50,7 +50,10 @@ class ResourcesStepTest {
                 .generatedSourceFile("p.$$Resources")
                 .contains("public final class $$Resources implements ResourceOpener")
                 .contains("return Optional.ofNullable($$Resources.class.getResourceAsStream(fileName));")
-                .contains("return Set.of(\"icons/plus.png\");");
+                .contains("return Set.of(\"icons/plus.png\");")
+                .contains("public Optional<Path> directory() {")
+                .contains("URL url = $$Resources.class.getResource(\"$$Resources.class\");")
+                .contains("return Optional.ofNullable(Path.of(url.toURI()).getParent());");
         assertThat(compilation)
                 .generatedFile(StandardLocation.CLASS_OUTPUT, "META-INF/services/be.imgn.swing.ResourceOpener")
                 .contains("p.$$Resources");
@@ -629,5 +632,194 @@ class ResourcesStepTest {
                 .compile();
 
         assertThat(compilation).succeeded();
+    }
+
+    @Test
+    void acceptsADarkVariantAndTheFlatLafTokensOfTheApplicationClass() {
+        var compilation = counter("""
+                        [commands.increment]
+                        text = "&Increment"
+
+                        [label]
+                        foreground = "#336699"
+
+                        [flatlaf]
+                        "@accentColor" = "#1a73e8"
+                        "Component.arc" = 8
+                        "Button.borderless" = true
+                        """).resource("p/CounterApp.dark.toml", """
+                        [label]
+                        foreground = "#99ccff"
+
+                        [flatlaf]
+                        "@accentColor" = "#8ab4f8"
+                        """).compile();
+
+        assertThat(compilation).succeeded().hadNoWarnings();
+    }
+
+    @Test
+    void rejectsADarkVariantThatHoldsAKeyTheBaseFileLacks() {
+        var compilation = counter("""
+                        [commands.increment]
+                        text = "&Increment"
+                        """).resource("p/CounterApp.dark.toml", """
+                        [label]
+                        foreground = "#99ccff"
+                        """).compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("CounterApp.dark.toml:2:1: The key label.foreground is not in the base file"
+                        + " CounterApp.toml");
+    }
+
+    @Test
+    void rejectsADarkVariantWithALocaleOrAPlatform() {
+        var compilation = counter("""
+                        [commands.increment]
+                        text = "&Increment"
+                        """)
+                .resource("p/CounterApp_fr.dark.toml", "[commands.increment]\ntext = \"&Plus\"\n")
+                .resource("p/CounterApp.macos.dark.toml", "[commands.increment]\ntext = \"&Plus\"\n")
+                .compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining("CounterApp_fr.dark.toml is a dark variant with a locale or a platform part");
+        assertThat(compilation)
+                .hadErrorContaining("CounterApp.macos.dark.toml is a dark variant with a locale or a platform part");
+    }
+
+    @Test
+    void checksTheFormOfTheFlatLafTokens() {
+        var compilation = counter("""
+                        [commands.increment]
+                        text = "&Increment"
+
+                        [flatlaf]
+                        "" = "#1a73e8"
+                        "Component.arc" = 1.5
+                        """).compile();
+
+        assertThat(compilation).failed().hadErrorContaining("CounterApp.toml:5:1: A FlatLaf token has a blank key");
+        assertThat(compilation)
+                .hadErrorContaining("CounterApp.toml:6:19: The FlatLaf token Component.arc must be a string, an"
+                        + " integer or a boolean");
+    }
+
+    @Test
+    void allowsTheFlatLafTokensOnTheApplicationClassOnly() {
+        var compilation = Sources.create()
+                .source("p.Panel", """
+                        package p;
+
+                        import be.imgn.inject.Inject;
+                        import be.imgn.swing.ui.DialogView;
+                        import java.util.Optional;
+                        import javax.swing.JComponent;
+                        import javax.swing.JPanel;
+
+                        public final class Panel implements DialogView<Void> {
+                            @Inject
+                            Panel() {}
+
+                            public JComponent content() {
+                                return new JPanel();
+                            }
+
+                            public Optional<Void> result() {
+                                return Optional.empty();
+                            }
+                        }
+                        """)
+                .resource("p/Panel.toml", "[flatlaf]\n\"@accentColor\" = \"#1a73e8\"\n")
+                .compile();
+
+        assertThat(compilation)
+                .failed()
+                .hadErrorContaining(
+                        "Panel.toml:1:2: A [flatlaf] table is allowed in the resources of the @Application class only");
+    }
+
+    @Test
+    void checksADarkVariantAgainstTheRulesOfTheBaseFile() {
+        var compilation = counter("""
+                        [commands.increment]
+                        text = "&Increment"
+                        shortcut = "shortcut I"
+                        """).resource("p/CounterApp.dark.toml", """
+                        [commands.increment]
+                        shortcut = "nope"
+                        """).compile();
+
+        assertThat(compilation).failed().hadErrorContaining("The shortcut \"nope\" does not parse as a key stroke");
+    }
+
+    @Test
+    void rejectsFlatLafTokensInAVariant() {
+        var compilation = Sources.create()
+                .source("p.Panel", """
+                        package p;
+
+                        import be.imgn.inject.Inject;
+                        import be.imgn.swing.ui.DialogView;
+                        import be.imgn.swing.ui.Variants;
+                        import java.util.Optional;
+                        import javax.swing.JComponent;
+                        import javax.swing.JPanel;
+
+                        public final class Panel implements DialogView<Void> {
+                            @Inject
+                            Panel() {}
+
+                            public JComponent content() {
+                                return new JPanel();
+                            }
+
+                            public Optional<Void> result() {
+                                return Optional.empty();
+                            }
+
+                            @Variants
+                            public enum Name { FIRST }
+                        }
+                        """)
+                .resource("p/Panel.toml", """
+                        [variants.first]
+                        title = "First"
+
+                        [variants.first.flatlaf]
+                        "@accentColor" = "#1a73e8"
+                        """)
+                .compile();
+
+        assertThat(compilation).failed().hadErrorContaining("A variant holds no flatlaf");
+    }
+
+    @Test
+    void acceptsTheTableOfTheKeymapCommand() {
+        var compilation = counter("""
+                        [commands.increment]
+                        text = "&Increment"
+
+                        [commands.keymap]
+                        text = "&Keys…"
+                        """).compile();
+
+        assertThat(compilation).succeeded().hadNoWarnings();
+    }
+
+    @Test
+    void acceptsTheTableOfTheCommandPaletteCommand() {
+        var compilation = counter("""
+                        [commands.increment]
+                        text = "&Increment"
+
+                        [commands.commandPalette]
+                        shortcut = "shortcut shift K"
+                        """).compile();
+
+        assertThat(compilation).succeeded().hadNoWarnings();
     }
 }

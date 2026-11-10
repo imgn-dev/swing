@@ -46,6 +46,15 @@ class MemoAppTest {
     }
 
     @Test
+    void namesAnUntitledNoteInTheNewLocale() {
+        try (AppTester<MemoApp> app = AppTester.start(MemoApp.class)) {
+            app.locale(Locale.FRENCH);
+
+            assertThat(app.frame(MemoView.class).title()).isEqualTo("Sans titre – Memo");
+        }
+    }
+
+    @Test
     void startsWithOneUntitledNote() {
         try (AppTester<MemoApp> app = AppTester.start(MemoApp.class)) {
             assertThat(app.frames()).hasSize(1);

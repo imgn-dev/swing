@@ -6,6 +6,7 @@ import be.imgn.swing.Property;
 import be.imgn.swing.desktop.DocumentCommands;
 import be.imgn.swing.desktop.DocumentFormat;
 import be.imgn.swing.desktop.DocumentView;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.FileType;
 import be.imgn.swing.ui.Form;
 import be.imgn.swing.ui.MenuEntry;
@@ -31,7 +32,9 @@ public final class DocumentExample implements SingleFrame, DocumentView<String> 
     private static final int WIDTH = 640;
     private static final int HEIGHT = 480;
 
-    private final JTextArea textArea = new JTextArea();
+    @Exposed
+    final JTextArea textArea = new JTextArea();
+
     private final Property<String> text = Property.of("");
     private final DocumentCommands commands;
     private final Ui ui;

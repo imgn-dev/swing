@@ -41,7 +41,7 @@ class ResourceTablesTest {
     void namesTheFilesInMergeOrder() {
         ResourceTables tables = new ResourceTables(Map.of(), Optional.of("macos"));
 
-        assertThat(tables.fileNames("NotesView", Locale.of("fr", "BE")))
+        assertThat(tables.fileNames("NotesView", Locale.of("fr", "BE"), false))
                 .containsExactly(
                         "NotesView.toml",
                         "NotesView.macos.toml",
@@ -49,8 +49,39 @@ class ResourceTablesTest {
                         "NotesView_fr.macos.toml",
                         "NotesView_fr_BE.toml",
                         "NotesView_fr_BE.macos.toml");
-        assertThat(new ResourceTables(Map.of(), Optional.empty()).fileNames("NotesView", Locale.ROOT))
+        assertThat(new ResourceTables(Map.of(), Optional.empty()).fileNames("NotesView", Locale.ROOT, false))
                 .containsExactly("NotesView.toml");
+    }
+
+    @Test
+    void readsTheDarkVariantLast() {
+        ResourceTables tables = new ResourceTables(Map.of(), Optional.of("macos"));
+
+        assertThat(tables.fileNames("NotesView", Locale.of("fr", "BE"), true))
+                .containsExactly(
+                        "NotesView.toml",
+                        "NotesView.macos.toml",
+                        "NotesView_fr.toml",
+                        "NotesView_fr.macos.toml",
+                        "NotesView_fr_BE.toml",
+                        "NotesView_fr_BE.macos.toml",
+                        "NotesView.dark.toml");
+    }
+
+    @Test
+    void mergesTheDarkVariantOverTheLocale() {
+        ResourceOpener opener = opener(Map.of(
+                "NotesView.toml", "[status]\nforeground = \"#5f6368\"\ntext = \"Ready\"\n",
+                "NotesView.dark.toml", "[status]\nforeground = \"#9aa0a6\"\n",
+                "NotesView_fr.toml", "[status]\nforeground = \"#5f6368\"\ntext = \"Prêt\"\n"));
+        ResourceTables tables = new ResourceTables(Map.of(opener.packageName(), opener), Optional.empty());
+
+        TomlTable light = tables.merged(NotesView.class, Locale.FRENCH, false);
+        TomlTable dark = tables.merged(NotesView.class, Locale.FRENCH, true);
+
+        assertThat(light.getString("status.foreground")).isEqualTo("#5f6368");
+        assertThat(dark.getString("status.foreground")).isEqualTo("#9aa0a6");
+        assertThat(dark.getString("status.text")).isEqualTo("Prêt");
     }
 
     @Test
@@ -62,7 +93,7 @@ class ResourceTablesTest {
                 "NotesView_fr.toml", "title = \"Notes (fr)\"\n"));
         ResourceTables tables = new ResourceTables(Map.of(opener.packageName(), opener), Optional.of("linux"));
 
-        TomlTable merged = tables.merged(NotesView.class, Locale.FRENCH);
+        TomlTable merged = tables.merged(NotesView.class, Locale.FRENCH, false);
 
         assertThat(merged.getString("title")).isEqualTo("Notes (fr)");
         assertThat(merged.getString("editor.font")).isEqualTo("Serif-12");
@@ -89,7 +120,7 @@ class ResourceTablesTest {
                 """));
         ResourceTables tables = new ResourceTables(Map.of(opener.packageName(), opener), Optional.empty());
 
-        TomlTable merged = tables.merged(NotesView.class, Locale.ROOT);
+        TomlTable merged = tables.merged(NotesView.class, Locale.ROOT, false);
 
         assertThat(merged.getString("home.streetLabel.text")).isEqualTo("S&treet");
         assertThat(merged.getString("home.streetLabel.tool-tip-text")).isEqualTo("The street");

@@ -19,6 +19,8 @@ public final class WindowHost {
     private String stateKey;
     private final ShortcutBindings shortcuts;
     private final List<ViewHost> views = new ArrayList<>();
+    // The title the window took from its view's resources, or the displayed name; null until it took one.
+    private @Nullable String resourceTitle;
 
     /**
      * Creates the host of a window.
@@ -127,6 +129,25 @@ public final class WindowHost {
      */
     public void stateKey(String key) {
         this.stateKey = key;
+    }
+
+    /**
+     * Returns the title the window took from its view's {@code title} resource, else the displayed name.
+     *
+     * @return the title, or empty if the framework set none
+     */
+    public Optional<String> resourceTitle() {
+        return Optional.ofNullable(resourceTitle);
+    }
+
+    /**
+     * Sets the title of the window from its view's resources, and records it.
+     *
+     * @param title the title
+     */
+    public void resourceTitle(String title) {
+        this.resourceTitle = title;
+        window.setTitle(title);
     }
 
     /**

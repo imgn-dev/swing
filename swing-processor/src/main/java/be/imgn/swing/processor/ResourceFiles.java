@@ -34,7 +34,7 @@ final class ResourceFiles {
 
     private static final Pattern VARIANT =
             Pattern.compile("(?:_(?<language>[a-z]{2,8})(?:_(?<country>[A-Z]{2}|[0-9]{3}))?)?"
-                    + "(?:\\.(?<platform>windows|macos|linux))?\\.toml");
+                    + "(?:\\.(?<platform>windows|macos|linux))?(?<dark>\\.dark)?\\.toml");
 
     private final ProcessingContext context;
     private final Optional<Path> directory;
@@ -76,11 +76,12 @@ final class ResourceFiles {
         String language = Optional.ofNullable(matcher.group("language")).orElse("");
         String country = Optional.ofNullable(matcher.group("country")).orElse("");
         String platform = Optional.ofNullable(matcher.group("platform")).orElse("");
+        boolean dark = matcher.group("dark") != null;
         try {
             TomlDocument document = Toml.parse(text);
-            return new ResourceFile(name, language, country, platform, document, null);
+            return new ResourceFile(name, language, country, platform, dark, document, null);
         } catch (TomlParseException e) {
-            return new ResourceFile(name, language, country, platform, null, e);
+            return new ResourceFile(name, language, country, platform, dark, null, e);
         }
     }
 

@@ -2,6 +2,7 @@ package be.imgn.swing.ui;
 
 import be.imgn.swing.internal.DisposalScope;
 import be.imgn.swing.ui.internal.EdtDelivery;
+import be.imgn.swing.ui.internal.RefreshPhase;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ final class MenuContent {
 
     void add(MenuEntry entry) {
         switch (entry) {
-            case BoundCommand command -> fixed(builder.commandItem(command));
+            case BoundCommand command -> fixed(builder.commandItem(command, scope));
             case Separator ignored -> fixed(List.of(new JPopupMenu.Separator()));
             case MenuSpec spec -> fixed(List.of(builder.createMenu(spec, scope)));
             case MenuEntry.Dynamic dynamic -> section(dynamic);
@@ -53,6 +54,11 @@ final class MenuContent {
         section.forEach(popup::add);
         // The section's own subscription stays in the menu's scope; only its components' go with each rebuild.
         EdtDelivery.subscribe(scope, dynamic.entries(), entries -> rebuild(part, entries), EdtDelivery.Order.FRAMEWORK);
+        builder.view()
+                .onRefresh(
+                        RefreshPhase.MENUS,
+                        scope,
+                        () -> rebuild(part, dynamic.entries().get()));
     }
 
     /** Opens the scope of a section's components, a child of the menu's, closing the previous one. */
@@ -110,5 +116,10 @@ final class MenuContent {
             }
         }
         builder.check(List.of(popup.getComponents()), name);
+    }
+
+    // Checks the mnemonics again at each refresh, once the menus inside have taken their new texts.
+    void followRefreshes() {
+        builder.view().onRefresh(RefreshPhase.MENUS, scope, () -> builder.check(List.of(popup.getComponents()), name));
     }
 }

@@ -1,2 +1,8 @@
 [commands.throwException]
 text = "Jeter une exception"
+
+[commands.french]
+text = "Francais"
+
+[commands.english]
+text = "Anglais"

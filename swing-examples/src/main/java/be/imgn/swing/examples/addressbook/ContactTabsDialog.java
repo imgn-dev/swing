@@ -8,6 +8,7 @@ import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.Form;
 import be.imgn.swing.ui.FormPanel;
 import be.imgn.swing.ui.StandardCommands;
+import be.imgn.swing.ui.Ui;
 import java.util.List;
 import java.util.Optional;
 import javax.swing.JComponent;
@@ -48,14 +49,17 @@ public final class ContactTabsDialog implements DialogView<Contact> {
     private final Form form;
     private final AddressBookService service;
     private final AddressBookMessages messages;
+    private final Ui ui;
 
     @Inject
-    ContactTabsDialog(@Assisted Contact contact, Form form, AddressBookService service, AddressBookMessages messages) {
+    ContactTabsDialog(
+            @Assisted Contact contact, Form form, AddressBookService service, AddressBookMessages messages, Ui ui) {
         this.contact = contact;
         this.fields = new ContactForm(contact);
         this.form = form;
         this.service = service;
         this.messages = messages;
+        this.ui = ui;
         this.contactTab = fields.identity(FormPanel.create(), firstNameLabel, lastNameLabel, birthLabel)
                 .build();
         this.home = fields.home();
@@ -65,9 +69,9 @@ public final class ContactTabsDialog implements DialogView<Contact> {
     @Override
     public JComponent content() {
         fields.bind(form, messages);
-        tabs.addTab("", contactTab);
-        tabs.addTab("", home);
-        tabs.addTab("", office);
+        ui.addTab(tabs, contactTab);
+        ui.addTab(tabs, home);
+        ui.addTab(tabs, office);
         return tabs;
     }
 

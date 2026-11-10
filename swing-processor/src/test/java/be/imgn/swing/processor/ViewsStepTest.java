@@ -43,11 +43,16 @@ class ViewsStepTest {
         assertThat(compilation)
                 .generatedSourceFile("p.$NotesView$$Injector")
                 .contains("public final class $NotesView$$Injector implements ComponentInjector<NotesView>")
-                .contains("resources.font(\"editor\", \"font\").ifPresent(value -> view.editor.setFont(value));")
-                .contains("resources.integer(\"editor\", \"rows\").ifPresent(value -> view.editor.setRows(value));")
+                .contains(
+                        "resources.font(\"editor\", \"font\").ifPresent(value -> resources.apply(\"editor\", \"font\","
+                                + " () -> view.editor.setFont(value)));")
+                .contains("resources.integer(\"editor\", \"rows\").ifPresent(value -> "
+                        + "resources.apply(\"editor\", \"rows\", () -> view.editor.setRows(value)));")
                 .contains("ComponentResources.setAccessibleName(view.editor, value)")
+                .contains("if (view.editor != null) {\n            component.accept(\"editor\", view.editor);")
                 .contains("ComponentResources.setTitle(view.panel, value)")
-                .contains("ComponentResources.setTabTitle(view.panel, value)")
+                .contains("if (ComponentResources.isTab(view.panel)) {")
+                .contains("ComponentResources.setTabTitle(view.panel, value); } }")
                 .doesNotContain("plain")
                 .doesNotContain("hidden");
         assertThat(compilation)

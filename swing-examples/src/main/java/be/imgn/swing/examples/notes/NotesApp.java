@@ -39,7 +39,9 @@ public final class NotesApp implements SingleFrame {
     @Exposed
     final Observable<Boolean> canSave;
 
-    private final JTextArea editor = new JTextArea();
+    @Exposed
+    final JTextArea editor = new JTextArea();
+
     private final JLabel status = new JLabel();
     private final NoteStore store;
     private final Property<EditorSettings> settings;

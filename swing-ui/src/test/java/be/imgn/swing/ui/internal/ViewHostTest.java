@@ -138,6 +138,11 @@ class ViewHostTest {
         public void setTitle(String title) {}
 
         @Override
+        public String title() {
+            return "";
+        }
+
+        @Override
         public void setIconImage(Image image) {}
 
         @Override

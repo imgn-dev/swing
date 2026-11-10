@@ -6,3 +6,6 @@ tool-tip-text = "Sets the toggle buttons' selected property"
 text = "Toggle the Buttons' Value"
 shortcut = "shortcut T"
 tool-tip-text = "Sets the SelectedPropertyExample selected property"
+
+[textArea]
+accessible-name = "Text"

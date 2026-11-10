@@ -1,8 +1,10 @@
 package be.imgn.swing.testing;
 
+import be.imgn.swing.ui.CommandPalette;
 import be.imgn.swing.ui.DialogView;
 import be.imgn.swing.ui.Dialogs;
 import be.imgn.swing.ui.FileType;
+import be.imgn.swing.ui.PaletteEntry;
 import be.imgn.swing.ui.SaveChoice;
 import be.imgn.swing.ui.internal.UiTexts;
 import java.nio.file.Files;
@@ -37,6 +39,8 @@ public final class FakeDialogs implements Dialogs {
     private final Deque<SaveChoice> saveAnswers = new ArrayDeque<>();
     private final List<FileChoice> fileChoices = new ArrayList<>();
     private final List<String> savePrompts = new ArrayList<>();
+    private final Deque<CommandAnswer> commandAnswers = new ArrayDeque<>();
+    private final List<String> commandQueries = new ArrayList<>();
     private Supplier<UiTexts> texts = () -> {
         throw new IllegalStateException("The application is not started");
     };
@@ -173,6 +177,42 @@ public final class FakeDialogs implements Dialogs {
         return List.copyOf(savePrompts);
     }
 
+    /**
+     * Queues the answer of the next {@code chooseCommand}: the first entry that {@link CommandPalette#search(List,
+     * String)} ranks for the query, or an empty result when none matches.
+     *
+     * @param query the query typed in the palette
+     * @throws NullPointerException if {@code query} is {@code null}
+     */
+    public synchronized void answerCommand(String query) {
+        commandAnswers.add(new CommandAnswer(Objects.requireNonNull(query, "query")));
+    }
+
+    /** Queues a cancel of the next {@code chooseCommand}; a palette with no answer queued is cancelled too. */
+    public synchronized void cancelCommand() {
+        commandAnswers.add(new CommandAnswer(null));
+    }
+
+    /**
+     * Returns the queries of the palettes answered, in order, {@code ""} for a cancel.
+     *
+     * @return the queries
+     */
+    public synchronized List<String> commandQueries() {
+        return List.copyOf(commandQueries);
+    }
+
+    @Override
+    public synchronized Optional<PaletteEntry> chooseCommand(List<PaletteEntry> entries) {
+        Objects.requireNonNull(entries, "entries");
+        CommandAnswer answer = commandAnswers.poll();
+        String query = answer == null ? null : answer.query();
+        commandQueries.add(query == null ? "" : query);
+        return query == null
+                ? Optional.empty()
+                : CommandPalette.search(entries, query).stream().findFirst();
+    }
+
     @Override
     public synchronized Optional<Path> openFile(List<FileType> types) {
         fileChoices.add(new FileChoice(FileChoice.Kind.OPEN, types, null));
@@ -236,4 +276,7 @@ public final class FakeDialogs implements Dialogs {
 
     // A queued answer of a file chooser: the file chosen, or null for a cancel.
     private record FileAnswer(@Nullable Path file) {}
+
+    // The answer of a palette: a query, or null for a cancel.
+    private record CommandAnswer(@Nullable String query) {}
 }

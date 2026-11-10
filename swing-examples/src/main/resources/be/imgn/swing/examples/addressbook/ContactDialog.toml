@@ -41,3 +41,9 @@ text = "Phone"
 
 [commands.ok]
 text = "&Save"
+
+[home.street2Field]
+accessible-name = "Street, second line"
+
+[office.street2Field]
+accessible-name = "Street, second line"

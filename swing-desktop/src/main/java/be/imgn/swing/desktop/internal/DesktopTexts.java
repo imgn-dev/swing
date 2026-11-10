@@ -2,32 +2,28 @@ package be.imgn.swing.desktop.internal;
 
 import be.imgn.inject.Inject;
 import be.imgn.inject.Singleton;
-import be.imgn.swing.DisplayLocale;
 import be.imgn.swing.Resources;
 import be.imgn.toml.TomlString;
-import be.imgn.toml.TomlTable;
 import java.text.MessageFormat;
-import java.util.Locale;
 
 /** The desktop's own texts, from {@code DesktopTexts.toml} and its locale variants. */
 @Singleton
 public final class DesktopTexts {
 
-    private final TomlTable table;
-    private final Locale locale;
+    // Read at each call, so that the texts follow the display locale.
+    private final Resources resources;
 
     @Inject
-    DesktopTexts(Resources resources, DisplayLocale locale) {
-        this.table = resources.table(DesktopTexts.class);
-        this.locale = locale.locale();
+    DesktopTexts(Resources resources) {
+        this.resources = resources;
     }
 
     private String text(String key) {
-        return table.entries().get(key) instanceof TomlString text ? text.value() : key;
+        return resources.table(DesktopTexts.class).entries().get(key) instanceof TomlString text ? text.value() : key;
     }
 
     private String format(String key, Object... arguments) {
-        return new MessageFormat(text(key), locale).format(arguments);
+        return new MessageFormat(text(key), resources.locale()).format(arguments);
     }
 
     /**

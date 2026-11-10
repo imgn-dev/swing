@@ -1,5 +1,6 @@
 import be.imgn.swing.ResourceOpener;
 import be.imgn.swing.spi.ApplicationDescriptor;
+import be.imgn.swing.spi.MessagesDescriptor;
 import be.imgn.swing.spi.SettingsDescriptor;
 
 /**
@@ -23,6 +24,7 @@ module be.imgn.swing {
             be.imgn.swing.testing;
 
     uses ApplicationDescriptor;
+    uses MessagesDescriptor;
     uses ResourceOpener;
     uses SettingsDescriptor;
 }

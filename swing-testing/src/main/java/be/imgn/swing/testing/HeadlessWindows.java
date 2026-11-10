@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import be.imgn.swing.ui.Window;
 import be.imgn.swing.ui.Windows;
+import be.imgn.swing.ui.internal.WindowRegistry;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -74,6 +75,7 @@ final class HeadlessWindows implements Windows {
         @Override
         public void setTitle(String newTitle) {
             this.title = newTitle;
+            rootPane.putClientProperty(WindowRegistry.TITLE_PROPERTY, newTitle);
         }
 
         @Override
@@ -97,7 +99,8 @@ final class HeadlessWindows implements Windows {
             return toFrontCount;
         }
 
-        String title() {
+        @Override
+        public String title() {
             return title;
         }
 

@@ -4,6 +4,7 @@ import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
 import be.imgn.swing.Property;
 import be.imgn.swing.ui.Command;
+import be.imgn.swing.ui.Exposed;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
 import be.imgn.swing.ui.Ui;
@@ -29,10 +30,13 @@ public final class SelectedPropertyExample implements SingleFrame {
     @Command(id = "toggleAction")
     final Property<Boolean> selected = Property.of(false);
 
+    @Exposed
+    final JTextArea textArea = new JTextArea();
+
     private final JCheckBox check = new JCheckBox();
     private final JRadioButton radio = new JRadioButton();
     private final JButton button = new JButton();
-    private final JTextArea textArea = new JTextArea();
+
     private final SelectedPropertyExampleCommands commands;
     private final Ui ui;
     private final ExampleMessages messages;

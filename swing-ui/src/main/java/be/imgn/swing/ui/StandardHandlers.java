@@ -23,16 +23,13 @@ final class StandardHandlers {
         CommandBuilder configured = switch (standard) {
             case EXIT ->
                 builder.handler(context -> registry.services().lifecycle().requestExit());
-            case ABOUT ->
-                builder.handler(
-                        context -> registry.injector().getInstance(Ui.class).showDialog(AboutDialog.class));
+            case ABOUT -> showing(builder, AboutDialog.class);
+            case KEYMAP -> showing(builder, KeymapDialog.class);
+            case COMMAND_PALETTE ->
+                builder.handler(context ->
+                        registry.injector().getInstance(CommandPalette.class).show());
             case PREFERENCES -> preferences(builder);
-            case CUT ->
-                builder.enabled(focus::canCut).handler(context -> focus.transfer(TransferHandler.getCutAction()));
-            case COPY ->
-                builder.enabled(focus::canCopy).handler(context -> focus.transfer(TransferHandler.getCopyAction()));
-            case PASTE ->
-                builder.enabled(focus::canPaste).handler(context -> focus.transfer(TransferHandler.getPasteAction()));
+            case CUT, COPY, PASTE -> transfer(builder, standard, focus);
             case SELECT_ALL -> builder.enabled(focus::canSelectAll).handler(context -> focus.selectAll());
             case UNDO, REDO -> undoCommand(builder, standard == Standard.UNDO);
             case CLOSE_WINDOW ->
@@ -46,6 +43,25 @@ final class StandardHandlers {
             case OK, CANCEL, APPLY -> dialogCommand(builder, standard, view);
         };
         return configured.bind();
+    }
+
+    // Acts on the focused component's transfer handler, enabled while it supports the action.
+    private static CommandBuilder transfer(CommandBuilder builder, Standard standard, FocusTracker focus) {
+        return switch (standard) {
+            case CUT ->
+                builder.enabled(focus::canCut).handler(context -> focus.transfer(TransferHandler.getCutAction()));
+            case COPY ->
+                builder.enabled(focus::canCopy).handler(context -> focus.transfer(TransferHandler.getCopyAction()));
+            case PASTE ->
+                builder.enabled(focus::canPaste).handler(context -> focus.transfer(TransferHandler.getPasteAction()));
+            default -> throw new IllegalArgumentException(standard + " is not a transfer command");
+        };
+    }
+
+    // Shows one of the framework's dialog views over the command's view.
+    private CommandBuilder showing(CommandBuilder builder, Class<? extends DialogView<Void>> type) {
+        return builder.handler(
+                context -> registry.injector().getInstance(Ui.class).showDialog(type));
     }
 
     private static CommandBuilder dialogCommand(CommandBuilder builder, Standard standard, ViewHost view) {

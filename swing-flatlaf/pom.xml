@@ -88,6 +88,36 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <executions>
+          <!-- On the module path, the tests are patched into the module, whose
+               descriptor provides no opener of their resources: the test of
+               the tokens runs on the class path, where the service loader
+               reads META-INF/services. -->
+          <execution>
+            <id>default-test</id>
+            <configuration>
+              <excludes>
+                <exclude>**/FlatLafTokensTest.java</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>resources-tests</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <useModulePath>false</useModulePath>
+              <includes>
+                <include>**/FlatLafTokensTest.java</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>be.imgn.inject</groupId>
         <artifactId>inject-maven-plugin</artifactId>
       </plugin>

@@ -7,13 +7,14 @@ import be.imgn.swing.Task;
 import be.imgn.swing.internal.Guarded;
 import be.imgn.swing.internal.NoTask;
 import be.imgn.swing.internal.RunningTask;
+import be.imgn.swing.ui.internal.ComponentInspector;
 import be.imgn.swing.ui.internal.Edt;
 import be.imgn.swing.ui.internal.EdtDelivery;
 import be.imgn.swing.ui.internal.KeyStrokes;
 import be.imgn.swing.ui.internal.Mnemonics;
+import be.imgn.swing.ui.internal.ShortcutBindings;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
-import be.imgn.swing.ui.spi.ComponentResources;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import javax.accessibility.AccessibleContext;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -38,6 +40,10 @@ import org.jspecify.annotations.Nullable;
  */
 public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry {
 
+    private static final System.Logger LOGGER = System.getLogger(BoundCommand.class.getName());
+    // The client property of a toolbar button that holds the accessible name the command gave it.
+    private static final String TOOL_BAR_NAME = "be.imgn.swing.toolBarName";
+
     private final CommandRegistry registry;
     private final Class<?> owner;
     private final String id;
@@ -48,14 +54,24 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
     private final Block block;
     private final Concurrency concurrency;
     private final @Nullable String cancels;
-    private final CommandResources resources;
+    private final boolean overridable;
+    private CommandResources resources;
     private final CommandAction action;
     private final Property<Boolean> blocked = Property.of(false);
     private final Property<Boolean> running = Property.of(false);
     // The tasks the command started that haven't ended, in activation order, those that wait included. On the EDT.
     private final List<Started> tasks = new ArrayList<>();
-    private final @Nullable KeyStroke keyStroke;
-    private final Mnemonics text;
+    // The shortcut of the resources, and the effective one, the keymap's first, with where it comes from.
+    private @Nullable KeyStroke defaultKeyStroke;
+    private @Nullable KeyStroke keyStroke;
+    private ShortcutBindings.Priority priority = ShortcutBindings.Priority.RESOURCES;
+    private Mnemonics text;
+    // The components the command created, which take its accessible name and description again at a refresh, until
+    // its view closes.
+    private final List<AbstractButton> created = new ArrayList<>();
+    // The accessible name and description the resources gave the created components last, null for none.
+    private @Nullable String givenName;
+    private @Nullable String givenDescription;
     private int blockCount;
     private @Nullable Observable<Boolean> enabled;
     private @Nullable Property<Boolean> selected;
@@ -73,33 +89,44 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
         this.block = builder.builtBlock();
         this.concurrency = builder.builtConcurrency();
         this.cancels = builder.builtCancels();
+        this.overridable = builder.isOverridable();
         this.resources = resources;
-        UiServices services = registry.services();
-        boolean macOS = services.isMacOS();
-        this.text = Mnemonics.parse(resources.string("text").orElse(id));
-        this.keyStroke = resources
-                .string("shortcut")
-                .map(shortcut -> KeyStrokes.parse(shortcut, macOS))
-                .orElse(null);
+        this.text = Mnemonics.parse(id);
         this.action = new CommandAction(this);
-        action.putValue(Action.NAME, text.text());
         action.putValue(Action.ACTION_COMMAND_KEY, id);
-        if (!macOS && text.hasMnemonic()) {
-            action.putValue(Action.MNEMONIC_KEY, text.keyCode());
-            action.putValue(Action.DISPLAYED_MNEMONIC_INDEX_KEY, text.index());
-        }
-        resources.string("icon").ifPresent(path -> {
-            Icon icon = services.icons().load(resources.iconPackage(), path);
-            action.putValue(Action.SMALL_ICON, icon);
-            action.putValue(Action.LARGE_ICON_KEY, icon);
-        });
-        if (keyStroke != null) {
-            action.putValue(Action.ACCELERATOR_KEY, keyStroke);
-        }
-        resources.string("tool-tip-text").ifPresent(tip -> action.putValue(Action.SHORT_DESCRIPTION, tip));
+        apply(resources);
         if (selectedSupplier != null) {
             action.putValue(Action.SELECTED_KEY, false);
         }
+    }
+
+    // Puts the resources on the command's action and on the components it created: at its creation, and at a refresh.
+    private void apply(CommandResources applied) {
+        this.resources = applied;
+        UiServices services = registry.services();
+        boolean macOS = services.isMacOS();
+        this.text = Mnemonics.parse(applied.string("text").orElse(id));
+        this.defaultKeyStroke = applied.string("shortcut")
+                .map(shortcut -> KeyStrokes.parse(shortcut, macOS))
+                .orElse(null);
+        Keymap keymap = services.keymap();
+        this.keyStroke = keymap.effective(identity(), defaultKeyStroke);
+        this.priority = keymap.priority(identity(), applied.frameworkShortcut());
+        action.putValue(Action.NAME, text.text());
+        boolean mnemonic = !macOS && text.hasMnemonic();
+        action.putValue(Action.MNEMONIC_KEY, mnemonic ? text.keyCode() : null);
+        action.putValue(Action.DISPLAYED_MNEMONIC_INDEX_KEY, mnemonic ? text.index() : null);
+        Icon icon = applied.string("icon")
+                .map(path -> services.icons().load(applied.iconPackage(), path))
+                .orElse(null);
+        action.putValue(Action.SMALL_ICON, icon);
+        action.putValue(Action.LARGE_ICON_KEY, icon);
+        action.putValue(Action.ACCELERATOR_KEY, keyStroke);
+        action.putValue(
+                Action.SHORT_DESCRIPTION, applied.string("tool-tip-text").orElse(null));
+        created.forEach(this::describe);
+        givenName = applied.string("accessible-name").orElse(null);
+        givenDescription = applied.string("accessible-description").orElse(null);
     }
 
     /**
@@ -211,11 +238,58 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
     }
 
     private <C extends AbstractButton> C accessible(C component) {
-        resources.string("accessible-name").ifPresent(name -> ComponentResources.setAccessibleName(component, name));
-        resources
-                .string("accessible-description")
-                .ifPresent(description -> ComponentResources.setAccessibleDescription(component, description));
+        created.add(component);
+        component.putClientProperty(ComponentInspector.COMMAND_PROPERTY, identity());
+        describe(component);
         return component;
+    }
+
+    // A name or description the command gave and its resources no longer give goes back to the component's own; one
+    // that something else gave, such as the view's resources or its code, stays.
+    private void describe(AbstractButton component) {
+        AccessibleContext context = component.getAccessibleContext();
+        String name = resources.string("accessible-name").orElse(null);
+        if (name != null) {
+            context.setAccessibleName(name);
+        } else if (givenName != null && givenName.equals(context.getAccessibleName())) {
+            context.setAccessibleName(null);
+        }
+        String description = resources.string("accessible-description").orElse(null);
+        if (description != null) {
+            context.setAccessibleDescription(description);
+        } else if (givenDescription != null && givenDescription.equals(context.getAccessibleDescription())) {
+            context.setAccessibleDescription(null);
+        }
+    }
+
+    // Takes the resources again, at a refresh; the registry registers the shortcut again. Resources that can't be
+    // applied, such as those of a reloaded file, are a warning, so that the refresh goes on.
+    void refresh() {
+        Exception thrown = Guarded.runCatchingExceptions(() -> apply(registry.resourcesOf(owner, id, overridable)));
+        if (thrown != null) {
+            LOGGER.log(
+                    System.Logger.Level.WARNING, "Skipped the resources of the command " + identity() + ": " + thrown);
+        }
+    }
+
+    // A toolbar button hides its text while the command has an icon: its accessible name is then the text, unless the
+    // resources give one, so that a toolbar never fails the accessibility checks. A name something else gave stays.
+    void nameToolBarButton(AbstractButton button) {
+        if (resources.string("accessible-name").isPresent()) {
+            return;
+        }
+        Object named = button.getClientProperty(TOOL_BAR_NAME);
+        String current = button.getAccessibleContext().getAccessibleName();
+        String name = hasIcon() ? text.text() : null;
+        if (named == null ? current == null || current.equals(button.getText()) : named.equals(current)) {
+            button.getAccessibleContext().setAccessibleName(name);
+            button.putClientProperty(TOOL_BAR_NAME, name);
+        }
+    }
+
+    // A component of a rebuilt menu section, which no longer follows the command's resources.
+    void forget(AbstractButton component) {
+        created.remove(component);
     }
 
     boolean run(CommandContext context) {
@@ -355,10 +429,27 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
                     value -> action.putValue(Action.SELECTED_KEY, value),
                     EdtDelivery.Order.FRAMEWORK);
         }
+        registerShortcut();
+    }
+
+    // Registers the shortcut in the window, once the command is attached.
+    void registerShortcut() {
         KeyStroke shortcut = keyStroke;
-        if (shortcut != null) {
-            view.window().shortcuts().register(shortcut, identity(), new ShortcutAction(this, shortcut));
+        if (attached && shortcut != null) {
+            // A command that loses its shortcut to another one in the window shows none there.
+            view().window()
+                    .shortcuts()
+                    .register(
+                            shortcut,
+                            identity(),
+                            new ShortcutAction(this, shortcut),
+                            priority,
+                            () -> action.putValue(Action.ACCELERATOR_KEY, null));
         }
+    }
+
+    boolean isAttached() {
+        return attached;
     }
 
     ViewHost view() {
@@ -383,6 +474,11 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
 
     Optional<KeyStroke> keyStroke() {
         return Optional.ofNullable(keyStroke);
+    }
+
+    @Nullable
+    KeyStroke defaultKeyStroke() {
+        return defaultKeyStroke;
     }
 
     boolean hasSelectedState() {

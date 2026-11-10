@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -27,13 +28,14 @@ public final class Column<E, V> {
     private static final Set<Class<?>> EDITABLE =
             Set.of(String.class, Boolean.class, Integer.class, Long.class, Double.class);
 
-    private final String header;
+    // Read when the table is bound and at every refresh, so that a header from messages follows the locale.
+    private final Supplier<String> header;
     private final Class<V> type;
     private final Function<? super E, ? extends @Nullable V> value;
     private final @Nullable BiFunction<? super E, ? super V, ? extends E> with;
 
     private Column(
-            String header,
+            Supplier<String> header,
             Class<V> type,
             Function<? super E, ? extends @Nullable V> value,
             @Nullable BiFunction<? super E, ? super V, ? extends E> with) {
@@ -59,6 +61,27 @@ public final class Column<E, V> {
         Objects.requireNonNull(header, "header");
         Objects.requireNonNull(type, "type");
         Objects.requireNonNull(value, "value");
+        return new Column<>(() -> header, type, value, null);
+    }
+
+    /**
+     * Returns a column whose cells can't be edited, whose header is read when the table is bound and again at every
+     * refresh, so that a header from typed messages follows the display locale:
+     * {@code Column.of(messages::firstNameHeader, String.class, Contact::firstName)}.
+     *
+     * @param header gives the header text, on the EDT
+     * @param type the type of the values, which the model's {@code getColumnClass} returns
+     * @param value gives the value of a row, {@code null} for an empty cell
+     * @param <E> the type of the rows
+     * @param <V> the type of the values
+     * @return the column
+     * @throws NullPointerException if an argument is {@code null}
+     */
+    public static <E, V> Column<E, V> of(
+            Supplier<String> header, Class<V> type, Function<? super E, ? extends @Nullable V> value) {
+        Objects.requireNonNull(header, "header");
+        Objects.requireNonNull(type, "type");
+        Objects.requireNonNull(value, "value");
         return new Column<>(header, type, value, null);
     }
 
@@ -76,14 +99,14 @@ public final class Column<E, V> {
     public Column<E, V> editable(BiFunction<? super E, ? super V, ? extends E> with) {
         Objects.requireNonNull(with, "with");
         if (!EDITABLE.contains(type)) {
-            throw new IllegalArgumentException("The column " + header + " of type " + type.getName()
+            throw new IllegalArgumentException("The column " + header.get() + " of type " + type.getName()
                     + " can't be editable: the table's default editors edit String, Boolean, Integer, Long and Double");
         }
         return new Column<>(header, type, value, with);
     }
 
     String header() {
-        return header;
+        return header.get();
     }
 
     Class<V> type() {
@@ -104,7 +127,7 @@ public final class Column<E, V> {
     E with(E row, V newValue) {
         BiFunction<? super E, ? super V, ? extends E> function = with;
         if (function == null) {
-            throw new IllegalStateException("The column " + header + " is not editable");
+            throw new IllegalStateException("The column " + header.get() + " is not editable");
         }
         return function.apply(row, newValue);
     }

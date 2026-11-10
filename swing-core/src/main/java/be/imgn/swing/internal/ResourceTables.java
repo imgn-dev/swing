@@ -85,19 +85,20 @@ public final class ResourceTables {
      *
      * @param type the class
      * @param locale the locale
+     * @param dark whether the dark variants are read
      * @return the table
      * @throws IllegalStateException if a file does not parse, or a reference names no value
      */
-    public TomlTable merged(Class<?> type, Locale locale) {
-        return resolve(unresolved(type, locale));
+    public TomlTable merged(Class<?> type, Locale locale, boolean dark) {
+        return resolve(unresolved(type, locale, dark));
     }
 
-    private TomlTable unresolved(Class<?> type, Locale locale) {
+    private TomlTable unresolved(Class<?> type, Locale locale, boolean dark) {
         Class<?> superclass = type.getSuperclass();
         TomlTable merged = superclass == null || superclass == Object.class
                 ? TomlTable.builder().build()
-                : unresolved(superclass, locale);
-        for (String file : fileNames(type.getSimpleName(), locale)) {
+                : unresolved(superclass, locale, dark);
+        for (String file : fileNames(type.getSimpleName(), locale, dark)) {
             Optional<TomlTable> table = read(type.getPackageName(), file);
             if (table.isPresent()) {
                 merged = merge(merged, table.get());
@@ -111,9 +112,10 @@ public final class ResourceTables {
      *
      * @param baseName the base name of the files, such as {@code NotesView}
      * @param locale the locale
+     * @param dark whether the dark variant is read, after every other file
      * @return the file names
      */
-    public List<String> fileNames(String baseName, Locale locale) {
+    public List<String> fileNames(String baseName, Locale locale, boolean dark) {
         List<String> stems = new ArrayList<>();
         stems.add(baseName);
         if (!locale.getLanguage().isEmpty()) {
@@ -126,6 +128,11 @@ public final class ResourceTables {
         for (String stem : stems) {
             names.add(stem + ".toml");
             platform.ifPresent(id -> names.add(stem + "." + id + ".toml"));
+        }
+        // Last, so that its colors win over a language file's copies of the base file's keys, which that file must
+        // hold.
+        if (dark) {
+            names.add(baseName + ".dark.toml");
         }
         return names;
     }

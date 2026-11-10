@@ -13,3 +13,6 @@ tool-tip-text = "save the current file"
 [commands.saveAs]
 text = "Save &As..."
 tool-tip-text = "save the current file to a new location"
+
+[textArea]
+accessible-name = "Document"

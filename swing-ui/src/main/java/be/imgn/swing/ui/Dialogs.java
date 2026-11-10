@@ -63,4 +63,15 @@ public interface Dialogs {
      * @throws NullPointerException if {@code documentName} is {@code null}
      */
     SaveChoice askSave(String documentName);
+
+    /**
+     * Shows the command palette over the window: an undecorated modal dialog with a field and the entries the field's
+     * text matches, as {@link CommandPalette#search(List, String)} ranks them. Typing filters; Up and Down move the
+     * selection; Enter chooses the selected entry; Escape, and the dialog losing the focus, cancel.
+     *
+     * @param entries the entries, in the order of {@link CommandPalette#entries()}
+     * @return the entry chosen, or empty when the user cancels
+     * @throws NullPointerException if {@code entries} is {@code null}
+     */
+    Optional<PaletteEntry> chooseCommand(List<PaletteEntry> entries);
 }

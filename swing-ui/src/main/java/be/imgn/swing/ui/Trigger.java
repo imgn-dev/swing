@@ -50,4 +50,7 @@ public sealed interface Trigger {
 
     /** Code ran the command, as with {@link BoundCommand#execute()}. */
     record Programmatic() implements Trigger {}
+
+    /** The user chose the command in the {@link CommandPalette}. */
+    record Palette() implements Trigger {}
 }

@@ -3,6 +3,7 @@ package be.imgn.swing.ui.internal;
 import be.imgn.gaia.core.platform.Platform;
 import be.imgn.inject.Injector;
 import be.imgn.swing.ReadyListener;
+import be.imgn.swing.Resources;
 import be.imgn.swing.internal.Contributions;
 import be.imgn.swing.internal.DefaultApplicationInfo;
 import be.imgn.swing.internal.DisposalScope;
@@ -55,6 +56,8 @@ public final class Launch {
             Launcher.runStartupSteps(root);
             Edt.invokeAndWait(() -> {
                 root.getInstance(LookAndFeelInstaller.class).install();
+                root.getInstance(AppliedLocale.class)
+                        .apply(root.getInstance(Resources.class).locale());
                 lookAndFeel.set(true);
                 root.getInstance(IconCache.class).check();
                 root.getInstance(FocusTracker.class).start();

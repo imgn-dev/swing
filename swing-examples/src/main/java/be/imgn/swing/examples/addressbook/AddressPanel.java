@@ -33,8 +33,10 @@ public final class AddressPanel extends JPanel {
     @Exposed
     final JLabel phoneLabel = new JLabel();
 
+    @Exposed
+    final JTextField street2Field = new JTextField(STREET_COLUMNS);
+
     private final JTextField street1Field = new JTextField(STREET_COLUMNS);
-    private final JTextField street2Field = new JTextField(STREET_COLUMNS);
     private final JTextField zipField = new JTextField(ZIP_COLUMNS);
     private final JTextField cityField = new JTextField(CITY_COLUMNS);
     private final JTextField phoneField = new JTextField(PHONE_COLUMNS);

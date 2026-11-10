@@ -9,13 +9,19 @@ import be.imgn.gaia.core.testing.OperatingSystem;
 import be.imgn.gaia.core.time.Ticker;
 import be.imgn.gaia.memfs.MemoryFileSystems;
 import be.imgn.inject.Injector;
+import be.imgn.swing.Appearance;
+import be.imgn.swing.Appearances;
 import be.imgn.swing.ApplicationInfo;
 import be.imgn.swing.Exit;
 import be.imgn.swing.FailureHandler;
+import be.imgn.swing.Locales;
 import be.imgn.swing.Scope;
 import be.imgn.swing.UiExecutor;
 import be.imgn.swing.internal.DefaultLifecycle;
 import be.imgn.swing.internal.DefaultSettingsStore;
+import be.imgn.swing.internal.HotReloading;
+import be.imgn.swing.internal.Refresher;
+import be.imgn.swing.internal.ResourceState;
 import be.imgn.swing.internal.TaskRunner;
 import be.imgn.swing.spi.SettingsDescriptor;
 import be.imgn.swing.ui.BoundCommand;
@@ -26,10 +32,12 @@ import be.imgn.swing.ui.MultiFrame;
 import be.imgn.swing.ui.SystemShell;
 import be.imgn.swing.ui.TaskbarStatus;
 import be.imgn.swing.ui.Windows;
+import be.imgn.swing.ui.internal.ComponentInspector;
 import be.imgn.swing.ui.internal.Edt;
 import be.imgn.swing.ui.internal.Launch;
 import be.imgn.swing.ui.internal.LaunchOptions;
 import be.imgn.swing.ui.internal.PeriodicActions;
+import be.imgn.swing.ui.internal.SwingLocale;
 import be.imgn.swing.ui.internal.TesterExtension;
 import be.imgn.swing.ui.internal.UiMode;
 import be.imgn.swing.ui.internal.UiTexts;
@@ -82,8 +90,8 @@ import org.jspecify.annotations.Nullable;
  * {@link FakeTicker}, once each, and waits for the tasks commands start and for the {@code @OnVirtualThread} deliveries
  * of the application's bus, but not for the other tasks an application starts, so assertions see the components as the
  * user will. A component repainted or invalidated off the EDT, a failure no handler handles, and duplicate mnemonics or
- * shortcuts, in a dialog or in a menu the framework rebuilt after a dynamic section changed, fail the test at the
- * tester's next call.
+ * shortcuts, in a dialog or in a menu the framework rebuilt after a dynamic section changed, and a component of a view
+ * or a dialog that the accessibility checks report, fail the test at the tester's next call.
  *
  * <p>The platform is gaia's {@link FakePlatform} for Linux, with its directories on a {@code gaia-memfs} file system,
  * so window state and settings are saved in memory. Every call also waits for the pending settings saves, and
@@ -111,6 +119,7 @@ public final class AppTester<T> implements AutoCloseable {
     private final FakeTicker ticker = new FakeTicker();
     private final FakeShell shell = new FakeShell();
     private final FakeTaskbar taskbar = new FakeTaskbar();
+    private final TesterAppearances appearances = new TesterAppearances();
     private volatile @Nullable DesktopFakes desktop;
     private final FileSystem fileSystem;
     private final boolean ownsFileSystem;
@@ -188,6 +197,9 @@ public final class AppTester<T> implements AutoCloseable {
                             .bind(SystemShell.class, shell)
                             .bind(TaskbarStatus.class, taskbar)
                             .bind(UiMode.class, new UiMode(true, failures::add))
+                            .bind(SwingLocale.class, ignored -> {})
+                            .bind(Appearances.class, appearances)
+                            .bind(HotReloading.class, new HotReloading(false))
                             .bind(Ticker.class, ticker)
                             .bind(InstantSource.class, InstantSource.fixed(Instant.EPOCH));
                     bindExtensions(builder);
@@ -196,6 +208,8 @@ public final class AppTester<T> implements AutoCloseable {
                     root.set(injector);
                     executor.attach(injector.getInstance(TaskRunner.class));
                     dialogs.texts(() -> injector.getInstance(UiTexts.class));
+                    appearances.attach(
+                            injector.getInstance(ResourceState.class), injector.getInstance(Refresher.class));
                     DefaultSettingsStore store = injector.getInstance(DefaultSettingsStore.class);
                     settings = store;
                     executor.attachSettings(store);
@@ -551,6 +565,51 @@ public final class AppTester<T> implements AutoCloseable {
      */
     public ApplicationInfo info() {
         return call(() -> root().getInstance(ApplicationInfo.class));
+    }
+
+    /**
+     * Changes the display locale with {@link Locales#set(Locale)}, on the EDT, then settles: the open windows are
+     * refreshed and the choice is saved when it returns. Swing's own default locale is left as it is, so that tests
+     * running in parallel don't share it.
+     *
+     * @param locale the new locale
+     * @throws NullPointerException if {@code locale} is {@code null}
+     */
+    public void locale(Locale locale) {
+        Objects.requireNonNull(locale, "locale");
+        run(() -> root().getInstance(Locales.class).set(locale));
+    }
+
+    /**
+     * Changes the appearance as the system would, on the EDT, then settles: the resources' dark variants are read, and
+     * the open windows are refreshed, when it returns. The tester's appearance starts light, whatever the system's
+     * setting, and the look and feel isn't installed again.
+     *
+     * @param appearance the new appearance
+     * @throws NullPointerException if {@code appearance} is {@code null}
+     */
+    public void appearance(Appearance appearance) {
+        Objects.requireNonNull(appearance, "appearance");
+        run(() -> appearances.change(appearance));
+    }
+
+    /**
+     * Returns what the inspector overlay shows for a component of an open window: its type, its view, the path of the
+     * {@code @Exposed} field that holds it and the command that created it.
+     *
+     * @param component the component
+     * @return the inspection
+     * @throws NullPointerException if {@code component} is {@code null}
+     * @throws IllegalArgumentException if the component is in no open window
+     */
+    public Inspection inspect(Component component) {
+        Objects.requireNonNull(component, "component");
+        return call(() -> root().getInstance(ComponentInspector.class)
+                .inspect(component)
+                .map(inspected ->
+                        new Inspection(inspected.type(), inspected.view(), inspected.field(), inspected.command()))
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "The " + component.getClass().getName() + " is in no open window")));
     }
 
     /**

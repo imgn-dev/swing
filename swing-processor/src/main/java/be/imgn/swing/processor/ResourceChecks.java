@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -77,7 +78,12 @@ final class ResourceChecks {
                 shared.files().of(packageName, type.getSimpleName().toString());
         Set<String> icons = new TreeSet<>();
         for (ResourceFile file : files) {
-            if (file.error() != null) {
+            if (file.isDark() && (!file.language().isEmpty() || !file.platform().isEmpty())) {
+                reporter.error(
+                        type,
+                        file.name() + " is a dark variant with a locale or a platform part: only "
+                                + type.getSimpleName() + ".dark.toml is read while the appearance is dark");
+            } else if (file.error() != null) {
                 reporter.error(type, file, file.error().position(), MessagesStep.message(file.error()));
             } else {
                 checkFile(new Source(model, file, file.parsed().orElseThrow().positions(), icons));
@@ -125,7 +131,7 @@ final class ResourceChecks {
     private void checkInheritedNested(Model model, ResourceFile file, TomlPositions positions, TomlTable table) {
         table.entries().forEach((key, value) -> {
             VariableElement component = model.components().get(key);
-            if (!Set.of("commands", "menus", "variants").contains(key)
+            if (!Set.of("commands", "menus", "variants", "flatlaf").contains(key)
                     && component != null
                     && value instanceof TomlTable properties) {
                 checkInheritedNested(model, file, positions, new FieldTable(key, component, properties));
@@ -167,6 +173,7 @@ final class ResourceChecks {
                 case "variants" ->
                     table(model.type(), file, positions, root, key)
                             .ifPresent(variants -> checkVariants(source, root, variants));
+                case "flatlaf" -> checkFlatLaf(source, root, value);
                 default -> {
                     if (value instanceof TomlTable component) {
                         checkComponent(source, root, key, component);
@@ -174,6 +181,39 @@ final class ResourceChecks {
                         checkClassProperty(source, root, key, value);
                     }
                 }
+            }
+        }
+    }
+
+    // FlatLaf's keys and variables are its own and the application's: only the table's form is checked.
+    private void checkFlatLaf(Source source, TomlTable root, TomlValue value) {
+        Model model = source.model();
+        ResourceFile file = source.file();
+        TomlPositions positions = source.positions();
+        if (!model.application()) {
+            reporter.error(
+                    model.type(),
+                    file,
+                    positions.key(root, "flatlaf"),
+                    "A [flatlaf] table is allowed in the resources of the @Application class only");
+            return;
+        }
+        if (!(value instanceof TomlTable tokens)) {
+            reporter.error(model.type(), file, positions.value(root, "flatlaf"), "flatlaf must be a table");
+            return;
+        }
+        for (Map.Entry<String, TomlValue> token : tokens.entries().entrySet()) {
+            if (token.getKey().isBlank()) {
+                reporter.error(
+                        model.type(), file, positions.key(tokens, token.getKey()), "A FlatLaf token has a blank key");
+            } else if (!(token.getValue() instanceof TomlString
+                    || token.getValue() instanceof TomlInteger
+                    || token.getValue() instanceof TomlBoolean)) {
+                reporter.error(
+                        model.type(),
+                        file,
+                        positions.value(tokens, token.getKey()),
+                        "The FlatLaf token " + token.getKey() + " must be a string, an integer or a boolean");
             }
         }
     }
@@ -254,7 +294,7 @@ final class ResourceChecks {
         TomlPositions positions = source.positions();
         for (Map.Entry<String, TomlValue> entry : variant.entries().entrySet()) {
             String key = entry.getKey();
-            if (Set.of("commands", "menus", "variants").contains(key)) {
+            if (Set.of("commands", "menus", "variants", "flatlaf").contains(key)) {
                 reporter.error(
                         model.type(),
                         file,
@@ -349,8 +389,10 @@ final class ResourceChecks {
     // variant, as the runtime reads them, and with shortcut as a modifier of its own, since it is Ctrl on one platform
     // and Meta on another. A collision is reported once, at the shortcut the later file of the chain set.
     private void checkShortcuts(Model model, List<ResourceFile> files) {
+        // The dark variant comes last, as the runtime reads it.
         List<ResourceFile> chain = files.stream()
                 .filter(file -> file.language().isEmpty() && file.document() != null)
+                .sorted(Comparator.comparing(ResourceFile::isDark))
                 .toList();
         Set<String> platforms = new LinkedHashSet<>();
         platforms.add("");
@@ -360,7 +402,8 @@ final class ResourceChecks {
             Map<String, Shortcut> merged = new LinkedHashMap<>();
             for (ResourceFile file : chain) {
                 if (file.platform().isEmpty() || file.platform().equals(platform)) {
-                    merged.putAll(shortcuts(file, file.platform().isEmpty() ? 0 : 1));
+                    merged.putAll(
+                            shortcuts(file, file.isDark() ? 2 : file.platform().isEmpty() ? 0 : 1));
                 }
             }
             checkCollisions(model, merged.values(), reported);
@@ -780,7 +823,7 @@ final class ResourceChecks {
         TomlDocument baseDocument = base.get().document();
         Map<List<String>, Leaf> baseLeaves = leaves(baseDocument.root());
         for (ResourceFile file : files) {
-            if (!file.isLocale() || file.document() == null) {
+            if (!(file.isLocale() || file.isDark()) || file.document() == null) {
                 continue;
             }
             Map<List<String>, Leaf> leaves = leaves(file.document().root());

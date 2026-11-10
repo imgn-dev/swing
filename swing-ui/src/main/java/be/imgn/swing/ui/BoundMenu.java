@@ -8,7 +8,7 @@ public final class BoundMenu {
 
     private final MenuBuilder builder;
     private final String id;
-    private final Mnemonics text;
+    private Mnemonics text;
 
     BoundMenu(MenuBuilder builder, String id, Mnemonics text) {
         this.builder = builder;
@@ -41,6 +41,10 @@ public final class BoundMenu {
 
     Mnemonics text() {
         return text;
+    }
+
+    void text(Mnemonics refreshed) {
+        this.text = refreshed;
     }
 
     @Override

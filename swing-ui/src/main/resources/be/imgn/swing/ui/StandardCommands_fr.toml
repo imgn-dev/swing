@@ -36,3 +36,9 @@ text = "&Annuler"
 
 [commands.redo]
 text = "&Rétablir"
+
+[commands.keymap]
+text = "Raccourcis cla&vier…"
+
+[commands.commandPalette]
+text = "Pa&lette de commandes…"

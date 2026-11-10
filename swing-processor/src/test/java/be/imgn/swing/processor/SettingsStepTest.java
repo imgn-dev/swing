@@ -189,4 +189,27 @@ class SettingsStepTest {
                 .failed()
                 .hadErrorContaining("The settings records p.First and p.Second have the same id editor");
     }
+
+    @Test
+    void rejectsTheIdsOfTheFramework() {
+        rejectsTheIdOfTheFramework("locale");
+        rejectsTheIdOfTheFramework("keymap");
+    }
+
+    private static void rejectsTheIdOfTheFramework(String id) {
+        var compilation =
+                Sources.create().source("p.EditorSettings", """
+                        package p;
+
+                        @be.imgn.swing.Settings("%s")
+                        @be.imgn.toml.TomlConfig
+                        public record EditorSettings(int size) {
+                            public EditorSettings() {
+                                this(1);
+                            }
+                        }
+                        """.formatted(id)).compile();
+
+        assertThat(compilation).failed().hadErrorContaining("The settings id \"" + id + "\" belongs to the framework");
+    }
 }

@@ -76,6 +76,13 @@ public final class SwingWindows implements Windows {
         @Override
         public void setTitle(String title) {
             frame.setTitle(title);
+            frame.getRootPane().putClientProperty(WindowRegistry.TITLE_PROPERTY, title);
+        }
+
+        @Override
+        public String title() {
+            String title = frame.getTitle();
+            return title == null ? "" : title;
         }
 
         @Override
@@ -117,6 +124,13 @@ public final class SwingWindows implements Windows {
         @Override
         public void setTitle(String title) {
             dialog.setTitle(title);
+            dialog.getRootPane().putClientProperty(WindowRegistry.TITLE_PROPERTY, title);
+        }
+
+        @Override
+        public String title() {
+            String title = dialog.getTitle();
+            return title == null ? "" : title;
         }
 
         @Override

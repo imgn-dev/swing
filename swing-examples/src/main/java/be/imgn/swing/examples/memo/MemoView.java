@@ -1,7 +1,6 @@
 package be.imgn.swing.examples.memo;
 
 import be.imgn.inject.Inject;
-import be.imgn.swing.Observable;
 import be.imgn.swing.Property;
 import be.imgn.swing.Scope;
 import be.imgn.swing.desktop.Document;
@@ -39,7 +38,9 @@ public final class MemoView implements FrameView, DocumentView<String> {
     @Exposed
     final JTextArea editor = new JTextArea();
 
-    private final JLabel status = new JLabel();
+    @Exposed
+    final JLabel status = new JLabel();
+
     private final Property<String> text = Property.of("");
     // The name of the file just saved, until the next change of the text; empty otherwise.
     private final Property<String> savedTo = Property.of("");
@@ -75,12 +76,11 @@ public final class MemoView implements FrameView, DocumentView<String> {
         ui.bind(isModified -> modified.changed(document, isModified), document.modified());
         scope.onClose(() -> modified.closed(document));
         ui.bind(ignored -> savedTo.set(""), text);
-        ui.bind(
-                status::setText,
-                Observable.combine(
-                        text,
-                        savedTo,
-                        (note, saved) -> saved.isEmpty() ? messages.words(words(note)) : messages.saved(saved)));
+        ui.render(
+                () -> status.setText(
+                        savedTo.get().isEmpty() ? messages.words(words(text.get())) : messages.saved(savedTo.get())),
+                text,
+                savedTo);
         JScrollPane scroll = new JScrollPane(editor);
         scroll.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         JPanel panel = new JPanel(new BorderLayout());
@@ -117,7 +117,11 @@ public final class MemoView implements FrameView, DocumentView<String> {
                                 commands.cut(),
                                 commands.copy(),
                                 commands.paste(),
-                                commands.selectAll()),
+                                commands.selectAll(),
+                                MenuEntry.SEPARATOR,
+                                commands.commandPalette(),
+                                commands.keymap()),
+                ui.menus().window().with(commands.openWindows()),
                 ui.menus().help().with(commands.about()));
     }
 

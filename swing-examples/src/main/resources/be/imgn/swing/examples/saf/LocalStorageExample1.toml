@@ -7,3 +7,12 @@ tool-tip-text = "Add a random key value entry to the map"
 [commands.clearMap]
 text = "&Clear"
 tool-tip-text = "Clear the all of the map's entries"
+
+[key]
+accessible-name = "Key"
+
+[value]
+accessible-name = "Value"
+
+[mapList]
+accessible-name = "Entries"
