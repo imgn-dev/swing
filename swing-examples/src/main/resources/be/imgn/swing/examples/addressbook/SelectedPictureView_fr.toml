@@ -1,0 +1,5 @@
+title = "Photo du Contact"
+icon = "icons/contact_picture.png"
+
+[picture]
+accessible-name = "Photo du contact"

@@ -41,7 +41,7 @@ public final class ComponentInspector {
         return windows.windowOf(rootPane)
                 .filter(window -> !window.views().isEmpty())
                 .map(window -> {
-                    ViewHost view = window.views().getFirst();
+                    ViewHost view = viewHolding(window, component);
                     String command = component instanceof JComponent held
                                     && held.getClientProperty(COMMAND_PROPERTY) instanceof String identity
                             ? identity
@@ -53,6 +53,28 @@ public final class ComponentInspector {
                             command,
                             window.kind());
                 });
+    }
+
+    // The innermost added view whose content holds the component, else the window's own view.
+    private static ViewHost viewHolding(WindowHost window, Component component) {
+        for (ViewHost view : window.views().reversed()) {
+            if (view.content().filter(content -> holds(content, component)).isPresent()) {
+                return view;
+            }
+        }
+        return window.views().getFirst();
+    }
+
+    // Whether a container holds a component, through the invokers of popup menus too.
+    private static boolean holds(Component container, Component component) {
+        @Nullable Component current = component;
+        while (current != null) {
+            if (current.equals(container)) {
+                return true;
+            }
+            current = current instanceof JPopupMenu popup ? popup.getInvoker() : current.getParent();
+        }
+        return false;
     }
 
     // A menu item is in a popup menu, whose root pane is its own when heavyweight, or none: its invoker's is the

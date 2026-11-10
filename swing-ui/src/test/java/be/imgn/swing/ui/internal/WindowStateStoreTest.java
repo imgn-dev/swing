@@ -118,6 +118,84 @@ class WindowStateStoreTest {
         assertThat(store.get("p.RenameDialog")).contains(new SavedWindow(List.of(300, 200, 320, 160), null, null));
     }
 
+    @Test
+    void savesAndRestoresTheStateOfAddedViewsAndTheLayoutOfADock() {
+        SavedLayout layout = new SavedLayout(
+                "horizontal",
+                0.33,
+                new SavedLayout(null, null, null, null, List.of("p.ListView"), 0),
+                new SavedLayout(null, null, null, null, List.of("p.PictureView", "p.DetailView"), 1),
+                null,
+                null);
+        SavedWindow window = new SavedWindow(
+                List.of(1, 2, 3, 4),
+                false,
+                null,
+                null,
+                Map.of("p.ListView", new SavedView(Map.of("table", new SavedComponent(null, null, null)))),
+                layout);
+
+        store.save("main", window);
+        store.load();
+
+        assertThat(store.get("main")).contains(window);
+    }
+
+    @Test
+    void discardsAStateWhoseDockIsOfTheWrongType() throws Exception {
+        Files.writeString(store.file(), """
+                [windows.main]
+                bounds = [1, 2, 3, 4]
+                dock = "list"
+                """);
+
+        store.load();
+
+        assertThat(store.get("main")).isEmpty();
+    }
+
+    @Test
+    void readsANestedDockLayout() throws Exception {
+        Files.writeString(store.file(), """
+                [windows.main.dock]
+                split = "horizontal"
+                proportion = 0.2
+
+                [windows.main.dock.first]
+                tabs = ["p.A"]
+                selected = 0
+
+                [windows.main.dock.second]
+                split = "vertical"
+                proportion = 0.6
+
+                [windows.main.dock.second.first]
+                tabs = ["p.B", "p.C"]
+                selected = 1
+
+                [windows.main.dock.second.second]
+                tabs = ["p.D"]
+                selected = 0
+                """);
+
+        store.load();
+
+        assertThat(store.get("main").map(SavedWindow::dock))
+                .contains(new SavedLayout(
+                        "horizontal",
+                        0.2,
+                        new SavedLayout(null, null, null, null, List.of("p.A"), 0),
+                        new SavedLayout(
+                                "vertical",
+                                0.6,
+                                new SavedLayout(null, null, null, null, List.of("p.B", "p.C"), 1),
+                                new SavedLayout(null, null, null, null, List.of("p.D"), 0),
+                                null,
+                                null),
+                        null,
+                        null));
+    }
+
     // A Linux platform whose directories are all under a temporary home.
     private record TestPlatform(Path home) implements Platform {
 

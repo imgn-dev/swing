@@ -21,8 +21,10 @@ module be.imgn.swing.ui {
     exports be.imgn.swing.ui.spi;
     exports be.imgn.swing.ui.internal to
             be.imgn.swing.desktop,
+            be.imgn.swing.docking,
             be.imgn.swing.flatlaf,
-            be.imgn.swing.testing;
+            be.imgn.swing.testing,
+            be.imgn.swing.wizard;
 
     uses ComponentInjector;
     uses ComponentState;

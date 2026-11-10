@@ -10,9 +10,9 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementFilter;
 
 /**
- * Generates the {@code <Class>Factory} of a dialog view whose {@code @Inject} constructor has {@code @Assisted}
- * parameters: the {@code @AssistedFactory} interface that {@code Ui.showDialog} takes, which would otherwise be written
- * by hand for each such dialog.
+ * Generates the {@code <Class>Factory} of a dialog, frame or dock view whose {@code @Inject} constructor has
+ * {@code @Assisted} parameters: the {@code @AssistedFactory} interface that {@code Ui.showDialog}, {@code Frames.open}
+ * and {@code Dock.open} take, which would otherwise be written by hand for each such view.
  */
 final class DialogFactories {
 
@@ -36,10 +36,13 @@ final class DialogFactories {
         }
     }
 
-    // The @Assisted parameters of the @Inject constructor of a dialog or frame view; none for any other class.
+    // The @Assisted parameters of the @Inject constructor of a dialog, frame or dock view; none for any other class.
     private static List<VariableElement> assistedParameters(ProcessingContext context, TypeElement type) {
+        boolean dockView = context.elements().getTypeElement(Names.DOCK_VIEW) != null
+                && context.isSubtype(type.asType(), Names.DOCK_VIEW);
         if (!context.isSubtype(type.asType(), Names.DIALOG_VIEW)
-                && !context.isSubtype(type.asType(), Names.FRAME_VIEW)) {
+                && !context.isSubtype(type.asType(), Names.FRAME_VIEW)
+                && !dockView) {
             return List.of();
         }
         return ElementFilter.constructorsIn(type.getEnclosedElements()).stream()

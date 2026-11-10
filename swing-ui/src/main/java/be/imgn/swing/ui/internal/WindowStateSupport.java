@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -44,6 +45,9 @@ public final class WindowStateSupport {
     private @Nullable Rectangle normalBounds;
     private @Nullable Path directory;
     private boolean directoryLoaded;
+    // The state of the added views that closed, by the binary name of their class, until the window's is saved.
+    private final Map<String, SavedView> kept = new LinkedHashMap<>();
+    private Supplier<Optional<SavedLayout>> layout = Optional::empty;
 
     @Inject
     WindowStateSupport(Window window, WindowStateStore store, WindowRegistry registry, ViewSupports supports) {
@@ -87,7 +91,7 @@ public final class WindowStateSupport {
             return false;
         }
         Map<String, SavedComponent> components = saved.get().components();
-        restoreComponents(host, components == null ? Map.of() : components);
+        restoreComponents(ownViews(host), components == null ? Map.of() : components);
         if (awt == null || !restoreBounds) {
             return false;
         }
@@ -125,14 +129,88 @@ public final class WindowStateSupport {
             }
             maximized = awt instanceof Frame frame && (frame.getExtendedState() & Frame.MAXIMIZED_BOTH) != 0;
         }
-        Map<String, SavedComponent> components = captureComponents(host);
+        Map<String, SavedComponent> components = captureComponents(ownViews(host));
+        // The added views open now, read now; what closed ones left in this session, for the classes of no open view;
+        // and what was saved before, for the classes neither open nor closed in this session.
+        Map<String, SavedView> views = new LinkedHashMap<>();
+        store.get(host.stateKey()).map(SavedWindow::views).ifPresent(views::putAll);
+        views.putAll(kept);
+        for (ViewHost view : savingViews(host)) {
+            views.put(view.type().getName(), captureView(view));
+        }
         store.save(
                 host.stateKey(),
                 new SavedWindow(
                         bounds,
                         host.isFrame() ? maximized : null,
                         components.isEmpty() ? null : components,
-                        directory().map(Path::toString).orElse(null)));
+                        directory().map(Path::toString).orElse(null),
+                        views.isEmpty() ? null : views,
+                        layout.get().orElse(null)));
+    }
+
+    /**
+     * Restores the components of an added view, once its content is placed: from the state its class's views left when
+     * they closed in this session, else from the window's saved state. A view created through an assisted factory
+     * restores none.
+     *
+     * @param view the added view
+     */
+    public void restoreAdded(ViewHost view) {
+        if (view.isFromFactory()) {
+            return;
+        }
+        String type = view.type().getName();
+        Optional<SavedView> state = Optional.ofNullable(kept.get(type))
+                .or(() -> store.get(host().stateKey()).map(SavedWindow::views).map(views -> views.get(type)));
+        restoreComponents(List.of(view), state.map(SavedView::components).orElse(Map.of()));
+    }
+
+    /**
+     * Keeps the state of an added view that closes, until the window's state is saved. A view created through an
+     * assisted factory keeps none.
+     *
+     * @param view the added view
+     */
+    public void keep(ViewHost view) {
+        if (!view.isFromFactory()) {
+            kept.put(view.type().getName(), captureView(view));
+        }
+    }
+
+    /**
+     * Returns the saved layout of the window's dock.
+     *
+     * @return the layout, empty when none is saved
+     */
+    public Optional<SavedLayout> savedLayout() {
+        return store.get(host().stateKey()).map(SavedWindow::dock);
+    }
+
+    /**
+     * Sets what gives the layout of the window's dock when the window's state is saved.
+     *
+     * @param source the layout, empty when the dock has none to save
+     */
+    public void layout(Supplier<Optional<SavedLayout>> source) {
+        this.layout = source;
+    }
+
+    // The window's own view, the one it opened with.
+    private static List<ViewHost> ownViews(WindowHost host) {
+        return host.views().stream().filter(view -> !view.isAdded()).toList();
+    }
+
+    // The added views whose state is saved: those not created through a factory.
+    private static List<ViewHost> savingViews(WindowHost host) {
+        return host.views().stream()
+                .filter(view -> view.isAdded() && !view.isFromFactory())
+                .toList();
+    }
+
+    private SavedView captureView(ViewHost view) {
+        Map<String, SavedComponent> components = captureComponents(List.of(view));
+        return new SavedView(components.isEmpty() ? null : components);
     }
 
     /**
@@ -161,9 +239,9 @@ public final class WindowStateSupport {
         directory = chosen.toAbsolutePath();
     }
 
-    private Map<String, Component> components(WindowHost host) {
+    private Map<String, Component> components(List<ViewHost> views) {
         Map<String, Component> components = new LinkedHashMap<>();
-        for (ViewHost view : host.views()) {
+        for (ViewHost view : views) {
             view.view().ifPresent(instance -> components.putAll(componentsOf(view.type(), instance)));
         }
         return components;
@@ -175,9 +253,9 @@ public final class WindowStateSupport {
                 .orElse(Map.of());
     }
 
-    private Map<String, SavedComponent> captureComponents(WindowHost host) {
+    private Map<String, SavedComponent> captureComponents(List<ViewHost> views) {
         Map<String, SavedComponent> saved = new LinkedHashMap<>();
-        components(host).forEach((field, component) -> capture(component).ifPresent(state -> saved.put(field, state)));
+        components(views).forEach((field, component) -> capture(component).ifPresent(state -> saved.put(field, state)));
         return saved;
     }
 
@@ -198,8 +276,8 @@ public final class WindowStateSupport {
         };
     }
 
-    private void restoreComponents(WindowHost host, Map<String, SavedComponent> saved) {
-        components(host).forEach((field, component) -> {
+    private void restoreComponents(List<ViewHost> views, Map<String, SavedComponent> saved) {
+        components(views).forEach((field, component) -> {
             SavedComponent state = saved.get(field);
             if (state != null) {
                 apply(component, state);

@@ -1,96 +1,47 @@
 package be.imgn.swing.examples.addressbook;
 
-import be.imgn.gaia.core.event.EventBus;
 import be.imgn.gaia.core.event.Subscribe;
 import be.imgn.inject.Inject;
 import be.imgn.swing.Application;
-import be.imgn.swing.Property;
 import be.imgn.swing.Scope;
-import be.imgn.swing.ui.Column;
-import be.imgn.swing.ui.Converter;
-import be.imgn.swing.ui.Exposed;
-import be.imgn.swing.ui.FormPanel;
+import be.imgn.swing.docking.Dock;
+import be.imgn.swing.docking.DockRegion;
+import be.imgn.swing.docking.Placement;
 import be.imgn.swing.ui.SingleFrame;
 import be.imgn.swing.ui.Swing;
-import be.imgn.swing.ui.Ui;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import org.jspecify.annotations.Nullable;
 
 /**
- * The main window of the address book: the list of contacts, above the details of the selected one, beside its picture.
- * Guts' demo builds them as three views; a single-frame application has one view, so their components are fields of the
- * application class. As in Guts, the list publishes the selected contact as a {@link ContactSelected} event, which the
- * details and the picture consume.
+ * The main window of the address book, docked as in Guts' docking demo: the contacts list, the selected contact's
+ * detail below it, and its picture beside them, each a view of the window's dock, which the user rearranges and the
+ * Views menu opens again. The list publishes the selected contact as a {@link ContactSelected} event; a contact's
+ * picture opens in a tab of its own beside the selected one's.
  */
 @Application(name = "AddressBook", vendor = "jfpoilpret")
 public final class AddressBookApp implements SingleFrame {
 
-    private static final int NAME_COLUMNS = 20;
-    private static final int IMAGE_SIZE = 200;
+    /** The placement of the selected contact's picture in the first layout: it fills the empty dock. */
+    static final Placement PICTURE = Placement.tab();
 
-    @Exposed
-    final JTable table = new JTable();
+    /** The placement of the contacts list in the first layout: west of the picture. */
+    static final Placement LIST = Placement.of(DockRegion.WEST, 0.33);
 
-    @Exposed
-    final JLabel firstNameLabel = new JLabel();
+    /** The placement of the contact detail in the first layout: south of the list. */
+    static final Placement DETAIL = Placement.beside(ContactListView.class, DockRegion.SOUTH, 0.5);
 
-    @Exposed
-    final JLabel lastNameLabel = new JLabel();
-
-    @Exposed
-    final JLabel birthLabel = new JLabel();
-
-    @Exposed
-    final JLabel picture = new JLabel("", SwingConstants.CENTER);
-
-    @Exposed
-    final JSplitPane secondarySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-
-    @Exposed
-    final JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-
-    private final JTextField firstName = new JTextField(NAME_COLUMNS);
-    private final JTextField lastName = new JTextField(NAME_COLUMNS);
-    private final JTextField birth = new JTextField(NAME_COLUMNS);
-    private final Property<Optional<Contact>> selected = Property.of(Optional.empty());
-    private final AddressBookService service;
+    private final Dock dock;
+    private final CurrentContact current;
     private final AddressBookMenuBar menuBar;
-    private final Ui ui;
     private final Scope scope;
-    private final EventBus bus;
-    private final AddressBookMessages messages;
-    private final Converter<Optional<LocalDate>> birthDate;
-    // The contact whose picture is shown, or null for none.
-    private @Nullable Contact pictured;
 
     @Inject
-    AddressBookApp(
-            AddressBookService service,
-            AddressBookMenuBar menuBar,
-            Ui ui,
-            Scope scope,
-            EventBus bus,
-            AddressBookMessages messages) {
-        this.service = service;
+    AddressBookApp(Dock dock, CurrentContact current, AddressBookMenuBar menuBar, Scope scope) {
+        this.dock = dock;
+        this.current = current;
         this.menuBar = menuBar;
-        this.ui = ui;
         this.scope = scope;
-        this.bus = bus;
-        this.messages = messages;
-        this.birthDate = ContactForm.birthDate(messages);
     }
 
     /**
@@ -104,66 +55,40 @@ public final class AddressBookApp implements SingleFrame {
 
     @Override
     public JComponent content() {
-        ui.bind(
-                table,
-                service.contacts(),
-                List.of(
-                        Column.of(messages::firstNameHeader, String.class, Contact::firstName),
-                        Column.of(messages::lastNameHeader, String.class, Contact::lastName),
-                        Column.of(
-                                messages::homeCityHeader,
-                                String.class,
-                                contact -> contact.home().city())),
-                selected,
-                Contact::id);
-        selected.subscribe(scope, contact -> bus.publish(new ContactSelected(contact)));
-        secondarySplit.setTopComponent(new JScrollPane(table));
-        secondarySplit.setBottomComponent(detail());
-        picture.setMinimumSize(new Dimension(IMAGE_SIZE, IMAGE_SIZE));
-        picture.setPreferredSize(new Dimension(IMAGE_SIZE, IMAGE_SIZE));
-        // Again at every refresh, so that the text follows the locale.
-        ui.render(this::showPictureText);
-        mainSplit.setLeftComponent(secondarySplit);
-        mainSplit.setRightComponent(picture);
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(mainSplit, BorderLayout.CENTER);
-        return panel;
+        // A contact selected in the list selects its picture tab, if open, leaving the active view as it is.
+        current.contact()
+                .subscribe(scope, contact -> contact.flatMap(this::pictureOf).ifPresent(dock::select));
+        // A picture tab that becomes the active view selects its contact, as the service holds it now.
+        dock.active()
+                .subscribe(
+                        scope,
+                        active -> active.filter(ContactPictureView.class::isInstance)
+                                .map(view ->
+                                        ((ContactPictureView) view).contact().id())
+                                .ifPresent(current::select));
+        return dock.area(opened -> {
+            opened.open(SelectedPictureView.class, PICTURE);
+            opened.open(ContactListView.class, LIST);
+            opened.open(ContactDetailView.class, DETAIL);
+        });
     }
 
-    private JComponent detail() {
-        firstName.setEditable(false);
-        lastName.setEditable(false);
-        birth.setEditable(false);
-        return FormPanel.create()
-                .row(firstNameLabel, firstName)
-                .row(lastNameLabel, lastName)
-                .row(birthLabel, birth)
-                .build();
+    private Optional<ContactPictureView> pictureOf(Contact contact) {
+        return dock.views().stream()
+                .filter(ContactPictureView.class::isInstance)
+                .map(ContactPictureView.class::cast)
+                .filter(view -> view.contact().id() == contact.id())
+                .findFirst();
     }
 
     @Subscribe
-    void showDetail(ContactSelected event) {
-        var contact = event.contact();
-        firstName.setText(contact.map(Contact::firstName).orElse(""));
-        lastName.setText(contact.map(Contact::lastName).orElse(""));
-        birth.setText(birthDate.format(contact.flatMap(Contact::birthDate)));
-    }
-
-    @Subscribe
-    void showPicture(ContactSelected event) {
-        var contact = event.contact();
-        pictured = contact.orElse(null);
-        picture.setIcon(contact.flatMap(selection -> service.contactPicture(selection.id()))
-                .orElse(null));
-        showPictureText();
-    }
-
-    private void showPictureText() {
-        if (pictured == null) {
-            picture.setText(messages.noContactSelected());
-        } else {
-            picture.setText(picture.getIcon() != null ? "" : messages.noPicture());
-        }
+    void openPicture(PictureRequested event) {
+        Contact contact = event.contact();
+        dock.open(
+                ContactPictureViewFactory.class,
+                factory -> factory.create(contact),
+                Integer.toString(contact.id()),
+                Placement.tabWith(SelectedPictureView.class));
     }
 
     @Override

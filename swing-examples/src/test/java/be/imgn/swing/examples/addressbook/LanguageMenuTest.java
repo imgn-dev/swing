@@ -29,7 +29,8 @@ class LanguageMenuTest {
         try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class, Locale.ENGLISH)) {
             app.commands(GeneralActionsCommands.class).french().execute();
 
-            assertThat(menus(app)).containsExactly("Fichier", "Édition", "Contacts", "Langage", "Tests de tâches");
+            assertThat(menus(app))
+                    .containsExactly("Fichier", "Édition", "Contacts", "Langage", "Vues", "Tests de tâches");
             assertThat(items(app, "Langage")).containsExactly("Francais", "Anglais");
             assertThat(app.call(() -> headers(app))).containsExactly("Prénom", "Nom", "Ville");
             assertThat(app.call(() -> details(app)))
@@ -46,7 +47,7 @@ class LanguageMenuTest {
 
             general.english().execute();
 
-            assertThat(menus(app)).containsExactly("File", "Edit", "Contacts", "Language", "Tasks Tests");
+            assertThat(menus(app)).containsExactly("File", "Edit", "Contacts", "Language", "Views", "Tasks Tests");
             assertThat(app.call(() -> headers(app))).containsExactly("First Name", "Last Name", "Home City");
             assertThat(app.call(() -> details(app)))
                     .containsExactly("First Name", "Last Name", "Birth Date", "No contact selected");
@@ -105,16 +106,17 @@ class LanguageMenuTest {
 
     // The detail panel's labels, then the picture's text.
     private static List<String> details(AppTester<AddressBookApp> app) {
-        AddressBookApp view = app.application();
+        ContactDetailView detail = AddressBookViews.view(app, ContactDetailView.class);
+        SelectedPictureView picture = AddressBookViews.view(app, SelectedPictureView.class);
         return List.of(
-                view.firstNameLabel.getText(),
-                view.lastNameLabel.getText(),
-                view.birthLabel.getText(),
-                view.picture.getText());
+                detail.firstNameLabel.getText(),
+                detail.lastNameLabel.getText(),
+                detail.birthLabel.getText(),
+                picture.picture.getText());
     }
 
     private static List<String> headers(AppTester<AddressBookApp> app) {
-        JTable table = app.application().table;
+        JTable table = AddressBookViews.table(app);
         return IntStream.range(0, table.getColumnCount())
                 .mapToObj(table::getColumnName)
                 .toList();

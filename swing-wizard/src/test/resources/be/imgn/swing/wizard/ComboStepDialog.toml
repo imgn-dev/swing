@@ -1,0 +1,10 @@
+title = "Colors"
+
+[nameLabel]
+text = "Name"
+
+[colorLabel]
+text = "Color"
+
+[shadeLabel]
+text = "Shade"

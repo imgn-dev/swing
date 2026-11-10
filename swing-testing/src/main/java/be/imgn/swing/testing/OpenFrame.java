@@ -1,6 +1,7 @@
 package be.imgn.swing.testing;
 
 import be.imgn.swing.ui.StandardCommands;
+import be.imgn.swing.ui.View;
 import be.imgn.swing.ui.internal.ViewHost;
 import java.awt.Component;
 import java.awt.Image;
@@ -60,6 +61,25 @@ public final class OpenFrame<V> {
     public <B> B bean(Class<B> type) {
         Objects.requireNonNull(type, "type");
         return tester.call(() -> host.injector().getInstance(type));
+    }
+
+    /**
+     * Resolves a bean through the injector of an open view of the frame, its own view or one added while it is open,
+     * such as a dock view: {@link #bean(Class)} and {@link #commands(Class)} resolve through the own view's injector,
+     * where an added view's view-scoped beans would be built anew, apart from the view.
+     *
+     * @param view the view
+     * @param type the bean's class
+     * @param <B> the bean's class
+     * @return the bean
+     * @throws NullPointerException if an argument is {@code null}
+     * @throws IllegalArgumentException if the view isn't open in the frame
+     */
+    public <B> B bean(View view, Class<B> type) {
+        Objects.requireNonNull(view, "view");
+        Objects.requireNonNull(type, "type");
+        return tester.call(
+                () -> AppTester.hostOf(host.window(), view).injector().getInstance(type));
     }
 
     /**

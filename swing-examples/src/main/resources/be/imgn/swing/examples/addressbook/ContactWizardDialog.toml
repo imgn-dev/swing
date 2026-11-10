@@ -9,7 +9,11 @@ text = "&Last Name"
 [birthLabel]
 text = "&Birth Date"
 
+[identity]
+step-title = "Contact Information"
+
 [home]
+step-title = "Home Address"
 accessible-name = "Home Address"
 
 [home.streetLabel]
@@ -25,6 +29,7 @@ text = "&City"
 text = "&Phone"
 
 [office]
+step-title = "Office Address"
 accessible-name = "Office Address"
 
 [office.streetLabel]

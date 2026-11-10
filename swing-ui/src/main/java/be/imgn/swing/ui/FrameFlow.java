@@ -116,8 +116,9 @@ final class FrameFlow implements Frames, FrameControl {
                 if (type.isEmpty()) {
                     title(host, builder.table(built.type(), variant));
                 }
+                // Known before the build ends, so that the views added then restore their state from the frame's.
+                host.stateKey(stateKey(built.type(), variant));
             });
-            host.stateKey(stateKey(view.type(), variant));
             place(host, (FrameView) view.view().orElseThrow());
             services.windows().show(window);
             shown = true;
@@ -143,9 +144,10 @@ final class FrameFlow implements Frames, FrameControl {
             resolved.accept(built);
             FrameView frame = (FrameView) built.view().orElseThrow();
             MainWindowFlow.place(host.window().rootPane(), frame.content(), frame.menuBar(), frame.toolBar());
+            // So that the palette's shortcut works in every frame, whether or not a menu shows it; during the build, so
+            // that it is attached with the view's commands, before the views added once the build ends.
+            built.injector().getInstance(StandardCommands.class).commandPalette();
         });
-        // So that the palette's shortcut works in every frame, whether or not a menu shows it.
-        view.injector().getInstance(StandardCommands.class).commandPalette();
         return view;
     }
 
@@ -320,6 +322,7 @@ final class FrameFlow implements Frames, FrameControl {
             return false;
         }
         closing.add(host);
+        host.closing(true);
         try {
             boolean closes = vetoesOf(host).stream().allMatch(ExitVeto::canExit);
             // A veto may have shown a dialog during which another frame closed: this one may now be the last.
@@ -333,6 +336,7 @@ final class FrameFlow implements Frames, FrameControl {
             return closes;
         } finally {
             closing.remove(host);
+            host.closing(false);
         }
     }
 
@@ -355,7 +359,8 @@ final class FrameFlow implements Frames, FrameControl {
 
     private List<ExitVeto> vetoesOf(WindowHost host) {
         List<ExitVeto> asked = new ArrayList<>();
-        for (ViewHost view : host.views()) {
+        // The views close the last built first, as shutdown asks the most recent scopes first.
+        for (ViewHost view : host.views().reversed()) {
             asked.addAll(vetoes.of(view.scope()));
         }
         asked.addAll(vetoes.of(host.scope()));

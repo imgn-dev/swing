@@ -1,0 +1,9 @@
+[caption]
+text = "Tool"
+
+[table]
+accessible-name = "Rows"
+
+[commands.act]
+text = "&Act"
+shortcut = "ctrl K"

@@ -532,7 +532,7 @@ class FormTest {
             show(app, name);
             app.call(() -> form.bind(name, Property.of("Ada")).check(Rule.required(REQUIRED)));
 
-            assertThat(app.call(form::validate)).isTrue();
+            assertThat(app.call(() -> form.validate())).isTrue();
             assertThat(app.focused()).isEmpty();
         }
     }
@@ -544,7 +544,7 @@ class FormTest {
 
             assertThat(app.call(() -> form.valid().get())).isTrue();
             assertThat(app.call(() -> form.dirty().get())).isFalse();
-            assertThat(app.call(form::validate)).isTrue();
+            assertThat(app.call(() -> form.validate())).isTrue();
         }
     }
 
@@ -590,7 +590,7 @@ class FormTest {
             show(app, cards);
             app.call(() -> form.bind(field, Property.of("")).check(Rule.required(REQUIRED)));
 
-            assertThat(app.call(form::validate)).isFalse();
+            assertThat(app.call(() -> form.validate())).isFalse();
             assertThat(toolTip(app, field)).contains(REQUIRED);
             assertThat(app.focused()).isEmpty();
         }
@@ -603,7 +603,7 @@ class FormTest {
             JTextField field = app.call(JTextField::new);
             app.call(() -> form.bind(field, Property.of("")).check(Rule.required(REQUIRED)));
 
-            assertThat(app.call(form::validate)).isFalse();
+            assertThat(app.call(() -> form.validate())).isFalse();
             assertThat(app.focused()).isEmpty();
         }
     }

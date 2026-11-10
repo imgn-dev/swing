@@ -58,7 +58,7 @@ class InspectorOverlayTest {
 
         assertThatIllegalStateException()
                 .isThrownBy(() -> shortcuts.register(
-                        SHORTCUT, "p.View#inspect", action, ShortcutBindings.Priority.KEYMAP, () -> {}))
+                        SHORTCUT, "p.View#inspect", new Object(), action, ShortcutBindings.Priority.KEYMAP, () -> {}))
                 .withMessageContaining("have the same shortcut");
         assertThat(shortcuts.commandOf(SHORTCUT)).isEqualTo("be.imgn.swing.inspector");
     }

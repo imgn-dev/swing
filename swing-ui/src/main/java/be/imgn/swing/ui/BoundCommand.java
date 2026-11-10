@@ -262,6 +262,11 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
         }
     }
 
+    // Whether the view class's table overrides the command's resources: a standard or an overridable command's.
+    boolean readsViewResources() {
+        return overridable || owner == StandardCommands.class;
+    }
+
     // Takes the resources again, at a refresh; the registry registers the shortcut again. Resources that can't be
     // applied, such as those of a reloaded file, are a warning, so that the refresh goes on.
     void refresh() {
@@ -429,6 +434,8 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
                     value -> action.putValue(Action.SELECTED_KEY, value),
                     EdtDelivery.Order.FRAMEWORK);
         }
+        // An added view closes before its window: its shortcuts leave, and those of the other views stay.
+        view.scope().onClose(() -> view.window().shortcuts().remove(identity(), this));
         registerShortcut();
     }
 
@@ -442,6 +449,7 @@ public final class BoundCommand implements MenuEntry, DynamicEntry, ToolBarEntry
                     .register(
                             shortcut,
                             identity(),
+                            this,
                             new ShortcutAction(this, shortcut),
                             priority,
                             () -> action.putValue(Action.ACCELERATOR_KEY, null));

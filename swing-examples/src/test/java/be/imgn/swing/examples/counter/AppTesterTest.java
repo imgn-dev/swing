@@ -2,6 +2,7 @@ package be.imgn.swing.examples.counter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import be.imgn.gaia.core.event.EventBus;
 import be.imgn.gaia.core.platform.ApplicationDirectories;
@@ -107,6 +108,23 @@ class AppTesterTest {
                     .isInstanceOf(AssertionError.class)
                     .hasMessageContaining("Duplicate mnemonic")
                     .hasMessageContaining("Alpha and Apple");
+        }
+    }
+
+    @Test
+    void failsOnceForAFailureThatArrivesAgainAfterItWasThrown() throws Exception {
+        Property<List<DynamicEntry>> entries = Property.of(List.of(DynamicEntry.item("&Alpha", () -> {})));
+        try (AppTester<CounterApp> app = AppTester.start(CounterApp.class)) {
+            Ui ui = app.commands(Ui.class);
+            JLabel label = app.component(JLabel.class);
+            EventQueue.invokeAndWait(() -> ui.popupMenu(label, MenuEntry.dynamic(entries)));
+            entries.set(List.of(DynamicEntry.item("&Alpha", () -> {}), DynamicEntry.item("&Apple", () -> {})));
+            Throwable failure = catchThrowable(app::isRunning).getCause();
+
+            // As the handler of the thread it was thrown on may deliver it, after the call that threw it.
+            Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), failure);
+
+            assertThat(app.isRunning()).isTrue();
         }
     }
 

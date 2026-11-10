@@ -12,10 +12,12 @@ import be.imgn.swing.ui.internal.AccessibilityCheck;
 import be.imgn.swing.ui.internal.ComponentInspector;
 import be.imgn.swing.ui.internal.DialogControl;
 import be.imgn.swing.ui.internal.InspectorOverlay;
+import be.imgn.swing.ui.internal.RefreshPhase;
 import be.imgn.swing.ui.internal.UiMode;
 import be.imgn.swing.ui.internal.UiServices;
 import be.imgn.swing.ui.internal.ViewHost;
 import be.imgn.swing.ui.internal.WindowHost;
+import be.imgn.swing.ui.internal.WindowStateSupport;
 import be.imgn.swing.ui.spi.ComponentInjector;
 import be.imgn.swing.ui.spi.ComponentResources;
 import be.imgn.toml.TomlTable;
@@ -35,6 +37,7 @@ final class ViewBuilder {
     private final UiServices services;
     private final Hosts hosts;
     private final SubscriberRegistrar subscribers;
+    private int building;
 
     @Inject
     ViewBuilder(UiServices services, Hosts hosts, SubscriberRegistrar subscribers) {
@@ -91,6 +94,47 @@ final class ViewBuilder {
             Function<Injector, ?> resolve,
             @Nullable DialogControl dialog,
             Consumer<ViewHost> place) {
+        return build(window, type, variant, resolve, dialog, null, built -> {
+            place.accept(built);
+            return window.window().rootPane();
+        });
+    }
+
+    /**
+     * Builds an added view in an open window, as a window's own view is built, but for its content, which {@code place}
+     * places and returns: its window's component orientation is applied to it, and the accessibility checks cover it
+     * only. Its component state is restored last.
+     */
+    ViewHost buildAddedView(
+            WindowHost window,
+            Optional<? extends Class<?>> type,
+            boolean factory,
+            Function<Injector, ?> resolve,
+            Function<ViewHost, Component> place) {
+        return build(window, type, Optional.empty(), resolve, null, factory, built -> {
+            Component content = place.apply(built);
+            built.content(content);
+            return content;
+        });
+    }
+
+    /**
+     * Returns whether a view of any window is being built.
+     *
+     * @return {@code true} during a build
+     */
+    boolean isBuilding() {
+        return building > 0;
+    }
+
+    private ViewHost build(
+            WindowHost window,
+            Optional<? extends Class<?>> type,
+            Optional<? extends Enum<?>> variant,
+            Function<Injector, ?> resolve,
+            @Nullable DialogControl dialog,
+            @Nullable Boolean addedFromFactory,
+            Function<ViewHost, Component> place) {
         DisposalScope scope = window.scope().child("view");
         Injector injector = window.injector()
                 .scopedChildBuilder(ViewScoped.class)
@@ -99,9 +143,14 @@ final class ViewBuilder {
         hosts.register(injector, scope);
         ViewHost view = new ViewHost(type.isPresent() ? type.get() : Object.class, injector, scope, window, dialog);
         variant.ifPresent(view::variant);
+        if (addedFromFactory != null) {
+            view.added(addedFromFactory);
+        }
         services.registry().addView(view);
         // The instances built meanwhile join the bus when the build ends, as their commands are attached.
         Runnable subscribe = subscribers.hold();
+        building++;
+        boolean done = false;
         try {
             type.ifPresent(known -> overrides(known, injector));
             Object instance = resolve.apply(injector);
@@ -115,22 +164,53 @@ final class ViewBuilder {
             }
             ComponentResources resources = resources(view.type(), variant);
             inject(view.type(), instance, resources, false);
-            place.accept(view);
-            window.window()
-                    .rootPane()
-                    .applyComponentOrientation(ComponentOrientation.getOrientation(
-                            services.resources().locale()));
+            Component placed = place.apply(view);
+            placed.applyComponentOrientation(
+                    ComponentOrientation.getOrientation(services.resources().locale()));
             inject(view.type(), instance, resources, true);
             view.built();
             // In development mode and tests only: a user can't act on a missing accessible name.
-            if (services.mode().strict()) {
-                AccessibilityCheck.check(
-                        window.window().rootPane(), services.supports().fields(view), view.type(), services.mode());
+            check(view, placed);
+            if (view.isAdded()) {
+                window.injector().getInstance(WindowStateSupport.class).restoreAdded(view);
             }
+            done = true;
         } finally {
+            building--;
             subscribe.run();
+            // An added view whose build fails leaves its window as it was; a window whose own view fails is discarded
+            // whole by its flow.
+            if (!done && view.isAdded()) {
+                try {
+                    view.close();
+                } finally {
+                    window.remove(view);
+                }
+            }
         }
+        view.completed();
         return view;
+    }
+
+    /**
+     * Registers the shortcuts of a window's views again, in the order they were built, so that a shortcut that several
+     * views share acts on the one built last, and one that a closed view took returns to the command it took it from.
+     */
+    void reregister(WindowHost window) {
+        List<ViewHost> views = window.views();
+        for (RefreshPhase phase : List.of(RefreshPhase.UNREGISTER, RefreshPhase.REGISTER)) {
+            views.forEach(view -> view.refresh(phase));
+        }
+    }
+
+    /**
+     * Runs the accessibility checks over a component of a view, in development mode and tests only: a user can't act on
+     * a missing accessible name. The window's root pane is its own view's content.
+     */
+    void check(ViewHost view, Component component) {
+        if (services.mode().strict()) {
+            AccessibilityCheck.check(component, services.supports().fields(view), view.type(), services.mode());
+        }
     }
 
     // Applies the view's component resources again, at a refresh, but enabled and visible, which its code owns now.
@@ -149,6 +229,11 @@ final class ViewBuilder {
     // The path of the @Exposed component field of a view that holds a component, nested ones included.
     Optional<String> fieldOf(ViewHost view, Component component) {
         return Optional.ofNullable(services.supports().fields(view).get(component));
+    }
+
+    // The component resources of a view, with its variant's table.
+    ComponentResources componentResources(ViewHost view) {
+        return resources(view.type(), view.variant());
     }
 
     // The tab-title of a view's component field.

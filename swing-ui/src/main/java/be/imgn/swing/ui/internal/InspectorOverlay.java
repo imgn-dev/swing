@@ -83,6 +83,7 @@ public final class InspectorOverlay extends JComponent {
         shortcuts.register(
                 KeyStrokes.parse(SHORTCUT, macOS),
                 IDENTITY,
+                overlay,
                 new AbstractAction() {
                     private static final long serialVersionUID = 1L;
 

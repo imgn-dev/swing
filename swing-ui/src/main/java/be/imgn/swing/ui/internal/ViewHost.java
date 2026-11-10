@@ -3,6 +3,7 @@ package be.imgn.swing.ui.internal;
 import be.imgn.inject.Injector;
 import be.imgn.swing.Scope;
 import be.imgn.swing.internal.DisposalScope;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -26,6 +27,11 @@ public final class ViewHost {
     private @Nullable Enum<?> variant;
     // What a refresh runs for the view, by phase, in registration order; each action leaves with its scope.
     private final Map<RefreshPhase, List<Runnable>> refreshes = new EnumMap<>(RefreshPhase.class);
+    // Run once the build has ended and its checks have run; null once they ran.
+    private @Nullable List<Runnable> whenBuilt = new ArrayList<>();
+    private boolean added;
+    private boolean fromFactory;
+    private @Nullable Component content;
 
     /**
      * Creates the host of a view, on the thread that builds it.
@@ -174,6 +180,15 @@ public final class ViewHost {
         attachment.run();
     }
 
+    /**
+     * Returns whether the view is being built: its build has not ended.
+     *
+     * @return {@code true} during its build
+     */
+    public synchronized boolean isBuilding() {
+        return building;
+    }
+
     /** Ends the build of the view: runs the attachments made meanwhile. */
     public void built() {
         List<Runnable> pending;
@@ -183,6 +198,75 @@ public final class ViewHost {
             pendingAttachments.clear();
         }
         pending.forEach(Runnable::run);
+    }
+
+    /**
+     * Marks the view as an added view of its window, opened while the window is open, rather than its own view.
+     *
+     * @param factory whether it was created through an assisted factory
+     */
+    public void added(boolean factory) {
+        this.added = true;
+        this.fromFactory = factory;
+    }
+
+    /**
+     * Returns whether the view is an added view of its window.
+     *
+     * @return {@code true} for an added view, {@code false} for the window's own view
+     */
+    public boolean isAdded() {
+        return added;
+    }
+
+    /**
+     * Returns whether the view is an added view created through an assisted factory, which saves no state.
+     *
+     * @return {@code true} for an added view created through a factory
+     */
+    public boolean isFromFactory() {
+        return fromFactory;
+    }
+
+    /**
+     * Returns the root of an added view's content, once placed.
+     *
+     * @return the content, empty for the window's own view, whose content is the window's
+     */
+    public Optional<Component> content() {
+        return Optional.ofNullable(content);
+    }
+
+    /**
+     * Records the root of an added view's content, once placed.
+     *
+     * @param placed the content
+     */
+    public void content(Component placed) {
+        this.content = placed;
+    }
+
+    /**
+     * Runs code once the view's build has ended and its accessibility checks have run, or at once if they have.
+     *
+     * @param action the code, run on the EDT
+     */
+    public void whenBuilt(Runnable action) {
+        List<Runnable> pending = whenBuilt;
+        if (pending == null) {
+            action.run();
+        } else {
+            pending.add(action);
+        }
+    }
+
+    /** Runs the code that waited for the end of the build and its checks, in registration order. */
+    public void completed() {
+        List<Runnable> pending = whenBuilt;
+        whenBuilt = null;
+        if (pending != null) {
+            pending.forEach(Runnable::run);
+        }
     }
 
     /** Closes the view: its child injector, which runs {@code @PreDestroy} on its beans, then its scope. Idempotent. */

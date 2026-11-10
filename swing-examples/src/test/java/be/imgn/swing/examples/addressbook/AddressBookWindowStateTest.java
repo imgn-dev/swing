@@ -2,6 +2,8 @@ package be.imgn.swing.examples.addressbook;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import be.imgn.swing.docking.Dock;
+import be.imgn.swing.docking.DockLayout;
 import be.imgn.swing.testing.AppTester;
 import be.imgn.swing.ui.StandardCommands;
 import java.util.List;
@@ -15,25 +17,41 @@ import org.junit.jupiter.api.Test;
 class AddressBookWindowStateTest {
 
     @Test
-    void restoresTheMainWindowsComponentsFromAWindowStateWrittenWithTheBuilder() {
+    void restoresTheMainWindowsDockFromAWindowStateWrittenWithTheBuilder() {
         try (AppTester<AddressBookApp> app = AppTester.builder(AddressBookApp.class)
                 .file(directories -> directories.state().resolve("window-state.toml"), """
-                        [windows.main.components.mainSplit]
-                        divider-location = 123
+                        [windows.main.dock]
+                        split = "vertical"
+                        proportion = 0.4
+
+                        [windows.main.dock.first]
+                        tabs = ["be.imgn.swing.examples.addressbook.ContactListView"]
+                        selected = 0
+
+                        [windows.main.dock.second]
+                        tabs = ["be.imgn.swing.examples.addressbook.SelectedPictureView"]
+                        selected = 0
                         """)
                 .start()) {
-            AddressBookApp book = app.application();
+            ContactListView list = AddressBookViews.view(app, ContactListView.class);
+            SelectedPictureView picture = AddressBookViews.view(app, SelectedPictureView.class);
+            Dock dock = app.bean(Dock.class);
 
-            assertThat(book.mainSplit.getDividerLocation()).isEqualTo(123);
+            assertThat(app.call(dock::layout))
+                    .contains(new DockLayout.Split(
+                            DockLayout.Orientation.VERTICAL,
+                            0.4,
+                            new DockLayout.Tabs(List.of(list), list),
+                            new DockLayout.Tabs(List.of(picture), picture)));
         }
     }
 
-    // The table is bound in content(), so its columns exist when window state is restored.
+    // The table is bound in the list view's content(), so its columns exist when its state is restored.
     @Test
     void restoresTheOrderAndWidthsOfTheContactsTablesColumns() {
         try (AppTester<AddressBookApp> app = AppTester.builder(AddressBookApp.class)
                 .file(directories -> directories.state().resolve("window-state.toml"), """
-                        [windows.main.components.table]
+                        [windows.main.views."be.imgn.swing.examples.addressbook.ContactListView".components.table]
                         columns = [
                             { model-index = 2, width = 150 },
                             { model-index = 0, width = 90 },
@@ -41,7 +59,7 @@ class AddressBookWindowStateTest {
                         ]
                         """)
                 .start()) {
-            TableColumnModel columns = app.application().table.getColumnModel();
+            TableColumnModel columns = AddressBookViews.table(app).getColumnModel();
 
             List<List<Object>> restored = app.call(() -> IntStream.range(0, columns.getColumnCount())
                     .mapToObj(columns::getColumn)

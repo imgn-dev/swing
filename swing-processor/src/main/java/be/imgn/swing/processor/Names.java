@@ -88,6 +88,15 @@ final class Names {
     /** The ids of the commands {@code DocumentCommands} gives a document view. */
     static final List<String> DOCUMENT_COMMANDS_IDS = List.of("newDocument", "open", "save", "saveAs");
 
+    /** swing-docking's dock views, which the processor knows by name. */
+    static final String DOCK_VIEW = "be.imgn.swing.docking.DockView";
+
+    /** swing-wizard's wizard, whose commands a view whose constructor takes one renames in its resources. */
+    static final String WIZARD = "be.imgn.swing.wizard.Wizard";
+
+    /** The ids of the wizard's commands. */
+    static final List<String> WIZARD_COMMANDS_IDS = List.of("previous", "next");
+
     /** The ids of the standard menus. */
     static final Set<String> STANDARD_MENU_IDS = Set.of("file", "edit", "view", "window", "help");
 

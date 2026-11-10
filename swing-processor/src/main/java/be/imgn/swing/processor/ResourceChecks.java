@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -73,6 +74,8 @@ final class ResourceChecks {
                 context.isSubtype(type.asType(), Names.FRAME_VIEW),
                 isDocumentView(type),
                 context.isSubtype(type.asType(), Names.DIALOG_VIEW),
+                takesWizard(type),
+                isDockView(type),
                 variants(type));
         List<ResourceFile> files =
                 shared.files().of(packageName, type.getSimpleName().toString());
@@ -218,6 +221,28 @@ final class ResourceChecks {
         }
     }
 
+    // swing-docking may be absent from the class path: a class that can't implement DockView isn't one.
+    private boolean isDockView(TypeElement type) {
+        return context.elements().getTypeElement(Names.DOCK_VIEW) != null
+                && context.isSubtype(type.asType(), Names.DOCK_VIEW);
+    }
+
+    // A view whose constructor takes swing-wizard's Wizard, which may be absent from the class path, renames its
+    // commands.
+    private boolean takesWizard(TypeElement type) {
+        if (context.elements().getTypeElement(Names.WIZARD) == null) {
+            return false;
+        }
+        for (ExecutableElement constructor : ElementFilter.constructorsIn(type.getEnclosedElements())) {
+            for (VariableElement parameter : constructor.getParameters()) {
+                if (context.isSubtype(parameter.asType(), Names.WIZARD)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // swing-desktop may be absent from the class path: a class that can't implement DocumentView isn't one.
     private boolean isDocumentView(TypeElement type) {
         return context.elements().getTypeElement(Names.DOCUMENT_VIEW) != null
@@ -322,21 +347,29 @@ final class ResourceChecks {
         return command != null && command.declaring().equals(model.type()) ? command.element() : model.type();
     }
 
+    // Whether a [commands.<id>] table names a command of the class: its own, a standard one, a document command of a
+    // document view, or a wizard command of a view that takes a Wizard.
+    private static boolean namesCommand(Model model, String id) {
+        return model.commands().containsKey(id)
+                || Names.STANDARD_COMMANDS_IDS.contains(id)
+                || (model.documentView() && Names.DOCUMENT_COMMANDS_IDS.contains(id))
+                || (model.wizardView() && Names.WIZARD_COMMANDS_IDS.contains(id));
+    }
+
     private void checkCommands(Source source, TomlTable commands) {
         Model model = source.model();
         ResourceFile file = source.file();
         TomlPositions positions = source.positions();
         for (String id : commands.entries().keySet()) {
-            if (!model.commands().containsKey(id)
-                    && !Names.STANDARD_COMMANDS_IDS.contains(id)
-                    && !(model.documentView() && Names.DOCUMENT_COMMANDS_IDS.contains(id))) {
+            if (!namesCommand(model, id)) {
                 reporter.error(
                         model.type(),
                         file,
                         positions.key(commands, id),
                         "[commands." + id + "] names no" + " command of "
                                 + model.type().getQualifiedName() + ", its superclasses or StandardCommands"
-                                + (model.documentView() ? ", nor a document command" : ""));
+                                + (model.documentView() ? ", nor a document command" : "")
+                                + (model.wizardView() ? ", nor a wizard command" : ""));
                 continue;
             }
             Element element = elementOf(model, id);
@@ -696,21 +729,16 @@ final class ResourceChecks {
         Model model = source.model();
         ResourceFile file = source.file();
         TomlPositions positions = source.positions();
-        boolean applies = switch (key) {
-            case "name", "theme", "description", "copyright", "website", "icon" -> model.application();
-            case "title" -> model.dialogView() || (model.frameView() && !model.documentView());
-            default -> false;
-        };
-        if (!applies) {
+        if (!appliesTo(model, key)) {
             reporter.error(
                     model.type(),
                     file,
                     positions.key(root, key),
                     key + " is not a property of "
                             + model.type().getQualifiedName()
-                            + ": name, theme, description, copyright, website and icon apply to the application"
-                            + " class, title to frame views and dialog views, but not to document views, whose title"
-                            + " follows their document");
+                            + ": name, theme, description, copyright and website apply to the application class, icon"
+                            + " to the application class and dock views, title to frame views, dialog views and dock"
+                            + " views, but not to document views, whose title follows their document");
             return;
         }
         if (!(value instanceof TomlString string)) {
@@ -728,6 +756,17 @@ final class ResourceChecks {
         } else if ("icon".equals(key)) {
             checkIcon(source, model.type(), root, key, string.value());
         }
+    }
+
+    // Whether a class property applies to a class: the application's to the application class, an icon to it and to
+    // dock views, a title to frame views but document views, to dialog views and to dock views.
+    private static boolean appliesTo(Model model, String key) {
+        return switch (key) {
+            case "name", "theme", "description", "copyright", "website" -> model.application();
+            case "icon" -> model.application() || model.dockView();
+            case "title" -> model.dialogView() || model.dockView() || (model.frameView() && !model.documentView());
+            default -> false;
+        };
     }
 
     // Resolves the website's references as an icon's are: one to a key of another file leaves it unchecked.
@@ -901,6 +940,8 @@ final class ResourceChecks {
             boolean frameView,
             boolean documentView,
             boolean dialogView,
+            boolean wizardView,
+            boolean dockView,
             List<String> variants) {}
 
     /**

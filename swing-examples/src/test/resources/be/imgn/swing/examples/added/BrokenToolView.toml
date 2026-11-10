@@ -1,0 +1,3 @@
+[commands.jump]
+text = "&Jump"
+shortcut = "ctrl J"

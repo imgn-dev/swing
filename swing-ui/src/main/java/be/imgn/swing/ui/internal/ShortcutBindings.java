@@ -33,25 +33,33 @@ public final class ShortcutBindings {
 
     /**
      * Registers the shortcut of a command. The same command, attached through several views of the window, registers
-     * its shortcut once. Between two commands with the same shortcut, the one of the higher priority has it, and the
-     * other loses it, with no report; two of the same priority are reported, and the first keeps it.
+     * its shortcut once, and the shortcut acts on the view that registered it last, until that one removes it: the
+     * window registers its views' shortcuts again in the order they were built whenever a view is added or closes.
+     * Between two commands with the same shortcut, the one of the higher priority has it, and the other loses it, with
+     * no report; two of the same priority are reported, and the first keeps it.
      *
      * @param keyStroke the shortcut
      * @param command the command's identity: the class it belongs to and its id, as {@code p.CounterApp#increment}
+     * @param source what registers it, such as the command bound in one view, which removes it with
+     *     {@link #remove(String, Object)}
      * @param action the action to run
      * @param priority where the shortcut comes from
      * @param lost runs when the command loses the shortcut to another one in this window
      * @throws IllegalStateException if another command of the same priority has the shortcut, in strict mode
      */
-    public void register(KeyStroke keyStroke, String command, Action action, Priority priority, Runnable lost) {
+    public void register(
+            KeyStroke keyStroke, String command, Object source, Action action, Priority priority, Runnable lost) {
         Registration previous = registrations.get(keyStroke);
         boolean inspector =
                 previous != null && (priority == Priority.INSPECTOR || previous.priority == Priority.INSPECTOR);
         if (previous != null
                 && (previous.command.equals(command) || inspector || priority.compareTo(previous.priority) <= 0)) {
             if (previous.command.equals(command)) {
-                // The same command attached through another view of the window: its components lose it too.
-                previous.lost.add(lost);
+                // The same command attached through another view of the window: the view that registered it last has
+                // it, and the components of every view lose it together.
+                previous.entries.removeIf(entry -> entry.source.equals(source));
+                previous.entries.add(new Entry(source, action, lost));
+                rootPane.getActionMap().put(KEY_PREFIX + command, action);
                 return;
             }
             if (inspector || priority == previous.priority) {
@@ -66,16 +74,39 @@ public final class ShortcutBindings {
         }
         if (previous != null) {
             remove(previous.command);
-            previous.lost.forEach(Runnable::run);
+            previous.entries.forEach(entry -> entry.lost.run());
         }
-        registrations.put(keyStroke, new Registration(command, priority, new ArrayList<>(List.of(lost))));
+        registrations.put(
+                keyStroke,
+                new Registration(command, priority, new ArrayList<>(List.of(new Entry(source, action, lost)))));
         String key = KEY_PREFIX + command;
         rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, key);
         rootPane.getActionMap().put(key, action);
     }
 
     /**
-     * Removes the shortcut of a command, if it has one, so that it can be registered again.
+     * Removes the shortcut of a command for what registered it, when its view closes: the shortcut then acts on the one
+     * that registered it last among those left, and leaves the window with the last of them.
+     *
+     * @param command the identity of the command
+     * @param source what registered it
+     */
+    public void remove(String command, Object source) {
+        for (Registration registration : List.copyOf(registrations.values())) {
+            if (registration.command.equals(command)
+                    && registration.entries.removeIf(entry -> entry.source.equals(source))) {
+                if (registration.entries.isEmpty()) {
+                    remove(command);
+                } else {
+                    rootPane.getActionMap().put(KEY_PREFIX + command, registration.entries.getLast().action);
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes the shortcut of a command, if it has one, for every view that registered it, so that it can be registered
+     * again.
      *
      * @param command the identity of the command
      */
@@ -113,5 +144,7 @@ public final class ShortcutBindings {
         INSPECTOR
     }
 
-    private record Registration(String command, Priority priority, List<Runnable> lost) {}
+    private record Registration(String command, Priority priority, List<Entry> entries) {}
+
+    private record Entry(Object source, Action action, Runnable lost) {}
 }

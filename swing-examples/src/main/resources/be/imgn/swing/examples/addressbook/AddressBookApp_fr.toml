@@ -8,20 +8,8 @@ text = "&Contacts"
 [menus.language]
 text = "&Langage"
 
+[menus.views]
+text = "&Vues"
+
 [menus.task-tests]
 text = "&Tests de tâches"
-
-[firstNameLabel]
-text = "Prénom"
-
-[lastNameLabel]
-text = "Nom"
-
-[birthLabel]
-text = "Date de naissance"
-
-[picture]
-accessible-name = "Photo du contact"
-
-[table]
-accessible-name = "Contacts"

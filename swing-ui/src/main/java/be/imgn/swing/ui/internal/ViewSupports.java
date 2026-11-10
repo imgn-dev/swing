@@ -60,6 +60,18 @@ public final class ViewSupports {
     }
 
     /**
+     * Returns the view class of a binary name, among those whose generated injector was found.
+     *
+     * @param name the binary name
+     * @return the class, empty if no view class has the name
+     */
+    public Optional<Class<?>> viewClass(String name) {
+        return injectors.keySet().stream()
+                .filter(type -> type.getName().equals(name))
+                .findFirst();
+    }
+
+    /**
      * Returns the state accessor of a view class.
      *
      * @param type the view class

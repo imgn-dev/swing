@@ -39,6 +39,16 @@
     </dependency>
     <dependency>
       <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-docking</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-wizard</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
       <artifactId>swing-flatlaf</artifactId>
       <version>${project.version}</version>
       <scope>runtime</scope>
@@ -129,6 +139,18 @@
             </path>
           </annotationProcessorPaths>
         </configuration>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <configuration>
+              <!-- The fixture tests of views added to an open window drive the framework's internal entry point, as
+                   swing-docking does; they run on the class path. -->
+              <compilerArgs combine.children="append">
+                <arg>--add-exports=be.imgn.swing.ui/be.imgn.swing.ui.internal=be.imgn.swing.examples</arg>
+              </compilerArgs>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -137,7 +159,11 @@
           <!-- On the module path, the tests are patched into the module, whose
                descriptor provides none of their beans or subscriber indexes:
                the tests that use beans written for them run on the class path,
-               where the service loader reads META-INF/services. -->
+               where the service loader reads META-INF/services. So do the
+               fixture tests of views added to an open window, which drive the
+               UI's internal entry point, and the docked address book's, which
+               reads its warnings through java.util.logging, a module the
+               examples' doesn't read. -->
           <execution>
             <id>default-test</id>
             <configuration>
@@ -145,6 +171,8 @@
                 <exclude>**/AppTesterSettingsTest.java</exclude>
                 <exclude>**/CommandTasksTest.java</exclude>
                 <exclude>**/EventBusTest.java</exclude>
+                <exclude>**/added/*Test.java</exclude>
+                <exclude>**/DockedAddressBookTest.java</exclude>
                 <exclude>**/frames/*Test.java</exclude>
                 <exclude>**/refresh/*Test.java</exclude>
               </excludes>
@@ -161,6 +189,8 @@
                 <include>**/AppTesterSettingsTest.java</include>
                 <include>**/CommandTasksTest.java</include>
                 <include>**/EventBusTest.java</include>
+                <include>**/added/*Test.java</include>
+                <include>**/DockedAddressBookTest.java</include>
                 <include>**/frames/*Test.java</include>
                 <include>**/refresh/*Test.java</include>
               </includes>

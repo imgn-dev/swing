@@ -1,0 +1,11 @@
+title = "Contact Detail"
+icon = "icons/contact_detail.png"
+
+[firstNameLabel]
+text = "First Name"
+
+[lastNameLabel]
+text = "Last Name"
+
+[birthLabel]
+text = "Birth Date"

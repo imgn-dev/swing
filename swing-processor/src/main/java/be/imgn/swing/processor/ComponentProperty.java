@@ -27,7 +27,9 @@ enum ComponentProperty {
     ROWS("rows", Kind.INTEGER, "%s.setRows(value)"),
     TITLE("title", Kind.STRING, "@.setTitle(%s, value)"),
     // A component that is not a tab yet, which Ui.addTab may add later, is skipped.
-    TAB_TITLE("tab-title", Kind.STRING, "{ if (@.isTab(%1$s)) { @.setTabTitle(%1$s, value); } }");
+    TAB_TITLE("tab-title", Kind.STRING, "{ if (@.isTab(%1$s)) { @.setTabTitle(%1$s, value); } }"),
+    // The title of a wizard's step, which swing-wizard reads: set on no component.
+    STEP_TITLE("step-title", Kind.STRING, "");
 
     private final String key;
     private final Kind kind;
@@ -64,7 +66,7 @@ enum ComponentProperty {
             case ACCESSIBLE_NAME, ACCESSIBLE_DESCRIPTION -> context.isSubtype(type, Names.COMPONENT);
             case COLUMNS -> hasSetter(context, type, "setColumns", "int");
             case ROWS -> hasSetter(context, type, "setRows", "int");
-            case FONT, FOREGROUND, BACKGROUND, ENABLED, VISIBLE, TAB_TITLE -> true;
+            case FONT, FOREGROUND, BACKGROUND, ENABLED, VISIBLE, TAB_TITLE, STEP_TITLE -> true;
         };
     }
 

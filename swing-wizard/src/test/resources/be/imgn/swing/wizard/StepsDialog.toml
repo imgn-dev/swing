@@ -1,0 +1,22 @@
+title = "Steps"
+
+[nameLabel]
+text = "&Name"
+
+[cityLabel]
+text = "&City"
+
+[noteLabel]
+text = "N&ote"
+
+[identity]
+step-title = "Identity"
+
+[address]
+step-title = "Address"
+
+[note]
+step-title = "Note"
+
+[commands.next]
+text = "&Forward >"

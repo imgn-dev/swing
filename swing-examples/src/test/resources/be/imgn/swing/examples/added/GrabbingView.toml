@@ -1,0 +1,3 @@
+[commands.grab]
+text = "&Grab"
+shortcut = "ctrl C"

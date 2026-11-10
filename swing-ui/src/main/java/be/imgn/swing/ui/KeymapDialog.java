@@ -92,7 +92,9 @@ public final class KeymapDialog implements DialogView<Void> {
     private List<BoundCommand> commandsOf(ViewHost dialog) {
         List<BoundCommand> found = new ArrayList<>();
         dialog.window().opener().ifPresent(opener -> {
-            for (ViewHost view : opener.window().views()) {
+            // The view built last first: a command that several views share is listed for it, as its shortcut acts on
+            // it.
+            for (ViewHost view : opener.window().views().reversed()) {
                 for (BoundCommand command :
                         view.injector().getInstance(CommandRegistry.class).commands()) {
                     if (!(services.isMacOS() && command.isSystemAction())

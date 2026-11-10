@@ -44,7 +44,7 @@ The names below are working names.
 | `swing-flatlaf` | FlatLaf themes, following the system's appearance, SVG icons, theme tokens | ui |
 | `swing-testing` | Test harness | core, ui, gaia testing libraries, gaia-memfs |
 | `swing-wizard` (optional) | Multi-step dialogs | ui |
-| `swing-docking` (optional) | DockingFrames integration | ui |
+| `swing-docking` (optional) | ModernDocking integration: views docked in a frame | ui |
 
 ---
 
@@ -109,7 +109,8 @@ These features need nothing from Swing, so a module that doesn't require `java.d
   - Views are created by the framework, which is how they get their scope and their wiring.
 - **Windows.**
   - The window controller handles size and position, centering on the active window, close vetoes, and the main-window lifecycle (single-frame or multi-frame).
-  - Window state is saved and restored: bounds, split panes, table columns, selected tabs.
+  - Window state is saved and restored: bounds, split panes, table columns, selected tabs, and a dock's layout.
+  - A window may also hold views opened while it is open, such as dock views: they belong to it as its own view does, and their commands are in its palette and keymap dialog.
 - **Single-frame applications.**
   - An application class that implements `SingleFrame` needs no view class: it acts as the only view of the main window.
   - Its `@Command` methods, `@Subscribe` methods and resources work as in any view.

@@ -20,12 +20,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.swing.AbstractButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JRootPane;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditListener;
@@ -71,6 +73,7 @@ public final class Form {
     private final UndoStack undo;
     private final List<Binding<?>> bindings = new ArrayList<>();
     private final List<Tracked<?>> tracked = new ArrayList<>();
+    private final List<Consumer<? super Component>> reveals = new ArrayList<>();
     private final Property<Boolean> valid = Property.of(true);
     private final Property<Boolean> dirty = Property.of(false);
 
@@ -232,8 +235,8 @@ public final class Form {
     /**
      * Shows the error of every binding that has one, and moves the focus to the first component with an error, in
      * binding order: it first selects the tabs of the {@link JTabbedPane}s that hold it and aren't selected, from the
-     * outermost pane in, then focuses it through its window's {@link Window#focus(Component)}, unless it still isn't
-     * showing, such as one on another card of a wizard.
+     * outermost pane in, then runs the code registered with {@link #revealWith}, then focuses it through its window's
+     * {@link Window#focus(Component)}, unless it still isn't showing, such as one on a card that no reveal code shows.
      *
      * @return whether the form is valid, {@link #valid()}'s value
      */
@@ -249,6 +252,49 @@ public final class Form {
             focus(first.component());
         }
         return valid.get();
+    }
+
+    /**
+     * Validates the bindings whose component is a component or inside it, as {@link #validate()} validates all of them:
+     * shows their errors, and moves the focus to the first of them with an error, in binding order. The other bindings
+     * stay as they are. A wizard validates its shown step so.
+     *
+     * @param within the component, such as a wizard's step
+     * @return whether those bindings are valid; {@code true}, doing nothing, when no binding's component is within it
+     * @throws NullPointerException if the component is {@code null}
+     */
+    public boolean validate(Component within) {
+        Objects.requireNonNull(within, "within");
+        Binding<?> first = null;
+        boolean valid = true;
+        for (Binding<?> binding : bindings) {
+            if (!SwingUtilities.isDescendingFrom(binding.component(), within)) {
+                continue;
+            }
+            binding.show();
+            if (!binding.validation().get().valid()) {
+                valid = false;
+            }
+            if (first == null && binding.validation().get().error().isPresent()) {
+                first = binding;
+            }
+        }
+        if (first != null) {
+            focus(first.component());
+        }
+        return valid;
+    }
+
+    /**
+     * Registers code that makes a component visible before the form focuses it: both {@code validate} methods run it on
+     * the component they focus, in registration order, after selecting the tabs that hold it, and before checking that
+     * it is visible up to its window's root pane. A wizard registers code that shows the step holding the component.
+     *
+     * @param reveal the code, run on the EDT
+     * @throws NullPointerException if the code is {@code null}
+     */
+    public void revealWith(Consumer<? super Component> reveal) {
+        reveals.add(Objects.requireNonNull(reveal, "reveal"));
     }
 
     /** Makes the current value of every binding's property and of every tracked observable its new baseline. */
@@ -356,6 +402,7 @@ public final class Form {
                 tab.pane().setSelectedIndex(tab.index());
             }
         }
+        reveals.forEach(reveal -> reveal.accept(component));
         if (isShowing(component)) {
             window.focus(component);
         }

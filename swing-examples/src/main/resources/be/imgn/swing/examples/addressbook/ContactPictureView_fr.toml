@@ -1,0 +1,4 @@
+icon = "icons/contact_picture.png"
+
+[picture]
+accessible-name = "Photo de la personne"

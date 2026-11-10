@@ -414,7 +414,7 @@ class ComboBindingTest {
             assertThat(app.call(() -> form(app).valid().get())).isFalse();
             assertThat(toolTip(app, combo)).isEmpty();
 
-            assertThat(app.call(form(app)::validate)).isFalse();
+            assertThat(app.call(() -> form(app).validate())).isFalse();
 
             assertThat(toolTip(app, combo)).contains(CHOICE);
             assertThat(app.focused()).containsSame(combo);

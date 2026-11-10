@@ -1,0 +1,8 @@
+# The texts of the wizards' commands. A view that injects a Wizard overrides them in its own resources, under the same
+# tables.
+
+[commands.previous]
+text = "< &Précédent"
+
+[commands.next]
+text = "&Suivant >"

@@ -421,7 +421,8 @@ class ResourcesStepTest {
         assertThat(compilation)
                 .failed()
                 .hadErrorContaining("Panel.toml:2:1: description is not a property of p.Panel: name, theme,"
-                        + " description, copyright, website and icon apply to the application class");
+                        + " description, copyright and website apply to the application class, icon to the application"
+                        + " class and dock views");
         assertThat(compilation).hadErrorContaining("Panel.toml:3:1: copyright is not a property of p.Panel");
         assertThat(compilation).hadErrorContaining("Panel.toml:4:1: website is not a property of p.Panel");
         assertThat(compilation).hadErrorContaining("Panel.toml:5:1: icon is not a property of p.Panel");

@@ -37,52 +37,61 @@ public final class AccessibilityCheck {
     private AccessibilityCheck() {}
 
     /**
-     * Checks the components of a window, reporting each failure through the UI mode.
+     * Checks the components of a view's content, reporting each failure through the UI mode: a window's root pane, for
+     * its content pane, or the content of an added view, itself included. Hidden components are skipped.
      *
-     * @param rootPane the window's root pane
+     * @param content the window's root pane, or an added view's content
      * @param fields the paths of the view's {@code @Exposed} component fields, by component, which name them
      * @param view the view class, which the reports name
      * @param mode the mode, which throws the first failure
      */
-    public static void check(JRootPane rootPane, Map<Component, String> fields, Class<?> view, UiMode mode) {
-        check(rootPane.getContentPane(), new ArrayList<>(), fields, view, mode);
+    public static void check(Component content, Map<Component, String> fields, Class<?> view, UiMode mode) {
+        if (content instanceof JRootPane rootPane) {
+            checkChildren(rootPane.getContentPane(), new ArrayList<>(), fields, view, mode);
+        } else {
+            checkComponent(content, List.of(), fields, view, mode);
+        }
     }
 
-    private static void check(
+    private static void checkChildren(
             Container container, List<Integer> at, Map<Component, String> fields, Class<?> view, UiMode mode) {
         Component[] children = container.getComponents();
         for (int index = 0; index < children.length; index++) {
-            Component child = children[index];
-            if (!child.isVisible()) {
-                continue;
-            }
             List<Integer> path = new ArrayList<>(at);
             path.add(index);
-            boolean named = NAMED.stream().anyMatch(type -> type.isInstance(child));
-            if (named) {
-                String name = child.getAccessibleContext().getAccessibleName();
-                if (child.isFocusable() && (name == null || name.isBlank())) {
-                    mode.report(
-                            LOGGER,
-                            "The " + describe(child, path, fields) + " of " + view.getName()
-                                    + " has no accessible name: give it a label whose labelFor it is, or an"
-                                    + " accessible-name resource");
-                }
-            } else {
-                if (child instanceof JLabel label && label.getDisplayedMnemonic() != 0 && label.getLabelFor() == null) {
-                    mode.report(
-                            LOGGER,
-                            "The " + describe(child, path, fields) + " of " + view.getName()
-                                    + " has a mnemonic but labels no component, so its mnemonic focuses nothing");
-                }
-                if (child instanceof Container nested) {
-                    check(nested, path, fields, view, mode);
-                }
+            checkComponent(children[index], path, fields, view, mode);
+        }
+    }
+
+    private static void checkComponent(
+            Component child, List<Integer> path, Map<Component, String> fields, Class<?> view, UiMode mode) {
+        if (!child.isVisible()) {
+            return;
+        }
+        boolean named = NAMED.stream().anyMatch(type -> type.isInstance(child));
+        if (named) {
+            String name = child.getAccessibleContext().getAccessibleName();
+            if (child.isFocusable() && (name == null || name.isBlank())) {
+                mode.report(
+                        LOGGER,
+                        "The " + describe(child, path, fields) + " of " + view.getName()
+                                + " has no accessible name: give it a label whose labelFor it is, or an"
+                                + " accessible-name resource");
+            }
+        } else {
+            if (child instanceof JLabel label && label.getDisplayedMnemonic() != 0 && label.getLabelFor() == null) {
+                mode.report(
+                        LOGGER,
+                        "The " + describe(child, path, fields) + " of " + view.getName()
+                                + " has a mnemonic but labels no component, so its mnemonic focuses nothing");
+            }
+            if (child instanceof Container nested) {
+                checkChildren(nested, path, fields, view, mode);
             }
         }
     }
 
-    // A field's path, else the component's type and its index path from the content pane.
+    // A field's path, else the component's type and its index path from the content pane or the added view's content.
     private static String describe(Component component, List<Integer> path, Map<Component, String> fields) {
         String field = fields.get(component);
         String type = component.getClass().getSimpleName();
@@ -93,6 +102,7 @@ public final class AccessibilityCheck {
         for (int index : path) {
             indices.append(indices.isEmpty() ? "" : ".").append(index);
         }
-        return type + " at " + indices;
+        // An added view's content itself has no index.
+        return indices.isEmpty() ? type : type + " at " + indices;
     }
 }

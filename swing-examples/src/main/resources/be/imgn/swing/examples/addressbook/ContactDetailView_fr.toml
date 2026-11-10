@@ -1,0 +1,11 @@
+title = "Information Contact"
+icon = "icons/contact_detail.png"
+
+[firstNameLabel]
+text = "Prénom"
+
+[lastNameLabel]
+text = "Nom"
+
+[birthLabel]
+text = "Date de naissance"

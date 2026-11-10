@@ -1,0 +1,11 @@
+[commands.showContactList]
+text = "Contacts &List"
+icon = "icons/contact_list.png"
+
+[commands.showContactDetail]
+text = "Contact &Detail"
+icon = "icons/contact_detail.png"
+
+[commands.showContactPicture]
+text = "Contact &Picture"
+icon = "icons/contact_picture.png"

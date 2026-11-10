@@ -1,0 +1,8 @@
+title = "Contacts List"
+icon = "icons/contact_list.png"
+
+[table]
+accessible-name = "Contacts"
+
+[commands.openPicture]
+text = "Open Picture"

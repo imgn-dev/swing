@@ -40,6 +40,8 @@
     <module>swing-desktop</module>
     <module>swing-flatlaf</module>
     <module>swing-testing</module>
+    <module>swing-wizard</module>
+    <module>swing-docking</module>
     <module>swing-examples</module>
   </modules>
 
@@ -50,6 +52,7 @@
     <inject.version>0.1.1</inject.version>
     <toml.version>0.1.0</toml.version>
     <flatlaf.version>3.7.2</flatlaf.version>
+    <modern-docking.version>1.4.9</modern-docking.version>
 
     <!-- Generated code reads @Exposed fields and @Command toggle fields, so they can't be private. -->
     <checkstyle.visibility.ignoredAnnotations>be.imgn.swing.ui.Exposed, be.imgn.swing.ui.Command</checkstyle.visibility.ignoredAnnotations>

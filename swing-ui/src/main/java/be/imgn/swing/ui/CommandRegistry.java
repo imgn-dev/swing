@@ -164,11 +164,16 @@ public final class CommandRegistry {
     }
 
     /**
-     * Records the overrides among the commands already bound, once the view class is known: a view created by an
-     * assisted factory binds the commands of its constructor before its class is known.
+     * Records the overrides among the commands already bound, once the view class is known, and reads again the
+     * resources of the standard and overridable commands among them, which the view class's table overrides: a view
+     * created by an assisted factory binds the commands of its constructor before its class is known.
      */
     void viewTypeKnown() {
         commands.forEach(this::recordOverride);
+        // The commands bound before, whose resources the view class's table overrides, read them again now.
+        List.copyOf(commands.values()).stream()
+                .filter(BoundCommand::readsViewResources)
+                .forEach(BoundCommand::refresh);
     }
 
     // A command of the view class, or of a superclass of it, whose id is a standard command's overrides it.

@@ -50,11 +50,11 @@ public final class CommandPalette {
      */
     public List<PaletteEntry> entries() {
         List<BoundCommand> commands = new ArrayList<>();
-        for (ViewHost host : view.window().views()) {
+        // The view built last first: a command that several views share is listed for it, as its shortcut acts on it.
+        for (ViewHost host : view.window().views().reversed()) {
             for (BoundCommand command :
                     host.injector().getInstance(CommandRegistry.class).commands()) {
                 if (!isPalette(command)
-                        && command.isEnabledNow()
                         && commands.stream()
                                 .noneMatch(listed -> listed.identity().equals(command.identity()))) {
                     commands.add(command);
@@ -63,6 +63,7 @@ public final class CommandPalette {
         }
         Collator collator = Collator.getInstance(services.resources().locale());
         return commands.stream()
+                .filter(BoundCommand::isEnabledNow)
                 .sorted(Comparator.comparingInt(history::place)
                         .thenComparing(command -> command.text().text(), collator))
                 .map(command -> new PaletteEntry(command, command.text().text(), shortcut(command)))

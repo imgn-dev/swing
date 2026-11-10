@@ -29,7 +29,7 @@ class ShortcutBindingsTest {
     }
 
     private void register(String command, ShortcutBindings.Priority priority) {
-        bindings.register(SHORTCUT, command, action(), priority, () -> lost.add(command));
+        bindings.register(SHORTCUT, command, new Object(), action(), priority, () -> lost.add(command));
     }
 
     private Object bound() {
@@ -78,5 +78,40 @@ class ShortcutBindingsTest {
         register("p.View#clear", ShortcutBindings.Priority.RESOURCES);
 
         assertThat(lost).containsExactly("StandardCommands#copy", "StandardCommands#copy");
+    }
+
+    @Test
+    void actsOnTheViewThatRegisteredTheCommandLast() {
+        Object first = new Object();
+        Object second = new Object();
+        Action firstAction = action();
+        Action secondAction = action();
+        bindings.register(SHORTCUT, "p.View#open", first, firstAction, ShortcutBindings.Priority.RESOURCES, () -> {});
+        bindings.register(SHORTCUT, "p.View#open", second, secondAction, ShortcutBindings.Priority.RESOURCES, () -> {});
+
+        assertThat(rootPane.getActionMap().get(bound())).isSameAs(secondAction);
+
+        bindings.remove("p.View#open", second);
+
+        assertThat(bound()).isEqualTo("be.imgn.swing.command:p.View#open");
+        assertThat(rootPane.getActionMap().get(bound())).isSameAs(firstAction);
+
+        bindings.remove("p.View#open", first);
+
+        assertThat(bound()).isNull();
+        assertThat(bindings.commandOf(SHORTCUT)).isNull();
+    }
+
+    @Test
+    void keepsTheShortcutOfTheLastViewWhenAnEarlierOneLeaves() {
+        Object first = new Object();
+        Object second = new Object();
+        Action secondAction = action();
+        bindings.register(SHORTCUT, "p.View#open", first, action(), ShortcutBindings.Priority.RESOURCES, () -> {});
+        bindings.register(SHORTCUT, "p.View#open", second, secondAction, ShortcutBindings.Priority.RESOURCES, () -> {});
+
+        bindings.remove("p.View#open", first);
+
+        assertThat(rootPane.getActionMap().get(bound())).isSameAs(secondAction);
     }
 }

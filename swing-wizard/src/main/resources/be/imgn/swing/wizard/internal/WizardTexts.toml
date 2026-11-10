@@ -1,0 +1,2 @@
+# The wizards' own texts. {0} is the shown step's number, from 1, {1} the number of steps, {2} the step's title.
+heading = "Step {0} of {1}: {2}"

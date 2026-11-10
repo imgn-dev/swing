@@ -153,7 +153,7 @@ class ContactDialogsTest {
             assertThat(seen).containsExactly(true, true, "Belinda");
             // Cancel keeps what Apply committed.
             assertThat(names(app)).contains("Belinda Doe").doesNotContain("Linda Doe");
-            assertThat(app.application().table.getSelectedRow()).isEqualTo(3);
+            assertThat(AddressBookViews.table(app).getSelectedRow()).isEqualTo(3);
         }
     }
 
@@ -386,12 +386,12 @@ class ContactDialogsTest {
     }
 
     private static void select(AppTester<AddressBookApp> app, int row) {
-        var table = app.application().table;
+        var table = AddressBookViews.table(app);
         app.run(() -> table.setRowSelectionInterval(row, row));
     }
 
     private static List<String> names(AppTester<AddressBookApp> app) {
-        var table = app.application().table;
+        var table = AddressBookViews.table(app);
         return app.call(() -> {
             var names = new ArrayList<String>();
             for (var row = 0; row < table.getRowCount(); row++) {

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>be.imgn.swing</groupId>
+    <artifactId>swing-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>swing-wizard</artifactId>
+  <name>swing wizard</name>
+  <description>Wizards: a dialog view's steps, with Previous, Next and Finish, each step validated before the next.</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-ui</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.inject</groupId>
+      <artifactId>inject</artifactId>
+      <version>${inject.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.toml</groupId>
+      <artifactId>toml</artifactId>
+      <version>${toml.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>be.imgn.swing</groupId>
+      <artifactId>swing-testing</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <!-- inject's processor reads every annotation and claims none,
+               which javac's processing lint reports. The factories it
+               generates for package-private beans are public and name those
+               beans, which javac's exports lint reports. -->
+          <compilerArgs combine.children="append">
+            <arg>-Xlint:-processing</arg>
+            <arg>-Xlint:-exports</arg>
+          </compilerArgs>
+          <annotationProcessorPaths combine.children="append">
+            <path>
+              <groupId>be.imgn.inject</groupId>
+              <artifactId>inject-processor</artifactId>
+              <version>${inject.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <configuration>
+              <!-- The tests' dialog views and applications are processed as an
+                   application's are; the module's own code isn't, since it
+                   opens its resources itself. -->
+              <annotationProcessorPaths combine.children="append">
+                <path>
+                  <groupId>be.imgn.swing</groupId>
+                  <artifactId>swing-processor</artifactId>
+                  <version>${project.version}</version>
+                </path>
+                <path>
+                  <groupId>be.imgn.toml</groupId>
+                  <artifactId>toml-processor</artifactId>
+                  <version>${toml.version}</version>
+                </path>
+                <path>
+                  <groupId>be.imgn.gaia</groupId>
+                  <artifactId>gaia-processor</artifactId>
+                  <version>${gaia.version}</version>
+                </path>
+              </annotationProcessorPaths>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- The tests declare applications whose services, generated in
+               the test sources, the module's descriptor doesn't provide. -->
+          <useModulePath>false</useModulePath>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>be.imgn.inject</groupId>
+        <artifactId>inject-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>be.imgn.gaia</groupId>
+        <artifactId>gaia-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

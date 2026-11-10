@@ -31,6 +31,7 @@ import be.imgn.swing.ui.Frames;
 import be.imgn.swing.ui.MultiFrame;
 import be.imgn.swing.ui.SystemShell;
 import be.imgn.swing.ui.TaskbarStatus;
+import be.imgn.swing.ui.View;
 import be.imgn.swing.ui.Windows;
 import be.imgn.swing.ui.internal.ComponentInspector;
 import be.imgn.swing.ui.internal.Edt;
@@ -181,7 +182,7 @@ public final class AppTester<T> implements AutoCloseable {
             RepaintManager.setCurrentManager(new EdtChecker(failures));
         });
         previousHandler = Thread.getDefaultUncaughtExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler((thread, failure) -> failures.add(failure));
+        Thread.setDefaultUncaughtExceptionHandler((thread, failure) -> failures.addUncaught(failure));
         FakePlatform platform = FakePlatform.newBuilder(OperatingSystem.LINUX, fileSystem.getPath("/"))
                 .build();
         AtomicReference<@Nullable Throwable> startupFailure = new AtomicReference<>();
@@ -196,7 +197,7 @@ public final class AppTester<T> implements AutoCloseable {
                             .bind(Dialogs.class, dialogs)
                             .bind(SystemShell.class, shell)
                             .bind(TaskbarStatus.class, taskbar)
-                            .bind(UiMode.class, new UiMode(true, failures::add))
+                            .bind(UiMode.class, new UiMode(true, failures::addReported))
                             .bind(SwingLocale.class, ignored -> {})
                             .bind(Appearances.class, appearances)
                             .bind(HotReloading.class, new HotReloading(false))
@@ -421,6 +422,35 @@ public final class AppTester<T> implements AutoCloseable {
     public <B> B bean(Class<B> type) {
         Objects.requireNonNull(type, "type");
         return call(() -> mainView().injector().getInstance(type));
+    }
+
+    /**
+     * Resolves a bean through the injector of an open view of the main frame, its own view or one added while it is
+     * open, such as a dock view: {@link #bean(Class)} and {@link #commands(Class)} resolve through the own view's
+     * injector, where an added view's view-scoped beans, such as its generated {@code <Class>Commands}, would be built
+     * anew, apart from the view.
+     *
+     * @param view the view
+     * @param type the bean's class
+     * @param <B> the bean's class
+     * @return the bean
+     * @throws NullPointerException if an argument is {@code null}
+     * @throws IllegalArgumentException if the view isn't open in the main frame
+     */
+    public <B> B bean(View view, Class<B> type) {
+        Objects.requireNonNull(view, "view");
+        Objects.requireNonNull(type, "type");
+        return call(() -> hostOf(mainView().window(), view).injector().getInstance(type));
+    }
+
+    // The host of an open view of a window, its own or an added one.
+    static ViewHost hostOf(WindowHost window, View view) {
+        for (ViewHost host : window.views()) {
+            if (host.view().filter(view::equals).isPresent()) {
+                return host;
+            }
+        }
+        throw new IllegalArgumentException(view + " is not open in this frame");
     }
 
     /**

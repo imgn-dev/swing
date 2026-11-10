@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import be.imgn.swing.testing.AppTester;
 import be.imgn.swing.testing.OpenDialog;
 import be.imgn.swing.ui.StandardCommands;
+import be.imgn.swing.wizard.Wizard;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -35,7 +36,7 @@ class AddressBookAppTest {
             assertThat(app.title()).isEqualTo("Simple Address Book Application");
             assertThat(app.components(JMenu.class))
                     .extracting(JMenu::getText)
-                    .containsExactly("File", "Edit", "Contacts", "Language", "Tasks Tests");
+                    .containsExactly("File", "Edit", "Contacts", "Language", "Views", "Tasks Tests");
             assertThat(app.components(JMenuItem.class))
                     .filteredOn(item -> !(item instanceof JMenu))
                     .extracting(JMenuItem::getText)
@@ -82,7 +83,7 @@ class AddressBookAppTest {
             JTextField firstName = app.component(JTextField.class, "First Name");
             JTextField birth = app.component(JTextField.class, "Birth Date");
             JLabel picture = app.component(JLabel.class, "Contact picture");
-            JTable table = app.application().table;
+            JTable table = AddressBookViews.table(app);
 
             select(app, 0);
             assertThat(firstName.getText()).isEqualTo("John");
@@ -115,7 +116,7 @@ class AddressBookAppTest {
                     0, "Ada", "Lovelace", LocalDate.parse("1815-12-10"), Address.ofCity("London"), Address.EMPTY));
             app.run(() -> {});
             assertThat(names(app)).endsWith("Ada Lovelace").hasSize(6);
-            assertThat(app.application().table.getValueAt(5, 2)).isEqualTo("London");
+            assertThat(AddressBookViews.table(app).getValueAt(5, 2)).isEqualTo("London");
 
             service.modifyContact(ada.withIdentity("Augusta Ada", "King", ada.birth()));
             app.run(() -> {});
@@ -132,7 +133,7 @@ class AddressBookAppTest {
         try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
             AddressBookService service = app.bean(AddressBookService.class);
             Contact phoebe = service.contacts().get(1);
-            JTable table = app.application().table;
+            JTable table = AddressBookViews.table(app);
             JTextField lastName = app.component(JTextField.class, "Last Name");
             select(app, 1);
 
@@ -191,7 +192,7 @@ class AddressBookAppTest {
 
             assertThat(names(app)).contains("Belinda Doe").doesNotContain("Linda Doe");
             assertThat(app.component(JTextField.class, "First Name").getText()).isEqualTo("Belinda");
-            assertThat(app.application().table.getSelectedRow()).isEqualTo(3);
+            assertThat(AddressBookViews.table(app).getSelectedRow()).isEqualTo(3);
         }
     }
 
@@ -213,7 +214,7 @@ class AddressBookAppTest {
     void createsAContactStepByStepWithTheWizard() {
         try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
             app.dialogs().answerDialog(ContactWizardDialog.class, dialog -> {
-                ContactWizardDialogCommands steps = dialog.commands(ContactWizardDialogCommands.class);
+                Wizard steps = dialog.bean(Wizard.class);
                 assertThat(dialog.components(JLabel.class))
                         .extracting(JLabel::getText)
                         .contains("Step 1 of 3: Contact Information");
@@ -230,7 +231,7 @@ class AddressBookAppTest {
 
             app.commands(ContactActionsCommands.class).createContactWithWizard().execute();
 
-            assertThat(app.application().table.getValueAt(5, 2)).isEqualTo("Arlington");
+            assertThat(AddressBookViews.table(app).getValueAt(5, 2)).isEqualTo("Arlington");
             assertThat(names(app)).endsWith("Grace Hopper");
         }
     }
@@ -365,8 +366,8 @@ class AddressBookAppTest {
             assertThat(app.title()).isEqualTo("Simple application de gestion d'adresses");
             assertThat(app.components(JMenu.class))
                     .extracting(JMenu::getText)
-                    .containsExactly("Fichier", "Édition", "Contacts", "Langage", "Tests de tâches");
-            assertThat(app.application().table.getColumnName(0)).isEqualTo("Prénom");
+                    .containsExactly("Fichier", "Édition", "Contacts", "Langage", "Vues", "Tests de tâches");
+            assertThat(AddressBookViews.table(app).getColumnName(0)).isEqualTo("Prénom");
             assertThat(app.component(JLabel.class, "Photo du contact").getText())
                     .isEqualTo("Aucun contact sélectionné");
         }
@@ -381,14 +382,14 @@ class AddressBookAppTest {
     }
 
     private static List<String> names(AppTester<AddressBookApp> app) {
-        JTable table = app.application().table;
+        JTable table = AddressBookViews.table(app);
         return IntStream.range(0, table.getRowCount())
                 .mapToObj(row -> table.getValueAt(row, 0) + " " + table.getValueAt(row, 1))
                 .toList();
     }
 
     private static void select(AppTester<AddressBookApp> app, int row) {
-        JTable table = app.application().table;
+        JTable table = AddressBookViews.table(app);
         app.run(() -> table.setRowSelectionInterval(row, row));
     }
 

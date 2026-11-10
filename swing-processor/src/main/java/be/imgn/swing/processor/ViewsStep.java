@@ -85,10 +85,26 @@ final class ViewsStep implements Step {
             shared.reporter()
                     .error(type, "A document view is shown in a frame of its own: implement " + Names.FRAME_VIEW);
         }
+        if (isDockView(type)
+                && (context.isSubtype(type.asType(), Names.FRAME_VIEW)
+                        || context.isSubtype(type.asType(), Names.DIALOG_VIEW))) {
+            shared.reporter()
+                    .error(
+                            type,
+                            "A dock view is shown in its frame's dock, not in a window of its own: it implements"
+                                    + " neither "
+                                    + Names.FRAME_VIEW + " nor " + Names.DIALOG_VIEW);
+        }
         shared.pending(type);
         generateInjector(type);
         generateState(type);
         DialogFactories.generate(shared, type);
+    }
+
+    // swing-docking may be absent from the class path: a class that can't implement DockView isn't one.
+    private boolean isDockView(TypeElement type) {
+        return context.elements().getTypeElement(Names.DOCK_VIEW) != null
+                && context.isSubtype(type.asType(), Names.DOCK_VIEW);
     }
 
     // swing-desktop may be absent from the class path: a class that can't implement DocumentView isn't one.
@@ -250,7 +266,8 @@ final class ViewsStep implements Step {
     }
 
     // The statements that write every property that applies to a component field, read at its field path and reached
-    // through an expression; tab-title goes apart, since it is applied once tabs exist.
+    // through an expression; tab-title goes apart, since it is applied once tabs exist, and step-title is set on no
+    // component.
     private void statements(
             VariableElement field,
             String path,
@@ -259,7 +276,7 @@ final class ViewsStep implements Step {
             List<String> properties,
             List<String> tabTitles) {
         for (ComponentProperty property : ComponentProperty.values()) {
-            if (property.appliesTo(context, field.asType())) {
+            if (property != ComponentProperty.STEP_TITLE && property.appliesTo(context, field.asType())) {
                 String statement = property.statement(context, field.asType(), path, target, componentResources);
                 (property == ComponentProperty.TAB_TITLE ? tabTitles : properties).add(statement);
             }

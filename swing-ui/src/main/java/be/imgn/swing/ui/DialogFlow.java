@@ -62,12 +62,16 @@ final class DialogFlow {
                 "dialog");
         try {
             DialogControl control = new DialogControl(() -> close(host));
-            ViewHost view = builder.buildView(host, type, variant, resolve, control, DialogFlow::place);
-            // Each variant of a dialog keeps its own window state.
-            host.stateKey(view.type().getName()
-                    + variant.map(constant -> "."
-                                    + constant.name().toLowerCase(Locale.ROOT).replace('_', '-'))
-                            .orElse(""));
+            ViewHost view = builder.buildView(host, type, variant, resolve, control, built -> {
+                // Each variant of a dialog keeps its own window state; known before the build ends, as a frame's is.
+                host.stateKey(built.type().getName()
+                        + variant.map(constant -> "."
+                                        + constant.name()
+                                                .toLowerCase(Locale.ROOT)
+                                                .replace('_', '-'))
+                                .orElse(""));
+                place(built);
+            });
             @SuppressWarnings("unchecked")
             DialogView<R> dialog = (DialogView<R>) view.view().orElseThrow();
             host.resourceTitle(FrameFlow.titleOf(builder.table(view.type(), variant), services));

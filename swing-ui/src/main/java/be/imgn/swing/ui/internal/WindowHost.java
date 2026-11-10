@@ -21,6 +21,7 @@ public final class WindowHost {
     private final List<ViewHost> views = new ArrayList<>();
     // The title the window took from its view's resources, or the displayed name; null until it took one.
     private @Nullable String resourceTitle;
+    private boolean closing;
 
     /**
      * Creates the host of a window.
@@ -170,6 +171,34 @@ public final class WindowHost {
 
     void add(ViewHost view) {
         views.add(view);
+    }
+
+    /**
+     * Removes an added view that closed.
+     *
+     * @param view the view
+     */
+    public void remove(ViewHost view) {
+        views.remove(view);
+    }
+
+    /**
+     * Returns whether a frame is closing: its vetoes are being asked, or it is being discarded. A dialog, and the main
+     * window, whose closing is the application's exit, never are.
+     *
+     * @return {@code true} while it closes
+     */
+    public boolean isClosing() {
+        return closing;
+    }
+
+    /**
+     * Records whether the window is closing.
+     *
+     * @param value whether it is
+     */
+    public void closing(boolean value) {
+        this.closing = value;
     }
 
     /**

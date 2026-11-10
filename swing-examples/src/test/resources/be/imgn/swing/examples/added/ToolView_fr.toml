@@ -1,0 +1,9 @@
+[caption]
+text = "Outil"
+
+[table]
+accessible-name = "Lignes"
+
+[commands.act]
+text = "&Agir"
+shortcut = "ctrl K"

@@ -79,37 +79,6 @@ public interface AddressBookMessages {
     String isoDate();
 
     /**
-     * Returns the heading of a step of the wizard.
-     *
-     * @param step the step's number, from 1
-     * @param steps the number of steps
-     * @param name the step's name
-     * @return the heading
-     */
-    String wizardStep(int step, int steps, String name);
-
-    /**
-     * Returns the name of the wizard's step of the contact's information.
-     *
-     * @return the name
-     */
-    String contactStep();
-
-    /**
-     * Returns the name of the wizard's step of the home address.
-     *
-     * @return the name
-     */
-    String homeAddressStep();
-
-    /**
-     * Returns the name of the wizard's step of the office address.
-     *
-     * @return the name
-     */
-    String officeAddressStep();
-
-    /**
      * Returns the progress message of a test task that sleeps in chunks.
      *
      * @param chunk the chunk's number, from 1
