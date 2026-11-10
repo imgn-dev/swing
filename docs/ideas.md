@@ -138,7 +138,7 @@ The roadmap doesn't plan a layout helper. A small form builder (a row of a label
 
 `addressbook/ContactWizardDialog` holds the step in a property, shows it with a `CardLayout`, derives `hasPrevious` and `hasNext`, and writes the step's heading.
 
-**Roadmap:** milestone 5, `swing-wizard`. This dialog is its first test case.
+**Roadmap:** milestone 5, `swing-wizard`. This dialog is its first test case. **Integrated** into [milestone 5](milestone-5.md#wizards), with the steps as components of the dialog view.
 
 ### 12. Local storage
 
