@@ -66,6 +66,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#theme()" tabindex="0">theme()</a></li>
 <li><a href="#isDark()" tabindex="0">isDark()</a></li>
 <li><a href="#install()" tabindex="0">install()</a></li>
+<li><a href="#install(be.imgn.swing.Appearance)" tabindex="0">install(Appearance)</a></li>
+<li><a href="#tokens()" tabindex="0">tokens()</a></li>
 </ol>
 </li>
 </ol>
@@ -129,15 +131,28 @@ application's resources, selects <code>system</code> (the default), <code>light<
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Installs the look and feel.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isDark()" class="member-name-link">isDark</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#install(be.imgn.swing.Appearance)" class="member-name-link">install</a><wbr>(<a href="../../../../../be.imgn.swing/be/imgn/swing/Appearance.html" title="enum class in be.imgn.swing">Appearance</a>&nbsp;appearance)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Installs FlatLaf in an appearance, with the tokens of the application class's <code>[flatlaf]</code> table, read in
+that appearance: they are given to <code>FlatLaf.setGlobalExtraDefaults(Map)</code> before the look and feel is set
+up.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isDark()" class="member-name-link">isDark</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns whether the dark theme is installed.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Theme.html" title="enum class in be.imgn.swing.flatlaf">Theme</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#theme()" class="member-name-link">theme</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Theme.html" title="enum class in be.imgn.swing.flatlaf">Theme</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#theme()" class="member-name-link">theme</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the theme to install.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#tokens()" class="member-name-link">tokens</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the tokens of the application class's <code>[flatlaf]</code> table, in the current appearance of the
+resources: each value as the string that FlatLaf's properties files would hold.</div>
 </div>
 </div>
 </div>
@@ -221,6 +236,37 @@ application's resources, selects <code>system</code> (the default), <code>light<
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/LookAndFeelInstaller.html#install()">install</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/LookAndFeelInstaller.html" title="interface in be.imgn.swing.ui">LookAndFeelInstaller</a></code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="install(be.imgn.swing.Appearance)">
+<h3>install</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">install</span><wbr><span class="parameters">(<a href="../../../../../be.imgn.swing/be/imgn/swing/Appearance.html" title="enum class in be.imgn.swing">Appearance</a>&nbsp;appearance)</span></div>
+<div class="block">Installs FlatLaf in an appearance, with the tokens of the application class's <code>[flatlaf]</code> table, read in
+that appearance: they are given to <code>FlatLaf.setGlobalExtraDefaults(Map)</code> before the look and feel is set
+up.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>appearance</code> - the appearance</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>appearance</code> is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="tokens()">
+<h3>tokens</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">tokens</span>()</div>
+<div class="block">Returns the tokens of the application class's <code>[flatlaf]</code> table, in the current appearance of the
+resources: each value as the string that FlatLaf's properties files would hold.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the tokens, by FlatLaf key or variable</dd>
 </dl>
 </div>
 </section>

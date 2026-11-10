@@ -58,6 +58,7 @@ loadScripts(document, 'script');</script>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
 <li><a href="#of(java.lang.String,java.lang.Class,java.util.function.Function)" tabindex="0">of(String, Class, Function)</a></li>
+<li><a href="#of(java.util.function.Supplier,java.lang.Class,java.util.function.Function)" tabindex="0">of(Supplier, Class, Function)</a></li>
 <li><a href="#editable(java.util.function.BiFunction)" tabindex="0">editable(BiFunction)</a></li>
 </ol>
 </li>
@@ -116,6 +117,15 @@ boxes for <code>Boolean</code>, right-aligned numbers for <code>Number</code>. A
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns a column whose cells can't be edited.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;E,<wbr>V&gt;&nbsp;<a href="Column.html" title="class in be.imgn.swing.ui">Column</a><wbr>&lt;E,<wbr>V&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(java.util.function.Supplier,java.lang.Class,java.util.function.Function)" class="member-name-link">of</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;header,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;V&gt;&nbsp;type,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super E, ? extends @Nullable V&gt;&nbsp;value)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Returns a column whose cells can't be edited, whose header is read when the table is bound and again at every
+refresh, so that a header from typed messages follows the display locale:
+<code>Column.of(messages::firstNameHeader, String.class, Contact::firstName)</code>.</div>
+</div>
 </div>
 </div>
 </div>
@@ -147,6 +157,32 @@ boxes for <code>Boolean</code>, right-aligned numbers for <code>Number</code>. A
 <dd><span id="of(java.lang.String,java.lang.Class,java.util.function.Function)-type-param-V"><code>V</code> - the type of the values</span></dd>
 <dt>Parameters:</dt>
 <dd><code>header</code> - the header text, from typed messages like any text that code holds</dd>
+<dd><code>type</code> - the type of the values, which the model's <code>getColumnClass</code> returns</dd>
+<dd><code>value</code> - gives the value of a row, <code>null</code> for an empty cell</dd>
+<dt>Returns:</dt>
+<dd>the column</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if an argument is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="of(java.util.function.Supplier,java.lang.Class,java.util.function.Function)">
+<h3>of</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;E,<wbr>V&gt;</span>&nbsp;<span class="return-type"><a href="Column.html" title="class in be.imgn.swing.ui">Column</a>&lt;E,<wbr>V&gt;</span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;header,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;V&gt;&nbsp;type,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;? super E, ? extends @Nullable V&gt;&nbsp;value)</span></div>
+<div class="block">Returns a column whose cells can't be edited, whose header is read when the table is bound and again at every
+refresh, so that a header from typed messages follows the display locale:
+<code>Column.of(messages::firstNameHeader, String.class, Contact::firstName)</code>.</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><span id="of(java.util.function.Supplier,java.lang.Class,java.util.function.Function)-type-param-E"><code>E</code> - the type of the rows</span></dd>
+<dd><span id="of(java.util.function.Supplier,java.lang.Class,java.util.function.Function)-type-param-V"><code>V</code> - the type of the values</span></dd>
+<dt>Parameters:</dt>
+<dd><code>header</code> - gives the header text, on the EDT</dd>
 <dd><code>type</code> - the type of the values, which the model's <code>getColumnClass</code> returns</dd>
 <dd><code>value</code> - gives the value of a row, <code>null</code> for an empty cell</dd>
 <dt>Returns:</dt>

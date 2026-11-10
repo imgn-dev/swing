@@ -58,6 +58,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
 <li><a href="#table(java.lang.Class)" tabindex="0">table(Class)</a></li>
+<li><a href="#table(java.lang.Class,java.util.Locale)" tabindex="0">table(Class, Locale)</a></li>
+<li><a href="#locale()" tabindex="0">locale()</a></li>
 <li><a href="#opener(java.lang.String)" tabindex="0">opener(String)</a></li>
 <li><a href="#openers()" tabindex="0">openers()</a></li>
 </ol>
@@ -83,8 +85,13 @@ variants, and cached per class and locale.
 <p>For a class <code>p.NotesView</code>, in the locale <code>fr_BE</code> on macOS, these files of <code>p/</code> are read, each
 one overriding the previous: the resources of the superclass, merged the same way; <code>NotesView.toml</code>;
 <code>NotesView.macos.toml</code>; <code>NotesView_fr.toml</code>, then <code>NotesView_fr.macos.toml</code>;
-<code>NotesView_fr_BE.toml</code>, then <code>NotesView_fr_BE.macos.toml</code>. A table merges key by key; any other value
-replaces the previous one. The <code>${key.path}</code> references in strings are then resolved in the merged table.
+<code>NotesView_fr_BE.toml</code>, then <code>NotesView_fr_BE.macos.toml</code>. While the <a href="Appearances.html" title="interface in be.imgn.swing"><code>appearance</code></a> is
+dark, <code>NotesView.dark.toml</code> is read right after <code>NotesView.macos.toml</code>. A table merges key by key; any
+other value replaces the previous one. The <code>${key.path}</code> references in strings are then resolved in the merged
+table.
+
+<p><a href="#table(java.lang.Class)"><code>table(Class)</code></a> reads the current display locale, which <a href="Locales.html" title="interface in be.imgn.swing"><code>Locales</code></a> changes: a change drops the cached
+tables, so that the next call merges the files of the new locale.
 
 <p>The files are read through the <a href="ResourceOpener.html" title="interface in be.imgn.swing"><code>ResourceOpener</code></a> of their package, found through the
 <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/ServiceLoader.html" title="class or interface in java.util" class="external-link"><code>ServiceLoader</code></a>.</div>
@@ -103,20 +110,31 @@ replaces the previous one. The <code>${key.path}</code> references in strings ar
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;<a href="ResourceOpener.html" title="interface in be.imgn.swing">ResourceOpener</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#opener(java.lang.String)" class="member-name-link">opener</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;packageName)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Locale.html" title="class or interface in java.util" class="external-link">Locale</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#locale()" class="member-name-link">locale</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the display locale that <a href="#table(java.lang.Class)"><code>table(Class)</code></a> reads now.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;<a href="ResourceOpener.html" title="interface in be.imgn.swing">ResourceOpener</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#opener(java.lang.String)" class="member-name-link">opener</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;packageName)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the opener of a package's resources.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a><wbr>&lt;<a href="ResourceOpener.html" title="interface in be.imgn.swing">ResourceOpener</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#openers()" class="member-name-link">openers</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a><wbr>&lt;<a href="ResourceOpener.html" title="interface in be.imgn.swing">ResourceOpener</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#openers()" class="member-name-link">openers</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns every opener found.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>be.imgn.toml.TomlTable</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#table(java.lang.Class)" class="member-name-link">table</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&nbsp;type)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the merged resources of a class, in the current display locale.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>be.imgn.toml.TomlTable</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#table(java.lang.Class)" class="member-name-link">table</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&nbsp;type)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#table(java.lang.Class,java.util.Locale)" class="member-name-link">table</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&nbsp;type,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Locale.html" title="class or interface in java.util" class="external-link">Locale</a>&nbsp;locale)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the merged resources of a class, in the display locale.</div>
+<div class="block">Returns the merged resources of a class, in a given locale, whatever the display locale.</div>
 </div>
 </div>
 </div>
@@ -140,8 +158,8 @@ replaces the previous one. The <code>${key.path}</code> references in strings ar
 <h3>table</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">be.imgn.toml.TomlTable</span>&nbsp;<span class="element-name">table</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&nbsp;type)</span></div>
-<div class="block">Returns the merged resources of a class, in the display locale. A nested class's files are named after its simple
-name.</div>
+<div class="block">Returns the merged resources of a class, in the current display locale. A nested class's files are named after
+its simple name. The table is cached until the locale changes: two calls in one locale return the same instance.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>type</code> - the class</dd>
@@ -149,6 +167,39 @@ name.</div>
 <dd>the merged table, empty if the class has no resources</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if a file does not parse, or a reference names no string</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="table(java.lang.Class,java.util.Locale)">
+<h3>table</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">be.imgn.toml.TomlTable</span>&nbsp;<span class="element-name">table</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&nbsp;type,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Locale.html" title="class or interface in java.util" class="external-link">Locale</a>&nbsp;locale)</span></div>
+<div class="block">Returns the merged resources of a class, in a given locale, whatever the display locale. The table is cached.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>type</code> - the class</dd>
+<dd><code>locale</code> - the locale</dd>
+<dt>Returns:</dt>
+<dd>the merged table, empty if the class has no resources</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if an argument is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if a file does not parse, or a reference names no string</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="locale()">
+<h3>locale</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Locale.html" title="class or interface in java.util" class="external-link">Locale</a></span>&nbsp;<span class="element-name">locale</span>()</div>
+<div class="block">Returns the display locale that <a href="#table(java.lang.Class)"><code>table(Class)</code></a> reads now.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the locale</dd>
 </dl>
 </div>
 </section>

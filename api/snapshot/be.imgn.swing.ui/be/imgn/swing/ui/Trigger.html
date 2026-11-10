@@ -65,12 +65,12 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="Trigger.ButtonClick.html" title="class in be.imgn.swing.ui">Trigger.ButtonClick</a>, <a href="Trigger.MenuSelection.html" title="class in be.imgn.swing.ui">Trigger.MenuSelection</a>, <a href="Trigger.OperatingSystem.html" title="class in be.imgn.swing.ui">Trigger.OperatingSystem</a>, <a href="Trigger.PopupMenuSelection.html" title="class in be.imgn.swing.ui">Trigger.PopupMenuSelection</a>, <a href="Trigger.Programmatic.html" title="class in be.imgn.swing.ui">Trigger.Programmatic</a>, <a href="Trigger.Shortcut.html" title="class in be.imgn.swing.ui">Trigger.Shortcut</a></code></dd>
+<dd><code><a href="Trigger.ButtonClick.html" title="class in be.imgn.swing.ui">Trigger.ButtonClick</a>, <a href="Trigger.MenuSelection.html" title="class in be.imgn.swing.ui">Trigger.MenuSelection</a>, <a href="Trigger.OperatingSystem.html" title="class in be.imgn.swing.ui">Trigger.OperatingSystem</a>, <a href="Trigger.Palette.html" title="class in be.imgn.swing.ui">Trigger.Palette</a>, <a href="Trigger.PopupMenuSelection.html" title="class in be.imgn.swing.ui">Trigger.PopupMenuSelection</a>, <a href="Trigger.Programmatic.html" title="class in be.imgn.swing.ui">Trigger.Programmatic</a>, <a href="Trigger.Shortcut.html" title="class in be.imgn.swing.ui">Trigger.Shortcut</a></code></dd>
 </dl>
 <hr>
 <div class="horizontal-scroll">
 <div class="type-signature"><span class="modifiers">public sealed interface </span><span class="element-name type-name-label">Trigger</span>
-<span class="permits">permits <a href="Trigger.MenuSelection.html" title="class in be.imgn.swing.ui">Trigger.MenuSelection</a>, <a href="Trigger.PopupMenuSelection.html" title="class in be.imgn.swing.ui">Trigger.PopupMenuSelection</a>, <a href="Trigger.ButtonClick.html" title="class in be.imgn.swing.ui">Trigger.ButtonClick</a>, <a href="Trigger.Shortcut.html" title="class in be.imgn.swing.ui">Trigger.Shortcut</a>, <a href="Trigger.OperatingSystem.html" title="class in be.imgn.swing.ui">Trigger.OperatingSystem</a>, <a href="Trigger.Programmatic.html" title="class in be.imgn.swing.ui">Trigger.Programmatic</a></span></div>
+<span class="permits">permits <a href="Trigger.MenuSelection.html" title="class in be.imgn.swing.ui">Trigger.MenuSelection</a>, <a href="Trigger.PopupMenuSelection.html" title="class in be.imgn.swing.ui">Trigger.PopupMenuSelection</a>, <a href="Trigger.ButtonClick.html" title="class in be.imgn.swing.ui">Trigger.ButtonClick</a>, <a href="Trigger.Shortcut.html" title="class in be.imgn.swing.ui">Trigger.Shortcut</a>, <a href="Trigger.OperatingSystem.html" title="class in be.imgn.swing.ui">Trigger.OperatingSystem</a>, <a href="Trigger.Programmatic.html" title="class in be.imgn.swing.ui">Trigger.Programmatic</a>, <a href="Trigger.Palette.html" title="class in be.imgn.swing.ui">Trigger.Palette</a></span></div>
 <div class="block">The path that activated a command, with the objects that path always has. A handler that uses them switches over the
 trigger, exhaustively, so that it deals with the paths that have no component, such as <a href="Trigger.Programmatic.html" title="class in be.imgn.swing.ui"><code>Trigger.Programmatic</code></a>.</div>
 </div>
@@ -102,18 +102,23 @@ trigger, exhaustively, so that it deals with the paths that have no component, s
 <div class="block">The operating system's application menu ran the command.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final record&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="Trigger.PopupMenuSelection.html" class="type-name-link" title="class in be.imgn.swing.ui">Trigger.PopupMenuSelection</a></code></div>
+<div class="col-second odd-row-color"><code><a href="Trigger.Palette.html" class="type-name-link" title="class in be.imgn.swing.ui">Trigger.Palette</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">A menu item of a popup menu was selected.</div>
+<div class="block">The user chose the command in the <a href="CommandPalette.html" title="class in be.imgn.swing.ui"><code>CommandPalette</code></a>.</div>
 </div>
 <div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="Trigger.Programmatic.html" class="type-name-link" title="class in be.imgn.swing.ui">Trigger.Programmatic</a></code></div>
+<div class="col-second even-row-color"><code><a href="Trigger.PopupMenuSelection.html" class="type-name-link" title="class in be.imgn.swing.ui">Trigger.PopupMenuSelection</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Code ran the command, as with <a href="BoundCommand.html#execute()"><code>BoundCommand.execute()</code></a>.</div>
+<div class="block">A menu item of a popup menu was selected.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final record&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="Trigger.Shortcut.html" class="type-name-link" title="class in be.imgn.swing.ui">Trigger.Shortcut</a></code></div>
+<div class="col-second odd-row-color"><code><a href="Trigger.Programmatic.html" class="type-name-link" title="class in be.imgn.swing.ui">Trigger.Programmatic</a></code></div>
 <div class="col-last odd-row-color">
+<div class="block">Code ran the command, as with <a href="BoundCommand.html#execute()"><code>BoundCommand.execute()</code></a>.</div>
+</div>
+<div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="Trigger.Shortcut.html" class="type-name-link" title="class in be.imgn.swing.ui">Trigger.Shortcut</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">A shortcut was typed.</div>
 </div>
 </div>

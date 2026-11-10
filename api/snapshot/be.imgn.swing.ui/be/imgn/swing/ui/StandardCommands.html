@@ -76,6 +76,9 @@ loadScripts(document, 'script');</script>
 <li><a href="#ok()" tabindex="0">ok()</a></li>
 <li><a href="#cancel()" tabindex="0">cancel()</a></li>
 <li><a href="#apply()" tabindex="0">apply()</a></li>
+<li><a href="#openWindows()" tabindex="0">openWindows()</a></li>
+<li><a href="#commandPalette()" tabindex="0">commandPalette()</a></li>
+<li><a href="#keymap()" tabindex="0">keymap()</a></li>
 </ol>
 </li>
 </ol>
@@ -158,19 +161,31 @@ calls <a href="DialogView.html#commit()"><code>DialogView.commit()</code></a>, t
 application, the same as <a href="#exit()"><code>exit()</code></a>.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#copy()" class="member-name-link">copy</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#commandPalette()" class="member-name-link">commandPalette</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the command that copies in the focused component; enabled only when it supports it.</div>
+<div class="block">Returns the command that shows the <a href="CommandPalette.html" title="class in be.imgn.swing.ui"><code>CommandPalette</code></a> of this view's window, where the user finds a command
+by typing part of its text.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cut()" class="member-name-link">cut</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#copy()" class="member-name-link">copy</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the command that cuts in the focused component; enabled only when it supports it.</div>
+<div class="block">Returns the command that copies in the focused component; enabled only when it supports it.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#exit()" class="member-name-link">exit</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cut()" class="member-name-link">cut</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the command that cuts in the focused component; enabled only when it supports it.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#exit()" class="member-name-link">exit</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command that asks the exit vetoes, then shuts down: <code>Lifecycle.requestExit()</code>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#keymap()" class="member-name-link">keymap</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the command that shows the <a href="KeymapDialog.html" title="class in be.imgn.swing.ui"><code>KeymapDialog</code></a> over this view's window, where the user assigns, removes
+and resets the shortcuts of its commands.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#ok()" class="member-name-link">ok</a>()</code></div>
@@ -179,30 +194,36 @@ application, the same as <a href="#exit()"><code>exit()</code></a>.</div>
 the dialog stays open, showing the errors; otherwise, if the form is dirty, it calls <a href="DialogView.html#commit()"><code>DialogView.commit()</code></a>,
 then closes the dialog with <a href="DialogView.html#result()"><code>DialogView.result()</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#paste()" class="member-name-link">paste</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="MenuEntry.html" title="interface in be.imgn.swing.ui">MenuEntry</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#openWindows()" class="member-name-link">openWindows</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the command that pastes in the focused component; enabled only when it supports it.</div>
+<div class="block">Returns a dynamic menu entry of the open frames, in opening order, numbered, each named by its frame's title and
+bringing its frame to the front when selected.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#preferences()" class="member-name-link">preferences</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#paste()" class="member-name-link">paste</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the command that pastes in the focused component; enabled only when it supports it.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#preferences()" class="member-name-link">preferences</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command that calls <a href="PreferencesHandler.html#showPreferences(be.imgn.swing.ui.Ui)"><code>PreferencesHandler.showPreferences(Ui)</code></a> with the <a href="Ui.html" title="class in be.imgn.swing.ui"><code>Ui</code></a> of this view;
 disabled unless a <a href="PreferencesHandler.html" title="interface in be.imgn.swing.ui"><code>PreferencesHandler</code></a> bean exists.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#redo()" class="member-name-link">redo</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#redo()" class="member-name-link">redo</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command that redoes the next edit of the view's <a href="UndoStack.html" title="class in be.imgn.swing.ui"><code>UndoStack</code></a>; enabled while it can redo.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#selectAll()" class="member-name-link">selectAll</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#selectAll()" class="member-name-link">selectAll</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command that selects all in the focused component; enabled only when it supports it.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#undo()" class="member-name-link">undo</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#undo()" class="member-name-link">undo</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the command that undoes the next edit of the view's <a href="UndoStack.html" title="class in be.imgn.swing.ui"><code>UndoStack</code></a>; enabled while it can undo.</div>
 </div>
 </div>
@@ -422,6 +443,51 @@ calls <a href="DialogView.html#commit()"><code>DialogView.commit()</code></a>, t
 <dd>the command</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - outside a dialog view's scope</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="openWindows()">
+<h3>openWindows</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="MenuEntry.html" title="interface in be.imgn.swing.ui">MenuEntry</a></span>&nbsp;<span class="element-name">openWindows</span>()</div>
+<div class="block">Returns a dynamic menu entry of the open frames, in opening order, numbered, each named by its frame's title and
+bringing its frame to the front when selected. It follows the frames that open and close, and the titles set
+through <a href="Window.html#setTitle(java.lang.String)"><code>Window.setTitle(String)</code></a>; dialogs are not listed. A Window menu holds it:
+<code>menus.window().with(commands.openWindows())</code>.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the entry</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="commandPalette()">
+<h3>commandPalette</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></span>&nbsp;<span class="element-name">commandPalette</span>()</div>
+<div class="block">Returns the command that shows the <a href="CommandPalette.html" title="class in be.imgn.swing.ui"><code>CommandPalette</code></a> of this view's window, where the user finds a command
+by typing part of its text. The framework asks for it at the end of the build of every frame view, so that its
+shortcut works in every frame.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the command</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="keymap()">
+<h3>keymap</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="BoundCommand.html" title="class in be.imgn.swing.ui">BoundCommand</a></span>&nbsp;<span class="element-name">keymap</span>()</div>
+<div class="block">Returns the command that shows the <a href="KeymapDialog.html" title="class in be.imgn.swing.ui"><code>KeymapDialog</code></a> over this view's window, where the user assigns, removes
+and resets the shortcuts of its commands. It has no shortcut.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the command</dd>
 </dl>
 </div>
 </section>

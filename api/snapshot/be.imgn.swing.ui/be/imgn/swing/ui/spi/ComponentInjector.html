@@ -61,6 +61,7 @@ loadScripts(document, 'script');</script>
 <li><a href="#inject(V,be.imgn.swing.ui.spi.ComponentResources)" tabindex="0">inject(V, ComponentResources)</a></li>
 <li><a href="#injectTabTitles(V,be.imgn.swing.ui.spi.ComponentResources)" tabindex="0">injectTabTitles(V, ComponentResources)</a></li>
 <li><a href="#registerOverrides(be.imgn.swing.ui.CommandRegistry)" tabindex="0">registerOverrides(CommandRegistry)</a></li>
+<li><a href="#components(V,java.util.function.BiConsumer)" tabindex="0">components(V, BiConsumer)</a></li>
 </ol>
 </li>
 </ol>
@@ -97,26 +98,33 @@ that its nested tables name, read through the enclosing fields, with plain sette
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#inject(V,be.imgn.swing.ui.spi.ComponentResources)" class="member-name-link">inject</a><wbr>(<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&nbsp;view,
- <a href="ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a>&nbsp;resources)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#components(V,java.util.function.BiConsumer)" class="member-name-link">components</a><wbr>(<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&nbsp;view,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/BiConsumer.html" title="class or interface in java.util.function" class="external-link">BiConsumer</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Component.html" title="class or interface in java.awt" class="external-link">Component</a>&gt;&nbsp;component)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Applies every property except <code>tab-title</code>: after the view's constructor, before <code>content()</code>.</div>
+<div class="block">Gives each <code>@Exposed</code> component field of the view that holds a component, with its path, nested fields of
+component fields included, as <code>home.streetLabel</code>, enclosing paths first.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#injectTabTitles(V,be.imgn.swing.ui.spi.ComponentResources)" class="member-name-link">injectTabTitles</a><wbr>(<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&nbsp;view,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#inject(V,be.imgn.swing.ui.spi.ComponentResources)" class="member-name-link">inject</a><wbr>(<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&nbsp;view,
  <a href="ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a>&nbsp;resources)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Applies the <code>tab-title</code> properties: after <code>content()</code> returns, once tabs exist.</div>
+<div class="block">Applies every property except <code>tab-title</code>: after the view's constructor, before <code>content()</code>.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#registerOverrides(be.imgn.swing.ui.CommandRegistry)" class="member-name-link">registerOverrides</a><wbr>(<a href="../CommandRegistry.html" title="class in be.imgn.swing.ui">CommandRegistry</a>&nbsp;registry)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#injectTabTitles(V,be.imgn.swing.ui.spi.ComponentResources)" class="member-name-link">injectTabTitles</a><wbr>(<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&nbsp;view,
+ <a href="ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a>&nbsp;resources)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Applies the <code>tab-title</code> properties: after <code>content()</code> returns, once tabs exist.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#registerOverrides(be.imgn.swing.ui.CommandRegistry)" class="member-name-link">registerOverrides</a><wbr>(<a href="../CommandRegistry.html" title="class in be.imgn.swing.ui">CommandRegistry</a>&nbsp;registry)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Registers the standard commands that the view class, or one of its superclasses, overrides, before the view is
 resolved, so that every <code>StandardCommands</code> of the view returns the user-written command.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a><wbr>&lt;<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#type()" class="member-name-link">type</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a><wbr>&lt;<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#type()" class="member-name-link">type</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Returns the view class.</div>
 </div>
 </div>
@@ -186,6 +194,23 @@ resolved, so that every <code>StandardCommands</code> of the view returns the us
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>registry</code> - the view's command registry</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="components(V,java.util.function.BiConsumer)">
+<h3 id="components(java.lang.Object,java.util.function.BiConsumer)">components</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">components</span><wbr><span class="parameters">(<a href="#type-param-V" title="type parameter in ComponentInjector">V</a>&nbsp;view,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/BiConsumer.html" title="class or interface in java.util.function" class="external-link">BiConsumer</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Component.html" title="class or interface in java.awt" class="external-link">Component</a>&gt;&nbsp;component)</span></div>
+<div class="block">Gives each <code>@Exposed</code> component field of the view that holds a component, with its path, nested fields of
+component fields included, as <code>home.streetLabel</code>, enclosing paths first. The accessibility checks, the
+inspector and <code>Ui.addTab</code> name the components of a view this way.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>view</code> - the view</dd>
+<dd><code>component</code> - takes a field's path and the component it holds</dd>
 </dl>
 </div>
 </section>

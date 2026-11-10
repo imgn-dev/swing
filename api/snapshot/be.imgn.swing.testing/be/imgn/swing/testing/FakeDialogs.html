@@ -72,6 +72,10 @@ loadScripts(document, 'script');</script>
 <li><a href="#answerSave(be.imgn.swing.ui.SaveChoice)" tabindex="0">answerSave(SaveChoice)</a></li>
 <li><a href="#fileChoices()" tabindex="0">fileChoices()</a></li>
 <li><a href="#savePrompts()" tabindex="0">savePrompts()</a></li>
+<li><a href="#answerCommand(java.lang.String)" tabindex="0">answerCommand(String)</a></li>
+<li><a href="#cancelCommand()" tabindex="0">cancelCommand()</a></li>
+<li><a href="#commandQueries()" tabindex="0">commandQueries()</a></li>
+<li><a href="#chooseCommand(java.util.List)" tabindex="0">chooseCommand(List)</a></li>
 <li><a href="#openFile(java.util.List)" tabindex="0">openFile(List)</a></li>
 <li><a href="#saveFile(java.util.List,java.lang.String)" tabindex="0">saveFile(List, String)</a></li>
 <li><a href="#askSave(java.lang.String)" tabindex="0">askSave(String)</a></li>
@@ -116,41 +120,62 @@ class with <a href="#answerDialog(java.lang.Class,java.util.function.Consumer)">
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerConfirm(boolean)" class="member-name-link">answerConfirm</a><wbr>(boolean&nbsp;answer)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerCommand(java.lang.String)" class="member-name-link">answerCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;query)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Queues the answer of the next <code>chooseCommand</code>: the first entry that <a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/CommandPalette.html#search(java.util.List,java.lang.String)"><code>CommandPalette.search(List, String)</code></a> ranks for the query, or an empty result when none matches.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerConfirm(boolean)" class="member-name-link">answerConfirm</a><wbr>(boolean&nbsp;answer)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets the answer of the next confirmations.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;V extends <a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/DialogView.html" title="interface in be.imgn.swing.ui">DialogView</a>&lt;?&gt;&gt;<br>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerDialog(java.lang.Class,java.util.function.Consumer)" class="member-name-link">answerDialog</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;V&gt;&nbsp;type,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;V extends <a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/DialogView.html" title="interface in be.imgn.swing.ui">DialogView</a>&lt;?&gt;&gt;<br>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerDialog(java.lang.Class,java.util.function.Consumer)" class="member-name-link">answerDialog</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;V&gt;&nbsp;type,
  <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;<a href="OpenDialog.html" title="class in be.imgn.swing.testing">OpenDialog</a>&lt;V&gt;&gt;&nbsp;answer)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Registers the answer of a dialog view: an action run on the EDT once the dialog is built, which closes it with
 <code>ok()</code> or <code>cancel()</code>, through its commands.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerOpenFile(java.nio.file.Path)" class="member-name-link">answerOpenFile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;answer)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerOpenFile(java.nio.file.Path)" class="member-name-link">answerOpenFile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;answer)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Queues the answer of the next <code>openFile</code> or <code>saveFile</code>: the file chosen.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerSave(be.imgn.swing.ui.SaveChoice)" class="member-name-link">answerSave</a><wbr>(<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html" title="enum class in be.imgn.swing.ui">SaveChoice</a>&nbsp;answer)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerSave(be.imgn.swing.ui.SaveChoice)" class="member-name-link">answerSave</a><wbr>(<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html" title="enum class in be.imgn.swing.ui">SaveChoice</a>&nbsp;answer)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Queues the answer of the next <code>askSave</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerSaveFile(java.nio.file.Path)" class="member-name-link">answerSaveFile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;answer)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#answerSaveFile(java.nio.file.Path)" class="member-name-link">answerSaveFile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;answer)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Queues the answer of the next <code>saveFile</code> or <code>openFile</code>: the file chosen.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html" title="enum class in be.imgn.swing.ui">SaveChoice</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#askSave(java.lang.String)" class="member-name-link">askSave</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;documentName)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html" title="enum class in be.imgn.swing.ui">SaveChoice</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#askSave(java.lang.String)" class="member-name-link">askSave</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;documentName)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Asks whether to save the changes of a document, with Save, Don't Save and Cancel buttons.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cancelCommand()" class="member-name-link">cancelCommand</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Queues a cancel of the next <code>chooseCommand</code>; a palette with no answer queued is cancelled too.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cancelFileChooser()" class="member-name-link">cancelFileChooser</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Queues a cancel as the answer of the next file chooser, which returns an empty result.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/PaletteEntry.html" title="class in be.imgn.swing.ui">PaletteEntry</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#chooseCommand(java.util.List)" class="member-name-link">chooseCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/PaletteEntry.html" title="class in be.imgn.swing.ui">PaletteEntry</a>&gt;&nbsp;entries)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Shows the command palette over the window: an undecorated modal dialog with a field and the entries the field's
+text matches, as <a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/CommandPalette.html#search(java.util.List,java.lang.String)"><code>CommandPalette.search(List, String)</code></a> ranks them.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#commandQueries()" class="member-name-link">commandQueries</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the queries of the palettes answered, in order, <code>""</code> for a cancel.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#confirm(java.lang.String)" class="member-name-link">confirm</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
@@ -440,6 +465,63 @@ replace it, which the next confirmation answers; refusing leaves the chooser ope
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the names</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="answerCommand(java.lang.String)">
+<h3>answerCommand</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">answerCommand</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;query)</span></div>
+<div class="block">Queues the answer of the next <code>chooseCommand</code>: the first entry that <a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/CommandPalette.html#search(java.util.List,java.lang.String)"><code>CommandPalette.search(List, String)</code></a> ranks for the query, or an empty result when none matches.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>query</code> - the query typed in the palette</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>query</code> is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="cancelCommand()">
+<h3>cancelCommand</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelCommand</span>()</div>
+<div class="block">Queues a cancel of the next <code>chooseCommand</code>; a palette with no answer queued is cancelled too.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="commandQueries()">
+<h3>commandQueries</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">commandQueries</span>()</div>
+<div class="block">Returns the queries of the palettes answered, in order, <code>""</code> for a cancel.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the queries</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="chooseCommand(java.util.List)">
+<h3>chooseCommand</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/PaletteEntry.html" title="class in be.imgn.swing.ui">PaletteEntry</a>&gt;</span>&nbsp;<span class="element-name">chooseCommand</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/PaletteEntry.html" title="class in be.imgn.swing.ui">PaletteEntry</a>&gt;&nbsp;entries)</span></div>
+<div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html#chooseCommand(java.util.List)">Dialogs</a></code></span></div>
+<div class="block">Shows the command palette over the window: an undecorated modal dialog with a field and the entries the field's
+text matches, as <a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/CommandPalette.html#search(java.util.List,java.lang.String)"><code>CommandPalette.search(List, String)</code></a> ranks them. Typing filters; Up and Down move the
+selection; Enter chooses the selected entry; Escape, and the dialog losing the focus, cancel.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html#chooseCommand(java.util.List)">chooseCommand</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html" title="interface in be.imgn.swing.ui">Dialogs</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>entries</code> - the entries, in the order of <a href="../../../../../be.imgn.swing.ui/be/imgn/swing/ui/CommandPalette.html#entries()"><code>CommandPalette.entries()</code></a></dd>
+<dt>Returns:</dt>
+<dd>the entry chosen, or empty when the user cancels</dd>
 </dl>
 </div>
 </section>
