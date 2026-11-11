@@ -2,14 +2,14 @@
 
 This document is written for LLM coding agents (and humans in a hurry) that build desktop applications **with** the swing framework. It describes everything an application can use, the rules the build enforces, and the idioms that work. It is self-contained: an agent that follows it should produce code that compiles, passes the framework's checks and behaves as intended on the first try.
 
-It covers what is implemented: milestones 1 to 4. `swing-wizard` and `swing-docking` ([milestone 5](milestone-5.md)) are specified but **not available yet**: don't depend on them.
+It covers what is implemented: milestones 1 to 5, wizards and docking included.
 
 How to use it:
 
 - Read [Rules that break the build](#1-rules-that-break-the-build) and [Mental model](#3-mental-model) before writing code.
-- Start a new application from the [complete example](#20-complete-example), which compiles and passes its tests as written.
-- Look up APIs in the sections that follow. The examples in `swing-examples/src/main/java/be/imgn/swing/examples` (`counter`, `notes`, `addressbook`, `password`, `memo`, `saf`), their tests, and the test-only applications in `swing-examples/src/test/java/be/imgn/swing/examples` (`frames`, `refresh`) are the reference for anything this document doesn't show.
-- When the build fails, look the message up in [Build errors](#19-build-errors-and-their-fixes).
+- Start a new application from the [complete example](#22-complete-example), which compiles and passes its tests as written.
+- Look up APIs in the sections that follow. The examples in `swing-examples/src/main/java/be/imgn/swing/examples` (`counter`, `notes`, `addressbook`, `password`, `memo`, `saf`; `addressbook` has a wizard and a dock), their tests, and the test-only applications in `swing-examples/src/test/java/be/imgn/swing/examples` (`frames`, `refresh`, `added`) are the reference for anything this document doesn't show.
+- When the build fails, look the message up in [Build errors](#21-build-errors-and-their-fixes).
 
 ---
 
@@ -32,9 +32,11 @@ How to use it:
 15. [Dependency injection, scopes and lifecycle](#15-dependency-injection-scopes-and-lifecycle)
 16. [Settings, files and window state](#16-settings-files-and-window-state)
 17. [Desktop integration and FlatLaf](#17-desktop-integration-and-flatlaf)
-18. [Testing](#18-testing)
-19. [Build errors and their fixes](#19-build-errors-and-their-fixes)
-20. [Complete example](#20-complete-example)
+18. [Wizards](#18-wizards)
+19. [Docking](#19-docking)
+20. [Testing](#20-testing)
+21. [Build errors and their fixes](#21-build-errors-and-their-fixes)
+22. [Complete example](#22-complete-example)
 
 ---
 
@@ -43,7 +45,7 @@ How to use it:
 These are the mistakes agents make most often. Each one is a compile error, a failing check or a runtime exception.
 
 1. **No reflection, ever.** The framework generates code at compile time; it never scans classes. Never use `Class.forName`, reflection or runtime classpath scanning in an application either.
-2. **Fields that generated code reads are package-private and annotated `@Exposed`** (`be.imgn.swing.ui.Exposed`): every component named in TOML, every component whose window state is saved, every component passed to `Ui.addTab`, and every `Observable<Boolean>` or `Property<Boolean>` field named by `@Command(enabled = …)` or `@Command(selected = …)`. Not `private`, not `static`. A field annotated `@Command` (a toggle) is package-private too, but needs no `@Exposed`. All other fields stay `private`.
+2. **Fields that generated code reads are package-private and annotated `@Exposed`** (`be.imgn.swing.ui.Exposed`): every component named in TOML, every component whose window state is saved, every component passed to `Ui.addTab` or `Wizard.steps`, and every `Observable<Boolean>` or `Property<Boolean>` field named by `@Command(enabled = …)` or `@Command(selected = …)`. Not `private`, not `static`. A field annotated `@Command` (a toggle) is package-private too, but needs no `@Exposed`. All other fields stay `private`.
 3. **Create components in field initializers or the constructor, never in `content()`.** Component resources are applied after the constructor and before `content()`.
 4. **Every component a user can focus needs an accessible name**: a text component (field or area), combo box, list, table, tree, spinner, slider or button. Give it a label with `labelFor` (`FormPanel.row` does this), an `accessible-name` resource, or button text. A `JLabel` with a mnemonic needs a `labelFor`. Tests fail otherwise.
 5. **Every command you declare needs `[commands.<id>] text = "…"` in the base TOML file** of its class.
@@ -70,6 +72,8 @@ These are the mistakes agents make most often. Each one is a compile error, a fa
 | `swing-ui` | Launching, views, windows, dialogs, commands, menus, binding, forms, palette, keymap | `be.imgn.swing.ui` |
 | `swing-desktop` | Documents, recent files, single instance, OS open-file events, notifications | `be.imgn.swing.desktop` |
 | `swing-flatlaf` | FlatLaf look and feel, dark mode, theme tokens, SVG icons | `be.imgn.swing.flatlaf` |
+| `swing-wizard` | `Wizard`: a dialog's content as steps, with Previous and Next | `be.imgn.swing.wizard` |
+| `swing-docking` | `Dock`: views docked in a frame, split and tabbed, rearranged by the user (drawn by ModernDocking) | `be.imgn.swing.docking` |
 | `swing-testing` | `AppTester`, the headless test harness | `be.imgn.swing.testing` |
 | `swing-processor` | The annotation processor (processor path only) | — |
 
@@ -82,7 +86,7 @@ Dependencies, as `swing-examples/pom.xml` declares them (the parent's `dependenc
 | Dependency | Scope |
 |---|---|
 | `be.imgn.swing:swing-ui`, `be.imgn.swing:swing-core` | compile |
-| `be.imgn.swing:swing-desktop` | compile, only when used |
+| `be.imgn.swing:swing-desktop`, `be.imgn.swing:swing-wizard`, `be.imgn.swing:swing-docking` | compile, only when used. swing-docking brings ModernDocking transitively: don't declare it |
 | `be.imgn.swing:swing-flatlaf` | **runtime**: no code references it; without it `.svg` icons fail at startup |
 | `be.imgn.inject:inject`, `be.imgn.toml:toml`, `be.imgn.gaia:gaia-core`, `org.jspecify:jspecify` | compile |
 | `be.imgn.swing:swing-testing`, `be.imgn.gaia:gaia-core-testing`, `be.imgn.gaia:gaia-memfs`, `org.junit.jupiter:junit-jupiter`, `org.assertj:assertj-core` | test |
@@ -186,7 +190,7 @@ module com.example.todo {
 }
 ```
 
-Require `be.imgn.swing.desktop`, or `be.imgn.swing.ui` without swing-desktop; both bring core, inject, toml, gaia and java.desktop. No `opens`, no hand-written `provides`: the plugins add the services, and resources are read by generated code. Annotate each package `@NullMarked` in its `package-info.java`.
+Require `be.imgn.swing.desktop`, or `be.imgn.swing.ui` without swing-desktop; both bring core, inject, toml, gaia and java.desktop. Add `requires be.imgn.swing.wizard;` and `requires be.imgn.swing.docking;` when you use them. No `opens`, no hand-written `provides`: the plugins add the services, and resources are read by generated code. Annotate each package `@NullMarked` in its `package-info.java`.
 
 ### Resource files
 
@@ -208,10 +212,10 @@ IDEs that compile without copying resources to `target/classes` need the process
 ## 3. Mental model
 
 - **One application class** annotated `@Application`, launched by `Swing.launch(App.class, args)`. It is either a `SingleFrame` (it *is* the main window's view) or a `MultiFrame` (a singleton that opens frames).
-- **Windows hold views.** A view (`View`) supplies `content()`. A `FrameView` adds `menuBar()` and `toolBar()`; a `DialogView<R>` adds `result()`, `buttons(...)` and `commit()`.
+- **Windows hold views.** A view (`View`) supplies `content()`. A `FrameView` adds `menuBar()` and `toolBar()`; a `DialogView<R>` adds `result()`, `buttons(...)` and `commit()`. A frame may also hold dock views (`DockView`), opened and closed while it is open by its [dock](#19-docking).
 - **Three injection scopes**: the application (`@Singleton`), one scope per window (`@WindowScoped`), one per view (`@ViewScoped`). Closing a window closes its scopes, which releases every subscription, binding and task they own.
 - **Structure in Java, text and tuning in TOML.** Java builds the component tree and the behaviour; TOML gives texts, mnemonics, shortcuts, icons, fonts, colors and accessible names, per locale, platform and appearance. The build checks the TOML against the code.
-- **Generated code you use**: `<X>Commands` (the commands of class `X`), `<X>Menus` (its custom menus), `<X>Factory` (dialog and frame views with `@Assisted` constructor parameters), and the implementations of `@Messages` interfaces, which you inject by the interface. Generated classes land in the class's package; never write a class with the same name.
+- **Generated code you use**: `<X>Commands` (the commands of class `X`), `<X>Menus` (its custom menus), `<X>Factory` (dialog, frame and dock views with `@Assisted` constructor parameters), and the implementations of `@Messages` interfaces, which you inject by the interface. Generated classes land in the class's package; never write a class with the same name.
 - **State is observable.** `Property<T>`, `ObservableList<E>` and `Observable<T>` hold state; `Ui.bind`, `Ui.render`, `Form.bind` and command `enabled` attributes keep components in step with it.
 - **Long work runs in tasks** on virtual threads, returned by command handlers; the framework blocks input as asked and brings the results back on the EDT.
 
@@ -272,7 +276,7 @@ public final class CounterApp implements SingleFrame, ExitVeto {
 3. installs the look and feel on the EDT, then shows the `SingleFrame`'s window, or calls `MultiFrame.start(Frames, Arguments)`;
 4. calls `ready()` on the application class, then every `ReadyListener`, once the window is shown.
 
-A startup failure shows an error dialog and exits with status 1. A class with no registered descriptor makes `Swing.launch` throw `IllegalArgumentException` instead (see [Build errors](#19-build-errors-and-their-fixes)).
+A startup failure shows an error dialog and exits with status 1. A class with no registered descriptor makes `Swing.launch` throw `IllegalArgumentException` instead (see [Build errors](#21-build-errors-and-their-fixes)).
 
 ```java
 public interface SingleFrame extends FrameView { default void ready() {} }      // EDT, once the window is shown
@@ -357,7 +361,7 @@ A dialog view gets a window scope and a view scope of its own, under the opening
 
 Work that must happen on every OK belongs in the caller, which reads the result. Rename a button in the dialog's TOML: `[commands.ok] text = "&Save"`.
 
-A dialog with arguments takes them as `@Assisted` (`be.imgn.inject.Assisted`) parameters of its `@Inject` constructor; the processor generates `<Dialog>Factory` (for dialog and frame views only):
+A dialog with arguments takes them as `@Assisted` (`be.imgn.inject.Assisted`) parameters of its `@Inject` constructor; the processor generates `<Dialog>Factory` (for dialog, frame and dock views only):
 
 ```java
 public final class ContactDialog implements DialogView<Contact> {
@@ -461,7 +465,7 @@ text = "&First Name"
 text = "S&treet"
 ```
 
-Allowed root keys: class properties (`title` on frame and dialog views, but not document views; `name`, `theme`, `description`, `copyright`, `website`, `icon` on the application class only), and the tables `commands`, `menus`, `variants` (views with `@Variants`) and `flatlaf` (application class only). Any other table must name a reachable `@Exposed` component field; anything else is a compile error.
+Allowed root keys: class properties (`title` on frame, dialog and dock views, but not document views; `icon` on the application class and dock views; `name`, `theme`, `description`, `copyright`, `website` on the application class only), and the tables `commands`, `menus`, `variants` (views with `@Variants`) and `flatlaf` (application class only). Any other table must name a reachable `@Exposed` component field; anything else is a compile error.
 
 ### Component properties
 
@@ -477,6 +481,7 @@ Allowed root keys: class properties (`title` on frame and dialog views, but not 
 | `columns`, `rows` | integer | Anything with `setColumns(int)` / `setRows(int)` |
 | `title` | string | `JComponent`: the title of its `TitledBorder` (created if it has no border; any other border throws `IllegalStateException`) |
 | `tab-title` | string | The component's tab: applied at the end of the build if the component is already a tab, and by `ui.addTab` when it adds it |
+| `step-title` | string | A [wizard](#18-wizards) step: its title in the heading; set on no component |
 
 There is no `mnemonic` key: the mnemonic comes from `&` in `text`. Mnemonics are not set on macOS.
 
@@ -765,6 +770,8 @@ void track(Observable<?> value);      // dirty-tracks state with no component, s
 Observable<Boolean> valid();
 Observable<Boolean> dirty();          // a value differs from its baseline; typing the original back makes it clean
 boolean validate();                   // shows every error, focuses the first (selecting its tab)
+boolean validate(Component within);   // the same, for the bindings whose component is within it (a wizard's step)
+void revealWith(Consumer<? super Component> reveal);   // code that makes a component visible before validate focuses it
 void markClean();                     // the current values become the baselines
 ```
 
@@ -899,7 +906,7 @@ Injection is `be.imgn.inject`: compile-time, no reflection.
 | `@PostConstruct`, `@PreDestroy` | Lifecycle methods: non-private, non-static, no parameter, `void`, at most one of each per class; `@PreDestroy` only on a scoped bean (never a prototype), run when its scope closes |
 | `Provider<T>` | Lazy access; the only way for a wider scope to reach a narrower one |
 
-Unannotated classes are prototypes. Everywhere injectable: `ApplicationInfo`, `Arguments`, `DisplayLocale`, `Scope`, `EventBus`, `Lifecycle`, `TaskService`, `SettingsStore`, `Resources`, `Locales`, `Appearances`, `UiExecutor`, `FailureHandler`, `Frames`, `Keymap`, `SystemShell`, `TaskbarStatus`, gaia's `Platform` and `ApplicationDirectories`, and with `swing-desktop` `Documents`, `RecentFiles` and `Notifications`. In windows and views: `Window`, `Dialogs`, and in views: `Ui`, `Form`, `UndoStack`, `StandardCommands`, `StandardMenus`, `CommandPalette`, the generated `<X>Commands` and `<X>Menus`.
+Unannotated classes are prototypes. Everywhere injectable: `ApplicationInfo`, `Arguments`, `DisplayLocale`, `Scope`, `EventBus`, `Lifecycle`, `TaskService`, `SettingsStore`, `Resources`, `Locales`, `Appearances`, `UiExecutor`, `FailureHandler`, `Frames`, `Keymap`, `SystemShell`, `TaskbarStatus`, gaia's `Platform` and `ApplicationDirectories`, and with `swing-desktop` `Documents`, `RecentFiles` and `Notifications`. In windows and views: `Window`, `Dialogs`, `Dock` (frames, with `swing-docking`), and in views: `Ui`, `Form`, `UndoStack`, `StandardCommands`, `StandardMenus`, `CommandPalette`, the generated `<X>Commands` and `<X>Menus`, `Wizard` (dialog views, with `swing-wizard`) and `Docked` (dock views).
 
 Lifecycle hooks, contributed with `@IntoSet`:
 
@@ -964,6 +971,8 @@ Write data under gaia's `ApplicationDirectories` (`config()`, `data()`, `state()
 ### Window state
 
 Saved automatically in `window-state.toml` in the state directory: each window's bounds, each frame's maximized state, the last directory of its file choosers, and, for **`@Exposed`** fields only, the divider location of a `JSplitPane`, the selected tab of a `JTabbedPane` and the column order and widths of a `JTable`. A component in a private field keeps no state.
+
+A dock view's components are saved the same way, per view class, and kept while the view is closed, across restarts too; a dock view opened through a factory saves none. A dock's layout is saved with its frame (see [Docking](#19-docking)).
 
 ---
 
@@ -1065,7 +1074,222 @@ Token keys are FlatLaf's (`@accentColor`, `Component.arc`…); values are string
 
 ---
 
-## 18. Testing
+## 18. Wizards
+
+`swing-wizard` shows a dialog's content as a sequence of steps, with Previous and Next, each step validated before the next. A dialog view injects `Wizard` (`be.imgn.swing.wizard`, `@ViewScoped`), returns `wizard.steps(...)` from `content()` and `wizard.buttons(commands)` from `buttons`:
+
+```java
+public final class ContactWizardDialog implements DialogView<Contact> {
+
+    @Exposed
+    final JLabel firstNameLabel = new JLabel();
+
+    @Exposed
+    final JPanel identity;            // every step is held by an @Exposed field
+
+    @Exposed
+    final AddressPanel home;
+
+    @Exposed
+    final AddressPanel office;
+
+    private final ContactForm fields;
+    private final Form form;
+    private final AddressBookMessages messages;
+    private final Wizard wizard;
+
+    @Inject
+    ContactWizardDialog(@Assisted Contact contact, Form form, AddressBookMessages messages, Wizard wizard) {
+        this.fields = new ContactForm(contact);
+        this.form = form;
+        this.messages = messages;
+        this.wizard = wizard;
+        this.identity = fields.identity(FormPanel.create(), firstNameLabel, …).build();   // components in the constructor
+        this.home = fields.home();
+        this.office = fields.office();
+    }
+
+    @Override
+    public JComponent content() {
+        fields.bind(form, messages);                     // one Form for every step
+        return wizard.steps(identity, home, office);
+    }
+
+    @Override
+    public List<BoundCommand> buttons(StandardCommands commands) {
+        return wizard.buttons(commands);                  // Previous, Next, OK (Finish), Cancel
+    }
+
+    @Override
+    public Optional<Contact> result() {
+        return Optional.of(fields.contact());
+    }
+}
+```
+
+```toml
+# ContactWizardDialog.toml (excerpt: the labels' and the address fields' tables are left out)
+title = "Contact details"
+
+[identity]
+step-title = "Contact Information"     # the heading reads "Step 1 of 3: Contact Information"
+
+[home]
+step-title = "Home Address"
+
+[office]
+step-title = "Office Address"
+
+[commands.ok]                          # Finish is the dialog's ok()
+text = "&Save"
+
+[commands.previous]                    # optional: swing-wizard gives "< &Previous" and "&Next >"
+text = "< P&revious"
+
+[commands.next]
+text = "&Next >"
+```
+
+| `Wizard` method | Does |
+|---|---|
+| `JComponent steps(JComponent... steps)` | Returns a panel with the heading and the steps on the cards of a `CardLayout`, the first shown. Call it once, in `content()` of the dialog view that injects the wizard |
+| `Observable<Integer> step()` | The shown step's index, from 0 |
+| `BoundCommand previous()` | Shows the step before; enabled except on the first step |
+| `BoundCommand next()` | Validates the shown step (`form.validate(step)`) and shows the next one when it is valid; enabled except on the last step, even while the step is invalid, so that activating it shows the errors |
+| `List<BoundCommand> buttons(StandardCommands commands)` | `previous()`, `next()`, `commands.ok()`, `commands.cancel()` |
+
+- **Finish is `ok()`**, enabled on every step: it validates the whole form and, on an error, shows the step holding it and focuses the field. Enter finishes from any step. Rename it with `[commands.ok]`.
+- **Steps are components, not views**: they share the view's `Form`, scope and result, so going back keeps what was entered. A step is a `JComponent` held by an `@Exposed` field of the view (a field of a nested `@Exposed` component counts), given once.
+- **Titles**: each step's `step-title` resource, in the base file and every language file. The heading ("Step {0} of {1}: {2}", French included) follows the locale.
+- **Commands**: `previous` and `next` are the wizard's own. Reach them through `Wizard`, never through a generated `<X>Commands`; rename them in the view's TOML with `[commands.previous]` and `[commands.next]`, accepted only in a view whose constructor takes a `Wizard`.
+- Showing a step focuses its first focusable component. A step hidden during the build is checked for accessibility the first time it is shown: its fields need accessible names too.
+- `steps` throws `IllegalStateException` when called again, from the constructor, or outside a dialog view's build (a wizard in a frame view); `IllegalArgumentException` for no step, a step given twice, or a step in no `@Exposed` field.
+
+---
+
+## 19. Docking
+
+`swing-docking` docks views in a frame: split and tabbed, rearranged by the user, opened and closed while the frame is open, their layout saved with the frame's window state. The real dock is drawn by ModernDocking; the API holds no ModernDocking type, and tests get a headless dock automatically.
+
+The pieces:
+
+- A **dock view** implements `DockView` (`be.imgn.swing.docking`, extends `View`): a content, commands, a scope and resources, but no menu bar or toolbar. It implements neither `FrameView` nor `DialogView` (a compile error).
+- A frame's **`Dock`** (`@WindowScoped`) is injected by the frame view, or any bean of the frame's window or view scope. The frame view returns `dock.area(layOut)` from `content()`, or places it.
+- **`Placement`** tells `open` where a view goes; **`DockLayout`** describes the current arrangement.
+
+```java
+@Application(name = "AddressBook", vendor = "example")
+public final class AddressBookApp implements SingleFrame {
+
+    static final Placement PICTURE = Placement.tab();                                  // fills the empty dock
+    static final Placement LIST = Placement.of(DockRegion.WEST, 0.33);                 // west of everything
+    static final Placement DETAIL = Placement.beside(ContactListView.class, DockRegion.SOUTH, 0.5);
+
+    private final Dock dock;
+    …
+
+    @Override
+    public JComponent content() {
+        // The first layout: run only when no saved layout could be restored.
+        return dock.area(opened -> {
+            opened.open(SelectedPictureView.class, PICTURE);
+            opened.open(ContactListView.class, LIST);
+            opened.open(ContactDetailView.class, DETAIL);
+        });
+    }
+
+    @Subscribe                                       // a view asked for a contact's picture: one tab per contact
+    void openPicture(PictureRequested event) {
+        Contact contact = event.contact();
+        dock.open(
+                ContactPictureViewFactory.class,
+                factory -> factory.create(contact),
+                Integer.toString(contact.id()),          // the key: one view per factory and key
+                Placement.tabWith(SelectedPictureView.class));
+    }
+}
+```
+
+```java
+public final class ContactPictureView implements DockView {
+
+    @Exposed
+    final JLabel picture = new JLabel("", SwingConstants.CENTER);
+
+    @Inject
+    ContactPictureView(@Assisted Contact contact, Docked docked, …) {
+        …
+        docked.setTitle(contact.lastName());           // a title that the class's resources can't give
+    }
+    …
+}
+```
+
+```toml
+# ContactDetailView.toml: a dock view's class properties
+title = "Contact Detail"                   # its tab and header; else the class's simple name
+icon = "icons/contact_detail.png"          # relative to the package; optional
+```
+
+`Dock` (every method on the EDT):
+
+| Method | Does |
+|---|---|
+| `JComponent area(Consumer<? super Dock> layOut)` | The dock's component. Call it once, during the frame view's build. After the build, the dock restores the saved layout; when there is none, or nothing of it can be restored, it calls `layOut`, which opens the first views |
+| `<V extends DockView> V open(Class<V> type, Placement placement)` | Opens and docks a view of the class, and returns it. At most one view per class: when one is open, brings it to the front and ignores `placement` |
+| `DockView open(Class<F> factory, Function<? super F, ? extends DockView> create, String key, Placement placement)` | Opens a view created through its generated `<View>Factory` (a dock view with `@Assisted` parameters). One view per factory and non-blank `key`: when one is open, brings it to the front and ignores `create` and `placement`. Returns `DockView`: cast it yourself |
+| `List<DockView> views()` | The open views, in the order they were opened |
+| `Observable<Optional<DockView>> active()` | The view with the focus, else the one that had it last, else the one opened last |
+| `String title(DockView view)` | Its title |
+| `void select(DockView view)` | Selects its tab, without moving the focus or changing `active()` |
+| `void toFront(DockView view)` | Selects its tab, focuses its first focusable component, makes it active |
+| `boolean close(DockView view)` | Asks the `ExitVeto`s of its view scope; `false` when one vetoes; otherwise undocks it and closes its scope |
+| `Optional<DockLayout> layout()` | The arrangement, empty when no view is open |
+
+`select`, `toFront`, `close` and `title` throw `IllegalArgumentException` for a view that isn't open in this dock.
+
+**Placements** (`record Placement(@Nullable Class<? extends DockView> target, DockRegion region, double proportion)`): the target is the open view of `target`'s class opened last, or the whole dock when `target` is `null` or none is open. `DockRegion.CENTER` adds the view as the last tab of the target's tab group (against the whole dock: the active view's group); `NORTH`, `EAST`, `SOUTH`, `WEST` split the target, the view taking `proportion` of the space on that side. In an empty dock, the view fills it. `proportion` is strictly between 0 and 1 (`IllegalArgumentException` otherwise); `CENTER` ignores it.
+
+| Factory | Same as |
+|---|---|
+| `Placement.of(region, proportion)` | Against the whole dock |
+| `Placement.tab()` | `of(CENTER, 0.5)` |
+| `Placement.beside(target, region, proportion)` | Against the target |
+| `Placement.tabWith(target)` | `beside(target, CENTER, 0.5)` |
+
+**Layout** (`sealed interface DockLayout`): `Split(Orientation orientation, double proportion, DockLayout first, DockLayout second)`, `first` left of (`HORIZONTAL`) or above (`VERTICAL`) `second`, `proportion` being `first`'s share; and `Tabs(List<DockView> views, DockView selected)`. `WEST` gives `Split(HORIZONTAL, p, new, old)`, `EAST` `Split(HORIZONTAL, 1 - p, old, new)`, `NORTH` `Split(VERTICAL, p, new, old)`, `SOUTH` `Split(VERTICAL, 1 - p, old, new)`. Closing the last view of a group replaces its split with the other part. Until the frame is shown, and always in tests, `layout()` gives the proportions given; once the frame is shown, the real dock reports its dividers' proportions, rounded to 3 decimals.
+
+**`Docked`** (`@ViewScoped`): `title()` and `setTitle(String)`. Inject it only in a view that a `Dock` opens (`IllegalStateException` elsewhere). A title set through it is kept; otherwise the title follows the `title` resource at each locale change.
+
+Rules and idioms:
+
+- **When to open.** `open` throws `IllegalStateException` while any view is being built, so never open from a view's constructor or `content()`: open views in `layOut`, in command handlers and in event subscribers. `area` throws outside the frame view's build, when called twice, or in a dialog.
+- **Saved layout.** The layout is saved as view class names in the frame's window state and restored at the next launch **instead of** calling `layOut`. Views opened through a factory aren't saved; a saved class that no longer exists, or isn't a dock view, is skipped with a warning. So a view must not depend on `layOut` having run: put shared setup in the frame view's `content()` or in beans.
+- **Sharing state between views.** A view's view-scoped beans are its own: injecting a dock view's `<X>Commands` in the frame view builds a separate instance. Share state through a `@WindowScoped` bean (the address book's `CurrentContact`, which follows the `ContactSelected` events that the list publishes and exposes the selection as an `Observable<Optional<Contact>>` that the other views bind), or publish events.
+- **Commands.** A dock view's commands work like a frame view's: their shortcuts act in the frame, the palette and the keymap list them. When several open views share a command id with a shortcut (views of one class), the shortcut acts on the one built last. Commands that open views, for a Views menu, belong in a view-scoped bean of the frame view that injects `Dock`:
+
+  ```java
+  @ViewScoped
+  public final class ViewActions {
+      private final Dock dock;
+
+      @Inject
+      ViewActions(Dock dock) { this.dock = dock; }
+
+      @Command
+      void showContactList() {
+          dock.open(ContactListView.class, AddressBookApp.LIST);     // reopens it, or brings it to the front
+      }
+  }
+  ```
+
+- **Closing.** The user can close any view from its header; that is `Dock.close`, vetoes included. A closed view's scope closes, so its subscriptions and tasks end; its component state is kept for the next view of its class.
+- **Accessibility.** In tests and development mode, each view's content is checked when it is built; a view hidden in a tab is checked the first time its tab is selected.
+- **The real dock** doesn't let views float, auto-hide, maximize or leave their frame, and doesn't wrap them in a scroll pane: put a table in a `JScrollPane` yourself.
+
+---
+
+## 20. Testing
 
 `AppTester` (`be.imgn.swing.testing`) runs the real application headless, on an in-memory file system, with fake dialogs. Always use try-with-resources. The platform is a fake Linux: `shortcut` means Ctrl, mnemonics are set, and `X.linux.toml` files are read. The appearance starts `LIGHT`, whatever the `theme`.
 
@@ -1100,11 +1324,12 @@ void addsATaskThroughTheDialog() {
 |---|---|
 | `run(Runnable)`, `call(Supplier<R>)` | Run on the EDT, then settle. The only way to touch components outside a dialog's answer. `call`'s action must not return `null` |
 | `commands(Class<C>)`, `bean(Class<B>)` | Beans of the main view's scope (in a multi-frame app, the active frame's) |
+| `bean(View view, Class<B> type)` | A bean of an open view of the main frame, such as a dock view's `<X>Commands`: `bean(Class)` and `commands(Class)` would build a separate instance in the frame view's scope |
 | `application()` | The main view (or the `MultiFrame` singleton) |
 | `info()` | The `ApplicationInfo`; `info().directories()` are the fake directories, on the in-memory file system |
 | `component(Class<C>)`, `component(Class<C>, String accessibleName)`, `components(Class<C>)` | Find components in the main window; prefer the accessible name |
 | `title()`, `focused()`, `iconImage()` | `focused()` is the last component passed to `Window.focus` (an `Optional<Component>`), not the focus owner; `iconImage()` is an `Optional<Image>` |
-| `frames()`, `frame(Class<V>)` → `OpenFrame<V>` | `view()`, `commands`, `bean`, `component`, `components`, `title()`, `iconImage()`, `focused()`, `toFrontCount()`, `close()` (→ `boolean`), `isOpen()` |
+| `frames()`, `frame(Class<V>)` → `OpenFrame<V>` | `view()`, `commands`, `bean`, `component`, `components`, `title()`, `iconImage()`, `focused()`, `toFrontCount()`, `close()` (→ `boolean`), `isOpen()`, `bean(View, Class)` |
 | `locale(Locale)`, `appearance(Appearance)` | Switch, refresh, settle |
 | `publish(Object)`, `published(Class<E>)` | Publish an event; read the events published so far |
 | `activate(BoundCommand)` | Runs a command without waiting for its task (use a latch to observe the running state) |
@@ -1125,13 +1350,52 @@ void addsATaskThroughTheDialog() {
 - `OpenDialog<V>`, inside an answer (on the EDT): `view()`, `commands(Class)`, `bean(Class)`, `component(...)`, `components(Class)`, `isOpen()`, `focused()`, `settle()` (run the posted updates before reading state that depends on them).
 - `app.shell()` (`browsed()`, `opened()`, `supportBrowsing(boolean)`), `app.taskbar()` (`progress()` → `OptionalInt`, `badge()` → `Optional<String>`, `attentionRequests()`), `app.notifications()` (`notified()` → `List<Notification>`, a record of `caption` and `text`; needs `swing-desktop`).
 
+### Wizards and docks
+
+A wizard needs nothing special: answer its dialog, and drive it through `dialog.bean(Wizard.class)`.
+
+```java
+app.dialogs().answerDialog(ContactWizardDialog.class, dialog -> {
+    Wizard wizard = dialog.bean(Wizard.class);
+    dialog.component(JTextField.class, "First Name").setText("Ada");
+    dialog.component(JTextField.class, "Last Name").setText("Lovelace");     // the first step requires both names
+    wizard.next().execute();
+    assertThat(wizard.step().get()).isEqualTo(1);
+    dialog.commands(StandardCommands.class).ok().execute();       // Finish
+});
+```
+
+swing-docking replaces the real dock with a headless one in tests, with no setup: it follows the same placement and layout rules and draws splits as `JSplitPane`s and tab groups as `JTabbedPane`s, so `component`, `components` and the accessibility checks find the dock views' components in the frame. It has no headers: close views with `Dock.close`. `active()` changes only when a view is opened, brought to the front or closed, since the harness's windows never have the focus. Reach the dock with `app.bean(Dock.class)` (or `frame.bean(Dock.class)`), and call its methods inside `app.call`:
+
+```java
+@Test
+void opensAPictureTabPerContact() {
+    try (AppTester<AddressBookApp> app = AppTester.start(AddressBookApp.class)) {
+        Dock dock = app.bean(Dock.class);
+        ContactListView list = app.call(() -> dock.views().stream()
+                .filter(ContactListView.class::isInstance)
+                .map(ContactListView.class::cast)
+                .findFirst()
+                .orElseThrow());
+        app.run(() -> list.table.setRowSelectionInterval(0, 0));
+
+        app.bean(list, ContactListViewCommands.class).openPicture().execute();    // the view's own commands
+
+        assertThat(app.call(() -> dock.views().stream().map(dock::title).toList()))
+                .contains("Smith");
+    }
+}
+```
+
+To test a restored layout, create a file system with gaia-memfs's `MemoryFileSystems.newFileSystem()`, start a tester on it with `AppTester.builder(App.class).fileSystem(fs).start()`, exit with `app.commands(StandardCommands.class).exit().execute()`, which saves the window state, then start a second tester on the same file system.
+
 ### What fails a test automatically
 
 The tester's next call throws `AssertionError` when any of these happened: a component repainted or invalidated off the EDT; an exception reaching the `FailureHandler` or uncaught on any thread (a handler exception, a task failure with no `onFailure`); a strict-mode mistake (duplicate mnemonics, shortcut collisions, **a focusable component with no accessible name**, a mnemonic label with no `labelFor`); duplicate mnemonics in a dialog; a command task or a settings save that doesn't end within 30 seconds of a settling call. A startup failure makes `start` throw; a class with no registered descriptor makes it throw `IllegalArgumentException`.
 
 ---
 
-## 19. Build errors and their fixes
+## 21. Build errors and their fixes
 
 Resource messages are prefixed `File.toml:line:col:` and attached to the Java element.
 
@@ -1154,7 +1418,7 @@ Resource messages are prefixed `File.toml:line:col:` and attached to the Java el
 | `enabled = "x" names no field or no-argument method` / `names a field that is not @Exposed` / `must be of type Observable<Boolean>` | Add an `@Exposed` field or a non-private no-arg method of the right type |
 | `enabled = "x" names a private member` / `… is in another package, so it must be public` (same for `selected`) | Make the target package-private (same package) or public |
 | `The command x has no text in X.toml` | Add `[commands.x] text = "…"` |
-| `[commands.x] names no command of …` | Fix the id or declare the command |
+| `[commands.x] names no command of …` (… `, nor a document command`, `, nor a wizard command`) | Fix the id or declare the command; `previous` and `next` are accepted only in a view whose constructor takes a `Wizard` |
 | `k is not a property of a command` | Use `text`, `icon`, `shortcut`, `tool-tip-text`, `accessible-name`, `accessible-description` |
 | `The shortcut "…" does not parse as a key stroke` | `KeyStroke` syntax: `"shortcut shift S"` |
 | `The commands a and b have the same shortcut` | Change one |
@@ -1163,7 +1427,7 @@ Resource messages are prefixed `File.toml:line:col:` and attached to the Java el
 | `[f] names no @Exposed component field of X` | Add `@Exposed` to the field (package-private) |
 | `An @Exposed field must be neither private nor static` / `must be a java.awt.Component or an Observable<Boolean>` | Fix the field |
 | `k is not a supported property of T` / `must be a boolean/integer/string` / `The color "…" is not "#rrggbb"` | See [component properties](#component-properties) |
-| `k is not a property of X: name, theme, … apply to the application class, title to frame views and dialog views` | Move the key to the right class |
+| `k is not a property of X: name, theme, description, copyright and website apply to the application class, icon to the application class and dock views, title to frame views, dialog views and dock views, …` | Move the key to the right class |
 | `The theme "…" is none of system, light or dark` / `The website "…" is not an absolute http or https URI` | Fix the value |
 | `[variants] needs an enum annotated @Variants` / `[variants.x] names no constant` / `The variant x has no table [variants.x]` / `A variant holds no commands` (or `menus`, `variants`, `flatlaf`) / `A view has one @Variants enum` | One table per constant in the base file, holding class properties and component tables only |
 | `X.toml belongs to no class the processor generates for` (warning, an error under `-Werror`) | Rename or delete the file |
@@ -1180,14 +1444,19 @@ Resource messages are prefixed `File.toml:line:col:` and attached to the Java el
 | `The menu x has no text in the base file` | Add `[menus.x] text = "…"` |
 | `A [flatlaf] table is allowed in the resources of the @Application class only` | Move it |
 | `A document view is shown in a frame of its own: implement FrameView` | Implement `FrameView` too |
+| `A dock view is shown in its frame's dock, not in a window of its own: it implements neither …FrameView nor …DialogView` | Remove `FrameView` or `DialogView` from the dock view |
 | `Another class of the package also generates p.XCommands` / `…already exists` | Rename your class |
 | `warnings found and -Werror specified` | Read the warnings above it: Javadoc (`MissingSummary`), lint, or a processor warning |
 | Runtime: `IllegalArgumentException: No application descriptor for X: annotate it with @Application, compile it with swing's processor, and on the module path, register the services with gaia's register-services goal` (thrown by `Swing.launch` and `AppTester.start`) | Add the `inject-maven-plugin` and `gaia-maven-plugin` executions, or the processors |
 | Runtime: `… has no accessible name: give it a label whose labelFor it is, or an accessible-name resource` | Add a label with `labelFor` or an `accessible-name` resource |
+| Runtime: `IllegalStateException` from `Dock.open` while a view is being built | Open views in `layOut`, a command handler or a subscriber, never in a view's constructor or `content()` |
+| Runtime: `IllegalStateException: Docked is resolved in a view that a Dock opens, not in another view` | Inject `Docked` only in dock views |
+| Runtime: `IllegalStateException: The steps of a wizard are given during the build of the dialog view that injects it` | Call `wizard.steps` once, from `content()` of a dialog view |
+| Runtime: `IllegalArgumentException: No @Exposed component field of X holds the step …` | Hold each step in an `@Exposed` field |
 
 ---
 
-## 20. Complete example
+## 22. Complete example
 
 A to-do list: a table of tasks with an editable "done" column, a dialog with a validated field, an Add and a Remove command, a status line that follows the locale, English and French. It compiles under every check of the build and its tests pass, as written. Package `com.example.todo`, with a `package-info.java` annotated `@NullMarked`.
 
