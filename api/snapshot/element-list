@@ -3,6 +3,8 @@ be.imgn.swing
 be.imgn.swing.spi
 module:be.imgn.swing.desktop
 be.imgn.swing.desktop
+module:be.imgn.swing.docking
+be.imgn.swing.docking
 module:be.imgn.swing.flatlaf
 be.imgn.swing.flatlaf
 module:be.imgn.swing.processor
@@ -11,3 +13,5 @@ be.imgn.swing.testing
 module:be.imgn.swing.ui
 be.imgn.swing.ui
 be.imgn.swing.ui.spi
+module:be.imgn.swing.wizard
+be.imgn.swing.wizard

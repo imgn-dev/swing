@@ -78,6 +78,11 @@ the displayed name, version, vendor, description, copyright and website.</div>
 <div class="block">Activates a command on the EDT, as a click would, and runs the posted updates, but doesn't wait for the task it
 starts, so that a test can act while the task runs, such as activating it again or checking a stop command.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#active()" class="member-name-link">active()</a> - Method in class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking">Dock</a></dt>
+<dd>
+<div class="block">Returns the dock view that has the focus, else the one that had it last, else, when none had it, the one opened
+last.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html#active()" class="member-name-link">active()</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html" title="interface in be.imgn.swing.ui">Frames</a></dt>
 <dd>
 <div class="block">Returns the view of the active frame: the frame that has the focus, else the frame that had it last, else the
@@ -202,6 +207,10 @@ and the dialogs.</div>
 <dd>
 <div class="block">The configuration of an application to start.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#area(java.util.function.Consumer)" class="member-name-link">area(Consumer)</a> - Method in class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking">Dock</a></dt>
+<dd>
+<div class="block">Returns the dock's area, which the frame view returns from <code>content()</code> or places in it.</div>
+</dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.Builder.html#arguments(java.lang.String...)" class="member-name-link">arguments(String...)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.Builder.html" title="class in be.imgn.swing.testing">AppTester.Builder</a></dt>
 <dd>
 <div class="block">Sets the arguments given to the launch, bound as the application's <code>Arguments</code>, as
@@ -263,6 +272,16 @@ two mappings never share one.</div>
 <dd>
 <div class="block">Desktop integration for swing: single instance, open-file events, notifications, documents and recent files.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/module-summary.html">be.imgn.swing.docking</a> - module be.imgn.swing.docking</dt>
+<dd>
+<div class="block">Docking: views docked in a frame, split and tabbed, rearranged by the user, opened and closed while the frame is
+open, their layout saved with the frame's window state.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/package-summary.html">be.imgn.swing.docking</a> - package be.imgn.swing.docking</dt>
+<dd>
+<div class="block">Docking: views docked in a frame, split and tabbed, rearranged by the user, opened and closed while the frame is
+open, their layout saved with the frame's window state.</div>
+</dd>
 <dt><a href="be.imgn.swing.flatlaf/module-summary.html">be.imgn.swing.flatlaf</a> - module be.imgn.swing.flatlaf</dt>
 <dd>
 <div class="block">FlatLaf themes, dark mode and SVG icons.</div>
@@ -299,6 +318,28 @@ two mappings never share one.</div>
 <dd>
 <div class="block">What the code that swing's processor generates for views implements and calls; not for applications.</div>
 </dd>
+<dt><a href="be.imgn.swing.wizard/module-summary.html">be.imgn.swing.wizard</a> - module be.imgn.swing.wizard</dt>
+<dd>
+<div class="block">Wizards: dialog views whose content is a sequence of steps, with Previous, Next and Finish, each step validated
+before the next.</div>
+</dd>
+<dt><a href="be.imgn.swing.wizard/be/imgn/swing/wizard/package-summary.html">be.imgn.swing.wizard</a> - package be.imgn.swing.wizard</dt>
+<dd>
+<div class="block">Wizards: a dialog view's steps, with Previous, Next and Finish, each step validated before the next.</div>
+</dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#bean(be.imgn.swing.ui.View,java.lang.Class)" class="member-name-link">bean(View, Class)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
+<dd>
+<div class="block">Resolves a bean through the injector of an open view of the main frame, its own view or one added while it is
+open, such as a dock view: <a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#bean(java.lang.Class)"><code>AppTester.bean(Class)</code></a> and <a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#commands(java.lang.Class)"><code>AppTester.commands(Class)</code></a> resolve through the own view's
+injector, where an added view's view-scoped beans, such as its generated <code>&lt;Class&gt;Commands</code>, would be built
+anew, apart from the view.</div>
+</dd>
+<dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenFrame.html#bean(be.imgn.swing.ui.View,java.lang.Class)" class="member-name-link">bean(View, Class)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenFrame.html" title="class in be.imgn.swing.testing">OpenFrame</a></dt>
+<dd>
+<div class="block">Resolves a bean through the injector of an open view of the frame, its own view or one added while it is open,
+such as a dock view: <a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenFrame.html#bean(java.lang.Class)"><code>OpenFrame.bean(Class)</code></a> and <a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenFrame.html#commands(java.lang.Class)"><code>OpenFrame.commands(Class)</code></a> resolve through the own view's injector,
+where an added view's view-scoped beans would be built anew, apart from the view.</div>
+</dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#bean(java.lang.Class)" class="member-name-link">bean(Class)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
 <dd>
 <div class="block">Resolves a bean through the main view's injector, so that beans of every scope of the main window are reachable,
@@ -313,6 +354,10 @@ such as the dialog's <code>Form</code>.</div>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenFrame.html#bean(java.lang.Class)" class="member-name-link">bean(Class)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenFrame.html" title="class in be.imgn.swing.testing">OpenFrame</a></dt>
 <dd>
 <div class="block">Resolves a bean through the frame view's injector, so that beans of every scope of the frame are reachable.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#beside(java.lang.Class,be.imgn.swing.docking.DockRegion,double)" class="member-name-link">beside(Class, DockRegion, double)</a> - Static method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking">Placement</a></dt>
+<dd>
+<div class="block">Returns a placement against the open view of a class opened last.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandBuilder.html#bind()" class="member-name-link">bind()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandBuilder.html" title="class in be.imgn.swing.ui">CommandBuilder</a></dt>
 <dd>
@@ -445,6 +490,11 @@ order, made with <a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html#cr
 <dd>
 <div class="block">Returns the commands of the dialog's buttons.</div>
 </dd>
+<dt><a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html#buttons(be.imgn.swing.ui.StandardCommands)" class="member-name-link">buttons(StandardCommands)</a> - Method in class be.imgn.swing.wizard.<a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html" title="class in be.imgn.swing.wizard">Wizard</a></dt>
+<dd>
+<div class="block">Returns the dialog's buttons: Previous, Next, then the dialog's <code>ok()</code>, which finishes the wizard, and
+<code>cancel()</code>.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:C">C</h2>
 <dl class="index">
@@ -510,6 +560,10 @@ calls its own handler.</div>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/FakeNotifications.Notification.html#caption()" class="member-name-link">caption()</a> - Method in record class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/FakeNotifications.Notification.html" title="class in be.imgn.swing.testing">FakeNotifications.Notification</a></dt>
 <dd>
 <div class="block">Returns the value of the <a href="./be.imgn.swing.testing/be/imgn/swing/testing/FakeNotifications.Notification.html#param-caption"><code>caption</code></a> record component.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html#CENTER" class="member-name-link">CENTER</a> - Enum constant in enum class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html" title="enum class in be.imgn.swing.docking">DockRegion</a></dt>
+<dd>
+<div class="block">As the last tab of the target's tab group.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html#check(be.imgn.swing.Rule)" class="member-name-link">check(Rule)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Binding.html" title="class in be.imgn.swing.ui">Binding</a></dt>
 <dd>
@@ -579,6 +633,11 @@ the subscriptions registered there.</div>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenFrame.html#close()" class="member-name-link">close()</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/OpenFrame.html" title="class in be.imgn.swing.testing">OpenFrame</a></dt>
 <dd>
 <div class="block">Runs the frame view's <code>closeWindow()</code> command on the EDT, settles, and returns whether the frame closed.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#close(be.imgn.swing.docking.DockView)" class="member-name-link">close(DockView)</a> - Method in class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking">Dock</a></dt>
+<dd>
+<div class="block">Closes a view as an added view is closed: asks the exit vetoes of its scope, and returns <code>false</code> when one
+vetoes; otherwise undocks it, closes its scope, and returns <code>true</code>.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html#close(be.imgn.swing.ui.FrameView)" class="member-name-link">close(FrameView)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html" title="interface in be.imgn.swing.ui">Frames</a></dt>
 <dd>
@@ -929,6 +988,40 @@ value when it was bound or tracked, or when <a href="be.imgn.swing.ui/be/imgn/sw
 <dd>
 <div class="block">Disposes of a window.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" class="type-name-link" title="class in be.imgn.swing.docking">Dock</a> - Class in <a href="be.imgn.swing.docking/be/imgn/swing/docking/package-summary.html">be.imgn.swing.docking</a></dt>
+<dd>
+<div class="block">The dock of a frame: views docked in it, split and tabbed, which the user rearranges, opened and closed while the
+frame is open, their layout saved with the frame's window state.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Docked.html" class="type-name-link" title="class in be.imgn.swing.docking">Docked</a> - Class in <a href="be.imgn.swing.docking/be/imgn/swing/docking/package-summary.html">be.imgn.swing.docking</a></dt>
+<dd>
+<div class="block">The place of a dock view in its dock, which the view injects: its title, shown on its tab and in its header.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.html" class="type-name-link" title="interface in be.imgn.swing.docking">DockLayout</a> - Interface in <a href="be.imgn.swing.docking/be/imgn/swing/docking/package-summary.html">be.imgn.swing.docking</a></dt>
+<dd>
+<div class="block">The arrangement of the open views of a <a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking"><code>Dock</code></a>: splits and tab groups.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Orientation.html" class="type-name-link" title="enum class in be.imgn.swing.docking">DockLayout.Orientation</a> - Enum Class in <a href="be.imgn.swing.docking/be/imgn/swing/docking/package-summary.html">be.imgn.swing.docking</a></dt>
+<dd>
+<div class="block">The direction of a split.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html" class="type-name-link" title="class in be.imgn.swing.docking">DockLayout.Split</a> - Record Class in <a href="be.imgn.swing.docking/be/imgn/swing/docking/package-summary.html">be.imgn.swing.docking</a></dt>
+<dd>
+<div class="block">A split of the space in two.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html" class="type-name-link" title="class in be.imgn.swing.docking">DockLayout.Tabs</a> - Record Class in <a href="be.imgn.swing.docking/be/imgn/swing/docking/package-summary.html">be.imgn.swing.docking</a></dt>
+<dd>
+<div class="block">A tab group.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html" class="type-name-link" title="enum class in be.imgn.swing.docking">DockRegion</a> - Enum Class in <a href="be.imgn.swing.docking/be/imgn/swing/docking/package-summary.html">be.imgn.swing.docking</a></dt>
+<dd>
+<div class="block">Where a <a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking"><code>Placement</code></a> docks a view against its target: in its tab group, or on one of its sides.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockView.html" class="type-name-link" title="interface in be.imgn.swing.docking">DockView</a> - Interface in <a href="be.imgn.swing.docking/be/imgn/swing/docking/package-summary.html">be.imgn.swing.docking</a></dt>
+<dd>
+<div class="block">A view shown in its frame's <a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking"><code>Dock</code></a>: a content, commands, a scope and resources, with no menu bar or toolbar of
+its own.</div>
+</dd>
 <dt><a href="be.imgn.swing.desktop/be/imgn/swing/desktop/Document.html" class="type-name-link" title="class in be.imgn.swing.desktop">Document</a> - Class in <a href="be.imgn.swing.desktop/be/imgn/swing/desktop/package-summary.html">be.imgn.swing.desktop</a></dt>
 <dd>
 <div class="block">The document of a document view, a bean of its scope: its file, its name and whether it is modified.</div>
@@ -969,6 +1062,10 @@ in its main frame.</div>
 </dl>
 <h2 class="title" id="I:E">E</h2>
 <dl class="index">
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html#EAST" class="member-name-link">EAST</a> - Enum constant in enum class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html" title="enum class in be.imgn.swing.docking">DockRegion</a></dt>
+<dd>
+<div class="block">Right of the target.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardMenus.html#edit()" class="member-name-link">edit()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardMenus.html" title="class in be.imgn.swing.ui">StandardMenus</a></dt>
 <dd>
 <div class="block">Returns the Edit menu.</div>
@@ -1024,6 +1121,18 @@ the palette most recently first, then by text.</div>
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/DisplayLocale.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/DisplayLocale.html" title="class in be.imgn.swing">DisplayLocale</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html" title="class in be.imgn.swing.docking">DockLayout.Split</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html" title="class in be.imgn.swing.docking">DockLayout.Tabs</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking">Placement</a></dt>
 <dd>
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
 </dd>
@@ -1262,6 +1371,10 @@ a second time on what the first run saved.</div>
 <dd>
 <div class="block">Creates a type of file.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html#first()" class="member-name-link">first()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html" title="class in be.imgn.swing.docking">DockLayout.Split</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html#param-first"><code>first</code></a> record component.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/spi/MessageSource.html#fixed(be.imgn.swing.Resources,java.lang.Class,java.util.Locale,java.util.function.BiFunction)" class="member-name-link">fixed(Resources, Class, Locale, BiFunction)</a> - Static method in class be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/MessageSource.html" title="class in be.imgn.swing.spi">MessageSource</a></dt>
 <dd>
 <div class="block">Returns a source that reads the files of a fixed locale.</div>
@@ -1379,6 +1492,18 @@ application, or a view that <a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.ht
 <dd>
 <div class="block">Returns a hash code value for this object.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html" title="class in be.imgn.swing.docking">DockLayout.Split</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html" title="class in be.imgn.swing.docking">DockLayout.Tabs</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking">Placement</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ListChange.Added.html" title="class in be.imgn.swing">ListChange.Added</a></dt>
 <dd>
 <div class="block">Returns a hash code value for this object.</div>
@@ -1462,6 +1587,10 @@ application, or a view that <a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.ht
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/ValidationFeedback.html#hide(javax.swing.JComponent)" class="member-name-link">hide(JComponent)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/ValidationFeedback.html" title="interface in be.imgn.swing.ui">ValidationFeedback</a></dt>
 <dd>
 <div class="block">Hides the error a component shows, restoring what showing it changed.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Orientation.html#HORIZONTAL" class="member-name-link">HORIZONTAL</a> - Enum constant in enum class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Orientation.html" title="enum class in be.imgn.swing.docking">DockLayout.Orientation</a></dt>
+<dd>
+<div class="block"><code>first</code> left of <code>second</code>.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:I">I</h2>
@@ -1687,6 +1816,10 @@ directory, and applied to every open window.</div>
 <div class="block">Handles a second launch, on the EDT, in the first instance, once the application is ready, in the order the
 launches arrived.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#layout()" class="member-name-link">layout()</a> - Method in class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking">Dock</a></dt>
+<dd>
+<div class="block">Returns the arrangement of the open views.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Lifecycle.html" class="type-name-link" title="interface in be.imgn.swing">Lifecycle</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
 <dd>
 <div class="block">Requests the shutdown of the application.</div>
@@ -1870,6 +2003,11 @@ the same time.</div>
 <dd>
 <div class="block">Returns the command that opens a frame of a new, untitled document of the view's class.</div>
 </dd>
+<dt><a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html#next()" class="member-name-link">next()</a> - Method in class be.imgn.swing.wizard.<a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html" title="class in be.imgn.swing.wizard">Wizard</a></dt>
+<dd>
+<div class="block">Returns the command that validates the shown step and shows the next one when it is valid, enabled while the
+shown step isn't the last.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Task.html#none()" class="member-name-link">none()</a> - Static method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing">Task</a></dt>
 <dd>
 <div class="block">Returns the task with no work, which a command handler returns when it has nothing to run.</div>
@@ -1877,6 +2015,10 @@ the same time.</div>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Block.html#NONE" class="member-name-link">NONE</a> - Enum constant in enum class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Block.html" title="enum class in be.imgn.swing.ui">Block</a></dt>
 <dd>
 <div class="block">Nothing is blocked.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html#NORTH" class="member-name-link">NORTH</a> - Enum constant in enum class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html" title="enum class in be.imgn.swing.docking">DockRegion</a></dt>
+<dd>
+<div class="block">Above the target.</div>
 </dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/FakeNotifications.Notification.html#%3Cinit%3E(java.lang.String,java.lang.String)" class="member-name-link">Notification(String, String)</a> - Constructor for record class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/FakeNotifications.Notification.html" title="class in be.imgn.swing.testing">FakeNotifications.Notification</a></dt>
 <dd>
@@ -1922,6 +2064,10 @@ the same time.</div>
 <dt><a href="be.imgn.swing/be/imgn/swing/ObservableList.html" class="type-name-link" title="interface in be.imgn.swing">ObservableList&lt;E&gt;</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
 <dd>
 <div class="block">A list that tells its listeners each change, so that a component showing it updates one row rather than all of them.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#of(be.imgn.swing.docking.DockRegion,double)" class="member-name-link">of(DockRegion, double)</a> - Static method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking">Placement</a></dt>
+<dd>
+<div class="block">Returns a placement against the whole dock.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Task.html#of(be.imgn.swing.PublishingWork,java.util.function.Consumer)" class="member-name-link">of(PublishingWork, Consumer)</a> - Static method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing">Task</a></dt>
 <dd>
@@ -2017,6 +2163,10 @@ thrown: the <a href="be.imgn.swing/be/imgn/swing/Task.html#onSuccess(java.util.f
 <dd>
 <div class="block">Returns the command that asks for a file of the view's type with the open chooser, then opens it.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#open(java.lang.Class,java.util.function.Function,java.lang.String,be.imgn.swing.docking.Placement)" class="member-name-link">open(Class, Function, String, Placement)</a> - Method in class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking">Dock</a></dt>
+<dd>
+<div class="block">Opens a view created through an assisted factory, as <code>Frames.open(Class&lt;F&gt;, Function)</code> does, and docks it.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html#open(java.lang.Class,java.util.function.Function)" class="member-name-link">open(Class, Function)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html" title="interface in be.imgn.swing.ui">Frames</a></dt>
 <dd>
 <div class="block">Opens a frame showing a view created through the assisted factory that the processor generates for a view whose
@@ -2025,6 +2175,10 @@ constructor has <code>@Assisted</code> parameters, resolved through the view's c
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html#open(java.lang.Class)" class="member-name-link">open(Class)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html" title="interface in be.imgn.swing.ui">Frames</a></dt>
 <dd>
 <div class="block">Opens a frame showing a new view of a type.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#open(java.lang.Class,be.imgn.swing.docking.Placement)" class="member-name-link">open(Class, Placement)</a> - Method in class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking">Dock</a></dt>
+<dd>
+<div class="block">Opens a view of a dock view class, resolved through its child injector, and docks it as <code>placement</code> says.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html#open(java.lang.Class,E)" class="member-name-link">open(Class, E)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html" title="interface in be.imgn.swing.ui">Frames</a></dt>
 <dd>
@@ -2112,6 +2266,10 @@ other text with <code>converter</code>; it formats <a href="https://docs.oracle.
 <dd>
 <div class="block">Returns the rank of this step; lower runs first.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html#orientation()" class="member-name-link">orientation()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html" title="class in be.imgn.swing.docking">DockLayout.Split</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html#param-orientation"><code>orientation</code></a> record component.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandRegistry.html#overridableCommand(java.lang.Class,java.lang.String)" class="member-name-link">overridableCommand(Class, String)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandRegistry.html" title="class in be.imgn.swing.ui">CommandRegistry</a></dt>
 <dd>
 <div class="block">Starts building a command of a framework's commands class, such as the document commands, whose text and
@@ -2162,6 +2320,15 @@ it, before the view is resolved, for each override of the view class and its sup
 <dd>
 <div class="block">Returns the command that pastes in the focused component; enabled only when it supports it.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" class="type-name-link" title="class in be.imgn.swing.docking">Placement</a> - Record Class in <a href="be.imgn.swing.docking/be/imgn/swing/docking/package-summary.html">be.imgn.swing.docking</a></dt>
+<dd>
+<div class="block">Where <a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#open(java.lang.Class,be.imgn.swing.docking.Placement)"><code>Dock.open(Class, Placement)</code></a> docks a view: against a target, the open view of the target class opened last, or, when
+<code>target</code> is <code>null</code> or no view of it is open, the whole dock.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#%3Cinit%3E(java.lang.Class,be.imgn.swing.docking.DockRegion,double)" class="member-name-link">Placement(Class, DockRegion, double)</a> - Constructor for record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking">Placement</a></dt>
+<dd>
+<div class="block">Checks the placement.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html#platform()" class="member-name-link">platform()</a> - Method in interface be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/ApplicationInfo.html" title="interface in be.imgn.swing">ApplicationInfo</a></dt>
 <dd>
 <div class="block">Returns the platform the application runs on: the <code>Platform</code> bean, which this method is a shortcut to.</div>
@@ -2188,6 +2355,10 @@ disabled unless a <a href="be.imgn.swing.ui/be/imgn/swing/ui/PreferencesHandler.
 <dd>
 <div class="block">Shows the application's preferences: a singleton bean of the application.</div>
 </dd>
+<dt><a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html#previous()" class="member-name-link">previous()</a> - Method in class be.imgn.swing.wizard.<a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html" title="class in be.imgn.swing.wizard">Wizard</a></dt>
+<dd>
+<div class="block">Returns the command that shows the step before the shown one, enabled while the shown step isn't the first.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Programmatic.html#%3Cinit%3E()" class="member-name-link">Programmatic()</a> - Constructor for record class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Programmatic.html" title="class in be.imgn.swing.ui">Trigger.Programmatic</a></dt>
 <dd>
 <div class="block">Creates an instance of a <code>Programmatic</code> record class.</div>
@@ -2213,6 +2384,14 @@ disabled unless a <a href="be.imgn.swing.ui/be/imgn/swing/ui/PreferencesHandler.
 <dt><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/Theme.html#PROPERTY" class="member-name-link">PROPERTY</a> - Static variable in enum class be.imgn.swing.flatlaf.<a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/Theme.html" title="enum class in be.imgn.swing.flatlaf">Theme</a></dt>
 <dd>
 <div class="block">The system property that selects the theme, and wins over the application's resources.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html#proportion()" class="member-name-link">proportion()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html" title="class in be.imgn.swing.docking">DockLayout.Split</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html#param-proportion"><code>proportion</code></a> record component.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#proportion()" class="member-name-link">proportion()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking">Placement</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#param-proportion"><code>proportion</code></a> record component.</div>
 </dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#publish(java.lang.Object)" class="member-name-link">publish(Object)</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
 <dd>
@@ -2292,6 +2471,10 @@ document of the view's class.</div>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#refreshing(be.imgn.toml.TomlTable,java.util.function.Function,boolean,java.lang.Class)" class="member-name-link">refreshing(TomlTable, Function, boolean, Class)</a> - Static method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
 <div class="block">Creates the resources of a view class that a refresh applies again.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#region()" class="member-name-link">region()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking">Placement</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#param-region"><code>region</code></a> record component.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html#registerOverrides(be.imgn.swing.ui.CommandRegistry)" class="member-name-link">registerOverrides(CommandRegistry)</a> - Method in interface be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentInjector.html" title="interface in be.imgn.swing.ui.spi">ComponentInjector</a></dt>
 <dd>
@@ -2412,6 +2595,12 @@ field that a rule compares the value with: before the change returns for a chang
 user's change of that field, once the list has released its lock for one delivered by an observable list, and in
 a posted update for one made on another thread.</div>
 </dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#revealWith(java.util.function.Consumer)" class="member-name-link">revealWith(Consumer)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui">Form</a></dt>
+<dd>
+<div class="block">Registers code that makes a component visible before the form focuses it: both <code>validate</code> methods run it on
+the component they focus, in registration order, after selecting the tabs that hold it, and before checking that
+it is visible up to its window's root pane.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html#rewrite(java.lang.String,java.util.List)" class="member-name-link">rewrite(String, List)</a> - Static method in class be.imgn.swing.spi.<a href="be.imgn.swing/be/imgn/swing/spi/MessagePattern.html" title="class in be.imgn.swing.spi">MessagePattern</a></dt>
 <dd>
 <div class="block">Rewrites the placeholders of a pattern from parameter names to their indices, following <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/text/MessageFormat.html" title="class or interface in java.text" class="external-link"><code>MessageFormat</code></a>'s
@@ -2519,6 +2708,10 @@ write succeeds.</div>
 <div class="block">Returns the entries of a list that a query matches, ranked by how they match, then in the list's order: what the
 palette's dialog shows as the user types.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html#second()" class="member-name-link">second()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html" title="class in be.imgn.swing.docking">DockLayout.Split</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html#param-second"><code>second</code></a> record component.</div>
+</dd>
 <dt><a href="be.imgn.swing.desktop/be/imgn/swing/desktop/SecondInstanceHandler.html" class="type-name-link" title="interface in be.imgn.swing.desktop">SecondInstanceHandler</a> - Interface in <a href="be.imgn.swing.desktop/be/imgn/swing/desktop/package-summary.html">be.imgn.swing.desktop</a></dt>
 <dd>
 <div class="block">Handles a second launch of a single-instance application.</div>
@@ -2528,9 +2721,17 @@ palette's dialog shows as the user types.</div>
 <div class="block">Adds a title across both columns: the label, followed by a <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JSeparator.html" title="class or interface in javax.swing" class="external-link"><code>JSeparator</code></a> that fills the rest of the row, 4
 pixels after it, on the label's trailing side whatever the component orientation.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#select(be.imgn.swing.docking.DockView)" class="member-name-link">select(DockView)</a> - Method in class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking">Dock</a></dt>
+<dd>
+<div class="block">Selects a view's tab in its tab group, without moving the focus and without changing <a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#active()"><code>Dock.active()</code></a>.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html#selectAll()" class="member-name-link">selectAll()</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a></dt>
 <dd>
 <div class="block">Returns the command that selects all in the focused component; enabled only when it supports it.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html#selected()" class="member-name-link">selected()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html" title="class in be.imgn.swing.docking">DockLayout.Tabs</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html#param-selected"><code>selected</code></a> record component.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Command.html#selected()" class="member-name-link">selected()</a> - Element in annotation interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Command.html" title="annotation interface in be.imgn.swing.ui">Command</a></dt>
 <dd>
@@ -2616,6 +2817,10 @@ application's config directory.</div>
 <dt><a href="be.imgn.swing/be/imgn/swing/SettingsStore.html" class="type-name-link" title="interface in be.imgn.swing">SettingsStore</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
 <dd>
 <div class="block">Holds the value of every <a href="be.imgn.swing/be/imgn/swing/Settings.html" title="annotation interface in be.imgn.swing"><code>Settings</code></a> record, loaded at startup from the config directory.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Docked.html#setTitle(java.lang.String)" class="member-name-link">setTitle(String)</a> - Method in class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Docked.html" title="class in be.imgn.swing.docking">Docked</a></dt>
+<dd>
+<div class="block">Sets the title shown.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html#setTitle(java.lang.String)" class="member-name-link">setTitle(String)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html" title="interface in be.imgn.swing.ui">Window</a></dt>
 <dd>
@@ -2709,6 +2914,14 @@ until it closes.</div>
 <dd>
 <div class="block">Returns the number of elements.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html#SOUTH" class="member-name-link">SOUTH</a> - Enum constant in enum class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html" title="enum class in be.imgn.swing.docking">DockRegion</a></dt>
+<dd>
+<div class="block">Below the target.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html#%3Cinit%3E(be.imgn.swing.docking.DockLayout.Orientation,double,be.imgn.swing.docking.DockLayout,be.imgn.swing.docking.DockLayout)" class="member-name-link">Split(DockLayout.Orientation, double, DockLayout, DockLayout)</a> - Constructor for record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html" title="class in be.imgn.swing.docking">DockLayout.Split</a></dt>
+<dd>
+<div class="block">Checks the split.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" class="type-name-link" title="class in be.imgn.swing.ui">StandardCommands</a> - Class in <a href="be.imgn.swing.ui/be/imgn/swing/ui/package-summary.html">be.imgn.swing.ui</a></dt>
 <dd>
 <div class="block">The standard commands of a view, with working handlers, and the superclass of every generated
@@ -2750,6 +2963,15 @@ generated <code>&lt;Class&gt;Menus</code>.</div>
 <dt><a href="be.imgn.swing/be/imgn/swing/Check.html#status()" class="member-name-link">status()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.html" title="class in be.imgn.swing">Check</a></dt>
 <dd>
 <div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/Check.html#param-status"><code>status</code></a> record component.</div>
+</dd>
+<dt><a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html#step()" class="member-name-link">step()</a> - Method in class be.imgn.swing.wizard.<a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html" title="class in be.imgn.swing.wizard">Wizard</a></dt>
+<dd>
+<div class="block">Returns the index of the shown step, from 0.</div>
+</dd>
+<dt><a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html#steps(javax.swing.JComponent...)" class="member-name-link">steps(JComponent...)</a> - Method in class be.imgn.swing.wizard.<a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html" title="class in be.imgn.swing.wizard">Wizard</a></dt>
+<dd>
+<div class="block">Returns a new panel that shows the steps: a heading, and the steps on the cards of a <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/CardLayout.html" title="class or interface in java.awt" class="external-link"><code>CardLayout</code></a>, in the
+given order, the first shown.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html#string(java.lang.String,java.lang.String)" class="member-name-link">string(String, String)</a> - Method in class be.imgn.swing.ui.spi.<a href="be.imgn.swing.ui/be/imgn/swing/ui/spi/ComponentResources.html" title="class in be.imgn.swing.ui.spi">ComponentResources</a></dt>
 <dd>
@@ -2813,6 +3035,10 @@ through <code>java.awt.Desktop</code>.</div>
 </dl>
 <h2 class="title" id="I:T">T</h2>
 <dl class="index">
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#tab()" class="member-name-link">tab()</a> - Static method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking">Placement</a></dt>
+<dd>
+<div class="block">Returns a placement as a tab of the active view's tab group: <code>of(CENTER, 0.5)</code>.</div>
+</dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Resources.html#table(java.lang.Class)" class="member-name-link">table(Class)</a> - Method in class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Resources.html" title="class in be.imgn.swing">Resources</a></dt>
 <dd>
 <div class="block">Returns the merged resources of a class, in the current display locale.</div>
@@ -2820,6 +3046,19 @@ through <code>java.awt.Desktop</code>.</div>
 <dt><a href="be.imgn.swing/be/imgn/swing/Resources.html#table(java.lang.Class,java.util.Locale)" class="member-name-link">table(Class, Locale)</a> - Method in class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Resources.html" title="class in be.imgn.swing">Resources</a></dt>
 <dd>
 <div class="block">Returns the merged resources of a class, in a given locale, whatever the display locale.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html#%3Cinit%3E(java.util.List,be.imgn.swing.docking.DockView)" class="member-name-link">Tabs(List, DockView)</a> - Constructor for record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html" title="class in be.imgn.swing.docking">DockLayout.Tabs</a></dt>
+<dd>
+<div class="block">Checks and copies the tab group.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#tabWith(java.lang.Class)" class="member-name-link">tabWith(Class)</a> - Static method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking">Placement</a></dt>
+<dd>
+<div class="block">Returns a placement as a tab of the tab group of the open view of a class opened last: <code>beside(target,
+CENTER, 0.5)</code>.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#target()" class="member-name-link">target()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking">Placement</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#param-target"><code>target</code></a> record component.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Task.html" class="type-name-link" title="interface in be.imgn.swing">Task&lt;T&gt;</a> - Interface in <a href="be.imgn.swing/be/imgn/swing/package-summary.html">be.imgn.swing</a></dt>
 <dd>
@@ -2888,6 +3127,10 @@ returns, in the same scope.</div>
 <dd>
 <div class="block">Returns the ticker the application reads time from.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Docked.html#title()" class="member-name-link">title()</a> - Method in class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Docked.html" title="class in be.imgn.swing.docking">Docked</a></dt>
+<dd>
+<div class="block">Returns the title shown.</div>
+</dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html#title()" class="member-name-link">title()</a> - Method in class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/AppTester.html" title="class in be.imgn.swing.testing">AppTester</a></dt>
 <dd>
 <div class="block">Returns the title of the main window.</div>
@@ -2900,9 +3143,18 @@ returns, in the same scope.</div>
 <dd>
 <div class="block">Returns the title of the window, as last set.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#title(be.imgn.swing.docking.DockView)" class="member-name-link">title(DockView)</a> - Method in class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking">Dock</a></dt>
+<dd>
+<div class="block">Returns the title of an open view, as its <a href="be.imgn.swing.docking/be/imgn/swing/docking/Docked.html#title()"><code>Docked.title()</code></a> gives it.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html#toFront()" class="member-name-link">toFront()</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html" title="interface in be.imgn.swing.ui">Window</a></dt>
 <dd>
 <div class="block">Brings the window to the front, deiconified, and asks for the focus.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#toFront(be.imgn.swing.docking.DockView)" class="member-name-link">toFront(DockView)</a> - Method in class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking">Dock</a></dt>
+<dd>
+<div class="block">Brings a view to the front: selects its tab, moves the focus to the first component of its content that takes it,
+through the window's <a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html#focus(java.awt.Component)"><code>Window.focus(Component)</code></a>, and makes it the active one.</div>
 </dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html#toFront(be.imgn.swing.ui.FrameView)" class="member-name-link">toFront(FrameView)</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html" title="interface in be.imgn.swing.ui">Frames</a></dt>
 <dd>
@@ -2942,6 +3194,18 @@ resources: each value as the string that FlatLaf's properties files would hold.<
 <div class="block">Returns a string representation of this record class.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/DisplayLocale.html#toString()" class="member-name-link">toString()</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/DisplayLocale.html" title="class in be.imgn.swing">DisplayLocale</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html#toString()" class="member-name-link">toString()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html" title="class in be.imgn.swing.docking">DockLayout.Split</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html#toString()" class="member-name-link">toString()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html" title="class in be.imgn.swing.docking">DockLayout.Tabs</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html#toString()" class="member-name-link">toString()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking">Placement</a></dt>
 <dd>
 <div class="block">Returns a string representation of this record class.</div>
 </dd>
@@ -3151,8 +3415,13 @@ application's.</div>
 <dd>
 <div class="block">Shows the error of every binding that has one, and moves the focus to the first component with an error, in
 binding order: it first selects the tabs of the <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JTabbedPane.html" title="class or interface in javax.swing" class="external-link"><code>JTabbedPane</code></a>s that hold it and aren't selected, from the
-outermost pane in, then focuses it through its window's <a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html#focus(java.awt.Component)"><code>Window.focus(Component)</code></a>, unless it still isn't
-showing, such as one on another card of a wizard.</div>
+outermost pane in, then runs the code registered with <a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#revealWith(java.util.function.Consumer)"><code>Form.revealWith(Consumer)</code></a>, then focuses it through its window's
+<a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html#focus(java.awt.Component)"><code>Window.focus(Component)</code></a>, unless it still isn't showing, such as one on a card that no reveal code shows.</div>
+</dd>
+<dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#validate(java.awt.Component)" class="member-name-link">validate(Component)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui">Form</a></dt>
+<dd>
+<div class="block">Validates the bindings whose component is a component or inside it, as <a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html#validate()"><code>Form.validate()</code></a> validates all of them:
+shows their errors, and moves the focus to the first of them with an error, in binding order.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Validator.html#validate(T)" class="member-name-link">validate(T)</a> - Method in record class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Validator.html" title="class in be.imgn.swing">Validator</a></dt>
 <dd>
@@ -3201,6 +3470,14 @@ and <code>0</code>-<code>9</code> separated by single <code>-</code>.</div>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Orientation.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Orientation.html" title="enum class in be.imgn.swing.docking">DockLayout.Orientation</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html" title="enum class in be.imgn.swing.docking">DockRegion</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
 <dt><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/Theme.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class be.imgn.swing.flatlaf.<a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/Theme.html" title="enum class in be.imgn.swing.flatlaf">Theme</a></dt>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
@@ -3239,6 +3516,16 @@ the order they are declared.</div>
 <div class="block">Returns the value of the <a href="./be.imgn.swing/be/imgn/swing/Arguments.html#param-values"><code>values</code></a> record component.</div>
 </dd>
 <dt><a href="be.imgn.swing/be/imgn/swing/Check.Status.html#values()" class="member-name-link">values()</a> - Static method in enum class be.imgn.swing.<a href="be.imgn.swing/be/imgn/swing/Check.Status.html" title="enum class in be.imgn.swing">Check.Status</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Orientation.html#values()" class="member-name-link">values()</a> - Static method in enum class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Orientation.html" title="enum class in be.imgn.swing.docking">DockLayout.Orientation</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html#values()" class="member-name-link">values()</a> - Static method in enum class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html" title="enum class in be.imgn.swing.docking">DockRegion</a></dt>
 <dd>
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>
@@ -3307,6 +3594,10 @@ differ only by their resources, opened with <a href="be.imgn.swing.ui/be/imgn/sw
 <dd>
 <div class="block">Returns <a href="be.imgn.swing/be/imgn/swing/Application.html#version()"><code>Application.version()</code></a>, if given.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Orientation.html#VERTICAL" class="member-name-link">VERTICAL</a> - Enum constant in enum class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Orientation.html" title="enum class in be.imgn.swing.docking">DockLayout.Orientation</a></dt>
+<dd>
+<div class="block"><code>first</code> above <code>second</code>.</div>
+</dd>
 <dt><a href="be.imgn.swing.testing/be/imgn/swing/testing/Inspection.html#view()" class="member-name-link">view()</a> - Method in record class be.imgn.swing.testing.<a href="be.imgn.swing.testing/be/imgn/swing/testing/Inspection.html" title="class in be.imgn.swing.testing">Inspection</a></dt>
 <dd>
 <div class="block">Returns the value of the <a href="./be.imgn.swing.testing/be/imgn/swing/testing/Inspection.html#param-view"><code>view</code></a> record component.</div>
@@ -3327,6 +3618,14 @@ differ only by their resources, opened with <a href="be.imgn.swing.ui/be/imgn/sw
 <dd>
 <div class="block">A component, with its commands and its scope.</div>
 </dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#views()" class="member-name-link">views()</a> - Method in class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking">Dock</a></dt>
+<dd>
+<div class="block">Returns the open dock views, in the order they were opened.</div>
+</dd>
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html#views()" class="member-name-link">views()</a> - Method in record class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html" title="class in be.imgn.swing.docking">DockLayout.Tabs</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html#param-views"><code>views</code></a> record component.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html#views()" class="member-name-link">views()</a> - Method in interface be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/Frames.html" title="interface in be.imgn.swing.ui">Frames</a></dt>
 <dd>
 <div class="block">Returns the views of the open frames, in the order they were opened, the main view of a single-frame application
@@ -3339,6 +3638,10 @@ first.</div>
 </dl>
 <h2 class="title" id="I:W">W</h2>
 <dl class="index">
+<dt><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html#WEST" class="member-name-link">WEST</a> - Enum constant in enum class be.imgn.swing.docking.<a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html" title="enum class in be.imgn.swing.docking">DockRegion</a></dt>
+<dd>
+<div class="block">Left of the target.</div>
+</dd>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html#wide(javax.swing.JComponent)" class="member-name-link">wide(JComponent)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/FormPanel.html" title="class in be.imgn.swing.ui">FormPanel</a></dt>
 <dd>
 <div class="block">Adds a component across both columns, filling the row's width and sharing the extra height with the other wide
@@ -3372,6 +3675,12 @@ progress indicator with a Cancel button.</div>
 <dt><a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundMenu.html#with(be.imgn.swing.ui.MenuEntry...)" class="member-name-link">with(MenuEntry...)</a> - Method in class be.imgn.swing.ui.<a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundMenu.html" title="class in be.imgn.swing.ui">BoundMenu</a></dt>
 <dd>
 <div class="block">Returns the description of this menu with entries.</div>
+</dd>
+<dt><a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html" class="type-name-link" title="class in be.imgn.swing.wizard">Wizard</a> - Class in <a href="be.imgn.swing.wizard/be/imgn/swing/wizard/package-summary.html">be.imgn.swing.wizard</a></dt>
+<dd>
+<div class="block">Shows the content of a dialog view as a sequence of steps, with Previous and Next, each step validated before the
+next: the view injects it, returns what <code>Wizard.steps</code> returns from its <code>content()</code>, or places it, and returns
+what <a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html#buttons(be.imgn.swing.ui.StandardCommands)"><code>Wizard.buttons(StandardCommands)</code></a> returns from its <code>buttons</code>.</div>
 </dd>
 <dt><a href="be.imgn.swing.desktop/be/imgn/swing/desktop/DocumentFormat.html#write(T,java.io.OutputStream)" class="member-name-link">write(T, OutputStream)</a> - Method in interface be.imgn.swing.desktop.<a href="be.imgn.swing.desktop/be/imgn/swing/desktop/DocumentFormat.html" title="interface in be.imgn.swing.desktop">DocumentFormat</a></dt>
 <dd>

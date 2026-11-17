@@ -183,6 +183,40 @@ scope.</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
 <div class="block">The locale of user-interface text, chosen once at startup and bound in the root injector.</div>
 </div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking">Dock</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">The dock of a frame: views docked in it, split and tabbed, which the user rearranges, opened and closed while the
+frame is open, their layout saved with the frame's window state.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.docking/be/imgn/swing/docking/Docked.html" title="class in be.imgn.swing.docking">Docked</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">The place of a dock view in its dock, which the view injects: its title, shown on its tab and in its header.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.html" title="interface in be.imgn.swing.docking">DockLayout</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="block">The arrangement of the open views of a <a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking"><code>Dock</code></a>: splits and tab groups.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Orientation.html" title="enum class in be.imgn.swing.docking">DockLayout.Orientation</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
+<div class="block">The direction of a split.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Split.html" title="class in be.imgn.swing.docking">DockLayout.Split</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="block">A split of the space in two.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockLayout.Tabs.html" title="class in be.imgn.swing.docking">DockLayout.Tabs</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
+<div class="block">A tab group.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockRegion.html" title="enum class in be.imgn.swing.docking">DockRegion</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
+<div class="block">Where a <a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking"><code>Placement</code></a> docks a view against its target: in its tab group, or on one of its sides.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.docking/be/imgn/swing/docking/DockView.html" title="interface in be.imgn.swing.docking">DockView</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="block">A view shown in its frame's <a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html" title="class in be.imgn.swing.docking"><code>Dock</code></a>: a content, commands, a scope and resources, with no menu bar or toolbar of
+its own.</div>
+</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.desktop/be/imgn/swing/desktop/Document.html" title="class in be.imgn.swing.desktop">Document</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">The document of a document view, a bean of its scope: its file, its name and whether it is modified.</div>
@@ -412,222 +446,233 @@ drops on the Dock icon.</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
 <div class="block">A command the <a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandPalette.html" title="class in be.imgn.swing.ui"><code>CommandPalette</code></a> lists.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/PreferencesHandler.html" title="interface in be.imgn.swing.ui">PreferencesHandler</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.docking/be/imgn/swing/docking/Placement.html" title="class in be.imgn.swing.docking">Placement</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="block">Where <a href="be.imgn.swing.docking/be/imgn/swing/docking/Dock.html#open(java.lang.Class,be.imgn.swing.docking.Placement)"><code>Dock.open(Class, Placement)</code></a> docks a view: against a target, the open view of the target class opened last, or, when
+<code>target</code> is <code>null</code> or no view of it is open, the whole dock.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/PreferencesHandler.html" title="interface in be.imgn.swing.ui">PreferencesHandler</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Shows the application's preferences: a singleton bean of the application.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/Property.html" title="interface in be.imgn.swing">Property&lt;T&gt;</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/Property.html" title="interface in be.imgn.swing">Property&lt;T&gt;</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">An observable value that can be set, from any thread.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/PublishingWork.html" title="interface in be.imgn.swing">PublishingWork&lt;T,<wbr>P&gt;</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/PublishingWork.html" title="interface in be.imgn.swing">PublishingWork&lt;T,<wbr>P&gt;</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">The work of a <a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing"><code>Task</code></a> that publishes partial results while it runs: <a href="be.imgn.swing/be/imgn/swing/Task.html#of(be.imgn.swing.PublishingWork,java.util.function.Consumer)"><code>Task.of(PublishingWork, Consumer)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/ReadyListener.html" title="interface in be.imgn.swing">ReadyListener</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/ReadyListener.html" title="interface in be.imgn.swing">ReadyListener</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Told when the application is ready: once the main window is shown, and the events posted while showing it have run.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.desktop/be/imgn/swing/desktop/RecentFiles.html" title="class in be.imgn.swing.desktop">RecentFiles</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.desktop/be/imgn/swing/desktop/RecentFiles.html" title="class in be.imgn.swing.desktop">RecentFiles</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">The files the user opened or saved last, most recent first, at most ten.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/ResourceOpener.html" title="interface in be.imgn.swing">ResourceOpener</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/ResourceOpener.html" title="interface in be.imgn.swing">ResourceOpener</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Opens the resources of one package, from the package's own module, so that reading them needs no open package.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing/be/imgn/swing/Resources.html" title="class in be.imgn.swing">Resources</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing/be/imgn/swing/Resources.html" title="class in be.imgn.swing">Resources</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">The resources of classes: their TOML files, merged along the class hierarchy and across the locale and platform
 variants, and cached per class and locale.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/Rule.html" title="interface in be.imgn.swing">Rule&lt;T&gt;</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/Rule.html" title="interface in be.imgn.swing">Rule&lt;T&gt;</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">A requirement of a value, and the test of whether a value meets it.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html" title="enum class in be.imgn.swing.ui">SaveChoice</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="be.imgn.swing.ui/be/imgn/swing/ui/SaveChoice.html" title="enum class in be.imgn.swing.ui">SaveChoice</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
 <div class="block">The answer to the save prompt, <a href="be.imgn.swing.ui/be/imgn/swing/ui/Dialogs.html#askSave(java.lang.String)"><code>Dialogs.askSave(String)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/Scope.html" title="interface in be.imgn.swing">Scope</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/Scope.html" title="interface in be.imgn.swing">Scope</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">The disposal list of an application, window or view scope, for what is not a bean.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.desktop/be/imgn/swing/desktop/SecondInstanceHandler.html" title="interface in be.imgn.swing.desktop">SecondInstanceHandler</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.desktop/be/imgn/swing/desktop/SecondInstanceHandler.html" title="interface in be.imgn.swing.desktop">SecondInstanceHandler</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Handles a second launch of a single-instance application.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Separator.html" title="class in be.imgn.swing.ui">Separator</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Separator.html" title="class in be.imgn.swing.ui">Separator</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">The separator of menus and toolbars, which <a href="be.imgn.swing.ui/be/imgn/swing/ui/MenuEntry.html#SEPARATOR"><code>MenuEntry.SEPARATOR</code></a>, <a href="be.imgn.swing.ui/be/imgn/swing/ui/DynamicEntry.html#SEPARATOR"><code>DynamicEntry.SEPARATOR</code></a> and
 <a href="be.imgn.swing.ui/be/imgn/swing/ui/ToolBarEntry.html#SEPARATOR"><code>ToolBarEntry.SEPARATOR</code></a> name.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab6"><a href="be.imgn.swing/be/imgn/swing/Settings.html" title="annotation interface in be.imgn.swing">Settings</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab6">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab6"><a href="be.imgn.swing/be/imgn/swing/Settings.html" title="annotation interface in be.imgn.swing">Settings</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab6">
 <div class="block">Declares a settings record: what the user chooses and keeps between runs, saved in <code>&lt;id&gt;.toml</code> in the
 application's config directory.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/spi/SettingsDescriptor.html" title="interface in be.imgn.swing.spi">SettingsDescriptor&lt;T&gt;</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/spi/SettingsDescriptor.html" title="interface in be.imgn.swing.spi">SettingsDescriptor&lt;T&gt;</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">The description of a <a href="be.imgn.swing/be/imgn/swing/Settings.html" title="annotation interface in be.imgn.swing"><code>Settings</code></a> record, which the processor generates and registers as a service.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/SettingsStore.html" title="interface in be.imgn.swing">SettingsStore</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/SettingsStore.html" title="interface in be.imgn.swing">SettingsStore</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Holds the value of every <a href="be.imgn.swing/be/imgn/swing/Settings.html" title="annotation interface in be.imgn.swing"><code>Settings</code></a> record, loaded at startup from the config directory.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/ShutdownStep.html" title="interface in be.imgn.swing">ShutdownStep</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/ShutdownStep.html" title="interface in be.imgn.swing">ShutdownStep</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">A step of the shutdown, contributed with <code>@IntoSet(ShutdownStep.class)</code>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/SingleFrame.html" title="interface in be.imgn.swing.ui">SingleFrame</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/SingleFrame.html" title="interface in be.imgn.swing.ui">SingleFrame</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">An application class that is the only view of the main window.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardCommands.html" title="class in be.imgn.swing.ui">StandardCommands</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">The standard commands of a view, with working handlers, and the superclass of every generated
 <code>&lt;Class&gt;Commands</code>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardMenus.html" title="class in be.imgn.swing.ui">StandardMenus</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/StandardMenus.html" title="class in be.imgn.swing.ui">StandardMenus</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">The standard menus of a view, with text and mnemonics from the framework's resources, and the superclass of every
 generated <code>&lt;Class&gt;Menus</code>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/StartupStep.html" title="interface in be.imgn.swing">StartupStep</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/StartupStep.html" title="interface in be.imgn.swing">StartupStep</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">A step of the startup, contributed with <code>@IntoSet(StartupStep.class)</code>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/Subscription.html" title="interface in be.imgn.swing">Subscription</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/Subscription.html" title="interface in be.imgn.swing">Subscription</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">A listener's subscription to an <a href="be.imgn.swing/be/imgn/swing/Observable.html" title="interface in be.imgn.swing"><code>Observable</code></a>, released when its scope closes or when it is closed.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/SvgIconLoader.html" title="class in be.imgn.swing.flatlaf">SvgIconLoader</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/SvgIconLoader.html" title="class in be.imgn.swing.flatlaf">SvgIconLoader</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Loads SVG icons, through <code>FlatSVGIcon</code>: they stay sharp on HiDPI screens.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Swing.html" title="class in be.imgn.swing.ui">Swing</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Swing.html" title="class in be.imgn.swing.ui">Swing</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Launches applications.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="be.imgn.swing.ui/be/imgn/swing/ui/SystemAction.html" title="enum class in be.imgn.swing.ui">SystemAction</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="be.imgn.swing.ui/be/imgn/swing/ui/SystemAction.html" title="enum class in be.imgn.swing.ui">SystemAction</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
 <div class="block">An action of the operating system's application menu.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/SystemShell.html" title="interface in be.imgn.swing.ui">SystemShell</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/SystemShell.html" title="interface in be.imgn.swing.ui">SystemShell</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Asks the system to show a URI in the browser, or a file in the application that the system associates with it,
 through <code>java.awt.Desktop</code>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing">Task&lt;T&gt;</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing">Task&lt;T&gt;</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Work that runs on a virtual thread, with its completion hooks.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/TaskbarStatus.html" title="interface in be.imgn.swing.ui">TaskbarStatus</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/TaskbarStatus.html" title="interface in be.imgn.swing.ui">TaskbarStatus</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">The application's entry in the taskbar, or its Dock icon: a progress, a badge, and requests for the user's attention.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/TaskContext.html" title="interface in be.imgn.swing">TaskContext</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/TaskContext.html" title="interface in be.imgn.swing">TaskContext</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">What the work of a <a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing"><code>Task</code></a> can tell and ask while it runs: <code>Task.of((TaskContext context) -&gt; ...)</code>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing/be/imgn/swing/TaskService.html" title="class in be.imgn.swing">TaskService</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing/be/imgn/swing/TaskService.html" title="class in be.imgn.swing">TaskService</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Runs tasks in a scope, without blocking any input.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/TaskWork.html" title="interface in be.imgn.swing">TaskWork&lt;T&gt;</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/TaskWork.html" title="interface in be.imgn.swing">TaskWork&lt;T&gt;</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">The work of a <a href="be.imgn.swing/be/imgn/swing/Task.html" title="interface in be.imgn.swing"><code>Task</code></a> that uses its <a href="be.imgn.swing/be/imgn/swing/TaskContext.html" title="interface in be.imgn.swing"><code>TaskContext</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/Theme.html" title="enum class in be.imgn.swing.flatlaf">Theme</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="be.imgn.swing.flatlaf/be/imgn/swing/flatlaf/Theme.html" title="enum class in be.imgn.swing.flatlaf">Theme</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
 <div class="block">The theme of FlatLaf, which the <code>be.imgn.swing.theme</code> system property selects, else the <code>theme</code> key of
 the application's resources.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/ToolBarEntry.html" title="interface in be.imgn.swing.ui">ToolBarEntry</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/ToolBarEntry.html" title="interface in be.imgn.swing.ui">ToolBarEntry</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">An entry of a toolbar: a command or a separator.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.html" title="interface in be.imgn.swing.ui">Trigger</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.html" title="interface in be.imgn.swing.ui">Trigger</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">The path that activated a command, with the objects that path always has.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.ButtonClick.html" title="class in be.imgn.swing.ui">Trigger.ButtonClick</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.ButtonClick.html" title="class in be.imgn.swing.ui">Trigger.ButtonClick</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
 <div class="block">A button was clicked.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.MenuSelection.html" title="class in be.imgn.swing.ui">Trigger.MenuSelection</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.MenuSelection.html" title="class in be.imgn.swing.ui">Trigger.MenuSelection</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
 <div class="block">A menu item of the menu bar, or of a menu built with <a href="be.imgn.swing.ui/be/imgn/swing/ui/MenuSpec.html#createMenu()"><code>MenuSpec.createMenu()</code></a>, was selected.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.OperatingSystem.html" title="class in be.imgn.swing.ui">Trigger.OperatingSystem</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.OperatingSystem.html" title="class in be.imgn.swing.ui">Trigger.OperatingSystem</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
 <div class="block">The operating system's application menu ran the command.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Palette.html" title="class in be.imgn.swing.ui">Trigger.Palette</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Palette.html" title="class in be.imgn.swing.ui">Trigger.Palette</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
 <div class="block">The user chose the command in the <a href="be.imgn.swing.ui/be/imgn/swing/ui/CommandPalette.html" title="class in be.imgn.swing.ui"><code>CommandPalette</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.PopupMenuSelection.html" title="class in be.imgn.swing.ui">Trigger.PopupMenuSelection</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.PopupMenuSelection.html" title="class in be.imgn.swing.ui">Trigger.PopupMenuSelection</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
 <div class="block">A menu item of a popup menu was selected.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Programmatic.html" title="class in be.imgn.swing.ui">Trigger.Programmatic</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Programmatic.html" title="class in be.imgn.swing.ui">Trigger.Programmatic</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
 <div class="block">Code ran the command, as with <a href="be.imgn.swing.ui/be/imgn/swing/ui/BoundCommand.html#execute()"><code>BoundCommand.execute()</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Shortcut.html" title="class in be.imgn.swing.ui">Trigger.Shortcut</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Trigger.Shortcut.html" title="class in be.imgn.swing.ui">Trigger.Shortcut</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
 <div class="block">A shortcut was typed.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html" title="class in be.imgn.swing.ui">Ui</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html" title="class in be.imgn.swing.ui">Ui</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">What a view needs to build its components.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/UiExecutor.html" title="interface in be.imgn.swing">UiExecutor</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing/be/imgn/swing/UiExecutor.html" title="interface in be.imgn.swing">UiExecutor</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Runs work on the user-interface thread.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/UndoStack.html" title="class in be.imgn.swing.ui">UndoStack</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.ui/be/imgn/swing/ui/UndoStack.html" title="class in be.imgn.swing.ui">UndoStack</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">The undo stack of a view, a bean of its scope, which the standard <code>undo()</code> and <code>redo()</code> commands act on.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing/be/imgn/swing/Validation.html" title="class in be.imgn.swing">Validation</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing/be/imgn/swing/Validation.html" title="class in be.imgn.swing">Validation</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
 <div class="block">The status of every requirement of a value, met or not, so that a view can show each one and not only the first
 error.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/ValidationFeedback.html" title="interface in be.imgn.swing.ui">ValidationFeedback</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/ValidationFeedback.html" title="interface in be.imgn.swing.ui">ValidationFeedback</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Shows the error of a <a href="be.imgn.swing.ui/be/imgn/swing/ui/Form.html" title="class in be.imgn.swing.ui"><code>Form</code></a>'s binding on its component, on the EDT.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing/be/imgn/swing/Validator.html" title="class in be.imgn.swing">Validator&lt;T&gt;</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="be.imgn.swing/be/imgn/swing/Validator.html" title="class in be.imgn.swing">Validator&lt;T&gt;</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
 <div class="block">The rules of a value, declared once and tested in a form, a command-line tool or a service.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab6"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Variants.html" title="annotation interface in be.imgn.swing.ui">Variants</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab6">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab6"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Variants.html" title="annotation interface in be.imgn.swing.ui">Variants</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab6">
 <div class="block">Marks the enum, nested in a dialog view, whose constants name the variants of that dialog: dialogs of one class that
 differ only by their resources, opened with <a href="be.imgn.swing.ui/be/imgn/swing/ui/Ui.html#showDialog(java.lang.Class,E)"><code>Ui.showDialog(Class, Enum)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/View.html" title="interface in be.imgn.swing.ui">View</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/View.html" title="interface in be.imgn.swing.ui">View</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">A component, with its commands and its scope.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab6"><a href="be.imgn.swing.ui/be/imgn/swing/ui/ViewScoped.html" title="annotation interface in be.imgn.swing.ui">ViewScoped</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab6">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab6"><a href="be.imgn.swing.ui/be/imgn/swing/ui/ViewScoped.html" title="annotation interface in be.imgn.swing.ui">ViewScoped</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab6">
 <div class="block">Scopes a bean to its view: one instance per view, cached in the view's child injector.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html" title="interface in be.imgn.swing.ui">Window</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Window.html" title="interface in be.imgn.swing.ui">Window</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">A window, as the framework sees it: a frame or a dialog, or a bare root pane in the test harness.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Windows.html" title="interface in be.imgn.swing.ui">Windows</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="be.imgn.swing.ui/be/imgn/swing/ui/Windows.html" title="interface in be.imgn.swing.ui">Windows</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Creates the windows.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab6"><a href="be.imgn.swing.ui/be/imgn/swing/ui/WindowScoped.html" title="annotation interface in be.imgn.swing.ui">WindowScoped</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab6">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab6"><a href="be.imgn.swing.ui/be/imgn/swing/ui/WindowScoped.html" title="annotation interface in be.imgn.swing.ui">WindowScoped</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab6">
 <div class="block">Scopes a bean to its window: one instance per window, cached in the window's child injector.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html" title="class in be.imgn.swing.wizard">Wizard</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Shows the content of a dialog view as a sequence of steps, with Previous and Next, each step validated before the
+next: the view injects it, returns what <code>Wizard.steps</code> returns from its <code>content()</code>, or places it, and returns
+what <a href="be.imgn.swing.wizard/be/imgn/swing/wizard/Wizard.html#buttons(be.imgn.swing.ui.StandardCommands)"><code>Wizard.buttons(StandardCommands)</code></a> returns from its <code>buttons</code>.</div>
 </div>
 </div>
 </div>

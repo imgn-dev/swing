@@ -65,6 +65,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#valid()" tabindex="0">valid()</a></li>
 <li><a href="#dirty()" tabindex="0">dirty()</a></li>
 <li><a href="#validate()" tabindex="0">validate()</a></li>
+<li><a href="#validate(java.awt.Component)" tabindex="0">validate(Component)</a></li>
+<li><a href="#revealWith(java.util.function.Consumer)" tabindex="0">revealWith(Consumer)</a></li>
 <li><a href="#markClean()" tabindex="0">markClean()</a></li>
 </ol>
 </li>
@@ -160,23 +162,36 @@ value when it was bound or tracked, or when <a href="#markClean()"><code>markCle
 <div class="block">Makes the current value of every binding's property and of every tracked observable its new baseline.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#track(be.imgn.swing.Observable)" class="member-name-link">track</a><wbr>(<a href="../../../../../be.imgn.swing/be/imgn/swing/Observable.html" title="interface in be.imgn.swing">Observable</a>&lt;?&gt;&nbsp;value)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#revealWith(java.util.function.Consumer)" class="member-name-link">revealWith</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;? super <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Component.html" title="class or interface in java.awt" class="external-link">Component</a>&gt;&nbsp;reveal)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Registers code that makes a component visible before the form focuses it: both <code>validate</code> methods run it on
+the component they focus, in registration order, after selecting the tabs that hold it, and before checking that
+it is visible up to its window's root pane.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#track(be.imgn.swing.Observable)" class="member-name-link">track</a><wbr>(<a href="../../../../../be.imgn.swing/be/imgn/swing/Observable.html" title="interface in be.imgn.swing">Observable</a>&lt;?&gt;&nbsp;value)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Tracks an observable that has no component in the form, such as an observable list edited in a table: the form is
 dirty while its value differs from its value now, or when <a href="#markClean()"><code>markClean()</code></a> was last called.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../../../../../be.imgn.swing/be/imgn/swing/Observable.html" title="interface in be.imgn.swing">Observable</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link">Boolean</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#valid()" class="member-name-link">valid</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../../../../../be.imgn.swing/be/imgn/swing/Observable.html" title="interface in be.imgn.swing">Observable</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link">Boolean</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#valid()" class="member-name-link">valid</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns whether every binding's validation is valid, whether or not its errors are shown.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validate()" class="member-name-link">validate</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validate()" class="member-name-link">validate</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Shows the error of every binding that has one, and moves the focus to the first component with an error, in
 binding order: it first selects the tabs of the <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JTabbedPane.html" title="class or interface in javax.swing" class="external-link"><code>JTabbedPane</code></a>s that hold it and aren't selected, from the
-outermost pane in, then focuses it through its window's <a href="Window.html#focus(java.awt.Component)"><code>Window.focus(Component)</code></a>, unless it still isn't
-showing, such as one on another card of a wizard.</div>
+outermost pane in, then runs the code registered with <a href="#revealWith(java.util.function.Consumer)"><code>revealWith(Consumer)</code></a>, then focuses it through its window's
+<a href="Window.html#focus(java.awt.Component)"><code>Window.focus(Component)</code></a>, unless it still isn't showing, such as one on a card that no reveal code shows.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validate(java.awt.Component)" class="member-name-link">validate</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Component.html" title="class or interface in java.awt" class="external-link">Component</a>&nbsp;within)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Validates the bindings whose component is a component or inside it, as <a href="#validate()"><code>validate()</code></a> validates all of them:
+shows their errors, and moves the focus to the first of them with an error, in binding order.</div>
 </div>
 </div>
 </div>
@@ -354,11 +369,47 @@ value when it was bound or tracked, or when <a href="#markClean()"><code>markCle
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">validate</span>()</div>
 <div class="block">Shows the error of every binding that has one, and moves the focus to the first component with an error, in
 binding order: it first selects the tabs of the <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/swing/JTabbedPane.html" title="class or interface in javax.swing" class="external-link"><code>JTabbedPane</code></a>s that hold it and aren't selected, from the
-outermost pane in, then focuses it through its window's <a href="Window.html#focus(java.awt.Component)"><code>Window.focus(Component)</code></a>, unless it still isn't
-showing, such as one on another card of a wizard.</div>
+outermost pane in, then runs the code registered with <a href="#revealWith(java.util.function.Consumer)"><code>revealWith(Consumer)</code></a>, then focuses it through its window's
+<a href="Window.html#focus(java.awt.Component)"><code>Window.focus(Component)</code></a>, unless it still isn't showing, such as one on a card that no reveal code shows.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>whether the form is valid, <a href="#valid()"><code>valid()</code></a>'s value</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="validate(java.awt.Component)">
+<h3>validate</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">validate</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Component.html" title="class or interface in java.awt" class="external-link">Component</a>&nbsp;within)</span></div>
+<div class="block">Validates the bindings whose component is a component or inside it, as <a href="#validate()"><code>validate()</code></a> validates all of them:
+shows their errors, and moves the focus to the first of them with an error, in binding order. The other bindings
+stay as they are. A wizard validates its shown step so.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>within</code> - the component, such as a wizard's step</dd>
+<dt>Returns:</dt>
+<dd>whether those bindings are valid; <code>true</code>, doing nothing, when no binding's component is within it</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if the component is <code>null</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="revealWith(java.util.function.Consumer)">
+<h3>revealWith</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">revealWith</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;? super <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/java/awt/Component.html" title="class or interface in java.awt" class="external-link">Component</a>&gt;&nbsp;reveal)</span></div>
+<div class="block">Registers code that makes a component visible before the form focuses it: both <code>validate</code> methods run it on
+the component they focus, in registration order, after selecting the tabs that hold it, and before checking that
+it is visible up to its window's root pane. A wizard registers code that shows the step holding the component.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>reveal</code> - the code, run on the EDT</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if the code is <code>null</code></dd>
 </dl>
 </div>
 </section>
