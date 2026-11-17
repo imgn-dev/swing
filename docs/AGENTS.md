@@ -77,7 +77,7 @@ These are the mistakes agents make most often. Each one is a compile error, a fa
 | `swing-testing` | `AppTester`, the headless test harness | `be.imgn.swing.testing` |
 | `swing-processor` | The annotation processor (processor path only) | — |
 
-Java: the framework is compiled for Java 21 and runs on 21 or later.
+Java: the framework is compiled for Java 25 and runs on 25 or later.
 
 ### Maven
 

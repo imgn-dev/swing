@@ -1,6 +1,6 @@
 # swing: vision
 
-swing is a framework for desktop applications in Swing, on Java 21. Its ideas come from two earlier frameworks:
+swing is a framework for desktop applications in Swing, on Java 25. Its ideas come from two earlier frameworks:
 
 - **Guts** (`ogregoire/guts`): Guice-based, with a typed event bus, a window pipeline, tasks with input blocking, and docking.
 - **SwingAppFramework** (`ogregoire/SwingAppFramework`, a JSR-296 successor): property-file-driven resources, live locale switching, and a lifecycle you can extend.

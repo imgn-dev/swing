@@ -46,7 +46,7 @@
   </modules>
 
   <properties>
-    <java.release>21</java.release>
+    <java.release>25</java.release>
 
     <gaia.version>0.1.2</gaia.version>
     <inject.version>0.1.1</inject.version>
@@ -105,64 +105,5 @@
       </plugins>
     </pluginManagement>
   </build>
-
-  <profiles>
-    <!-- Releases are built on JDK 25 or later. On JDK 21, javadoc fails on a
-         module with no public type; every module has one since milestone 1,
-         but JDK 25's javadoc documents such a module too, so an empty module
-         never breaks a release. -->
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-enforcer-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>enforce-release-jdk</id>
-                <phase>validate</phase>
-                <goals>
-                  <goal>enforce</goal>
-                </goals>
-                <configuration>
-                  <rules>
-                    <requireJavaVersion>
-                      <version>[25,)</version>
-                      <message>Build releases on JDK 25 or later: on JDK 21, javadoc fails on modules with no public type.</message>
-                    </requireJavaVersion>
-                  </rules>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <!-- On JDK 21, Error Prone refuses to start without this javac flag, which
-         the parent (written for JDK 25) does not pass. -->
-    <profile>
-      <id>error-prone-on-jdk-21</id>
-      <activation>
-        <jdk>21</jdk>
-      </activation>
-      <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-compiler-plugin</artifactId>
-              <configuration>
-                <compilerArgs combine.children="append">
-                  <arg>-XDaddTypeAnnotationsToSymbol=true</arg>
-                </compilerArgs>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
-    </profile>
-  </profiles>
 
 </project>
